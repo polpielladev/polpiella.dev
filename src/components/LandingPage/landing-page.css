@@ -1,6 +1,12 @@
-import styled from "styled-components";
+.landing-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+}
 
-const ProfilePicture = styled.img`
+.profile-image {
     background-repeat: no-repeat;
     background-position: center;
     background-color: yellow;
@@ -8,6 +14,4 @@ const ProfilePicture = styled.img`
     object-fit: cover;
     height: 300px;
     width: 300px;
-`;
-
-export default ProfilePicture;
+}
