@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import LandingPage from "./components/LandingPage/LandingPage";
+import App from "./components/App";
 import "./global-styles.scss"
 import "./typography.scss"
 
-ReactDOM.render(<LandingPage />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
