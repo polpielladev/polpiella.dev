@@ -1,0 +1,35 @@
+.post-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.blog-post-container {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+
+    h3 {
+        font-weight: bolder;
+        font-size: 23px;
+    }
+
+    .metadata {
+        display: flex;
+        color: darkgray;
+        align-items: center;
+        font-size: 11px;
+
+        > * {
+            margin-right: 6px;
+        }
+    }
+}
+
+.tag {
+    background-color: purple;
+    padding: 0 5px;
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+}
