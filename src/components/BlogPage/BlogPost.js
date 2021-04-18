@@ -6,7 +6,7 @@ import PostTag from "./PostTag";
 const BlogPost = ({ post }) => {
     return (
         <div className="blog-post-container">
-            <Link to={`/blog/${post.sys.id}`}>
+            <Link to={`/blog/${post.fields.slug}`}>
                 <h3>{post.fields.title.toUpperCase()}</h3>
             </Link>
             <div className="tags">

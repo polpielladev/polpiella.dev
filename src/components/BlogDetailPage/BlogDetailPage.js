@@ -1,7 +1,7 @@
 import React from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import "./blog-detail.scss";
-import { MARKS } from "@contentful/rich-text-types";
+import { MARKS, BLOCKS } from "@contentful/rich-text-types";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -10,11 +10,18 @@ const BlogDetailPage = ({ post }) => {
         renderMark: {
             [MARKS.CODE]: (text) => {
                 return (
-                    <SyntaxHighlighter language="swift" style={dracula}>
+                    <SyntaxHighlighter
+                        className="code-block"
+                        language="swift"
+                        style={dracula}
+                    >
                         {text}
                     </SyntaxHighlighter>
                 );
             },
+            [BLOCKS.PARAGRAPH]: (node, children) => (
+                <p style={{ lineHeight: "1.9rem" }}>{children}</p>
+            ),
         },
     };
 

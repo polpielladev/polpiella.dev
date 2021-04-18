@@ -4,11 +4,23 @@
     flex-direction: column;
     align-items: center;
 
-    h1 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
         font-weight: bold;
     }
 
+    .code-block {
+        background: black;
+    }
+
     .body {
+        margin-top: 20px;
+        > * {
+            margin-bottom: 20px;
+        }
         width: 65%;
     }
 }

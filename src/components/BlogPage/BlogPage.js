@@ -59,10 +59,10 @@ const BlogPage = () => {
                 )}
             />
             <Route
-                path="/blog/:id"
+                path="/blog/:slug"
                 render={(props) => {
                     const post = blogPosts.filter(
-                        (post) => post.sys.id == props.match.params.id
+                        (post) => post.fields.slug == props.match.params.slug
                     )[0];
 
                     return <BlogDetailPage post={post} />;
