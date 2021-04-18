@@ -5,20 +5,18 @@ import github from "../../assets/icons/github.svg";
 import twitter from "../../assets/icons/twitter.svg";
 import { Switch, Route } from "react-router-dom";
 import BlogDetailPage from "../BlogDetailPage/BlogDetailPage";
-import { contentfulClient } from "../../models/Contentful";
+import { ghostAPI } from "../../models/Ghost";
 
 const BlogPage = () => {
     const [blogPosts, setBlogPosts] = useState([]);
     const [author, setAuthor] = useState({});
 
     useEffect(() => {
-        contentfulClient.fetchAuthor().then((author) => setAuthor(author));
-        contentfulClient
-            .fetchBlogPosts()
-            .then((entries) => setBlogPosts(entries.items));
+        ghostAPI.getBlogOwnerAuthor().then((author) => setAuthor(author));
+        ghostAPI.getBlogPosts().then((blogs) => setBlogPosts(blogs));
     }, []);
 
-    if (blogPosts.length == 0 || author.fields == undefined) {
+    if (blogPosts.length == 0 || author.name == undefined) {
         return <h1>Loading...</h1>;
     }
 
@@ -31,9 +29,7 @@ const BlogPage = () => {
                     <div className="blog-page-container">
                         <div className="post-list">
                             <div className="blog-intro">
-                                <img
-                                    src={author.fields.image.fields.file.url}
-                                />
+                                <img src={author.profile_image} />
                                 <div className="social-strip">
                                     <a href="">
                                         <img src={twitter} />
@@ -52,7 +48,7 @@ const BlogPage = () => {
                                 </p>
                             </div>
                             {blogPosts.map((post) => (
-                                <BlogPost post={post} key={post.sys.id} />
+                                <BlogPost post={post} key={post.slug} />
                             ))}
                         </div>
                     </div>
@@ -62,7 +58,7 @@ const BlogPage = () => {
                 path="/blog/:slug"
                 render={(props) => {
                     const post = blogPosts.filter(
-                        (post) => post.fields.slug == props.match.params.slug
+                        (post) => post.slug == props.match.params.slug
                     )[0];
 
                     return <BlogDetailPage post={post} />;

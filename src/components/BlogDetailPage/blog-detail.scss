@@ -22,5 +22,11 @@
             margin-bottom: 20px;
         }
         width: 65%;
+
+        .content {
+            > * {
+                margin-bottom: 20px;
+            }
+        }
     }
 }

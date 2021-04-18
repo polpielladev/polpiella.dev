@@ -4,27 +4,29 @@ import "./blog-page.scss";
 import PostTag from "./PostTag";
 
 const BlogPost = ({ post }) => {
+    console.log(post);
+
     return (
         <div className="blog-post-container">
-            <Link to={`/blog/${post.fields.slug}`}>
-                <h3>{post.fields.title.toUpperCase()}</h3>
+            <Link to={`/blog/${post.slug}`}>
+                <h3>{post.title.toUpperCase()}</h3>
             </Link>
             <div className="tags">
-                {post.fields.tags.map((name) => (
-                    <PostTag title={name} key={name} />
+                {post.tags.map((tag) => (
+                    <PostTag title={tag.name} key={tag.name} />
                 ))}
             </div>
-            <p>{post.fields.description}</p>
+            <p>{post.excerpt}</p>
             <div className="metadata">
-                <p>{new Date(post.sys.createdAt).toDateString()}</p>
+                <p>{new Date(post.published_at).toDateString()}</p>
                 <p>-</p>
-                <p>{`📖  ${post.fields.readingTime}`}</p>
+                <p>{`📖  ${post.reading_time} minutes`}</p>
             </div>
             <div className="author-section">
-                <img src={post.fields.author[0].fields.image.fields.file.url} />
+                <img src={post.authors[0].profile_image} />
                 <div className="author-metadata">
                     <p>
-                        WRITTEN BY: <b>{post.fields.author[0].fields.name}</b>
+                        WRITTEN BY: <b>{post.authors[0].name}</b>
                     </p>
                 </div>
             </div>

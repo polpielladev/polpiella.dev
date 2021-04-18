@@ -1,35 +1,18 @@
-import React from "react";
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import React, { useEffect } from "react";
 import "./blog-detail.scss";
-import { MARKS, BLOCKS } from "@contentful/rich-text-types";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import Prism from "prismjs";
 
 const BlogDetailPage = ({ post }) => {
-    const options = {
-        renderMark: {
-            [MARKS.CODE]: (text) => {
-                return (
-                    <SyntaxHighlighter
-                        className="code-block"
-                        language="swift"
-                        style={dracula}
-                    >
-                        {text}
-                    </SyntaxHighlighter>
-                );
-            },
-            [BLOCKS.PARAGRAPH]: (node, children) => (
-                <p style={{ lineHeight: "1.9rem" }}>{children}</p>
-            ),
-        },
-    };
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        Prism.highlightAll();
+    }, []);
 
     return (
         <div className="blog-detail-container">
             <div className="body">
-                <h1>{post.fields.title}</h1>
-                {documentToReactComponents(post.fields.body, options)}
+                <h1>{post.title}</h1>
+                <div dangerouslySetInnerHTML={{ __html: post.html }} />
             </div>
         </div>
     );

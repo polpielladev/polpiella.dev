@@ -21,21 +21,20 @@
     },
     "homepage": "https://github.com/pol-piella/portfolio-web#readme",
     "dependencies": {
-        "@contentful/rich-text-react-renderer": "^14.1.3",
-        "@contentful/rich-text-types": "^14.1.2",
         "@mdi/js": "^5.9.55",
         "@mdi/react": "^1.5.0",
-        "contentful": "^8.2.1",
+        "@tryghost/content-api": "^1.5.4",
+        "prismjs": "^1.23.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-router-dom": "^5.2.0",
-        "react-syntax-highlighter": "^15.4.3"
+        "react-router-dom": "^5.2.0"
     },
     "devDependencies": {
         "@babel/core": "^7.13.13",
         "@babel/preset-env": "^7.13.12",
         "@babel/preset-react": "^7.13.13",
         "babel-loader": "^8.2.2",
+        "babel-plugin-prismjs": "^2.0.1",
         "css-loader": "^5.2.0",
         "dotenv": "^8.2.0",
         "dotenv-webpack": "^7.0.2",
