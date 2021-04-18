@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import "./blog-page.scss";
 
 const PostTag = ({ title }) => (

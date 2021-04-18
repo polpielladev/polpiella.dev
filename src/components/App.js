@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { HashRouter } from "react-router-dom";
 import BlogPage from "./BlogPage/BlogPage";
 
 const App = () => {
@@ -6,7 +7,9 @@ const App = () => {
 
     return (
         <div className={`app ${darkMode ? "dark-mode" : ""}`}>
-            <BlogPage />
+            <HashRouter>
+                <BlogPage />
+            </HashRouter>
         </div>
     );
 };
