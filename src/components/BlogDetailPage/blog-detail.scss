@@ -4,6 +4,25 @@
     flex-direction: column;
     align-items: center;
 
+    .scroll-indicator {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: 100%;
+        height: 10px;
+
+        div {
+            background: purple;
+            height: 100%;
+        }
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+    }
+
     h1,
     h2,
     h3,
@@ -12,18 +31,36 @@
         font-weight: bold;
     }
 
+    li {
+        margin-bottom: 10px;
+    }
+
     .code-block {
         background: black;
     }
 
     .body {
-        margin-top: 20px;
-        > * {
-            margin-bottom: 20px;
+        h1 {
+            margin-bottom: 5px;
         }
+
+        .tags {
+            display: flex;
+            font-size: 11px;
+            margin-bottom: 20px;
+            > * {
+                margin-right: 5px;
+            }
+        }
+
+        @media screen and (max-width: 690px) {
+            width: 85%;
+        }
+
+        margin-top: 20px;
         width: 65%;
 
-        .content {
+        .ghost-content {
             > * {
                 margin-bottom: 20px;
             }

@@ -31,10 +31,10 @@ const BlogPage = () => {
                             <div className="blog-intro">
                                 <img src={author.profile_image} />
                                 <div className="social-strip">
-                                    <a href="">
+                                    <a href="https://twitter.com/itspolpiella">
                                         <img src={twitter} />
                                     </a>
-                                    <a href="">
+                                    <a href="https://github.com/pol-piella">
                                         <img src={github} />
                                     </a>
                                 </div>
@@ -55,7 +55,7 @@ const BlogPage = () => {
                 )}
             />
             <Route
-                path="/blog/:slug"
+                path="/:slug"
                 render={(props) => {
                     const post = blogPosts.filter(
                         (post) => post.slug == props.match.params.slug

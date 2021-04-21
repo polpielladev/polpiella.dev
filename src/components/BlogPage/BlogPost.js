@@ -8,7 +8,7 @@ const BlogPost = ({ post }) => {
 
     return (
         <div className="blog-post-container">
-            <Link to={`/blog/${post.slug}`}>
+            <Link to={`/${post.slug}`}>
                 <h3>{post.title.toUpperCase()}</h3>
             </Link>
             <div className="tags">
