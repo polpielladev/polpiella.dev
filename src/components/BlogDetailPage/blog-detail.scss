@@ -44,6 +44,23 @@
             margin-bottom: 5px;
         }
 
+        a {
+            font-weight: bold;
+            text-decoration: underline;
+            color: #cb92fc;
+        }
+
+        blockquote {
+            padding: 20px;
+            border-radius: 10px;
+            border-color: purple;
+            border-width: 3px;
+            font-style: italic;
+            border-style: solid;
+            background-color: #272c42;
+            color: rgba($color: white, $alpha: 0.9);
+        }
+
         .tags {
             display: flex;
             font-size: 11px;
