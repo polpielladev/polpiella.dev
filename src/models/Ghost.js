@@ -7,9 +7,9 @@ class Ghost {
 
     setup() {
         this.api = new GhostContentAPI({
-            url: process.env.GHOST_API_HOST,
-            key: process.env.GHOST_API_KEY,
-            version: process.env.GHOST_API_VERSION,
+            url: process.env.REACT_APP_GHOST_API_HOST,
+            key: process.env.REACT_APP_GHOST_API_KEY,
+            version: "v3",
         });
     }
 
