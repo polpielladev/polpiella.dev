@@ -7,8 +7,8 @@ class Ghost {
 
     setup() {
         this.api = new GhostContentAPI({
-            url: `${process.env.GHOST_API_HOST}`,
-            key: `${process.env.GHOST_API_KEY}`,
+            url: process.env.GHOST_API_HOST,
+            key: process.env.GHOST_API_KEY,
             version: "v3",
         });
     }
