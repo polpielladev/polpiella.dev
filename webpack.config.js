@@ -38,7 +38,12 @@ module.exports = (_, argv) => {
             new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, "src", "index.html"),
             }),
-            new EnvironmentPlugin(["GHOST_API_HOST", "GHOST_API_KEY"]),
+            new DefinePlugin({
+                "process.env": {
+                    GHOST_API_HOST: process.env.GHOST_API_HOST,
+                    GHOST_API_KEY: process.env.GHOST_API_KEY,
+                },
+            }),
         ],
     };
 };
