@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 const { env } = require("process");
+const { DefinePlugin } = require("webpack");
 
 module.exports = (_, argv) => {
     return {
@@ -39,7 +40,12 @@ module.exports = (_, argv) => {
             new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, "src", "index.html"),
             }),
-            new Dotenv({ path: `./.env.${argv.mode}` }),
+            new DefinePlugin({
+                "process.env": {
+                    GHOST_API_HOST: process.env.GHOST_API_HOST,
+                    GHOST_API_KEY: process.env.GHOST_API_KEY,
+                },
+            }),
         ],
     };
 };
