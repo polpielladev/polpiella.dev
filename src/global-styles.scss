@@ -1,29 +1,28 @@
-html, body {
+html,
+body {
     height: 100vh;
+    background: #282c35;
+}
+
+* {
     margin: 0;
     padding: 0;
 }
 
-.app {
-    height: 100%;
+a {
+    text-decoration: none;
+    color: white;
 }
 
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: center;
-    text-justify: auto;
-    padding: 0 20px;
+.app {
+    height: 100vh;
+}
 
-    h1 {
-        font-weight: 800;
-        font-style: normal;
-        // letter-spacing: -0.03em;
-        text-align: center;
-        font-size: 35px;
-        background-color: white;
-        height: 100%;
-        margin: auto 0;
-    }
+.app.dark-mode {
+    color: white;
+}
+
+.home-button {
+    font-weight: bold;
+    padding: 20px;
 }
