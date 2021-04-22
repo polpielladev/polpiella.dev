@@ -17,7 +17,7 @@ const BlogPage = () => {
     }, []);
 
     if (blogPosts.length == 0 || author.name == undefined) {
-        return <h1>Loading...</h1>;
+        return <div></div>;
     }
 
     return (

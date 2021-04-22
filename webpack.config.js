@@ -1,6 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { DefinePlugin } = require("webpack");
+const { DefinePlugin, EnvironmentPlugin } = require("webpack");
 
 module.exports = (_, argv) => {
     return {
@@ -38,12 +38,7 @@ module.exports = (_, argv) => {
             new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, "src", "index.html"),
             }),
-            new DefinePlugin({
-                "process.env": {
-                    GHOST_API_HOST: process.env.GHOST_API_HOST,
-                    GHOST_API_KEY: process.env.GHOST_API_KEY,
-                },
-            }),
+            new EnvironmentPlugin(["GHOST_API_HOST", "GHOST_API_KEY"]),
         ],
     };
 };
