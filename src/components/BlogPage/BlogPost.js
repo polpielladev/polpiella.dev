@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import AuthorSection from "../AuthorSection/AuthorSection";
 import "./blog-page.scss";
 import PostTag from "./PostTag";
 
@@ -19,14 +20,7 @@ const BlogPost = ({ post }) => (
             <p>-</p>
             <p>{`📖  ${post.reading_time} minutes`}</p>
         </div>
-        <div className="author-section">
-            <img src={post.authors[0].profile_image} />
-            <div className="author-metadata">
-                <p>
-                    WRITTEN BY: <b>{post.authors[0].name}</b>
-                </p>
-            </div>
-        </div>
+        <AuthorSection author={post.authors[0]} />
     </div>
 );
 

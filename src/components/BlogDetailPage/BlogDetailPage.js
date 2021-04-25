@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./blog-detail.scss";
 import Prism from "prismjs";
 import PostTag from "../BlogPage/PostTag";
+import AuthorSection from "../AuthorSection/AuthorSection";
 
 const BlogDetailPage = ({ post }) => {
     const [scrollPercentage, setScrollPercentage] = useState(0);
@@ -30,11 +31,14 @@ const BlogDetailPage = ({ post }) => {
                 <div style={{ width: `${scrollPercentage}%` }} />
             </div>
             <div className="body">
-                <h1>{post.title}</h1>
-                <div className="tags">
-                    {post.tags.map((tag) => (
-                        <PostTag title={tag.name} key={tag.name} />
-                    ))}
+                <div className="blog-heading">
+                    <h1>{post.title}</h1>
+                    <div className="tags">
+                        {post.tags.map((tag) => (
+                            <PostTag title={tag.name} key={tag.name} />
+                        ))}
+                    </div>
+                    <AuthorSection author={post.authors[0]} />
                 </div>
                 <div
                     className="ghost-content"

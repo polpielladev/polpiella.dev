@@ -3,6 +3,7 @@
         width: 85%;
     }
     width: 60%;
+    padding-bottom: 20px;
 }
 
 .blog-intro {
@@ -12,7 +13,7 @@
     justify-content: center;
     margin-top: 20px;
     text-align: center;
-    margin-bottom: 80px;
+    margin-bottom: 60px;
 
     p {
         width: 70%;
@@ -43,6 +44,7 @@
     line-height: unset;
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
 
     > * {
         margin-bottom: 5px;
@@ -71,28 +73,12 @@
             margin-right: 5px;
         }
     }
-
-    .author-section {
-        display: flex;
-        align-items: center;
-        justify-content: start;
-
-        img {
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .author-metadata {
-            font-size: 11px;
-        }
-    }
 }
 
 .tag {
-    background-color: purple;
+    background: #3a3b3c;
     padding: 0 5px;
     border-radius: 4px;
     text-align: center;
-    color: white;
+    color: #faabd3;
 }
