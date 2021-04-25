@@ -1,0 +1,15 @@
+.author-section {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+
+    img {
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .author-metadata {
+        font-size: 11px;
+    }
+}
