@@ -1,4 +1,5 @@
 const path = require("path");
+const EmojiFaviconPlugin = require("emoji-favicon-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { DefinePlugin } = require("webpack");
 
@@ -38,6 +39,7 @@ module.exports = (_, argv) => {
             new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, "src", "index.html"),
             }),
+            new EmojiFaviconPlugin("🎙"),
             new DefinePlugin({
                 "process.env": {
                     GHOST_API_HOST: process.env.GHOST_API_HOST,
