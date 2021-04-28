@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./blog-detail.scss";
 import Prism from "prismjs";
+import "prismjs/components/prism-swift";
 import "./code-theme.scss";
 import PostTag from "../BlogPage/PostTag";
 import AuthorSection from "../AuthorSection/AuthorSection";
