@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import BlogPost from "./BlogPost";
 import "./blog-page.scss";
 import { Switch, Route } from "react-router-dom";
 import BlogDetailPage from "../BlogDetailPage/BlogDetailPage";
 import { ghostAPI } from "../../models/Ghost";
 import { Follow } from "react-twitter-widgets";
+import BlogList from "./BlogList/BlogList";
 
 const BlogPage = () => {
     const [blogPosts, setBlogPosts] = useState([]);
@@ -39,9 +39,7 @@ const BlogPage = () => {
                                     about software development in general.
                                 </p>
                             </div>
-                            {blogPosts.map((post) => (
-                                <BlogPost post={post} key={post.slug} />
-                            ))}
+                            <BlogList posts={blogPosts} />
                         </div>
                     </div>
                 )}

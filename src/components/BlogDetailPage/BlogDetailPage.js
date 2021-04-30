@@ -3,8 +3,8 @@ import "./blog-detail.scss";
 import Prism from "prismjs";
 import "prismjs/components/prism-swift";
 import "./code-theme.scss";
-import PostTag from "../BlogPage/PostTag";
 import AuthorSection from "./AuthorSection/AuthorSection";
+import ContentTag from "../ContentTag/ContentTag";
 
 const BlogDetailPage = ({ post }) => {
     const [scrollPercentage, setScrollPercentage] = useState(0);
@@ -37,7 +37,7 @@ const BlogDetailPage = ({ post }) => {
                     <h1>{post.title}</h1>
                     <div className="tags">
                         {post.tags.map((tag) => (
-                            <PostTag title={tag.name} key={tag.name} />
+                            <ContentTag title={tag.name} key={tag.name} />
                         ))}
                     </div>
                     <AuthorSection author={post.authors[0]} followButton />

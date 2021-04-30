@@ -1,10 +1,10 @@
 import React from "react";
-import "./blog-page.scss";
+import "./content-tag.scss";
 
-const PostTag = ({ title }) => (
+const ContentTag = ({ title }) => (
     <div className="tag">
         <p>{title}</p>
     </div>
 );
 
-export default PostTag;
+export default ContentTag;

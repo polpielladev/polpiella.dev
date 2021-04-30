@@ -40,41 +40,6 @@
     justify-content: center;
 }
 
-.blog-post-container {
-    line-height: unset;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-
-    > * {
-        margin-bottom: 5px;
-    }
-
-    h3 {
-        font-weight: bolder;
-        font-size: 23px;
-    }
-
-    .metadata {
-        display: flex;
-        color: darkgray;
-        align-items: center;
-        font-size: 11px;
-
-        > * {
-            margin-right: 6px;
-        }
-    }
-
-    .tags {
-        display: flex;
-        font-size: 11px;
-        > * {
-            margin-right: 5px;
-        }
-    }
-}
-
 .tag {
     background: #3a3b3c;
     padding: 0 5px;
