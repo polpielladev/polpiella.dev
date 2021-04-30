@@ -75,12 +75,12 @@
             }
         }
 
-        @media screen and (max-width: 690px) {
+        @media screen and (max-width: 810px) {
             width: 85%;
         }
 
         margin-top: 20px;
-        width: 65%;
+        max-width: 750px;
 
         .ghost-content {
             img {

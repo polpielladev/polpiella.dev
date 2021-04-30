@@ -1,8 +1,8 @@
 .post-list {
-    @media screen and (max-width: 690px) {
+    @media screen and (max-width: 810px) {
         width: 85%;
     }
-    width: 60%;
+    max-width: 700px;
     padding-bottom: 20px;
 }
 
