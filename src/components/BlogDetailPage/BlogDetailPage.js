@@ -5,6 +5,7 @@ import "prismjs/components/prism-swift";
 import "./code-theme.scss";
 import ContentTag from "../ContentTag/ContentTag";
 import AuthorSection from "../AuthorSection/AuthorSection";
+import PostMetadata from "../PostMetadata/PostMetadata";
 
 const BlogDetailPage = ({ post }) => {
     useEffect(() => {
@@ -27,6 +28,7 @@ const BlogDetailPage = ({ post }) => {
                         ))}
                     </div>
                     <AuthorSection author={post.authors[0]} followButton />
+                    <PostMetadata post={post} />
                 </div>
                 <div
                     className="ghost-content"

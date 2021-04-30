@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AuthorSection from "../../../AuthorSection/AuthorSection";
 import ContentTag from "../../../ContentTag/ContentTag";
+import PostMetadata from "../../../PostMetadata/PostMetadata";
 import "./blog-list-item.scss";
 
 const BlogListItem = ({ post }) => (
@@ -19,11 +20,7 @@ const BlogListItem = ({ post }) => (
             ))}
         </div>
         <p>{post.excerpt}</p>
-        <div className="metadata">
-            <p>{new Date(post.published_at).toDateString()}</p>
-            <p>-</p>
-            <p>{`📖  ${post.reading_time} minutes`}</p>
-        </div>
+        <PostMetadata post={post} />
         <AuthorSection author={post.authors[0]} />
     </div>
 );
