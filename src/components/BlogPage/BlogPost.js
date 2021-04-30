@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import AuthorSection from "../AuthorSection/AuthorSection";
+import AuthorSection from "../BlogDetailPage/AuthorSection/AuthorSection";
 import "./blog-page.scss";
 import PostTag from "./PostTag";
 

@@ -4,7 +4,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-swift";
 import "./code-theme.scss";
 import PostTag from "../BlogPage/PostTag";
-import AuthorSection from "../AuthorSection/AuthorSection";
+import AuthorSection from "./AuthorSection/AuthorSection";
 
 const BlogDetailPage = ({ post }) => {
     const [scrollPercentage, setScrollPercentage] = useState(0);
@@ -40,7 +40,7 @@ const BlogDetailPage = ({ post }) => {
                             <PostTag title={tag.name} key={tag.name} />
                         ))}
                     </div>
-                    <AuthorSection author={post.authors[0]} />
+                    <AuthorSection author={post.authors[0]} followButton />
                 </div>
                 <div
                     className="ghost-content"

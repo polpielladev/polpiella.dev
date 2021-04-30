@@ -4,12 +4,15 @@
     justify-content: start;
 
     img {
-        height: 30px;
+        height: 40px;
         border-radius: 50%;
         margin-right: 10px;
     }
 
     .author-metadata {
         font-size: 11px;
+        > * {
+            margin-bottom: 2px;
+        }
     }
 }

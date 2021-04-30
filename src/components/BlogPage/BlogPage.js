@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import BlogPost from "./BlogPost";
 import "./blog-page.scss";
-import github from "../../assets/icons/github.svg";
-import twitter from "../../assets/icons/twitter.svg";
 import { Switch, Route } from "react-router-dom";
 import BlogDetailPage from "../BlogDetailPage/BlogDetailPage";
 import { ghostAPI } from "../../models/Ghost";
+import { Follow } from "react-twitter-widgets";
 
 const BlogPage = () => {
     const [blogPosts, setBlogPosts] = useState([]);
@@ -30,14 +29,7 @@ const BlogPage = () => {
                         <div className="post-list">
                             <div className="blog-intro">
                                 <img src={author.profile_image} />
-                                <div className="social-strip">
-                                    <a href="https://twitter.com/itspolpiella">
-                                        <img src={twitter} />
-                                    </a>
-                                    <a href="https://github.com/pol-piella">
-                                        <img src={github} />
-                                    </a>
-                                </div>
+                                <Follow username="polcodes" />
                                 <h1>
                                     <b>Hi! I'm Pol</b> 👋
                                 </h1>
