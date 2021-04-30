@@ -42,7 +42,6 @@
         a {
             font-weight: bold;
             text-decoration: underline;
-            color: #faabd3;
         }
 
         .blog-heading {
@@ -54,12 +53,12 @@
         }
 
         blockquote {
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            border-color: purple;
-            border-width: 3px;
-            font-style: italic;
+            border-color: lightgray;
+            border-width: 2px;
             border-style: solid;
+            font-size: 14px;
             background-color: #272c42;
             color: rgba($color: white, $alpha: 0.9);
         }
@@ -68,7 +67,6 @@
             background: #3a3b3c;
             padding: 2px 3px;
             border-radius: 3px;
-            color: #faabd3;
         }
 
         .tags {

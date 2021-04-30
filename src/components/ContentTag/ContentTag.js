@@ -1,8 +1,8 @@
 import React from "react";
 import "./content-tag.scss";
 
-const ContentTag = ({ title }) => (
-    <div className="tag">
+const ContentTag = ({ title, color }) => (
+    <div className="tag" style={{ background: color }}>
         <p>{title}</p>
     </div>
 );

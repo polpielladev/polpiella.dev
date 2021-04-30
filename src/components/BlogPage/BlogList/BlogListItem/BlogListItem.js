@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import AuthorSection from "../../../BlogDetailPage/AuthorSection/AuthorSection";
+import AuthorSection from "../../../AuthorSection/AuthorSection";
 import ContentTag from "../../../ContentTag/ContentTag";
 import "./blog-list-item.scss";
 
@@ -11,7 +11,11 @@ const BlogListItem = ({ post }) => (
         </Link>
         <div className="tags">
             {post.tags.map((tag) => (
-                <ContentTag title={tag.name} key={tag.name} />
+                <ContentTag
+                    title={tag.name}
+                    color={tag.accent_color}
+                    key={tag.name}
+                />
             ))}
         </div>
         <p>{post.excerpt}</p>
