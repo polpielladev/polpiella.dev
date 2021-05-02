@@ -1,11 +1,10 @@
 {
-    "name": "learn-starter",
+    "name": "portfolio-website",
     "version": "0.1.0",
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
-        "start": "next start"
+        "build": "next build"
     },
     "dependencies": {
         "@material-ui/icons": "^4.11.2",
