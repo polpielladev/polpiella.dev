@@ -1,7 +1,7 @@
-.author-section {
+.authorSection {
     display: flex;
     align-items: center;
-    justify-content: start;
+    justify-content: flex-start;
 
     img {
         height: 40px;
@@ -9,7 +9,7 @@
         margin-right: 10px;
     }
 
-    .author-metadata {
+    .authorMetadata {
         font-size: 11px;
         > * {
             margin-bottom: 2px;

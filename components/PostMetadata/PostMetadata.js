@@ -1,8 +1,7 @@
-import React from "react";
-import "./post-metadata.scss";
+import styles from "./PostMetadata.module.scss";
 
 const PostMetadata = ({ post }) => (
-    <div className="metadata">
+    <div className={styles.metadata}>
         <p>{new Date(post.published_at).toDateString()}</p>
         <p>-</p>
         <p>{`📖  ${post.reading_time} minutes`}</p>

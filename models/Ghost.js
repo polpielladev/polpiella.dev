@@ -7,8 +7,8 @@ class Ghost {
 
     setup() {
         this.api = new GhostContentAPI({
-            url: process.env.GHOST_API_HOST,
-            key: process.env.GHOST_API_KEY,
+            url: process.env.NEXT_PUBLIC_GHOST_API_HOST,
+            key: process.env.NEXT_PUBLIC_GHOST_API_KEY,
             version: "v3",
         });
     }
@@ -19,6 +19,10 @@ class Ghost {
 
     getBlogPosts() {
         return this.api.posts.browse({ include: "tags,authors" });
+    }
+
+    getBlogPost(slug) {
+        return this.api.posts.read({ slug: slug }, { include: "tags,authors" });
     }
 }
 
