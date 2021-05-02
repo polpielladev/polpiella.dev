@@ -7,7 +7,6 @@ import Prism from "prismjs";
 import { useEffect } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
-import HomeIcon from "@material-ui/icons/Home";
 import Link from "next/link";
 
 export async function getStaticPaths() {
@@ -49,7 +48,11 @@ export default function BlogDetailPage({ post }) {
             <div className={styles.body}>
                 <Link href="/">
                     <a>
-                        <HomeIcon className={styles.homeButton} />
+                        <img
+                            className={styles.homeButton}
+                            src="/icons/home.svg"
+                            alt="home"
+                        />
                     </a>
                 </Link>
                 <div className={styles.blogHeading}>
