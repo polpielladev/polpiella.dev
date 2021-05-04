@@ -3,8 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
-        "build": "next build"
+        "dev": "npm run open-browser && next dev",
+        "build": "next build",
+        "open-browser": "open http://localhost:3000"
     },
     "dependencies": {
         "@tryghost/content-api": "^1.5.4",
