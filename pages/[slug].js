@@ -7,7 +7,6 @@ import Prism from "prismjs";
 import { useEffect } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
-import Link from "next/link";
 
 export async function getStaticPaths() {
     const posts = await ghostAPI.getBlogPosts();
@@ -46,15 +45,6 @@ export default function BlogDetailPage({ post }) {
                 <title>{post.title}</title>
             </Head>
             <div className={styles.body}>
-                <Link href="/">
-                    <a>
-                        <img
-                            className={styles.homeButton}
-                            src="/icons/home.svg"
-                            alt="home"
-                        />
-                    </a>
-                </Link>
                 <div className={styles.blogHeading}>
                     <h1>{post.title}</h1>
                     <div className={styles.tags}>
