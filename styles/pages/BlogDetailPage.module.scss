@@ -4,15 +4,6 @@
     flex-direction: column;
     align-items: center;
 
-    .homeButton {
-        background: #575656;
-        padding: 5px;
-        align-self: flex-start;
-        justify-self: flex-start;
-        border-radius: 10px;
-        margin-top: 20px;
-    }
-
     h1 {
         word-wrap: break-word;
     }
@@ -34,6 +25,8 @@
     }
 
     .body {
+        width: 100%;
+
         a {
             font-weight: bold;
             text-decoration: underline;
@@ -47,21 +40,11 @@
             margin-bottom: 20px;
         }
 
-        blockquote {
-            padding: 15px;
-            border-radius: 10px;
-            border-color: lightgray;
-            border-width: 2px;
-            border-style: solid;
-            font-size: 14px;
-            background-color: #272c42;
-            color: rgba($color: white, $alpha: 0.9);
-        }
-
         :not(pre) > code {
             background: #3a3b3c;
-            padding: 2px 3px;
+            padding: 3px 6px;
             border-radius: 3px;
+            color: white;
         }
 
         .tags {
@@ -72,12 +55,7 @@
             }
         }
 
-        @media screen and (max-width: 810px) {
-            width: 85%;
-        }
-
         margin-top: 20px;
-        max-width: 750px;
 
         .ghostContent {
             img {

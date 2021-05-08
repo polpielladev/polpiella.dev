@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { Fragment } from "react";
 import { Follow } from "react-twitter-widgets";
 import BlogList from "../components/BlogList/BlogList";
 import { ghostAPI } from "../models/Ghost";
@@ -18,7 +19,7 @@ export async function getStaticProps() {
 
 export default function BlogPage({ posts, author }) {
     return (
-        <div className="container">
+        <Fragment>
             <Head>
                 <title>Pol Piella Codes</title>
             </Head>
@@ -39,6 +40,6 @@ export default function BlogPage({ posts, author }) {
                     <BlogList posts={posts} />
                 </div>
             </div>
-        </div>
+        </Fragment>
     );
 }

@@ -1,9 +1,13 @@
 .postList {
-    @media screen and (max-width: 810px) {
-        width: 85%;
-    }
-    max-width: 700px;
     padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.darkModeToggle {
+    align-self: flex-end;
+    background: gray;
 }
 
 .blogIntro {
