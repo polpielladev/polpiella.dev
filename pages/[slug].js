@@ -8,23 +8,7 @@ import { useEffect } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
 
-export async function getStaticPaths() {
-    const posts = await ghostAPI.getBlogPosts();
-    const paths = posts.map((post) => {
-        return {
-            params: {
-                slug: post.slug,
-            },
-        };
-    });
-
-    return {
-        paths,
-        fallback: false,
-    };
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
     const post = await ghostAPI.getBlogPost(params.slug);
 
     return {
