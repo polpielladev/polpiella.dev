@@ -42,6 +42,11 @@ export default function BlogDetailPage({ post }) {
     return (
         <div className={styles.blogDetailContainer}>
             <Head>
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@polcodes" />
+                <meta name="twitter:title" content={post.title} />
+                <meta name="twitter:description" content={post.excerpt} />
+                <meta name="twitter:image" content={post.feature_image} />
                 <title>{post.title}</title>
             </Head>
             <div className={styles.body}>
