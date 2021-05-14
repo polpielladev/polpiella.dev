@@ -1,11 +1,11 @@
 import Head from "next/head";
 import { Fragment } from "react";
 import { Follow } from "react-twitter-widgets";
-import BlogList from "../components/BlogList/BlogList";
+import BlogList from "../components/BlogList";
 import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogPage.module.scss";
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
     const author = await ghostAPI.getBlogOwnerAuthor();
     const posts = await ghostAPI.getBlogPosts();
 

@@ -1,6 +1,6 @@
-import AuthorSection from "../components/AuthorSection/AuthorSection";
-import ContentTag from "../components/ContentTag/ContentTag";
-import PostMetadata from "../components/PostMetadata/PostMetadata";
+import AuthorSection from "../components/AuthorSection";
+import ContentTag from "../components/ContentTag";
+import PostMetadata from "../components/PostMetadata";
 import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogDetailPage.module.scss";
 import Prism from "prismjs";
