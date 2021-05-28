@@ -24,7 +24,6 @@ export default function BlogDetailPage({ post }) {
         Prism.highlightAll();
     }, []);
 
-    console.log(post.primary_author);
     return (
         <div className={styles.blogDetailContainer}>
             <Head>
