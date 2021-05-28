@@ -1,19 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 
-export const lightTheme = {
-    body: "#FFF",
-    text: "#363537",
-    quoteBorder: "#272c42",
-    quoteBackground: "whitesmoke",
-};
-
-export const darkTheme = {
-    body: "#282c35",
-    text: "white",
-    quoteBorder: "lightgray",
-    quoteBackground: "#272c42",
-};
-
 export const GlobalStyles = createGlobalStyle`
     html,
     body {
