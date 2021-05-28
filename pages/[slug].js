@@ -7,6 +7,7 @@ import Prism from "prismjs";
 import { useEffect } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
+import TwitterButton from "../components/TwitterButton";
 
 export async function getServerSideProps({ params }) {
     const post = await ghostAPI.getBlogPost(params.slug);
@@ -23,6 +24,7 @@ export default function BlogDetailPage({ post }) {
         Prism.highlightAll();
     }, []);
 
+    console.log(post.primary_author);
     return (
         <div className={styles.blogDetailContainer}>
             <Head>
@@ -51,6 +53,12 @@ export default function BlogDetailPage({ post }) {
                 <div
                     className={styles.ghostContent}
                     dangerouslySetInnerHTML={{ __html: post.html }}
+                />
+                <TwitterButton
+                    link={`https://twitter.com/intent/tweet?via=${post.primary_author.twitter.replace(
+                        "@",
+                        ""
+                    )}&text=${post.title}&url=${window.location.href}`}
                 />
             </div>
         </div>
