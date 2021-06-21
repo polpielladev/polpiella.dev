@@ -4,7 +4,7 @@ import PostMetadata from "../components/PostMetadata";
 import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogDetailPage.module.scss";
 import Prism from "prismjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
 import TwitterButton from "../components/TwitterButton";
@@ -20,7 +20,10 @@ export async function getServerSideProps({ params }) {
 }
 
 export default function BlogDetailPage({ post }) {
+    const [href, setHref] = useState("");
+
     useEffect(() => {
+        setHref(window.location.href);
         Prism.highlightAll();
     }, []);
 
@@ -57,7 +60,7 @@ export default function BlogDetailPage({ post }) {
                     link={`https://twitter.com/intent/tweet?via=${post.primary_author.twitter.replace(
                         "@",
                         ""
-                    )}&text=${post.title}&url=${window.location.href}`}
+                    )}&text=${post.title}&url=${href}`}
                 />
             </div>
         </div>
