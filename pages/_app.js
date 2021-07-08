@@ -42,7 +42,7 @@ export default function App({ Component, pageProps }) {
                                 <img
                                     className="home-button"
                                     src="/icons/home.svg"
-                                    alt="home"
+                                    alt="home button"
                                 />
                             </a>
                         </Link>

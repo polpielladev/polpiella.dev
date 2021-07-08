@@ -26,7 +26,7 @@ export default function BlogPage({ posts, author }) {
             <div className={styles.blogPageContainer}>
                 <div className={styles.postList}>
                     <div className={styles.blogIntro}>
-                        <img src={author.profile_image} />
+                        <img src={author.profile_image} alt="author profile picture" />
                         <Follow username="polcodes" />
                         <h1>
                             <b>Hi! I'm Pol</b> 👋
