@@ -57,6 +57,7 @@ export default function BlogDetailPage({ post }) {
                             <ContentTag
                                 title={tag.name}
                                 color={tag.accent_color}
+                                slug={tag.slug}
                                 key={tag.name}
                             />
                         ))}

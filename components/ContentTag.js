@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Link from "next/link";
 
 const Tag = styled.div`
     padding: 0 5px;
@@ -8,9 +9,11 @@ const Tag = styled.div`
     color: white;
 `;
 
-const ContentTag = ({ title, color }) => (
+const ContentTag = ({ title, color, slug }) => (
     <Tag color={color}>
-        <p>{title}</p>
+        <Link href={`/category/${slug}`}>
+            <a>{title}</a>
+        </Link>
     </Tag>
 );
 

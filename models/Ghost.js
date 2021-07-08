@@ -24,6 +24,18 @@ class Ghost {
     getBlogPost(slug) {
         return this.api.posts.read({ slug: slug }, { include: "tags,authors" });
     }
+
+    getBlogPostsForTag(slug) {
+        return this.api.posts.browse({ filter: `tag:${slug}`, include: "tags,authors" });
+    }
+
+    getTags() {
+        return this.api.tags.browse();
+    }
+
+    getTag(slug) {
+        return this.api.tags.read({ slug: slug });
+    }
 }
 
 export const ghostAPI = (() => new Ghost())();
