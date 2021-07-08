@@ -9,6 +9,9 @@ const BlogPostContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
+    padding: 20px;
+    background: ${({ theme }) => theme.code.background};
+    border-radius: 15px;
 
     & > * {
         margin-bottom: 5px;

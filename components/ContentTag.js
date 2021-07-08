@@ -9,10 +9,15 @@ const Tag = styled.div`
     color: white;
 `;
 
+const ContentTagLink = styled.a`
+    color: white;
+    cursor: pointer;
+`
+
 const ContentTag = ({ title, color, slug }) => (
     <Tag color={color}>
         <Link href={`/category/${slug}`}>
-            <a>{title}</a>
+            <ContentTagLink>{title}</ContentTagLink>
         </Link>
     </Tag>
 );
