@@ -6,6 +6,7 @@ import DarkModeToggle from "react-dark-mode-toggle";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CodeThemeStyle } from "../styles/global/CodeThemeConfig";
 import "prismjs/themes/prism-tomorrow.css";
 import { darkTheme } from "../styles/global/Themes/DarkTheme";
 import { lightTheme } from "../styles/global/Themes/LightTheme";
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }) {
 
     return (
         <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+            <CodeThemeStyle />
             <GlobalStyles />
             <div className="container">
                 <Head>
