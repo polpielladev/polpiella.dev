@@ -3,6 +3,7 @@ import ContentTag from "./ContentTag";
 import PostMetadata from "./PostMetadata";
 import Link from "next/link";
 import styled from "styled-components";
+import profile from "../public/assets/profile.png";
 
 const BlogPostContainer = styled.div`
     line-height: unset;
@@ -50,6 +51,7 @@ const BlogListItem = ({ post }) => (
         </Tags>
         <p>{post.excerpt}</p>
         <PostMetadata post={post} />
+        <AuthorSection name={post.author.name} image={profile} />
     </BlogPostContainer>
 );
 
