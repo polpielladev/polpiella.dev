@@ -2,7 +2,6 @@ import Head from "next/head";
 import { Fragment } from "react";
 import { Follow } from "react-twitter-widgets";
 import BlogList from "../components/BlogList";
-import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogPage.module.scss";
 import { getAllPosts } from "../models/API";
 import profileImage from "../public/assets/profile.png"
@@ -15,7 +14,7 @@ export async function getStaticProps() {
     }
   }
 
-export default function BlogPage({ posts, author }) {
+export default function BlogPage({ posts }) {
     return (
         <Fragment>
             <Head>

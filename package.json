@@ -8,7 +8,6 @@
         "open-browser": "open http://localhost:3000"
     },
     "dependencies": {
-        "@tryghost/content-api": "^1.5.4",
         "gray-matter": "^4.0.3",
         "lodash": "^4.17.21",
         "next": "^10.0.0",

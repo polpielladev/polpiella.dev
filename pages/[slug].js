@@ -1,23 +1,17 @@
-import AuthorSection from "../components/AuthorSection";
 import ContentTag from "../components/ContentTag";
 import PostMetadata from "../components/PostMetadata";
-import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogDetailPage.module.scss";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
-import TwitterButton from "../components/TwitterButton";
 import { getPostSlugs, getPostBySlug } from "../models/API";
 import markdownToHtml from "../models/MarkdownToHTML";
+import TwitterButton from '../components/TwitterButton';
 
 export async function getStaticProps({ params }) {
     const post = getPostBySlug(params.slug);
-    console.log(post);
-    console.log(post.content);
     const content = await markdownToHtml(post.content || '');
-
-    console.log(content);
 
     return {
         props: {
@@ -72,19 +66,15 @@ export default function BlogDetailPage({ post }) {
                             />
                         ))}
                     </div>
-                    {/* <AuthorSection author={post.author} followButton /> */}
                     <PostMetadata post={post} />
                 </div>
                 <div
                     className={styles.ghostContent}
                     dangerouslySetInnerHTML={{ __html: post.content }}
                 />
-                {/* <TwitterButton
-                    link={`https://twitter.com/intent/tweet?via=${post.author.twitter.replace(
-                        "@",
-                        ""
-                    )}&text=${post.title}&url=${href}`}
-                /> */}
+                <TwitterButton
+                    link={`https://twitter.com/intent/tweet?via=polcodes&text=${post.title}&url=${href}`}
+                />
             </div>
         </div>
     );
