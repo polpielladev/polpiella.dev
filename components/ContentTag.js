@@ -5,7 +5,7 @@ const Tag = styled.div`
     padding: 0 5px;
     border-radius: 4px;
     text-align: center;
-    background: ${(props) => props.color};
+    background: slategray;
     color: white;
 `;
 
@@ -14,8 +14,8 @@ const ContentTagLink = styled.a`
     cursor: pointer;
 `
 
-const ContentTag = ({ title, color, slug }) => (
-    <Tag color={color}>
+const ContentTag = ({ title, slug }) => (
+    <Tag>
         <Link href={`/category/${slug}`}>
             <ContentTagLink>{title}</ContentTagLink>
         </Link>

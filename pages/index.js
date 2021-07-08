@@ -4,18 +4,16 @@ import { Follow } from "react-twitter-widgets";
 import BlogList from "../components/BlogList";
 import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogPage.module.scss";
+import { getAllPosts } from "../models/API";
+import profileImage from "../public/assets/profile.png"
 
 export async function getStaticProps() {
-    const author = await ghostAPI.getBlogOwnerAuthor();
-    const posts = await ghostAPI.getBlogPosts();
-
+    const posts = getAllPosts();
+  
     return {
-        props: {
-            posts,
-            author,
-        },
-    };
-}
+      props: { posts },
+    }
+  }
 
 export default function BlogPage({ posts, author }) {
     return (
@@ -26,7 +24,7 @@ export default function BlogPage({ posts, author }) {
             <div className={styles.blogPageContainer}>
                 <div className={styles.postList}>
                     <div className={styles.blogIntro}>
-                        <img src={author.profile_image} />
+                        <img src={profileImage} />
                         <Follow username="polcodes" />
                         <h1>
                             <b>Hi! I'm Pol</b> 👋

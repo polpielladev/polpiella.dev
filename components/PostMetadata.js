@@ -13,9 +13,9 @@ const Metadata = styled.div`
 
 const PostMetadata = ({ post }) => (
     <Metadata>
-        <p>{new Date(post.published_at).toDateString()}</p>
+        <p>{new Date(post.date).toDateString()}</p>
         <p>-</p>
-        <p>{`📖  ${post.reading_time} minutes`}</p>
+        <p>{`📖  ${post.readtime} minutes`}</p>
     </Metadata>
 );
 

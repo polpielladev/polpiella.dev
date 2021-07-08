@@ -43,7 +43,6 @@ const BlogListItem = ({ post }) => (
             {post.tags.map((tag) => (
                 <ContentTag
                     title={tag.name}
-                    color={tag.accent_color}
                     slug={tag.slug}
                     key={tag.name}
                 />
@@ -51,7 +50,6 @@ const BlogListItem = ({ post }) => (
         </Tags>
         <p>{post.excerpt}</p>
         <PostMetadata post={post} />
-        <AuthorSection author={post.authors[0]} />
     </BlogPostContainer>
 );
 

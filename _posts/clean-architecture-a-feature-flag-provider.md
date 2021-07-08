@@ -1,0 +1,151 @@
+---
+title: 'Clean Architecture: A Feature Flag Manager'
+excerpt: 'Building a Feature Flag Manager system using clean architecture and SOLID design principles.'
+date: '2021-05-14T15:54:39.000Z'
+readtime: '10'
+tags: [{ name: 'Architecture', slug: 'architecture' }, { name: 'Swift', slug: 'swift' }]
+author:
+  name: 'Pol Piella'
+---
+
+In this blog post we will be looking at how to build a Feature Flag Manager in a clean, scalable and reusable way using clean architecture and **SOLID** design principles.
+
+> This blog post was inspired by [John Sundell's post on how to make an Analytics service](https://www.swiftbysundell.com/articles/building-an-enum-based-analytics-system-in-swift/) and [Essential Developer's playlist on Clean Architecture](https://youtube.com/playlist?list=PLyjgjmI1UzlSWtjAMPOt03L7InkCRlGzb). I run through how I would go about implementing a Feature Flag Manager system that allows you to turn certain features in your app on or off.
+
+## Requirements
+
+Your company is growing very quickly and, as it does, a bunch of new features are getting tested and rolled out every week. A great part of this process will involve experimentation and A/B testing to make sure that the content and features you are deploying are providing the right value to your users. When you start refining the work ready to be picked up, you get the following requirements:
+
+- Flags will come from multiple providers that your company is currently trialling. Some will come from your in-house experimentation BE service, some others will come from Firebase and others will come from LaunchDarkly.
+- Flags will be used in multiple screens throughout a bunch of different features (you can think of these as different modules).
+- As you are supporting a wide number of providers, the experimentation values you get back might be very different. Hence, you should make your abstraction very generic and only constrain it to `Decodable` types.
+- The current user must be passed to the providers as they are using attributes to determine which variation to serve when a flag is evaluated. This only needs to be done 
+- The first flags will be used in the **Settings **and **Feed** modules, which are two of the most worked on screens in our app and we need to test a lot of hypothesis there.
+
+## Architecture
+
+Now that the requirements are clear, it's time to think about **how** we're going to implement it. The step of going away and drawing a diagram is very important as it sets the foundation for the system you will be working on and allows you to start coding with a very clear idea in mind. I tend to use `draw.io` to come up with UML diagrams that explain the whole system in as much detail as I can.
+
+I like to do this step side-by-side with an `XCode` playground open so that I can, at the same time, put in practice some of the things I have come up with and see what improvements I can make. In the next few sections I will walk you through what the layers for our system will look like.
+
+### Providers and Manager
+
+The first layer that we want to implement will consist of every single provider that holds and retrieves feature flags. These SDKs or BE services can come in many different shapes and forms but the concepts, as we explained in the requirements will be the same. Also, it is worth noting that these SDKs will have a bunch of other methods that we don't really care about, and we want to only expose what is needed by the modules that require the Feature Flag module as a dependency. There are a couple of **SOLID** principles here that we need to keep in mind when designing this layer:
+
+- **Interface Segregation: **What this basically means is that the clients (our Settings and Feed modules) should only depend on what they stricly need. So, from these clients, we only want to make a call to get a variation, so that should literally be our only dependency.
+- **Dependency Inversion: **This means that clients should depend on abstractions (e.g. protocols) and not in concretions (e.g. classes). This will be a problem if we depend directly on the providers themselves, as it will break this SOLID principle.
+
+How can we solve this? **Abstraction!** In Swift, it is particularly easy to abstract types, as we can simply create a protocol and make each of our providers conform to it.
+
+```swift
+protocol FeatureFlagManager {
+    func variation<T: FeatureFlag>(for flag: T) -> T.T
+}
+
+protocol FeatureFlag {
+    associatedtype T: Decodable
+    
+    var key: String { get }
+    var defaultValue: T { get }
+}
+```
+
+Here we go! We now extend all of our providers to conform to this protocol and, since all of them take different types, we can pass in our own custom `FeatureFlag` abstract implementation that can then be made concrete on our FE modules.
+
+### User Authentication
+
+As mentioned in our requirements section, and because the providers will return values based on user attributes, we need to pass the `User` object to the providers. Now, how can we do this? The first instinct would be to add a method to the `FeatureFlagManager` called `setUser` that we can then extend each provider with, but that approach would not be the most suitable one? Why? Let's revisit some SOLID principles again:
+
+- **Single Responsibility: **By adding the capability to set the user to the `FeatureFlagManager` protocol, we have now broken the single responsibility principle. Our class now has two reasons to change/two responsibilities: one to fetch feature flags and one to set the current user.
+- **Interface Segregation: **Doing what we just said will also mean that we will break the interface segregation principle that we mentioned above, as now every client that depends on the `FeatureFlagManager` will have to provide concrete implementation of both `setUser` and `variation` even if they only need one of them!
+
+Thankfully, and as it is usually the case, the answer is very simple. We just need to create another abstraction that our providers can extend:
+
+```swift
+protocol FeatureFlagUserAuthenticator {
+    setUser(_ user: User?)
+}
+
+struct User {
+    let id: String
+    let countryCode: String
+    let segments: [String]
+}
+```    
+
+### Client Implementation
+
+The last requirement we need to implement is to integrate this abstraction as a dependency to all our modules and write concrete implementations of the `FeatureFlag` abstractions for the variations we want get. For this, I opted to have a struct per module only containing the flags that the module needs. Let's look at Settings as an example:
+
+```swift
+struct SettingsFeatureFlag<T: Decodable>: FeatureFlag {
+    let key: String
+    let defaultValue: T
+    
+    static func newProfile() -> SettingsFeatureFlag<Bool> {
+        SettingsFeatureFlag<Bool>(key: "new-user-profile",
+                                    defaultValue: false)
+    }
+    
+    static func updatedSettingsUI() -> SettingsFeatureFlag<Bool> {
+        SettingsFeatureFlag<Bool>(key: "updated-settings-ui",
+                                    defaultValue: false)
+    }
+    
+    static func enabledCountries() -> SettingsFeatureFlag<[String]> {
+        SettingsFeatureFlag<[String]>(key: "settings-content",
+                                        defaultValue: ["es", "en"])
+    }
+}
+```
+
+In order to do this, we just need to use dependency injection in our modules and make them depend on the `FeatureFlagManager` or `FeatureFlagUserAuthenticator` depending on their needs. 
+
+For example, the settings and feed modules only need to get variations, so they will only have to depend on `FeatureFlagManager` while our Login an Registration modules will need to only depend on `FeatureFlagUserAuthenticator`:
+
+```swift
+// MARK: - SettingViewModel
+
+class SettingsViewModel {
+    let featureFlagManager: FeatureFlagManager
+    
+    init(featureFlagManager: FeatureFlagManager) {
+        self.featureFlagManager = featureFlagManager
+    }
+    
+    func getEnabledCountries() -> [String] {
+        featureFlagManager
+            .variation(for: SettingsFeatureFlag<[String]>.enabledCountries())
+    }
+}
+
+// MARK: - LoginViewModel
+
+class LoginViewModel {
+    let featureFlagUserAuthenticator: FeatureFlagUserAuthenticator
+    
+    init(featureFlagUserAuthenticator: FeatureFlagUserAuthenticator) {
+        self.featureFlagUserAuthenticator = featureFlagUserAuthenticator
+    }
+    
+    func userDidLogIn(_ user: User) {
+        featureFlagUserAuthenticator.setUser(user)
+    }
+    
+    func userDidLogOut() {
+        featureFlagUserAuthenticator.setUser(nil)
+    }
+}
+```
+
+## A final overview
+
+Finally, I wanted to share the UML diagram where it all started 😅. I find that diagrams are particularly useful when it comes to software design and architecture and let you see a lot clearly what you're trying to achieve.
+![Finished architecture UML diagram showing our Feature Flag system.](__GHOST_URL__/content/images/2021/05/ABTestingArchitecture.png)
+As we can see in the image above, our modules don't know the concrete implementation of the providers, which can easily be replaced and our design is compliant with SOLID principles.
+
+## Next Steps
+
+There is still some functionality missing such as tracking events as we need a way of letting our tracking provider know of how many conversions we're having on each particular feature flag. I will write a follow-up article but how would you go about implementing that? Where you would add the functionality? 
+
+**Happy Coding!**

@@ -8,21 +8,31 @@ import { useEffect, useState } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
 import TwitterButton from "../components/TwitterButton";
+import { getPostSlugs, getPostBySlug } from "../models/API";
+import markdownToHtml from "../models/MarkdownToHTML";
 
 export async function getStaticProps({ params }) {
-    const post = await ghostAPI.getBlogPost(params.slug);
+    const post = getPostBySlug(params.slug);
+    console.log(post);
+    console.log(post.content);
+    const content = await markdownToHtml(post.content || '');
+
+    console.log(content);
 
     return {
         props: {
-            post,
+            post: {
+                ...post,
+                content
+            }
         },
     };
 }
 
 export async function getStaticPaths({ params }) {
-    const posts = await ghostAPI.getBlogPosts();
-    const paths = posts.map((post) => ({
-        params: { slug: post.slug },
+    const slugs = getPostSlugs();
+    const paths = slugs.map((slug) => ({
+        params: { slug: slug },
     }))
     
     return {
@@ -62,19 +72,19 @@ export default function BlogDetailPage({ post }) {
                             />
                         ))}
                     </div>
-                    <AuthorSection author={post.primary_author} followButton />
+                    {/* <AuthorSection author={post.author} followButton /> */}
                     <PostMetadata post={post} />
                 </div>
                 <div
                     className={styles.ghostContent}
-                    dangerouslySetInnerHTML={{ __html: post.html }}
+                    dangerouslySetInnerHTML={{ __html: post.content }}
                 />
-                <TwitterButton
-                    link={`https://twitter.com/intent/tweet?via=${post.primary_author.twitter.replace(
+                {/* <TwitterButton
+                    link={`https://twitter.com/intent/tweet?via=${post.author.twitter.replace(
                         "@",
                         ""
                     )}&text=${post.title}&url=${href}`}
-                />
+                /> */}
             </div>
         </div>
     );
