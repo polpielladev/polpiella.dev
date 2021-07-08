@@ -9,7 +9,7 @@ import "prismjs/components/prism-swift";
 import Head from "next/head";
 import TwitterButton from "../components/TwitterButton";
 
-export async function getServerSideProps({ params }) {
+export async function getStaticProps({ params }) {
     const post = await ghostAPI.getBlogPost(params.slug);
 
     return {
@@ -17,6 +17,18 @@ export async function getServerSideProps({ params }) {
             post,
         },
     };
+}
+
+export async function getStaticPaths({ params }) {
+    const posts = await ghostAPI.getBlogPosts();
+    const paths = posts.map((post) => ({
+        params: { slug: post.slug },
+    }))
+    
+    return {
+        paths,
+        fallback: false
+    }
 }
 
 export default function BlogDetailPage({ post }) {

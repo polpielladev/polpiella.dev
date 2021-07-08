@@ -5,7 +5,7 @@ import BlogList from "../components/BlogList";
 import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogPage.module.scss";
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
     const author = await ghostAPI.getBlogOwnerAuthor();
     const posts = await ghostAPI.getBlogPosts();
 
