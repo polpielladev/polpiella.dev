@@ -1,10 +1,11 @@
-import { ghostAPI } from "../../models/Ghost";
 import BlogList from "../../components/BlogList";
 import styled from "styled-components";
+import { getBlogPostsForTag, getAllTags, getTagForSlug } from '../../models/API';
+import Head from "next/head";
 
 export async function getStaticProps({ params }) {
-    const tag = await ghostAPI.getTag(params.slug);
-    const posts = await ghostAPI.getBlogPostsForTag(params.slug);
+    const tag = getTagForSlug(params.slug);
+    const posts = getBlogPostsForTag(params.slug);
 
     return {
         props: {
@@ -15,8 +16,7 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths({ params }) {
-    const tags = await ghostAPI.getTags();
-    const paths = tags.map((tag) => ({ params: { slug: tag.slug }, }))
+    const paths = getAllTags().map((tag) => ({ params: { slug: tag.slug }, }));
     
     return {
         paths,
@@ -32,6 +32,9 @@ const HeaderSection = styled.div`
 export default function CategoryPage({ tag, posts }) {
     return (
         <div>
+            <Head>
+                <title>{tag.name}</title>
+            </Head>
             <HeaderSection>
                 <h1>{tag.name}</h1>
                 <p>

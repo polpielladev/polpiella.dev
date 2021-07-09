@@ -1,28 +1,32 @@
-import AuthorSection from "../components/AuthorSection";
 import ContentTag from "../components/ContentTag";
 import PostMetadata from "../components/PostMetadata";
-import { ghostAPI } from "../models/Ghost";
 import styles from "../styles/pages/BlogDetailPage.module.scss";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
-import TwitterButton from "../components/TwitterButton";
+import { getPostSlugs, getPostBySlug } from "../models/API";
+import markdownToHtml from "../models/MarkdownToHTML";
+import TwitterButton from '../components/TwitterButton';
 
 export async function getStaticProps({ params }) {
-    const post = await ghostAPI.getBlogPost(params.slug);
+    const post = getPostBySlug(params.slug);
+    const content = await markdownToHtml(post.content || '');
 
     return {
         props: {
-            post,
+            post: {
+                ...post,
+                content
+            }
         },
     };
 }
 
 export async function getStaticPaths({ params }) {
-    const posts = await ghostAPI.getBlogPosts();
-    const paths = posts.map((post) => ({
-        params: { slug: post.slug },
+    const slugs = getPostSlugs();
+    const paths = slugs.map((slug) => ({
+        params: { slug: slug },
     }))
     
     return {
@@ -62,18 +66,14 @@ export default function BlogDetailPage({ post }) {
                             />
                         ))}
                     </div>
-                    <AuthorSection author={post.primary_author} followButton />
                     <PostMetadata post={post} />
                 </div>
                 <div
                     className={styles.ghostContent}
-                    dangerouslySetInnerHTML={{ __html: post.html }}
+                    dangerouslySetInnerHTML={{ __html: post.content }}
                 />
                 <TwitterButton
-                    link={`https://twitter.com/intent/tweet?via=${post.primary_author.twitter.replace(
-                        "@",
-                        ""
-                    )}&text=${post.title}&url=${href}`}
+                    link={`https://twitter.com/intent/tweet?via=polcodes&text=${post.title}&url=${href}`}
                 />
             </div>
         </div>

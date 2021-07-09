@@ -21,12 +21,12 @@ const AuthorMetadata = styled.div`
     }
 `;
 
-const AuthorSection = ({ author, followButton }) => (
+const AuthorSection = ({ image, name, followButton }) => (
     <AuthorSectionContainer>
-        <img src={author.profile_image} />
+        <img src={image} alt="author profile picture" />
         <AuthorMetadata>
             <p>
-                Written by: <b>{author.name}</b>
+                Written by: <b>{name}</b>
             </p>
             {followButton && <Follow username="polcodes" />}
         </AuthorMetadata>
