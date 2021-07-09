@@ -5,7 +5,7 @@ const Tag = styled.div`
     padding: 0 5px;
     border-radius: 4px;
     text-align: center;
-    background: slategray;
+    background: purple;
     color: white;
 `;
 

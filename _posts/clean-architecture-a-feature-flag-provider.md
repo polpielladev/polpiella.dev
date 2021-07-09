@@ -141,7 +141,7 @@ class LoginViewModel {
 ## A final overview
 
 Finally, I wanted to share the UML diagram where it all started 😅. I find that diagrams are particularly useful when it comes to software design and architecture and let you see a lot clearly what you're trying to achieve.
-![Finished architecture UML diagram showing our Feature Flag system.](__GHOST_URL__/content/images/2021/05/ABTestingArchitecture.png)
+![Finished architecture UML diagram showing our Feature Flag system.](assets/posts/clean-architecture-a-feature-flag-provider/ab-testing-architecture.png)
 As we can see in the image above, our modules don't know the concrete implementation of the providers, which can easily be replaced and our design is compliant with SOLID principles.
 
 ## Next Steps
