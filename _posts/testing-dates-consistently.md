@@ -1,11 +1,16 @@
 ---
-title: 'Testing dates consistently'
-excerpt: 'A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example.'
-date: '2021-07-02T16:18:26.000Z'
-readtime: '8'
-tags: [{ name: 'Unit Tests', slug: 'unit-tests' }, { name: 'Dependency Injection', slug: 'dependency-injection' }, { name: 'Swift', slug: 'swift' }]
+title: "Testing dates consistently"
+excerpt: "A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example."
+date: "2021-07-02T16:18:26.000Z"
+readtime: "6"
+tags:
+    [
+        { name: "Unit Tests", slug: "unit-tests" },
+        { name: "Dependency Injection", slug: "dependency-injection" },
+        { name: "Swift", slug: "swift" },
+    ]
 author:
-  name: 'Pol Piella'
+    name: "Pol Piella"
 ---
 
 When writing code, it is a common scenario to have to deal with dates and perform arithmetic operations with them. Some common use cases include cache invalidation, session tracking, showing live data and formatting dates for display among many others.
@@ -21,7 +26,7 @@ struct LocalPostsLoadService {
     let cache: CacheStore
     let decoder: JSONDecoder
     let calendar: Calendar
-    
+
     init(cache: CacheStore,
             decoder: JSONDecoder = .init(),
             calendar: Calendar = .init(identifier: .gregorian)) {
@@ -29,13 +34,13 @@ struct LocalPostsLoadService {
         self.decoder = decoder
         self.calendar = calendar
     }
-    
+
     func retrieveCache() -> [Post] {
         let (timestamp, data) = cache.retrievePosts()
         guard let posts = try? decoder.decode([Post].self, from: data) else { return [] }
         return isCacheValid(timestamp, Date()) ? posts : []
     }
-    
+
     private func isCacheValid(_ timestamp: Date, _ currentDate: Date) -> Bool {
         guard let oldestValidDate = calendar.date(byAdding: .day, value: 2, to: timestamp) else { return false }
         return currentDate <= oldestValidDate
@@ -59,7 +64,7 @@ struct LocalPostsLoadService {
     let currentDate: () -> Date
     let decoder: JSONDecoder
     let calendar: Calendar
-    
+
     init(cache: CacheStore,
             currentDate: @escaping () -> Date = Date.init,
             decoder: JSONDecoder = .init(),
@@ -69,13 +74,13 @@ struct LocalPostsLoadService {
         self.decoder = decoder
         self.calendar = calendar
     }
-    
+
     func retrieveCache() -> [Post] {
         let (timestamp, data) = cache.retrievePosts()
         guard let posts = try? decoder.decode([Post].self, from: data) else { return [] }
         return isCacheValid(timestamp, currentDate()) ? posts : []
     }
-    
+
     private func isCacheValid(_ timestamp: Date, _ currentDate: Date) -> Bool {
         guard let oldestValidDate = calendar.date(byAdding: .day, value: 2, to: timestamp) else { return false }
         return currentDate <= oldestValidDate
@@ -92,9 +97,9 @@ In order to validate that our cache invalidation code works as expected, we need
 ```swift
 class MockCacheStore: CacheStore {
     var postsDataToReturn: (Date, Data)?
-    
+
     func retrievePosts() -> (Date, Data) {
-        guard let data = postsDataToReturn else { 
+        guard let data = postsDataToReturn else {
             fatalError("This must be implemented!")
         }
         return data
@@ -108,37 +113,37 @@ Now that we have a way of returning data from the cache store, we can proceed to
 class DateBlogPostsTests: XCTestCase {
     func test_retrieveCache_returnsContentWhenDataIsNotStale() {
         let sut = makeSUT(addingNumberOfDays: .zero)
-        
+
         let posts = sut.retrieveCache()
-        
+
         XCTAssertFalse(posts.isEmpty)
     }
-    
+
     func test_retrieveCache_returnsPostsArrayDataIs2DaysOld() {
         let sut = makeSUT(addingNumberOfDays: 2)
-        
+
         let posts = sut.retrieveCache()
-        
+
         XCTAssertFalse(posts.isEmpty)
     }
-    
+
     func test_retrieveCache_retturnsEmptyPostsArrayWhenDataIsOver2DaysOld() {
         let sut = makeSUT(addingNumberOfDays: 3)
-        
+
         let posts = sut.retrieveCache()
 
         XCTAssertTrue(posts.isEmpty)
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func makeSUT(timestamp: Date = Date(), addingNumberOfDays days: Int, posts: [Post] = [Post()]) -> LocalPostsLoadService {
         let currentTime = futureDate(addingNumberOfDays: days, toDate: timestamp)!
         let cache = MockCacheStore()
         cache.postsDataToReturn = (timestamp, try! JSONEncoder().encode(posts))
         return LocalPostsLoadService(cache: cache) { currentTime }
     }
-    
+
     private func futureDate(addingNumberOfDays days: Int, toDate date: Date) -> Date? {
         let calendar = Calendar(identifier: .gregorian)
         return calendar.date(byAdding: .day, value: days, to: date)
@@ -146,6 +151,6 @@ class DateBlogPostsTests: XCTestCase {
 }
 ```
 
-As we can see in the code block above, we can use the `calendar` API to essentially *travel in time* to any time in the future and test that scenario, something that was not possible in our previous iteration of the production code. It is also worth notice that this is highly recommendable when testing small time differences as, while one might be inclined to put an expectation or sleep in the test, this increases flakiness and unreliability in a simple assertion that can more consistently be achieved by very simple dependency injection.
+As we can see in the code block above, we can use the `calendar` API to essentially _travel in time_ to any time in the future and test that scenario, something that was not possible in our previous iteration of the production code. It is also worth notice that this is highly recommendable when testing small time differences as, while one might be inclined to put an expectation or sleep in the test, this increases flakiness and unreliability in a simple assertion that can more consistently be achieved by very simple dependency injection.
 
 It is also worth mentioning that we have guarded the tests from potential implementation changes by creating a small factory method called `makeSUT` which returns the system under test.

@@ -1,22 +1,22 @@
 ---
-title: 'Using .switchToLatest()'
-excerpt: 'In this post, we are going to talk about an operator that I have been using quite a lot recently and, in my opinion, is one of the most powerful within the Combine API.'
-date: '2021-04-28T05:35:07.322Z'
-readtime: '5'
-tags: [{ name: 'Combine', slug: 'combine' }, { name: 'Swift', slug: 'swift' }]
+title: "Using .switchToLatest()"
+excerpt: "In this post, we are going to talk about an operator that I have been using quite a lot recently and, in my opinion, is one of the most powerful within the Combine API."
+date: "2021-04-28T05:35:07.322Z"
+readtime: "5"
+tags: [{ name: "Combine", slug: "combine" }, { name: "Swift", slug: "swift" }]
 author:
-  name: 'Pol Piella'
+    name: "Pol Piella"
 ---
 
 When Apple introduced [Combine](https://developer.apple.com/documentation/combine) in WWDC 2019, an Apple Functional Reactive Programming (FRP) framework, they also introduced a bunch of functional operators too. In this post, we're going to talk about an operator that I have been using quite a lot recently and, in my opinion, is one of the most powerful within the `Combine` API.
 
-> Note that this post assumes that you already have some experience with Functional Reactive Programming and Combine. If you would like to learn more, check out this [awesome article by John Sundell on Combine](https://www.swiftbysundell.com/basics/combine/). 
+> Note that this post assumes that you already have some experience with Functional Reactive Programming and Combine. If you would like to learn more, check out this [awesome article by John Sundell on Combine](https://www.swiftbysundell.com/basics/combine/).
 
 ## The Problem
 
-To demonstrate how to use the `switchToLatest` operator we're going to look at an example using the publishers that are already built-in in the `NotificationCenter` API. 
+To demonstrate how to use the `switchToLatest` operator we're going to look at an example using the publishers that are already built-in in the `NotificationCenter` API.
 
-The functionality we want to build is to fetch some data from our BE service or our 3rd-party API every time a user has logged in. In order to achieve this and as we need to trigger this in a few places in our app, we're going to use a custom notification as the trigger. 
+The functionality we want to build is to fetch some data from our BE service or our 3rd-party API every time a user has logged in. In order to achieve this and as we need to trigger this in a few places in our app, we're going to use a custom notification as the trigger.
 
 ### The network request publisher
 
@@ -57,15 +57,15 @@ NotificationCenter
 Now that we have seen how to trigger the request from a notification, let's explain what's happening in the snippet above:
 
 1. We create a `publisher` with a `Notification.Name`. This is what will determine which notifications we react to and which we don't.
-2. We use the `flatMap` operator to replace the publisher with our request publisher. We use the information from the `Notification` provided by the upstream publisher to pass the user id to the `getNewUserProfile` method. 
+2. We use the `flatMap` operator to replace the publisher with our request publisher. We use the information from the `Notification` provided by the upstream publisher to pass the user id to the `getNewUserProfile` method.
 3. We assign the property reutrned by the request publisher to a property in our class called `user`.
 4. Finally, we store the resulting `Cancellable` in a set. This is similar to `RxSwift`'s `DisposeBag`.
 
-Just like that, we have all the logic we need. Now, every time we trigger the notifcation using the `post` method in `NotificationCentre`, a new network request will be triggered and a new `User` object will be received by the subscriber. 
+Just like that, we have all the logic we need. Now, every time we trigger the notifcation using the `post` method in `NotificationCentre`, a new network request will be triggered and a new `User` object will be received by the subscriber.
 
-All of this is great, but what happens if multiple notifications happen in a short space of time? Will that trigger a lot of unnecessary requests that will never be cancelled even if there is a more recent one? The answer to all these questions is **yes**, and if the upstream logic is expensive, then your app performance will be badly affected. 
+All of this is great, but what happens if multiple notifications happen in a short space of time? Will that trigger a lot of unnecessary requests that will never be cancelled even if there is a more recent one? The answer to all these questions is **yes**, and if the upstream logic is expensive, then your app performance will be badly affected.
 
-## Using `switchToLatest` instead 
+## Using `switchToLatest` instead
 
 Luckily for us, we have an operator that can take care of all the cancelling operations for us. In the example we are looking at in this blog, we only care about the latest request and we want any previous lingering requests that have not been fulfilled to be cancelled and the resources to be freed up. Let's look at the example from the previous section, but this time using `switchToLatest` instead:
 
@@ -83,7 +83,7 @@ NotificationCenter
 
 Let's look at how specifically the snippet above works:
 
-1. Because of the nature of `switchToLatest`, we use `map` here to convert the stream to a publisher of publishers type, so that further down the stream, they can be switched as new values come in. 
+1. Because of the nature of `switchToLatest`, we use `map` here to convert the stream to a publisher of publishers type, so that further down the stream, they can be switched as new values come in.
 2. Using `switchToLatest` means that we can switch publishers on the fly, cancelling all previous subscriptions and switching to the latest publisher. The importance of this is notable as if a notification is received before the previous request has ended, this will be cancelled and only the new one will be processed.
 
 Just like that we have built an efficient stream that reacts to notifications and requests data only when needed and cancelling all unnecessary requests!
