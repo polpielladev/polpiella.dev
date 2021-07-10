@@ -42,11 +42,7 @@ const BlogListItem = ({ post }) => (
         </Link>
         <Tags>
             {post.tags.map((tag) => (
-                <ContentTag
-                    title={tag.name}
-                    slug={tag.slug}
-                    key={tag.name}
-                />
+                <ContentTag title={tag.name} slug={tag.slug} key={tag.name} />
             ))}
         </Tags>
         <p>{post.excerpt}</p>

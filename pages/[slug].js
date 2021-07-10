@@ -7,18 +7,18 @@ import "prismjs/components/prism-swift";
 import Head from "next/head";
 import { getPostSlugs, getPostBySlug } from "../models/API";
 import markdownToHtml from "../models/MarkdownToHTML";
-import TwitterButton from '../components/TwitterButton';
+import TwitterButton from "../components/TwitterButton";
 
 export async function getStaticProps({ params }) {
     const post = getPostBySlug(params.slug);
-    const content = await markdownToHtml(post.content || '');
+    const content = await markdownToHtml(post.content || "");
 
     return {
         props: {
             post: {
                 ...post,
-                content
-            }
+                content,
+            },
         },
     };
 }
@@ -27,12 +27,12 @@ export async function getStaticPaths({ params }) {
     const slugs = getPostSlugs();
     const paths = slugs.map((slug) => ({
         params: { slug: slug },
-    }))
-    
+    }));
+
     return {
         paths,
-        fallback: false
-    }
+        fallback: false,
+    };
 }
 
 export default function BlogDetailPage({ post }) {

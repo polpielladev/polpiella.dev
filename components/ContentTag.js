@@ -12,7 +12,7 @@ const Tag = styled.div`
 const ContentTagLink = styled.a`
     color: white;
     cursor: pointer;
-`
+`;
 
 const ContentTag = ({ title, slug }) => (
     <Tag>
