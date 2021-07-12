@@ -34,6 +34,12 @@ export default function App({ Component, pageProps }) {
             <div className="container">
                 <Head>
                     <link rel="icon" href="/favicon.ico" />
+                    <link
+                        rel="alternate"
+                        type="application/rss+xml"
+                        title="RSS feed of my website's latest posts"
+                        href="https://polpiella.codes/rss.xml"
+                    />
                 </Head>
                 <div className="app">
                     <Header>

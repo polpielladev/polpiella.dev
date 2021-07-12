@@ -5,9 +5,13 @@ import BlogList from "../components/BlogList";
 import styles from "../styles/pages/BlogPage.module.scss";
 import { getAllPosts } from "../models/API";
 import profileImage from "../public/assets/profile.png";
+import generateRSSFeed from "../services/generateRSSFeed";
+import fs from "fs";
 
 export async function getStaticProps() {
     const posts = getAllPosts();
+    const rssFeed = generateRSSFeed(posts);
+    fs.writeFileSync("./public/rss.xml", rssFeed);
 
     return {
         props: { posts },
