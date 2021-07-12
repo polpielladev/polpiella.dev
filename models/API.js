@@ -75,6 +75,7 @@ export function getAllPosts(
         "excerpt",
         "readtime",
         "tags",
+        "content",
     ]
 ) {
     return getPostSlugs()

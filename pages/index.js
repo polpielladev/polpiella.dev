@@ -10,7 +10,7 @@ import fs from "fs";
 
 export async function getStaticProps() {
     const posts = getAllPosts();
-    const rssFeed = generateRSSFeed(posts);
+    const rssFeed = await generateRSSFeed(posts);
     fs.writeFileSync("./public/rss.xml", rssFeed);
 
     return {
