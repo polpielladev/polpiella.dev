@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import BlogListItem from "./BlogListItem";
+import BlogListItem from "components/BlogListItem";
 
 const BlogList = ({ posts }) => (
     <Fragment>

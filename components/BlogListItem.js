@@ -1,9 +1,9 @@
-import AuthorSection from "./AuthorSection";
-import ContentTag from "./ContentTag";
-import PostMetadata from "./PostMetadata";
+import AuthorSection from "components/AuthorSection";
+import ContentTag from "components/ContentTag";
+import PostMetadata from "components/PostMetadata";
 import Link from "next/link";
 import styled from "styled-components";
-import profile from "../public/assets/profile.png";
+import profile from "public/assets/profile.png";
 
 const BlogPostContainer = styled.div`
     line-height: unset;

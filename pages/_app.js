@@ -1,15 +1,14 @@
-import "../styles/global/typography.scss";
+import "styles/global/typography.scss";
 import Head from "next/head";
 import { ThemeProvider } from "styled-components";
-import { GlobalStyles } from "../styles/global/ThemeConfig";
+import { GlobalStyles } from "styles/global/ThemeConfig";
 import DarkModeToggle from "react-dark-mode-toggle";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CodeThemeStyle } from "../styles/global/CodeThemeConfig";
-import "prismjs/themes/prism-tomorrow.css";
-import { darkTheme } from "../styles/global/Themes/DarkTheme";
-import { lightTheme } from "../styles/global/Themes/LightTheme";
+import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
+import { darkTheme } from "styles/global/Themes/DarkTheme";
+import { lightTheme } from "styles/global/Themes/LightTheme";
 
 const Header = styled.div`
     width: 100%;
