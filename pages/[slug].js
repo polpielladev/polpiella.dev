@@ -1,13 +1,13 @@
-import ContentTag from "../components/ContentTag";
-import PostMetadata from "../components/PostMetadata";
-import styles from "../styles/pages/BlogDetailPage.module.scss";
+import ContentTag from "components/ContentTag";
+import PostMetadata from "components/PostMetadata";
+import styles from "styles/pages/BlogDetailPage.module.scss";
 import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import "prismjs/components/prism-swift";
 import Head from "next/head";
-import { getPostSlugs, getPostBySlug } from "../models/API";
-import markdownToHtml from "../models/MarkdownToHTML";
-import TwitterButton from "../components/TwitterButton";
+import { getPostSlugs, getPostBySlug } from "models/API";
+import markdownToHtml from "models/MarkdownToHTML";
+import TwitterButton from "components/TwitterButton";
 
 export async function getStaticProps({ params }) {
     const post = getPostBySlug(params.slug);

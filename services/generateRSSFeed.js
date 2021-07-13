@@ -1,4 +1,4 @@
-import generateRSSItem from "./generateRSSItem";
+import generateRSSItem from "services/generateRSSItem";
 
 export default async function generateRSSFeed(posts) {
     const feedItems = await Promise.all(

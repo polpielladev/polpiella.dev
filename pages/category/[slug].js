@@ -1,10 +1,6 @@
-import BlogList from "../../components/BlogList";
+import BlogList from "components/BlogList";
 import styled from "styled-components";
-import {
-    getBlogPostsForTag,
-    getAllTags,
-    getTagForSlug,
-} from "../../models/API";
+import { getBlogPostsForTag, getAllTags, getTagForSlug } from "models/API";
 import Head from "next/head";
 
 export async function getStaticProps({ params }) {

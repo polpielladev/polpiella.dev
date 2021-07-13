@@ -1,11 +1,11 @@
 import Head from "next/head";
 import { Fragment } from "react";
 import { Follow } from "react-twitter-widgets";
-import BlogList from "../components/BlogList";
-import styles from "../styles/pages/BlogPage.module.scss";
-import { getAllPosts } from "../models/API";
-import profileImage from "../public/assets/profile.png";
-import generateRSSFeed from "../services/generateRSSFeed";
+import BlogList from "components/BlogList";
+import styles from "styles/pages/BlogPage.module.scss";
+import { getAllPosts } from "models/API";
+import profileImage from "public/assets/profile.png";
+import generateRSSFeed from "services/generateRSSFeed";
 import fs from "fs";
 
 export async function getStaticProps() {
