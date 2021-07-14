@@ -11,22 +11,54 @@
 
 .blogIntro {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     margin-top: 20px;
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
+    align-self: center;
+
+    @media screen and (max-width: 810px) {
+        flex-direction: column;
+    }
 
     p {
         width: 70%;
     }
 
-    > img {
-        height: 200px;
-        border-radius: 40%;
-        border-width: 10px;
-        margin-bottom: 20px;
+    .profileImage {
+        border-radius: 20%;
+        height: auto;
+        width: 30%;
+
+        @media screen and (max-width: 810px) {
+            width: 40%;
+        }
+    }
+
+    .introSection {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        align-items: flex-start;
+        padding-left: 30px;
+        height: 100%;
+        justify-content: center;
+
+        p {
+            width: 100%;
+        }
+
+        @media screen and (max-width: 810px) {
+            p {
+                width: 85%;
+            }
+            text-align: center;
+            align-items: center;
+            padding-left: 0;
+            margin-top: 10px;
+        }
     }
 }
 
