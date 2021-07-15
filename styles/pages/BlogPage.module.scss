@@ -27,13 +27,24 @@
         width: 70%;
     }
 
-    .profileImage {
-        border-radius: 20%;
-        height: auto;
-        width: 30%;
+    .profileContainer {
+        width: 40%;
 
         @media screen and (max-width: 810px) {
-            width: 40%;
+            width: 30%;
+        }
+
+        > div {
+            position: unset !important;
+        }
+
+        .profileImage {
+            object-fit: contain;
+            width: 100% !important;
+            position: relative !important;
+            height: unset !important;
+            height: auto;
+            border-radius: 20%;
         }
     }
 

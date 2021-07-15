@@ -5,6 +5,7 @@ import { getAllPosts } from "models/API";
 import profileImage from "public/assets/profile.png";
 import generateRSSFeed from "services/generateRSSFeed";
 import fs from "fs";
+import Image from "next/image";
 
 export async function getStaticProps() {
     const posts = getAllPosts();
@@ -43,10 +44,15 @@ export default function BlogPage({ posts }) {
             <div className={styles.blogPageContainer}>
                 <div className={styles.postList}>
                     <div className={styles.blogIntro}>
-                        <img
-                            className={styles.profileImage}
-                            src={profileImage}
-                        />
+                        <div className={styles.profileContainer}>
+                            <Image
+                                className={styles.profileImage}
+                                src={profileImage}
+                                layout="fill"
+                                objectFit="cover"
+                            />
+                        </div>
+
                         <div className={styles.introSection}>
                             <h1>
                                 <b>Hi! I'm Pol</b> 👋
