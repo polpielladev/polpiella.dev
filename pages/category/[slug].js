@@ -31,8 +31,20 @@ const HeaderSection = styled.div`
 
 export default function CategoryPage({ tag, posts }) {
     return (
-        <div>
+        <>
             <Head>
+                <meta
+                    property="og:image"
+                    content={`https://blog-og-image-eight.vercel.app/**Category%20-**%20${tag.name}.png?theme=dark&md=1&fontSize=100px`}
+                />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@polcodes" />
+                <meta name="twitter:title" content={tag.name} />
+                <meta
+                    name="twitter:description"
+                    content={`This is the space to help you learn more and develop with
+                    articles relating to ${tag.name}.`}
+                />
                 <title>{tag.name}</title>
             </Head>
             <HeaderSection>
@@ -43,6 +55,6 @@ export default function CategoryPage({ tag, posts }) {
                 </p>
             </HeaderSection>
             <BlogList posts={posts} />
-        </div>
+        </>
     );
 }
