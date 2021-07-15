@@ -49,15 +49,18 @@ export const GlobalStyles = createGlobalStyle`
             width: 85%;
         }
         max-width: 750px;
-    }
-    
-    .home-button {
-        background: #575656;
-        padding: 5px;
-        align-self: flex-start;
-        justify-self: flex-start;
-        border-radius: 10px;
-        margin-top: 20px;
+
+        .app-header {
+            margin-top: 40px;
+
+            .home-button {
+                background: #575656;
+                padding: 5px;
+                border-radius: 10px;
+                width: 30px;
+                height: 30px;
+            }
+        }
     }
 
     blockquote {

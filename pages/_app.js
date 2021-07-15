@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
 import { darkTheme } from "styles/global/Themes/DarkTheme";
 import { lightTheme } from "styles/global/Themes/LightTheme";
+import Image from "next/image";
 
 const Header = styled.div`
     width: 100%;
@@ -27,42 +28,42 @@ export default function App({ Component, pageProps }) {
     }, []);
 
     return (
-        <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
-            <CodeThemeStyle />
-            <GlobalStyles />
-            <div className="container">
-                <Head>
-                    <link rel="icon" href="/favicon.ico" />
-                    <link
-                        rel="alternate"
-                        type="application/rss+xml"
-                        title="RSS feed of my website's latest posts"
-                        href="https://polpiella.codes/rss.xml"
-                    />
-                </Head>
-                <div className="app">
-                    <Header>
-                        <Link href="/">
-                            <a>
-                                <img
-                                    className="home-button"
-                                    src="/icons/home.svg"
-                                    alt="home"
-                                />
-                            </a>
-                        </Link>
-                        <DarkModeToggle
-                            checked={darkMode}
-                            onChange={(value) => {
-                                window.localStorage.setItem("dark-mode", value);
-                                setDarkMode(value);
-                            }}
-                            size={60}
-                        />
-                    </Header>
-                    <Component {...pageProps} />
+        <>
+            <Head>
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+                <CodeThemeStyle />
+                <GlobalStyles />
+                <div className="container">
+                    <div className="app">
+                        <Header className="app-header">
+                            <Link href="/">
+                                <a className="home-button">
+                                    <Image
+                                        width={30}
+                                        height={30}
+                                        src="/icons/home.svg"
+                                        alt="home"
+                                    />
+                                </a>
+                            </Link>
+                            <DarkModeToggle
+                                checked={darkMode}
+                                onChange={(value) => {
+                                    window.localStorage.setItem(
+                                        "dark-mode",
+                                        value
+                                    );
+                                    setDarkMode(value);
+                                }}
+                                size={60}
+                            />
+                        </Header>
+                        <Component {...pageProps} />
+                    </div>
                 </div>
-            </div>
-        </ThemeProvider>
+            </ThemeProvider>
+        </>
     );
 }
