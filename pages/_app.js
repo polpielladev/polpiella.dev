@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
 import { darkTheme } from "styles/global/Themes/DarkTheme";
 import { lightTheme } from "styles/global/Themes/LightTheme";
+import Image from "next/image";
 
 const Header = styled.div`
     width: 100%;
@@ -36,11 +37,12 @@ export default function App({ Component, pageProps }) {
                 <GlobalStyles />
                 <div className="container">
                     <div className="app">
-                        <Header>
+                        <Header className="app-header">
                             <Link href="/">
-                                <a>
-                                    <img
-                                        className="home-button"
+                                <a className="home-button">
+                                    <Image
+                                        width={30}
+                                        height={30}
                                         src="/icons/home.svg"
                                         alt="home"
                                     />
