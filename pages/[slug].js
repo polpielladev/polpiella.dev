@@ -44,38 +44,43 @@ export default function BlogDetailPage({ post }) {
     }, []);
 
     return (
-        <div className={styles.blogDetailContainer}>
+        <>
             <Head>
+                <meta
+                    property="og:image"
+                    content={`https://blog-og-image-eight.vercel.app/**Post%20-**%20${post.title}.png?theme=dark&md=1&fontSize=100px`}
+                />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:site" content="@polcodes" />
                 <meta name="twitter:title" content={post.title} />
                 <meta name="twitter:description" content={post.excerpt} />
-                <meta name="twitter:image" content={post.feature_image} />
                 <title>{post.title}</title>
             </Head>
-            <div className={styles.body}>
-                <div className={styles.blogHeading}>
-                    <h1>{post.title}</h1>
-                    <div className={styles.tags}>
-                        {post.tags.map((tag) => (
-                            <ContentTag
-                                title={tag.name}
-                                color={tag.accent_color}
-                                slug={tag.slug}
-                                key={tag.name}
-                            />
-                        ))}
+            <div className={styles.blogDetailContainer}>
+                <div className={styles.body}>
+                    <div className={styles.blogHeading}>
+                        <h1>{post.title}</h1>
+                        <div className={styles.tags}>
+                            {post.tags.map((tag) => (
+                                <ContentTag
+                                    title={tag.name}
+                                    color={tag.accent_color}
+                                    slug={tag.slug}
+                                    key={tag.name}
+                                />
+                            ))}
+                        </div>
+                        <PostMetadata post={post} />
                     </div>
-                    <PostMetadata post={post} />
+                    <div
+                        className={styles.ghostContent}
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                    <TwitterButton
+                        link={`https://twitter.com/intent/tweet?via=polcodes&text=${post.title}&url=${href}`}
+                    />
                 </div>
-                <div
-                    className={styles.ghostContent}
-                    dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-                <TwitterButton
-                    link={`https://twitter.com/intent/tweet?via=polcodes&text=${post.title}&url=${href}`}
-                />
             </div>
-        </div>
+        </>
     );
 }
