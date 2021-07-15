@@ -37,7 +37,7 @@ const BlogListItem = ({ post }) => (
     <BlogPostContainer>
         <Link href={`/${post.slug}`}>
             <a>
-                <h3>{post.title.toUpperCase()}</h3>
+                <h3>{post.title}</h3>
             </a>
         </Link>
         <Tags>
