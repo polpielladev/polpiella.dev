@@ -2,7 +2,6 @@ import Head from "next/head";
 import BlogList from "components/BlogList";
 import styles from "styles/pages/BlogPage.module.scss";
 import { getAllPosts } from "models/API";
-import profileImage from "public/assets/profile.png";
 import generateRSSFeed from "services/generateRSSFeed";
 import fs from "fs";
 import Image from "next/image";
@@ -47,7 +46,8 @@ export default function BlogPage({ posts }) {
                         <div className={styles.profileContainer}>
                             <Image
                                 className={styles.profileImage}
-                                src={profileImage}
+                                src="/../public/assets/profile.png"
+                                alt="Author Profile Image"
                                 layout="fill"
                                 objectFit="cover"
                             />
@@ -55,7 +55,7 @@ export default function BlogPage({ posts }) {
 
                         <div className={styles.introSection}>
                             <h1>
-                                <b>Hi! I'm Pol</b> 👋
+                                <b>Hi! I&apos;m Pol</b> 👋
                             </h1>
                             <p>
                                 Welcome to my personal blog! I am an iOS
