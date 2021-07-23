@@ -3,7 +3,7 @@ title: "How I use Github Actions to update my Github profile"
 excerpt: "In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action."
 date: "2021-07-15T05:35:07.322Z"
 readtime: "5"
-tags: [{ name: "CI/CD", slug: "ci-cd" }, { name: "Node", slug: "node" }]
+tags: [{ name: "CI/CD", slug: "ci-cd" }, { name: "Swift", slug: "swift" }]
 author:
     name: "Pol Piella"
 ---
@@ -22,7 +22,9 @@ You will then be greeted with a nice little message telling that you have found 
 
 ### Creating the library
 
-The first thing I did when I cloned the project locally was to run `npm init --y` at the root and, once that finished, I create a `src/` folder where all my code will live and a `index.js` file where the logic for updating my README file will happen. I also added a very basic `.gitignore` to not commit any of the `node_modules`. Inside the `src/` folder, I created another directory called `templates` with a single file inside `README.md.tpl`. The contents of this file will the exact same as the README.md I have at the root of the repo but with one exception, I added a new section for the content I will be fetching dynamically with a single placeholder that I can then find and replace in my `index.js` file.
+The first thing I did when I cloned the project locally was to create a directory called `Readme` where the library will live and then call `swift package init --type executable` inside it. This step will generate all the code you need to create a script using `Swift`, which will have `main.swift` as its entry point.
+
+On top of this, I created another directory called `templates` with a single file inside: `README.md.tpl`. The contents of this file are the exact same as the README.md I have at the root of the repo but with one exception, I added a new section for the content I will be fetching dynamically with a single placeholder that I can then find and replace in my library:
 
 ```md
 [...]
@@ -38,71 +40,87 @@ It is important to note that, from this point onwards, any changes that I want t
 
 #### Getting the latest blog posts
 
-Once we have our template sorted, it is time to finally write some code! 🧑‍💻 Let's start by writing a function that fetches the latest articles from my website's RSS feed and parses into markdown that we can then insert into our README file. For the sake of simplicity and as it is a package I find very easy to use, I decided to go with [rss-parser](https://www.npmjs.com/package/rss-parser) as my way of decoding my RSS feed. The function will use `async/await` and will parse the title and link of my feed items into a markdown list:
+Once we have our template sorted, it is time to finally write some code! 🧑‍💻 Let's start by writing a function that fetches the latest articles from my website's RSS feed and parses into markdown that we can then insert into our README file. For the sake of simplicity and as it is a library I find very easy to use, I decided to go with [FeedKit](https://swiftpackageindex.com/nmdias/FeedKit) as my way of decoding my RSS feed.
 
-```js
-const Parser = require("rss-parser");
+I then created a `struct` that would encapsulate all of the rss feed loading and parsing logic and will return the model needed by the script. Please note that you can use the `RSSFeedItem` returned by the parsing library, but I decided to create my own `Post` type that would decouple my model logic from the library's model implementation: 
 
-async function getLatestArticles() {
-    const feed = await new Parser().parseURL(
-        "https://www.polpiella.codes/rss.xml"
-    );
+```swift
+import FeedKit
+import Foundation
 
-    return feed.items
-        .slice(0, 3)
-        .map(({ title, link }) => `- [${title}](${link})`)
-        .join("\n");
+protocol PostFeedLoader {
+    func load() throws ->  [Post]
+}
+
+struct Post {
+    let title: String
+    let link: String
+}
+
+struct RSSFeedLoader {
+    let parser: FeedParser
+    
+    init(parser: FeedParser = .init(URL: URL(string: "https://polpiella.dev/rss.xml")!)) {
+        self.parser = parser
+    }
+}
+
+extension RSSFeedLoader: PostFeedLoader {
+    func load() throws ->  [Post] {
+        try parser
+            .parse()
+            .get()
+            .rssFeed?
+            .items?
+            .compactMap { $0 }
+            .prefix(3)
+            .map { Post(title: $0.title ?? "", link: $0.link ?? "") } ?? []
+    }
 }
 ```
 
-#### Reading the template file
+#### Writing to the README file
 
-Now that we have the functionality to fetch and decode our RSS feed, we need a way of reading the content of our files. To do this, we can use the [file system](https://www.w3schools.com/nodejs/nodejs_filesystem.asp) module that comes built-in in `Node.js` and call the `readFile` method, passing it the relative path to our template file as way as the correct encoding, which in our case is `utf-8`. What this method will return is a string containing the contents of the template file, which we can then inspect and perform transformations to.
+Now that I had fetched my latest blog posts, I needed a way of writing this content to my profile's `README.md`. To do this, I started by converting my array of `Post`s into a Markdown compatible string representation of a list of links:
 
-```js
-async function readTemplateFile() {
-    const template = await fs.readFile("./src/templates/README.md.tpl", {
-        encoding: "utf-8",
-    });
-    return template;
+```swift
+extension Post {
+    var markdown: String { "- [\(title)](\(link))" }
 }
 ```
 
-#### Updating the README.md file
+Last thing to do after having the content formatted correctly was to create the command itself. I used Apple's ArgumentParser package to be able to create a command and pass arugments to it from the command line. This allowed me to pass the paths of the template and the output `README.md` files so that I don't have to perform any path operations form within the executable itself. You can see the whole script implementation below:
 
-Now that we can read the content of our template file and we have our latest blog posts as a markdown string, we can start writing a function that injects the markdown string into the parsed contents of our template and then writes this to the `README.md` file which will serve as your profile page. Again, I use the [file system](https://www.w3schools.com/nodejs/nodejs_filesystem.asp) module and a simple `replace` method to find the placeholder and replace with our fetched markdown content like so:
+```swift
+import Foundation
+import ArgumentParser
 
-```js
-function replaceFileContents(template, oldContent, newContent, outputPath) {
-    const newFileContent = template.replace(oldContent, newContent);
-    fs.writeFile("outputPath", newFileContent);
+struct Readme: ParsableCommand {
+    @Argument(help: "The template file that is to be used to parse and replace content.")
+    var template: String
+    
+    @Argument(help: "The path of the destination README file.")
+    var destination: String
+    
+    // This is the code that will be executed by the command
+    func run() throws {
+        // Load the RSS Feed
+        let posts = try RSSFeedLoader().load()
+        // Format the model data into a string
+        let formattedPosts = MarkdownFormatter.formatPostsToString(posts)
+        // Read the string from the template file and replace the placeholder with the posts string
+        let newContent = try String(contentsOf: URL(fileURLWithPath: template), encoding: .utf8)
+            .replacingOccurrences(of: "{latest_blogs}", with: formattedPosts)
+        // Write to the README.md file
+        try newContent.write(to: URL(fileURLWithPath: destination), atomically: true, encoding: .utf8)
+    }
 }
+
+// Invoke the script on the entrypoint `main.swift`
+Readme.main()
 ```
 
-### Putting everything together
-
-Now that all of our pieces are finished, we need a function that composes all of our codes and executes our commands. This needs to be an IIFE asynchronous functions so that it gets executed as soon as the file is run. You can see the contents of what this looks like below:
-
-```js
-(async () => {
-    const latestArticlesMarkdown = await getLatestArticles();
-    const template = await readTemplateFile();
-    replaceFileContents(
-        template,
-        "{latest_articles}",
-        latestArticlesMarkdown,
-        "./README.md"
-    );
-})();
-```
-
-The last to do now is to create a new entry in the `scripts` section of your `package.json` that executes the contents of the file you have just created:
-
-```js
-"scripts": {
-    "readme": "node ./src/index.js"
-},
-```
+And just like that, I had all the building blocks of my project. The only thing missing now was to create a workflow to trigger these actions.
 
 ### Creating a Github workflow
 
@@ -110,12 +128,11 @@ I was very surprised to see how easy it is to set up Github Actions for any repo
 
 #### Specifying our requirements
 
-For my project, as I am using `Node`, I needed to use an agent capable of running node and be able to perform the following requirements:
+For my project, as I am using `Swift`, I need to use an agent capable of running it and be able to perform the following requirements:
 
 -   The job should run on a nightly basis (I don't update my blog more than once a day, so running it at mighnight every day would be okay).
 -   Check out the repository before any other script is run.
--   Setup node.
--   Run `npm install` and run `npm run readme`
+-   Run the executable.
 -   If there are any changes to `README.md`, commit and push. If not, do nothing.
 
 #### Translating our requirements into .yml
@@ -139,15 +156,11 @@ Now that we have set the triggers, we need to tell the action what to run and wh
 ```yml
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '14'
-    - run: npm install
-    - run: npm run readme
+    - run: cd Readme && swift run Readme $(pwd)/../templates/README.md.tpl $(pwd)/../README.md 
     - run: |
         git config user.name pol-piella
         git config user.email info@polpiellamusic.com
@@ -156,6 +169,6 @@ jobs:
         git push origin main
 ```
 
-As you can see above, we are telling github to run this action in an `ubuntu` machine with `node v14` installed and then we are telling it to perform the action we created earlier as well as the configuring our credentials and pushing to `main`. And just like that, we have an action that runs every midnight and adds latest posts from an RSS feed to a given section! 
+As you can see above, we are telling github to run this action in an `macos` machine and then we are telling it to perform the action we created earlier as well as the configuring our credentials and pushing to `main`. And just like that, we have an action that runs every midnight and adds latest posts from an RSS feed to a given section! 
 
 ![Updated Section](assets/posts/updating-your-profile-readme-with-github-actions/updated-section.png)
