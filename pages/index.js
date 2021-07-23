@@ -37,7 +37,7 @@ export default function BlogPage({ posts }) {
                     rel="alternate"
                     type="application/rss+xml"
                     title="RSS feed of my website's latest posts"
-                    href="https://polpiella.codes/rss.xml"
+                    href="https://polpiella.dev/rss.xml"
                 />
                 <title>Pol Piella Codes</title>
             </Head>
