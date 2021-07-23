@@ -5,9 +5,9 @@ export default async function generateRSSItem(post) {
 
     return `
     <item>
-        <guid>https://polpiella.codes/${post.slug}</guid>
+        <guid>https://polpiella.dev/${post.slug}</guid>
         <title>${post.title}</title>
-        <link>https://polpiella.codes/${post.slug}</link>
+        <link>https://polpiella.dev/${post.slug}</link>
         <description>${`<![CDATA[${content}]]>`}</description>
         <pubDate>${new Date(post.date).toUTCString()}</pubDate>
     </item>
