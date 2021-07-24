@@ -43,7 +43,7 @@ export default function BlogPage({ posts }) {
                     title="RSS feed of my website's latest posts"
                     href="https://polpiella.dev/rss.xml"
                 />
-                <title>Pol Piella Codes</title>
+                <title>{`polpielladev 📱 | A blog about software engineering and app development. `}</title>
             </Head>
             <div className={styles.blogPageContainer}>
                 <div className={styles.postList}>
