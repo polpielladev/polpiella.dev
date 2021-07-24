@@ -54,6 +54,10 @@ export default function BlogDetailPage({ post }) {
                 <meta name="twitter:site" content="@polcodes" />
                 <meta name="twitter:title" content={post.title} />
                 <meta name="twitter:description" content={post.excerpt} />
+                <meta
+                    name="description"
+                    content={`${post.title}. A post written by Pol Piella.`}
+                />
                 <title>{post.title}</title>
             </Head>
             <div className={styles.blogDetailContainer}>

@@ -32,6 +32,10 @@ export default function BlogPage({ posts }) {
                     name="twitter:description"
                     content="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!"
                 />
+                <meta
+                    name="description"
+                    content="Discover blog posts about software engineering and app development."
+                />
                 <link rel="icon" href="/favicon.ico" />
                 <link
                     rel="alternate"
@@ -47,6 +51,7 @@ export default function BlogPage({ posts }) {
                         <div className={styles.profileContainer}>
                             <Image
                                 className={styles.profileImage}
+                                alt="Author Profile Image"
                                 src={profileImage}
                                 layout="fill"
                                 objectFit="cover"
@@ -54,9 +59,9 @@ export default function BlogPage({ posts }) {
                         </div>
 
                         <div className={styles.introSection}>
-                            <h1>
+                            <h2>
                                 <b>Hi! I'm Pol</b> 👋
-                            </h1>
+                            </h2>
                             <p>
                                 Welcome to my personal blog! I am an iOS
                                 developer based in the UK and I love talking

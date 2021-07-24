@@ -45,6 +45,10 @@ export default function CategoryPage({ tag, posts }) {
                     content={`This is the space to help you learn more and develop with
                     articles relating to ${tag.name}.`}
                 />
+                <meta
+                    name="description"
+                    content="Discover blog posts about software engineering and app development by category."
+                />
                 <title>{tag.name}</title>
             </Head>
             <HeaderSection>

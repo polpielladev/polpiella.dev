@@ -1,4 +1,3 @@
-import { Follow } from "react-twitter-widgets";
 import styled from "styled-components";
 import Image from "next/image";
 
@@ -21,7 +20,7 @@ const AuthorMetadata = styled.div`
     }
 `;
 
-const AuthorSection = ({ image, name, followButton }) => (
+const AuthorSection = ({ image, name }) => (
     <AuthorSectionContainer>
         <Image
             src={image}
@@ -34,7 +33,6 @@ const AuthorSection = ({ image, name, followButton }) => (
             <p>
                 Written by: <b>{name}</b>
             </p>
-            {followButton && <Follow username="polcodes" />}
         </AuthorMetadata>
     </AuthorSectionContainer>
 );

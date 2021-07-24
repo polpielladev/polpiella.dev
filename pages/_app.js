@@ -2,13 +2,10 @@ import "styles/global/typography.scss";
 import Head from "next/head";
 import { ThemeProvider } from "styled-components";
 import { GlobalStyles } from "styles/global/ThemeConfig";
-import DarkModeToggle from "react-dark-mode-toggle";
 import styled from "styled-components";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
 import { darkTheme } from "styles/global/Themes/DarkTheme";
-import { lightTheme } from "styles/global/Themes/LightTheme";
 import Image from "next/image";
 
 const Header = styled.div`
@@ -20,19 +17,12 @@ const Header = styled.div`
 `;
 
 export default function App({ Component, pageProps }) {
-    const [darkMode, setDarkMode] = useState(true);
-
-    useEffect(() => {
-        const initialValue = window.localStorage.getItem("dark-mode");
-        setDarkMode(initialValue == null ? true : initialValue == "true");
-    }, []);
-
     return (
         <>
             <Head>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+            <ThemeProvider theme={darkTheme}>
                 <CodeThemeStyle />
                 <GlobalStyles />
                 <div className="container">
@@ -48,17 +38,6 @@ export default function App({ Component, pageProps }) {
                                     />
                                 </a>
                             </Link>
-                            <DarkModeToggle
-                                checked={darkMode}
-                                onChange={(value) => {
-                                    window.localStorage.setItem(
-                                        "dark-mode",
-                                        value
-                                    );
-                                    setDarkMode(value);
-                                }}
-                                size={60}
-                            />
                         </Header>
                         <Component {...pageProps} />
                     </div>
