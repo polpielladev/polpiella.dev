@@ -63,7 +63,7 @@ export default function BlogDetailPage({ post }) {
             <div className={styles.blogDetailContainer}>
                 <div className={styles.body}>
                     <div className={styles.blogHeading}>
-                        <h1>{post.title}</h1>
+                        <h2>{post.title}</h2>
                         <div className={styles.tags}>
                             {post.tags.map((tag) => (
                                 <ContentTag

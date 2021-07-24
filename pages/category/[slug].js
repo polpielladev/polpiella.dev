@@ -52,7 +52,7 @@ export default function CategoryPage({ tag, posts }) {
                 <title>{tag.name}</title>
             </Head>
             <HeaderSection>
-                <h1>{tag.name}</h1>
+                <h2>{tag.name}</h2>
                 <p>
                     This is the space to help you learn more and develop with
                     articles relating to <b>{tag.name}</b>.
