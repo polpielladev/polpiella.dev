@@ -28,11 +28,7 @@
     }
 
     .profileContainer {
-        width: 40%;
-
-        @media screen and (max-width: 810px) {
-            width: 30%;
-        }
+        width: 30%;
 
         > div {
             position: unset !important;

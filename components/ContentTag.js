@@ -16,7 +16,7 @@ const ContentTagLink = styled.a`
 
 const ContentTag = ({ title, slug }) => (
     <Tag>
-        <Link href={`/category/${slug}`}>
+        <Link href={`/category/${slug}`} passHref>
             <ContentTagLink>{title}</ContentTagLink>
         </Link>
     </Tag>
