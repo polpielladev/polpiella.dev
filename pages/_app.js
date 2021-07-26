@@ -8,12 +8,26 @@ import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
 import { darkTheme } from "styles/global/Themes/DarkTheme";
 import Image from "next/image";
 
-const Header = styled.div`
+const Header = styled.header`
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 20px;
+`;
+
+const Footer = styled.footer`
+    margin: 3.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    a {
+        color: lightgray;
+        cursor: pointer;
+        text-decoration: underline;
+    }
 `;
 
 export default function App({ Component, pageProps }) {
@@ -40,6 +54,12 @@ export default function App({ Component, pageProps }) {
                             </Link>
                         </Header>
                         <Component {...pageProps} />
+                        <Footer>
+                            <a href="https://twitter.com/polcodes">Twitter</a>•
+                            <a href="https://github.com/pol-piella">Github</a>•
+                            <a href="mailto:info@polpiellamusic.com">Email</a>•
+                            <a href="/rss.xml">RSS</a>
+                        </Footer>
                     </div>
                 </div>
             </ThemeProvider>
