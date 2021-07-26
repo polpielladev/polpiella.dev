@@ -58,7 +58,9 @@ export default function App({ Component, pageProps }) {
                             <a href="https://twitter.com/polcodes">Twitter</a>•
                             <a href="https://github.com/pol-piella">Github</a>•
                             <a href="mailto:info@polpiellamusic.com">Email</a>•
-                            <a href="/rss.xml">RSS</a>
+                            <Link href="/rss.xml">
+                                <a>RSS</a>
+                            </Link>
                         </Footer>
                     </div>
                 </div>
