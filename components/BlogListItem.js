@@ -7,7 +7,6 @@ const BlogPostContainer = styled.div`
     line-height: unset;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
     padding: 20px;
     background: ${({ theme }) => theme.code.background};
     border-radius: 15px;

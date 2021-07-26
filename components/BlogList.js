@@ -1,12 +1,19 @@
 import { Fragment } from "react";
 import BlogListItem from "components/BlogListItem";
+import styled from "styled-components";
+
+const BlogListContainer = styled.div`
+    & > *:not(:last-child) {
+        margin-bottom: 20px;
+    }
+`;
 
 const BlogList = ({ posts }) => (
-    <Fragment>
+    <BlogListContainer>
         {posts.map((post) => (
             <BlogListItem post={post} key={post.slug} />
         ))}
-    </Fragment>
+    </BlogListContainer>
 );
 
 export default BlogList;
