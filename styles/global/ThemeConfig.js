@@ -45,10 +45,10 @@ export const GlobalStyles = createGlobalStyle`
     .app {
         display: flex;
         flex-direction: column;
-        @media screen and (max-width: 810px) {
-            width: 85%;
+        @media screen and (max-width: 1000px) {
+            width: 90%;
         }
-        max-width: 750px;
+        max-width: 900px;
 
         .app-header {
             margin-top: 40px;
