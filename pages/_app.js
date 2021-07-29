@@ -7,6 +7,7 @@ import Link from "next/link";
 import { CodeThemeStyle } from "styles/global/CodeThemeConfig";
 import { darkTheme } from "styles/global/Themes/DarkTheme";
 import Image from "next/image";
+import SocialStrip from "components/SocialStrip";
 
 const Header = styled.header`
     width: 100%;
@@ -35,6 +36,12 @@ export default function App({ Component, pageProps }) {
         <>
             <Head>
                 <link rel="icon" href="/favicon.ico" />
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="RSS feed of my website's latest posts"
+                    href="https://polpiella.dev/rss.xml"
+                />
             </Head>
             <ThemeProvider theme={darkTheme}>
                 <CodeThemeStyle />
@@ -55,33 +62,7 @@ export default function App({ Component, pageProps }) {
                         </Header>
                         <Component {...pageProps} />
                         <Footer>
-                            <a
-                                href="https://twitter.com/polcodes"
-                                target="_blank"
-                                rel="noreferrer noopener"
-                            >
-                                Twitter
-                            </a>
-                            •
-                            <a
-                                href="https://github.com/pol-piella"
-                                target="_blank"
-                                rel="noreferrer noopener"
-                            >
-                                Github
-                            </a>
-                            •
-                            <a
-                                href="mailto:info@polpiellamusic.com"
-                                target="_blank"
-                                rel="noreferrer noopener"
-                            >
-                                Email
-                            </a>
-                            •
-                            <Link href="/rss.xml">
-                                <a>RSS</a>
-                            </Link>
+                            <SocialStrip />
                         </Footer>
                     </div>
                 </div>

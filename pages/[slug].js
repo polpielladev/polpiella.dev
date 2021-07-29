@@ -1,13 +1,12 @@
 import ContentTag from "components/ContentTag";
 import PostMetadata from "components/PostMetadata";
 import styles from "styles/pages/BlogDetailPage.module.scss";
-import Prism from "prismjs";
 import { useEffect, useState } from "react";
-import "prismjs/components/prism-swift";
 import Head from "next/head";
 import { getPostSlugs, getPostBySlug } from "models/API";
 import markdownToHtml from "models/MarkdownToHTML";
 import TwitterButton from "components/TwitterButton";
+import SEO from "components/SEO";
 
 export async function getStaticProps({ params }) {
     const post = getPostBySlug(params.slug);
@@ -40,26 +39,11 @@ export default function BlogDetailPage({ post }) {
 
     useEffect(() => {
         setHref(window.location.href);
-        Prism.highlightAll();
     }, []);
 
     return (
         <>
-            <Head>
-                <meta
-                    property="og:image"
-                    content={`https://blog-og-image-eight.vercel.app/**Post%20-**%20${post.title}.png?theme=dark&md=1&fontSize=100px`}
-                />
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:site" content="@polcodes" />
-                <meta name="twitter:title" content={post.title} />
-                <meta name="twitter:description" content={post.excerpt} />
-                <meta
-                    name="description"
-                    content={`${post.title}. A post written by Pol Piella.`}
-                />
-                <title>{post.title}</title>
-            </Head>
+            <SEO title={post.title} description={post.excerpt} />
             <div className={styles.blogDetailContainer}>
                 <div className={styles.body}>
                     <div className={styles.blogHeading}>
