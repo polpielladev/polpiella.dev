@@ -5,7 +5,7 @@ export default function SEO({ title, description }) {
         <Head>
             <meta
                 property="og:image"
-                content={`https://blog-og-image-eight.vercel.app/${title}.png?theme=dark&md=1&fontSize=100px`}
+                content={`https://blog-og-image-eight.vercel.app/**${title}**.png?theme=dark&md=1&fontSize=150px`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:site" content="@polcodes" />
