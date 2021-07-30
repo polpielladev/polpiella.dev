@@ -47,12 +47,19 @@
             }
 
             > * {
-                margin-bottom: 20px;
+                margin-bottom: 32px;
             }
 
             a {
                 font-weight: bold;
                 text-decoration: underline;
+            }
+
+            h2,
+            h3,
+            h4,
+            h5 {
+                margin: 48px 0 24px;
             }
         }
     }

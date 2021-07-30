@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 const Metadata = styled.div`
     display: flex;
-    color: darkgray;
     align-items: center;
     font-size: 11px;
 

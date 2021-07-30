@@ -7,6 +7,7 @@ const Tag = styled.div`
     text-align: center;
     background: purple;
     color: white;
+    font-size: 13px;
 `;
 
 const ContentTagLink = styled.a`
