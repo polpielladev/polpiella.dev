@@ -40,7 +40,7 @@ export default function BlogPage({ posts }) {
 
                         <div className={styles.introSection}>
                             <h2>
-                                <b>Hi! I&apos;m Pol</b> 👋
+                                <b>Hi! I&apos;m Pol</b> 🤘
                             </h2>
                             <p>
                                 Welcome to my personal blog! I am an iOS
