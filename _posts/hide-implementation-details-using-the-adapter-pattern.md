@@ -12,7 +12,7 @@ author:
     name: "Pol Piella"
 ---
 
-Recently, I have been working on a project where I have had to implement a mechanism to load data from an API (SpaceX) while also providing a cache mechanism to allow users to have a good offline experience, much like a Repository.
+Recently, I have been working on a project where I have had to implement a mechanism to load data from an API ([SpaceX](https://documenter.getpostman.com/view/2025350/RWaEzAiG?version=latest)) while also providing a cache mechanism to allow users to have a good offline experience, much like a Repository.
 
 To do this as modularily as possible, I wanted to provide a clear separation between frameworks and concrete model implementations and the presentation layer. I also wanted my implementation to be as flexible as it possibly could, isolating all layers as much as possible and making it very easy to replace any frameworks or 3rd party libraries I used (e.g. Realm, Core Data, Alamofire, etc.).
 
