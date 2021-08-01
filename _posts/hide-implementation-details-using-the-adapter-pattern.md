@@ -14,13 +14,15 @@ author:
 
 Recently, I have been working on a project where I have had to implement a mechanism to load data from an API (SpaceX) while also providing a cache mechanism to allow users to have a good offline experience, much like a Repository.
 
-To do this as modularily as possible, I wanted to provide a clear separation between frameworks and concrete model implementations and the presentation layer. I also wanted my implementation to be as flexible as it possibly could, as I was not set on which frameworks to use, leading me to do a highly replaceable approach.
+To do this as modularily as possible, I wanted to provide a clear separation between frameworks and concrete model implementations and the presentation layer. I also wanted my implementation to be as flexible as it possibly could, isolating all layers as much as possible and making it very easy to replace any frameworks or 3rd party libraries I used (e.g. Realm, Core Data, Alamofire, etc.).
 
-<!-- In my head, I wanted to design a system that would allow me to change the priority of the fetch mechanism (use cache as my primary source or as my fallback), change the cache policies and be able to swap any specific implementation of the persistence and networking layers without having to change the actual use case logic at all. This would allow me to start working on my implementation early on without having to worry about specific details of implementation and feeling confident that some of the unknows that I had (such as in-memory vs persistent cache, Core Data vs Realm, etc.) would be very easy to test. -->
+It was also important to have implementation as _soft_ as possible, making it very easy to change requirements as well as frameworks on the go, as we will see in the following sections.
 
 ## The adapter pattern
 
-To achieve this goal, I decided to go with the **Adapter** design pattern. As described in the Design Patterns book, adapters allow you to compatibilize two previously incompatible interfaces. In other words, we essentially want an adapter layer to sit between our adaptee and our target layers that handles the conversion between incompatible interfaces. Let's start by looking at what needs to be converted in our example:
+To achieve this goal, I decided to go with the **Adapter** design pattern. As described in the famous [Design Patterns](https://www.amazon.co.uk/Design-patterns-elements-reusable-object-oriented/dp/0201633612) book, adapters allow you to compatibilize two incompatible interfaces. In other words, **we can use an adapter layer to sit between our adaptee and our target layers and handles the conversion between incompatible interfaces.**
+
+Let's start by looking at what needs to be converted in our example:
 
 -   The API returns a `Launch` type which needs to conform to `Decodable` and can be decoded from the body of the server's response. While the easy approach would be to use this in our presentation layer, **this would tightly couple our local and remote implementations**, which is not ideal. This is why we will only use our `Launch` decodable type in the `API` module and we will convert it into a `LaunchViewModel` within the API adapter.
 -   The cache implementation stores encoded versions of our `LaunchViewModel` type as `Data` and we also need a way to convert this into a `LaunchViewModel` type that our presentation layer can understand. This will be the cache adapter's responsibility.
