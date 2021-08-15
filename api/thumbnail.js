@@ -64,7 +64,7 @@ function getHTML(title, readTime) {
         </head>
         <body>
             <div class="container">
-                <img src="/assets/profile.png" />
+                <img src="https://www.polpiella.dev/assets/profile.png" />
                 <h1>${title}</h1>
                 <p>Read time: ${readTime} minutes</p>
             </div>
