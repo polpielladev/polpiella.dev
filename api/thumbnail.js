@@ -1,12 +1,13 @@
-import chromium from "chrome-aws-lambda";
 import playwright from "playwright-core";
-import absoluteURL from "utils/absoluteURL";
+import chromium from "chrome-aws-lambda";
 
 export default async (req, res) => {
     try {
         await chromium.font(
             "https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf"
         );
+        const { query } = req;
+        const { title } = query;
         const browser = await playwright.chromium.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath,
@@ -17,8 +18,7 @@ export default async (req, res) => {
             viewport: { width: 1200, height: 630 },
         });
 
-        const url = absoluteURL(req.query["path"] || "");
-        await page.goto(url, { timeout: 15 * 1000 });
+        await page.setContent(`<h1>${title}</h1>`);
         const data = await page.screenshot({ type: "png" });
         await browser.close();
         res.setHeader(

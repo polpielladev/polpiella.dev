@@ -31,3 +31,5 @@ yarn-error.log*
 
 # rss generated
 /public/rss.xml
+
+.vercel
