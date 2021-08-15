@@ -1,6 +1,12 @@
 import chromium from "chrome-aws-lambda";
 import playwright from "playwright-core";
-import absoluteURL from "utils/absoluteURL";
+
+export default function absoluteURL(path) {
+    const baseURL = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:8080";
+    return baseURL + path;
+}
 
 export default async (req, res) => {
     const browser = await playwright.chromium.launch({
