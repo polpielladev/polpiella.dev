@@ -24,6 +24,7 @@ export default function BlogPage({ posts }) {
             <SEO
                 title="polpielladev 📱 | A blog about software engineering and app development."
                 description="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!"
+                caption=""
             />
             <div className={styles.blogPageContainer}>
                 <div className={styles.postList}>

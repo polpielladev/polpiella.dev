@@ -1,12 +1,9 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
-import absoluteURL from "utils/absoluteURL";
 
-export default function SEO({ title, description }) {
-    const router = useRouter();
-    const searchParameters = new URLSearchParams();
-    searchParameters.set("path", router.pathname);
-    const fullImageURL = absoluteURL(`/api/thumbnail?${searchParameters}`);
+export default function SEO({ title, description, caption }) {
+    const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
+        title
+    )}&description=${encodeURI(caption)}`;
 
     return (
         <Head>

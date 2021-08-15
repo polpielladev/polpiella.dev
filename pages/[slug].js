@@ -40,7 +40,11 @@ export default function BlogDetailPage({ post }) {
 
     return (
         <>
-            <SEO title={post.title} description={post.excerpt} />
+            <SEO
+                title={post.title}
+                description={post.excerpt}
+                caption={`Read Time: ${post.readtime} minutes`}
+            />
             <div className={styles.blogDetailContainer}>
                 <div className={styles.body}>
                     <div className={styles.blogHeading}>

@@ -53,7 +53,7 @@ function getCSS() {
     `;
 }
 
-function getHTML(title, readTime) {
+function getHTML(title, description) {
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -66,7 +66,7 @@ function getHTML(title, readTime) {
             <div class="container">
                 <img src="https://www.polpiella.dev/assets/profile.png" />
                 <h1>${title}</h1>
-                <p>Read time: ${readTime} minutes</p>
+                <p>${description}</p>
             </div>
         </body>
     </html>
@@ -79,7 +79,7 @@ export default async (req, res) => {
             "https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf"
         );
         const { query } = req;
-        const { title, readTime } = query;
+        const { title, description } = query;
         const browser = await playwright.chromium.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath,
@@ -90,7 +90,7 @@ export default async (req, res) => {
             viewport: { width: 1200, height: 630 },
         });
 
-        await page.setContent(getHTML(title, readTime));
+        await page.setContent(getHTML(title, description));
         const data = await page.screenshot({ type: "png" });
         await browser.close();
         res.setHeader(

@@ -36,6 +36,7 @@ export default function CategoryPage({ tag, posts }) {
                 title={tag.name}
                 description={`This is the space to help you learn more and develop with
                     articles relating to ${tag.name}.`}
+                caption={`Number of posts: ${posts.length}`}
             />
             <HeaderSection>
                 <h2>{tag.name}</h2>
