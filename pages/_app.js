@@ -22,7 +22,12 @@ const Footer = styled.footer`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    border-top: darkgray 1px solid;
+    padding-top: 30px;
+
+    *:not(:last-child) {
+        margin-right: 16px;
+    }
 
     a {
         color: lightgray;
