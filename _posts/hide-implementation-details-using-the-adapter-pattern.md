@@ -2,7 +2,7 @@
 title: "Hiding implementation details using the adapter pattern in Swift"
 excerpt: "How to hide implementation details using the adapter pattern and decoupling multiple layers of an application, making it easy to test and adapt."
 date: "2021-08-01T21:39:39.000Z"
-readtime: "3"
+readtime: "6"
 tags:
     [
         { name: "Architecture", slug: "architecture" },
@@ -12,11 +12,9 @@ author:
     name: "Pol Piella"
 ---
 
-Recently, I have been working on a project where I have had to implement a mechanism to load data from an API ([SpaceX](https://documenter.getpostman.com/view/2025350/RWaEzAiG?version=latest)) while also providing a cache mechanism to allow users to have a good offline experience, much like a Repository.
+Recently, I have been working on a project where I have had to implement a mechanism to load data from an API ([SpaceX](https://documenter.getpostman.com/view/2025350/RWaEzAiG?version=latest)) while also providing a caching mechanism to allow users to have a good offline experience and to save the BE from unnecessary requests when data is available. This was an interesting project as there were a few challenges that needed to be tackled, such as cache invalidation, where to store the cache data, etc.
 
-To do this as modularily as possible, I wanted to provide a clear separation between frameworks and concrete model implementations and the presentation layer. I also wanted my implementation to be as flexible as it possibly could, isolating all layers as much as possible and making it very easy to replace any frameworks or 3rd party libraries I used (e.g. Realm, Core Data, Alamofire, etc.).
-
-It was also important to have implementation as _soft_ as possible, making it very easy to change requirements as well as frameworks on the go, as we will see in the following sections.
+To do this as modularily as possible, I wanted to provide a clear separation between frameworks, use cases and the presentation layer. I also wanted the implementation to be as flexible as it possibly could, making it very easy to replace any frameworks or 3rd party libraries I used (e.g. Realm, Core Data, Alamofire, etc.). This way any change in requirements would be guarded by SOLID principles and would be easy to implement, as we will see later on.
 
 ## The adapter pattern
 
