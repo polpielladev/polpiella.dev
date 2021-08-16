@@ -2,7 +2,7 @@ import ContentTag from "components/ContentTag";
 import PostMetadata from "components/PostMetadata";
 import styles from "styles/pages/BlogDetailPage.module.scss";
 import { getPostSlugs, getPostBySlug } from "models/API";
-import markdownToHtml from "models/markdownToHTML";
+import markdownToHtml from "models/markdownToHtml";
 import TwitterButton from "components/TwitterButton";
 import SEO from "components/SEO";
 import { useNearScreen } from "hooks/useNearScreen";

@@ -1,4 +1,4 @@
-import markdownToHtml from "models/markdownToHTML";
+import markdownToHtml from "models/markdownToHtml";
 
 export default async function generateRSSItem(post) {
     const content = await markdownToHtml(post.content || "");
