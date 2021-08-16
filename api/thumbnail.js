@@ -29,6 +29,7 @@ function getCSS() {
         display: flex;
         align-items: center;
     }
+
     .container {
         display: flex;
         flex-direction: column;
@@ -44,7 +45,6 @@ function getCSS() {
     }
 
     img {
-        border-radius: 20%;
         height: auto;
         width: 150px;
         height: 150px;
@@ -64,7 +64,7 @@ function getHTML(title, description) {
         </head>
         <body>
             <div class="container">
-                <img src="https://www.polpiella.dev/assets/profile.png" />
+                <img src="https://www.polpiella.dev/assets/logo.svg" />
                 <h1>${title}</h1>
                 <p>${description}</p>
             </div>

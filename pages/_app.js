@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }) {
     return (
         <>
             <Head>
-                <link rel="icon" href="/favicon.ico" />
+                <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
                 <link
                     rel="alternate"
                     type="application/rss+xml"
@@ -53,13 +53,13 @@ export default function App({ Component, pageProps }) {
                 <GlobalStyles />
                 <div className="container">
                     <div className="app">
-                        <Header className="app-header">
+                        <Header>
                             <Link href="/">
-                                <a className="home-button">
+                                <a>
                                     <Image
-                                        width={30}
-                                        height={30}
-                                        src="/icons/home.svg"
+                                        width={100}
+                                        height={100}
+                                        src="/assets/logo.svg"
                                         alt="home"
                                     />
                                 </a>

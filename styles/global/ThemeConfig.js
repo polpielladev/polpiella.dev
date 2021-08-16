@@ -49,18 +49,6 @@ export const GlobalStyles = createGlobalStyle`
             width: 90%;
         }
         max-width: 900px;
-
-        .app-header {
-            margin-top: 40px;
-
-            .home-button {
-                background: #575656;
-                padding: 5px;
-                border-radius: 10px;
-                width: 30px;
-                height: 30px;
-            }
-        }
     }
 
     blockquote {
