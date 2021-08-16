@@ -1,4 +1,3 @@
-import Head from "next/head";
 import BlogList from "components/BlogList";
 import styles from "styles/pages/BlogPage.module.scss";
 import { getAllPosts } from "models/API";

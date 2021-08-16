@@ -73,4 +73,55 @@ export const GlobalStyles = createGlobalStyle`
         background-color: ${({ theme }) => theme.quoteBackground};
         color: rgba($color: white, $alpha: 0.9);
     }
+
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+    @font-face {
+        font-family: "Cascadia Code";
+        src: url("/fonts/cascadia/CascadiaCode.ttf");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    body {
+        font-family: "Poppins", sans-serif;
+        font-weight: 400;
+        color: #000000;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        font-family: "Poppins", sans-serif;
+        font-weight: 400;
+        line-height: 1.3;
+    }
+
+    h1 {
+        font-size: 3.052rem;
+    }
+
+    h2 {
+        font-size: 2.441rem;
+    }
+
+    h3 {
+        font-size: 1.953rem;
+    }
+
+    h4 {
+        font-size: 1.563rem;
+    }
+
+    h5 {
+        font-size: 1.25rem;
+    }
+
+    small,
+    .text_small {
+        font-size: 0.8rem;
+    }
 `;
