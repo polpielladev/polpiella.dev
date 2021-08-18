@@ -8,7 +8,6 @@ const BlogPostContainer = styled.div`
     display: flex;
     flex-direction: column;
     padding: 25px;
-    background: ${({ theme }) => theme.code.background};
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 
