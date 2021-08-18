@@ -1,20 +1,21 @@
 import LinkWrapper from "./LinkWrapper";
+import { Twitter, Linkedin, Github, Rss } from "@icons-pack/react-simple-icons";
 
 const LINKS = [
     {
-        name: "Twitter",
+        component: <Twitter />,
         href: "https://twitter.com/polcodes",
     },
     {
-        name: "Github",
+        component: <Github />,
         href: "https://github.com/pol-piella",
     },
     {
-        name: "Email",
-        href: "mailto:info@polpiellamusic.com",
+        component: <Linkedin />,
+        href: "https://www.linkedin.com/in/pol-piella-81b846115/",
     },
     {
-        name: "RSS",
+        component: <Rss />,
         href: "/rss.xml",
     },
 ];
@@ -25,7 +26,7 @@ export default function SocialStrip() {
             {LINKS.map((link) => {
                 return (
                     <LinkWrapper key={link.href} href={link.href}>
-                        {link.name}
+                        {link.component}
                     </LinkWrapper>
                 );
             })}

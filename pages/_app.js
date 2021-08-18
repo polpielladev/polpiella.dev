@@ -15,6 +15,14 @@ const Header = styled.header`
     align-items: center;
     justify-content: space-between;
     margin-top: 20px;
+
+    a {
+        transition: transform ease 0.3s;
+    }
+
+    a:hover {
+        transform: scale(1.1);
+    }
 `;
 
 const Footer = styled.footer`
@@ -26,13 +34,17 @@ const Footer = styled.footer`
     padding-top: 30px;
 
     *:not(:last-child) {
-        margin-right: 16px;
+        margin-right: 30px;
     }
 
     a {
-        color: lightgray;
         cursor: pointer;
         text-decoration: underline;
+        transition: transform ease 0.3s;
+    }
+
+    a:hover {
+        transform: scale(1.1);
     }
 `;
 
