@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 const BlogListContainer = styled.div`
     & > *:not(:last-child) {
-        margin-bottom: 20px;
+        margin-bottom: 35px;
     }
 `;
 

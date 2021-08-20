@@ -10,7 +10,7 @@ export const CodeThemeStyle = createGlobalStyle`
         word-wrap: normal;
         color: ${({ theme }) => theme.code.color};
         background: ${({ theme }) => theme.code.background};
-        font-family: Cascadia Code, monospace;
+        font-family: JetBrains Mono, monospace;
         font-size: 1em;
         line-height: 1.5em;
         border-radius: 5px;

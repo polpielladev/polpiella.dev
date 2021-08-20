@@ -7,12 +7,9 @@ const BlogPostContainer = styled.div`
     line-height: unset;
     display: flex;
     flex-direction: column;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 
     & > *:not(:last-child) {
-        margin-bottom: 15px;
+        margin-bottom: 8px;
     }
 
     h3 {
