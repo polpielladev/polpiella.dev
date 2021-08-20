@@ -27,7 +27,7 @@ export const darkTheme = {
             deleted: "#f07178",
             docType: "#546e7a",
             entity: "#f07178",
-            function: "#c792ea",
+            function: "#c3cee3",
             hexCode: "#f2ff00",
             id: "#c792ea",
             important: "#c792ea",
