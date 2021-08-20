@@ -17,6 +17,7 @@ const Header = styled.header`
     margin-top: 20px;
 
     a {
+        height: 60px;
         transition: transform ease 0.3s;
     }
 
@@ -69,8 +70,8 @@ export default function App({ Component, pageProps }) {
                             <Link href="/">
                                 <a>
                                     <Image
-                                        width={75}
-                                        height={75}
+                                        width={60}
+                                        height={60}
                                         src="/assets/logo.svg"
                                         alt="home"
                                     />
