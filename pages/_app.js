@@ -70,7 +70,7 @@ export default function App({ Component, pageProps }) {
                             <Link href="/">
                                 <a>
                                     <Image
-                                        width={60}
+                                        width={200}
                                         height={60}
                                         src="/assets/logo.svg"
                                         alt="home"
