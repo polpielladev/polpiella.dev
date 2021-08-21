@@ -53,7 +53,11 @@ export default function App({ Component, pageProps }) {
     return (
         <>
             <Head>
-                <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+                <link
+                    rel="icon"
+                    type="image/svg+xml"
+                    href="/assets/favicon.svg"
+                />
                 <link
                     rel="alternate"
                     type="application/rss+xml"
