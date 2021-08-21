@@ -1,25 +1,21 @@
 import styled from "styled-components";
-import Link from "next/link";
+import LinkWrapper from "./LinkWrapper";
 
 const Tag = styled.div`
     padding: 0 5px;
     border-radius: 4px;
     text-align: center;
-    background: purple;
-    color: white;
+    background: #1dd8d2;
     font-size: 13px;
-`;
 
-const ContentTagLink = styled.a`
-    color: white;
-    cursor: pointer;
+    a {
+        color: black;
+    }
 `;
 
 const ContentTag = ({ title, slug }) => (
     <Tag>
-        <Link href={`/category/${slug}`} passHref>
-            <ContentTagLink>{title}</ContentTagLink>
-        </Link>
+        <LinkWrapper href={`/category/${slug}`}>{title}</LinkWrapper>
     </Tag>
 );
 
