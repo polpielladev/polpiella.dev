@@ -64,7 +64,7 @@ function getHTML(title, description) {
         </head>
         <body>
             <div class="container">
-                <img src="https://www.polpiella.dev/assets/logo.svg" />
+                <img src="https://www.polpiella.dev/assets/named-logo-vertical.svg" />
                 <h1>${title}</h1>
                 <p>${description}</p>
             </div>
