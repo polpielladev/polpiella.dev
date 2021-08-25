@@ -46,7 +46,7 @@ function getCSS() {
 
     img {
         height: auto;
-        width: 150px;
+        width: auto;
         height: 150px;
         object-fit: cover;
     }
@@ -64,7 +64,7 @@ function getHTML(title, description) {
         </head>
         <body>
             <div class="container">
-                <img src="https://www.polpiella.dev/assets/named-logo-vertical.svg" />
+                <img src="https://www.polpiella.dev/assets/logo.svg" />
                 <h1>${title}</h1>
                 <p>${description}</p>
             </div>
