@@ -1,4 +1,4 @@
-import "styles/global/typography.scss";
+import "styles/global/typography.css";
 import Head from "next/head";
 import { ThemeProvider } from "styled-components";
 import { GlobalStyles } from "styles/global/ThemeConfig";
