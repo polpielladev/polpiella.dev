@@ -27,6 +27,8 @@ export async function getStaticPaths({ params }) {
 const HeaderSection = styled.div`
     margin-bottom: 30px;
     margin-top: 20px;
+    border-bottom: darkgray 1px solid;
+    padding-bottom: 30px;
 `;
 
 export default function CategoryPage({ tag, posts }) {
