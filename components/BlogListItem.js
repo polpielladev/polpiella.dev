@@ -24,6 +24,7 @@ const BlogPostContainer = styled.div`
 
 const Tags = styled.div`
     display: flex;
+    flex-wrap: wrap;
 
     & > * {
         margin-right: 5px;
