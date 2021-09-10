@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import LinkWrapper from "./LinkWrapper";
-import { Git, Github } from "@icons-pack/react-simple-icons";
+import { Github } from "@icons-pack/react-simple-icons";
 
 const Metadata = styled.div`
     display: flex;
