@@ -35,7 +35,7 @@ const PostMetadata = ({ post, isEditable }) => (
                 <EditLink
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={`https://github.com/pol-piella/polpiella.dev/edit/main/_posts/${post.slug}`}
+                    href={`https://github.com/pol-piella/polpiella.dev/edit/main/_posts/${post.slug}.md`}
                 >
                     <Github />
                     <b>Found a mistake? Edit on Github!</b>
