@@ -59,7 +59,7 @@ export default function BlogDetailPage({ post }) {
                                 />
                             ))}
                         </div>
-                        <PostMetadata post={post} />
+                        <PostMetadata post={post} isEditable />
                     </div>
                     <div
                         className={styles.ghostContent}

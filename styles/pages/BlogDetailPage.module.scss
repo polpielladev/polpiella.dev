@@ -37,6 +37,8 @@
         .tags {
             display: flex;
             font-size: 11px;
+            flex-wrap: wrap;
+
             > * {
                 margin-right: 5px;
             }

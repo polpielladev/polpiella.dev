@@ -7,6 +7,7 @@ const Tag = styled.div`
     text-align: center;
     background: #1dd8d2;
     font-size: 13px;
+    margin-bottom: 3px;
 
     a {
         color: black;
