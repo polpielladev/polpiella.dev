@@ -7,7 +7,7 @@ let posts = Astro.fetchContent('./blog/*.md');
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <title>polpielladev 📱 | A blog about software engineering and app development</title>
     <meta name="twitter:title" content="polpielladev 📱 | A blog about software engineering and app development" />
     <meta name="twitter:description" content="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!" />
@@ -23,10 +23,6 @@ let posts = Astro.fetchContent('./blog/*.md');
         }
 
         @media only screen and (max-width: 1000px) {
-            .content {
-                width: 90%;
-            }
-            
             .intro {
                 flex-direction: column;
                 text-align: center;
