@@ -1,0 +1,35 @@
+---
+import Metadata from './Metadata.astro';
+import Tags from './Tags.astro';
+const { post } = Astro.props;
+---
+<a href={post.url}> 
+    <div class="blog-preview">
+        <h1>{post.title}</h1>
+        <p>{post.excerpt}</p>
+        <Metadata date={post.date} readtime={post.readtime} />
+        <Tags tags={post.tags} />
+    </div>
+</a>
+
+<style>
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .blog-preview > * {
+        margin-bottom: 8px;
+    }
+
+    .blog-preview {
+        text-decoration: none;
+        margin-bottom: 8px;
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .blog-preview:hover {
+        background: #f1f5f9;
+    }
+</style>

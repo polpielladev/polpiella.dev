@@ -1,0 +1,79 @@
+---
+
+import BlogPreview from '../components/BlogPreview.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+let posts = Astro.fetchContent('./blog/*.md');
+---
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>polpielladev 📱 | A blog about software engineering and app development</title>
+    <meta name="twitter:title" content="polpielladev 📱 | A blog about software engineering and app development" />
+    <meta name="twitter:description" content="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!" />
+    <meta name="description" content="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!" />
+    <meta name="twitter:site" content="@polcodes" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/style/global.css">
+    <style>
+        .home-container {
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        @media only screen and (max-width: 1000px) {
+            .content {
+                width: 90%;
+            }
+            
+            .intro {
+                flex-direction: column;
+                text-align: center;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+
+        .intro {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .intro > img {
+            object-fit: cover;
+            border-radius: 20px;
+            height: auto;
+            width: 25%;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <Header />
+        <div class="home-container">
+            <section class="intro">
+                <img src="/assets/profile.png" />
+                <div>
+                    <h2>
+                        <b>Hi! I&apos;m Pol</b> 🤘
+                    </h2>
+                    <p>
+                        Welcome to my personal blog! I am an iOS developer
+                        based in the UK and I love talking about software
+                        development in general.
+                    </p>
+                </div>
+            </section>
+            <section>
+                {posts.map(p => <BlogPreview post={p} />)}
+            </section>
+        </div>
+        <Footer />
+    </main>
+</body>
+</html>
