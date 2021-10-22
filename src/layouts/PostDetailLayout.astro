@@ -25,8 +25,8 @@ const { content } = Astro.props;
                     <h1>{content.title}</h1>
                     <Tags tags={content.tags} />
                     <Metadata date={content.date} readtime={content.readtime} slug={`${content.slug}`} />
+                    <hr />
                 </header>
-                <hr />
                 <slot />
             </article>
         </div>
@@ -55,7 +55,7 @@ const { content } = Astro.props;
         margin-bottom: 32px;
     }
 
-    article > header > *:not(:last-child) {
+    article > header > * {
         margin-bottom: 8px;
     }
 
