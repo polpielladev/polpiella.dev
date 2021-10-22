@@ -1,6 +1,7 @@
 ---
 layout: ../../layouts/PostDetailLayout.astro
 title: "Using .switchToLatest()"
+slug: "the-power-of-the-switchtolatest-operator"
 excerpt: "In this post, we are going to talk about an operator that I have been using quite a lot recently and, in my opinion, is one of the most powerful within the Combine API."
 date: "2021-04-28T05:35:07.322Z"
 readtime: "5"

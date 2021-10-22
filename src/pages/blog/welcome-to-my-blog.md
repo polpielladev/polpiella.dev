@@ -1,6 +1,7 @@
 ---
 layout: ../../layouts/PostDetailLayout.astro
 title: "Welcome to my blog! 👋"
+slug: "welcome-to-my-blog"
 excerpt: "Hello! I just wanted to take this opportunity to introduce myself to you in case this is the first time that you visit this blog and you want to learn a bit more about who I am and what I do!"
 date: "2021-04-19T05:35:07.322Z"
 readtime: "3"
