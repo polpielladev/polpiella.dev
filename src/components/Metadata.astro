@@ -1,0 +1,37 @@
+---
+const { date, readtime, slug } = Astro.props;
+const dateString = new Date(date).toDateString();
+---
+<div class="metadata bottom-spaced">
+    <p>{dateString}</p>
+    <p>·</p>
+    <p>{`📖 ${readtime} minutes`}</p>
+    {slug && (
+        <div class="metadata">
+            <p>·</p>
+            <a target="_blank" rel="noopener noreferrer" href={`https://github.com/pol-piella/polpiella.dev/edit/main/_posts/${slug}.md`}>
+                <b>Found a mistake? Edit on Github!</b>
+            </a>
+        </div>
+    )}
+</div>
+
+<style>
+    .metadata {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        color: #777;
+        flex-wrap: wrap;
+        line-height: 25px;
+    }
+
+    .metadata > * {
+        margin-right: 8px;
+    }
+
+    .bottom-spaced {
+        margin-bottom: 8px;
+    }
+</style>
+

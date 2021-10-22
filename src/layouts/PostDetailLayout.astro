@@ -1,0 +1,69 @@
+---
+import '../../public/style/blog-detail.css'
+import '../../public/style/global.css'
+import Metadata from '../components/Metadata.astro'
+import Header from '../components/Header.astro'
+import Tags from '../components/Tags.astro'
+import Footer from '../components/Footer.astro'
+const { content } = Astro.props;
+---
+<html>
+    <head>
+        <title>{content.title}</title>
+        <meta name="twitter:title" content={content.title} />
+        <meta name="twitter:description" content={content.excerpt} />
+        <meta name="description" content={content.excerpt} />
+        <meta name="twitter:site" content="@polcodes" />
+        <meta name="twitter:card" content="summary_large_image" />
+    </head>
+
+    <body>
+        <Header />
+        <div class="container">
+            <article class="content">
+                <header>
+                    <h1>{content.title}</h1>
+                    <Tags tags={content.tags} />
+                    <Metadata date={content.date} readtime={content.readtime} slug={`${content.slug}`} />
+                </header>
+                <hr />
+                <slot />
+            </article>
+        </div>
+        <Footer />
+    </body>
+</html>
+
+<style>
+    .content {
+        max-width: 900px;
+        @media screen and (max-width: 1000px) {
+            width: 90%;
+        }
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+            sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    article > header {
+        margin-bottom: 32px;
+    }
+
+    article > header > *:not(:last-child) {
+        margin-bottom: 8px;
+    }
+
+    article > header > h1 {
+        font-size: 36px;
+    }
+
+    pre {
+        background: black;
+    }
+</style>

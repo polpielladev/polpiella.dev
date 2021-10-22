@@ -1,0 +1,35 @@
+<header>
+    <a class="animated" href="/">
+        <img src="/assets/logo.svg" />
+    </a>
+
+</header>
+
+<style>
+    header {
+        display: flex;
+        background: #f1f5f9;
+        padding: 16px 32px;
+        margin-bottom: 32px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    header > a > img {
+        object-fit: cover;
+        width: 220px;
+        height: auto;
+    }
+
+    a {
+        width: 220px;
+    }
+
+    a.animated {
+        transition: transform ease 0.3s;
+    }
+
+    a.animated:hover {
+        transform: scale(1.1);
+    }
+</style>

@@ -1,0 +1,28 @@
+---
+let SOCIAL_MEDIA = [
+    { asset: "/assets/github.svg", url: "https://github.com/pol-piella" },
+    { asset: "/assets/linkedin.svg", url: "https://www.linkedin.com/in/pol-piella-81b846115/" },
+    { asset: "/assets/twitter.svg", url: "https://twitter.com/polcodes" },
+]
+---
+<footer>
+    <div class="social" >
+        {SOCIAL_MEDIA.map(social => <a class="animated" target="_blank" rel="noopener noreferrer" href={social.url}><img width="25px" height="25px" src={social.asset} /></a>)}
+    </div>
+</footer>
+
+
+<style>
+    .social > a {
+        padding: 16px;
+    }
+
+    footer {
+        margin-top: 32px;
+        display: flex;
+        background: #f1f5f9;
+        padding: 32px 36px;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
