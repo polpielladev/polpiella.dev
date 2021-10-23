@@ -18,7 +18,7 @@ While for most cases showing static data might be enough, you might want to fetc
 
 The first thing we need to do before we get started and write any code is to create the repo where your profile will live. In order to do this, you will need to create a repo which has your username as its name, just like I do in the image below:
 
-![Github README create repo](../../../public/assets/posts/updating-your-profile-readme-with-github-actions/profile-readme.png)
+![Github README create repo](/assets/posts/updating-your-profile-readme-with-github-actions/profile-readme.png)
 
 You will then be greeted with a nice little message telling that you have found a secret and by naming the repo in the same way as your username, this will then become your profile. Before clicking create, make sure that you select the `Add a README file` checkbox. Feel free at this point to stop reading and start writing your README and populating with the content you would like to showcase to others.
 
@@ -173,4 +173,4 @@ jobs:
 
 As you can see above, we are telling github to run this action in an `macos` machine and then we are telling it to perform the action we created earlier as well as the configuring our credentials and pushing to `main`. And just like that, we have an action that runs every midnight and adds latest posts from an RSS feed to a given section!
 
-![Updated Section](../../../public/assets/posts/updating-your-profile-readme-with-github-actions/updated-section.png)
+![Updated Section](/assets/posts/updating-your-profile-readme-with-github-actions/updated-section.png)
