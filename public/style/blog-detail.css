@@ -6,6 +6,14 @@
     --color-light: #f3f4f6;
 }
 
+@font-face {
+    font-family: "JetBrains Mono";
+    src: local(""), url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
 .content > *:not(pre) {
     line-height: 1.5;
 }
