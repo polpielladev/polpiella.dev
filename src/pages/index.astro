@@ -5,7 +5,8 @@ import Footer from '../components/Footer.astro';
 import generateRSSFeed from '../services/generateRSSFeed.js';
 import fs from 'node:fs';
 
-const posts = Astro.fetchContent('./blog/*.md');
+const posts = Astro.fetchContent('./blog/*.md')
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 const rssFeed = generateRSSFeed(posts);
 fs.writeFileSync("./public/rss.xml", rssFeed);
 ---
