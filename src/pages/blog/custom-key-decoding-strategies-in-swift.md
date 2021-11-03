@@ -152,30 +152,36 @@ What we need to be able to decode this response, as we did above, is to modify t
 The `custom` enum case has an associated value which consists of a closure of type `([CodingKey]) -> CodingKey`, with the coding keys to be modified as an input array and the resulting coding key as a return value. Knowing this, let's implement our new decoding strategy which turns the keys above into camel case by removing all whitespaces and converting the first letter in the key to lowercase:
 
 ```swift
-struct CustomKey: CodingKey {
-    var stringValue: String
-    var intValue: Int?
 
-    init?(stringValue: String) {
-        self.stringValue = stringValue
+struct Parser {
+    struct CustomKey: CodingKey {
+        var stringValue: String
+        var intValue: Int?
+
+        init?(stringValue: String) {
+            self.stringValue = stringValue
+        }
+
+        init?(intValue: Int) {
+            self.intValue = intValue
+            self.stringValue = ""
+        }
     }
 
-    init?(intValue: Int) {
-        self.intValue = intValue
-        self.stringValue = ""
-    }
+    static let customJSONDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .custom { codingKeys in
+            guard let key = codingKeys.last else { return CustomKey(stringValue: "")! }
+            let keyStringWithoutWhitespaces = key.stringValue.filter { !$0.isWhitespace }
+            let lowercasedFirstLetter = keyStringWithoutWhitespaces.prefix(1).lowercased()
+            return CustomKey(stringValue: lowercasedFirstLetter + keyStringWithoutWhitespaces.dropFirst())!
+        }
+        return decoder
+    }()
+
+    // [...]
 }
 
-static let customJSONDecoder: JSONDecoder = {
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .custom { codingKeys in
-        guard let key = codingKeys.last else { return CustomKey(stringValue: "")! }
-        let keyStringWithoutWhitespaces = key.stringValue.filter { !$0.isWhitespace }
-        let lowercasedFirstLetter = keyStringWithoutWhitespaces.prefix(1).lowercased()
-        return CustomKey(stringValue: lowercasedFirstLetter + keyStringWithoutWhitespaces.dropFirst())!
-    }
-    return decoder
-}()
 ```
 
 You will also have noticed that we had to create a concrete implementation conforming to the `CodingKey` protocol as we have to use it to new up an instance to be returned in our `custom` enum case. Modifying our `Parser` struct to use the new decoder and running the test again results in a passing test, which means that we have test-driven our custom key decoding approach into success without the need of using `CodingKeys` enums and doing manual mapping, which can introduce human error when writing the strings and a lot of unnecessary lines of code.
