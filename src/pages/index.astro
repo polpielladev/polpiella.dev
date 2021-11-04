@@ -39,27 +39,14 @@ fs.writeFileSync("./public/rss.xml", rssFeed);
             justify-content: left;
             gap: 20px;
             margin-bottom: 32px;
+            padding: 16px;
         }
 
         .intro > img {
             object-fit: cover;
-            border-radius: 20px;
-            height: auto;
-            width: 25%;
-        }
-
-        @media only screen and (max-width: 1000px) {
-            .intro {
-                flex-direction: column;
-                text-align: center;
-                max-width: 400px;
-                margin: 32px auto;
-                justify-content: center;
-            }
-
-            .intro > img {
-                width: 50%;
-            }
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
         }
     </style>
 </head>
@@ -71,13 +58,9 @@ fs.writeFileSync("./public/rss.xml", rssFeed);
                 <img src="/assets/profile.png" />
                 <div>
                     <h2>
-                        <b>Hi! I&apos;m Pol</b> 🤘
+                        Personal blog by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
                     </h2>
-                    <p>
-                        Welcome to my personal blog! I am an iOS developer
-                        based in the UK and I love talking about software
-                        development in general.
-                    </p>
+                    <p>I talk about iOS development and my career as a software engineer.</p>
                 </div>
             </section>
             <section>
