@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostDetailLayout.astro
 title: "Using Property Wrappers to avoid code repetition"
 excerpt: "Exploring how Property Wrappers can come in handy to avoid code repetition"
 slug: "avoiding-code-repetition-with-property-wrappers"

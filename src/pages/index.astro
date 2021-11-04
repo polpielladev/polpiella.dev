@@ -2,13 +2,9 @@
 import BlogPreview from '../components/BlogPreview.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import generateRSSFeed from '../services/generateRSSFeed.js';
-import fs from 'node:fs';
 
-const posts = Astro.fetchContent('./blog/*.md')
+const posts = Astro.fetchContent('../_posts/*.md')
     .sort((a, b) => new Date(b.date) - new Date(a.date));
-const rssFeed = generateRSSFeed(posts);
-fs.writeFileSync("./public/rss.xml", rssFeed);
 ---
 <html lang="en">
 <head>

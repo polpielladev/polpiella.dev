@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostDetailLayout.astro
 title: "How I use Github Actions to update my Github profile"
 slug: "updating-your-profile-readme-with-github-actions"
 excerpt: "In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action."

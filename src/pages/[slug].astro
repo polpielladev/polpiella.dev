@@ -1,0 +1,106 @@
+---
+import '../../public/style/blog-detail.css'
+import '../../public/style/global.css'
+import Metadata from '../components/Metadata.astro'
+import Header from '../components/Header.astro'
+import Tags from '../components/Tags.astro'
+import Footer from '../components/Footer.astro'
+import { Markdown } from 'astro/components';
+
+export async function getStaticPaths({ rss }) {
+    const posts = Astro.fetchContent('../_posts/*.md');
+    const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    rss({
+        title: 'polpiella.dev',
+        description: 'A blog about iOS development and software engineering.',
+        customData: `<language>en-us</language>`,
+        items: sortedPosts.map(item => ({
+            title: item.title,
+            description: item.excerpt,
+            link: `https://polpiella.dev/${item.slug}`,
+            pubDate: item.date,
+        }))
+    });
+
+    return posts.map((post) => {
+        console.log(post)
+        return {
+            params: { slug: post.slug },
+            props: { post }
+        }
+    });
+}
+
+const { slug } = Astro.request.params;
+const { post } = Astro.props;
+const { title, excerpt, tags, date, readtime, astro } = post;
+const content = astro.source.replace('ASTRO_ESCAPED_LEFT_CURLY_BRACKET', '{');
+console.log(astro.source);
+---
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+        <title>{title}</title>
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={excerpt} />
+        <meta name="description" content={excerpt} />
+        <meta name="twitter:site" content="@polcodes" />
+        <meta name="twitter:card" content="summary_large_image" />
+    </head>
+
+    <body>
+        <Header />
+        <div class="container">
+            <article class="content">
+                <header>
+                    <h1>{title}</h1>
+                    <Tags tags={tags} />
+                    <Metadata date={date} readtime={readtime} slug={`${slug}`} />
+                    <hr />
+                </header>
+                <Markdown content={content} />
+            </article>
+        </div>
+        <Footer />
+    </body>
+</html>
+
+<style>
+    .content {
+        max-width: 900px;
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+            sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    }
+
+    @media only screen and (max-width: 1000px) {
+        .content {
+            width: 90%;
+        }
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    article > header {
+        margin-bottom: 32px;
+    }
+
+    article > header > * {
+        margin-bottom: 8px;
+    }
+
+    article > header > h1 {
+        font-size: 36px;
+    }
+
+    pre {
+        background: black;
+    }
+</style>
