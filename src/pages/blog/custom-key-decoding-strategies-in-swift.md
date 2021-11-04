@@ -121,11 +121,8 @@ struct Parser {
         return decoder
     }()
 
-    static func parse(_ data: Data) -> User {
-        guard let user = try? decoder.decode(User.self, from: data) else {
-            fatalError("Could not decode User from data")
-        }
-        return user
+    static func parse(_ data: Data) throws -> User {
+        try snakeCaseJSONDecoder.decode(User.self, from: data)
     }
 }
 ```
