@@ -5,16 +5,46 @@ import Metadata from '../components/Metadata.astro'
 import Header from '../components/Header.astro'
 import Tags from '../components/Tags.astro'
 import Footer from '../components/Footer.astro'
-const { content } = Astro.props;
+import { Markdown } from 'astro/components';
+
+export async function getStaticPaths({ rss }) {
+    const posts = Astro.fetchContent('../_posts/*.md');
+    const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    rss({
+        title: 'polpiella.dev',
+        description: 'A blog about iOS development and software engineering.',
+        customData: `<language>en-us</language>`,
+        items: sortedPosts.map(item => ({
+            title: item.title,
+            description: `<![CDATA[${item.astro.html}]]>`,
+            link: `https://polpiella.dev/${item.slug}`,
+            pubDate: item.date,
+        })),
+        dest: '/rss.xml'
+    });
+
+    return posts.map((post) => {
+        return {
+            params: { slug: post.slug },
+            props: { post }
+        }
+    });
+}
+
+const { slug } = Astro.request.params;
+const { post } = Astro.props;
+const { title, excerpt, tags, date, readtime, astro } = post;
+const { source } = astro;
 ---
+
 <html>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-        <title>{content.title}</title>
-        <meta name="twitter:title" content={content.title} />
-        <meta name="twitter:description" content={content.excerpt} />
-        <meta name="description" content={content.excerpt} />
+        <title>{title}</title>
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={excerpt} />
+        <meta name="description" content={excerpt} />
         <meta name="twitter:site" content="@polcodes" />
         <meta name="twitter:card" content="summary_large_image" />
     </head>
@@ -24,12 +54,12 @@ const { content } = Astro.props;
         <div class="container">
             <article class="content">
                 <header>
-                    <h1>{content.title}</h1>
-                    <Tags tags={content.tags} />
-                    <Metadata date={content.date} readtime={content.readtime} slug={`${content.slug}`} />
+                    <h1>{title}</h1>
+                    <Tags tags={tags} />
+                    <Metadata date={date} readtime={readtime} slug={`${slug}`} />
                     <hr />
                 </header>
-                <slot />
+                <Markdown content={source} />
             </article>
         </div>
         <Footer />

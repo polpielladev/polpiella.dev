@@ -2,13 +2,14 @@
 import Metadata from './Metadata.astro';
 import Tags from './Tags.astro';
 const { post } = Astro.props;
+const { slug, title, excerpt, date, readtime, tags } = post;
 ---
-<a href={post.url}> 
+<a href={`/${slug}`}> 
     <div class="blog-preview">
-        <h1>{post.title}</h1>
-        <p>{post.excerpt}</p>
-        <Metadata date={post.date} readtime={post.readtime} />
-        <Tags tags={post.tags} />
+        <h1>{title}</h1>
+        <p>{excerpt}</p>
+        <Metadata date={date} readtime={readtime} />
+        <Tags tags={tags} />
     </div>
 </a>
 
