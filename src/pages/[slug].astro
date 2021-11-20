@@ -10,12 +10,17 @@ import { Markdown } from 'astro/components';
 export async function getStaticPaths({ rss }) {
     const posts = Astro.fetchContent('../_posts/*.md');
     const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 1037fe5c6cb10e1521c85aa28f1d36a281af88fb
     rss({
         title: 'polpiella.dev',
         description: 'A blog about iOS development and software engineering.',
         customData: `<language>en-us</language>`,
         items: sortedPosts.map(item => ({
             title: item.title,
+<<<<<<< HEAD
             description: `<![CDATA[${item.astro.html}]]>`,
             link: `https://polpiella.dev/${item.slug}`,
             pubDate: item.date,
@@ -24,6 +29,16 @@ export async function getStaticPaths({ rss }) {
     });
 
     return posts.map((post) => {
+=======
+            description: item.excerpt,
+            link: `https://polpiella.dev/${item.slug}`,
+            pubDate: item.date,
+        }))
+    });
+
+    return posts.map((post) => {
+        console.log(post)
+>>>>>>> 1037fe5c6cb10e1521c85aa28f1d36a281af88fb
         return {
             params: { slug: post.slug },
             props: { post }
@@ -34,7 +49,12 @@ export async function getStaticPaths({ rss }) {
 const { slug } = Astro.request.params;
 const { post } = Astro.props;
 const { title, excerpt, tags, date, readtime, astro } = post;
+<<<<<<< HEAD
 const { source } = astro;
+=======
+const content = astro.source.replace('ASTRO_ESCAPED_LEFT_CURLY_BRACKET', '{');
+console.log(astro.source);
+>>>>>>> 1037fe5c6cb10e1521c85aa28f1d36a281af88fb
 ---
 
 <html>
@@ -59,7 +79,11 @@ const { source } = astro;
                     <Metadata date={date} readtime={readtime} slug={`${slug}`} />
                     <hr />
                 </header>
+<<<<<<< HEAD
                 <Markdown content={source} />
+=======
+                <Markdown content={content} />
+>>>>>>> 1037fe5c6cb10e1521c85aa28f1d36a281af88fb
             </article>
         </div>
         <Footer />
