@@ -10,6 +10,7 @@ import { Markdown } from 'astro/components';
 export async function getStaticPaths({ rss }) {
     const posts = Astro.fetchContent('../_posts/*.md');
     const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     rss({
         title: 'polpiella.dev',
         description: 'A blog about iOS development and software engineering.',
@@ -17,7 +18,7 @@ export async function getStaticPaths({ rss }) {
         items: sortedPosts.map(item => ({
             title: item.title,
             description: item.astro.html,
-            link: `https://polpiella.dev/${item.slug}`,
+            link: `https://${item.slug}`,
             pubDate: item.date,
         })),
         dest: '/rss.xml'
