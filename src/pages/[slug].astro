@@ -16,7 +16,7 @@ export async function getStaticPaths({ rss }) {
         customData: `<language>en-us</language>`,
         items: sortedPosts.map(item => ({
             title: item.title,
-            description: `<![CDATA[${item.astro.html}]]>`,
+            description: item.astro.html,
             link: `https://polpiella.dev/${item.slug}`,
             pubDate: item.date,
         })),
