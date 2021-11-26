@@ -50,6 +50,11 @@ const posts = Astro.fetchContent('../_posts/*.md')
             height: 100px;
             width: 100px;
         }
+
+        .job-title {
+            color: #00000085;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +67,7 @@ const posts = Astro.fetchContent('../_posts/*.md')
                     <h2>
                         Personal blog by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
                     </h2>
+                    <p class="job-title">iOS developer @ BBC iPlayer</p>
                     <p>I talk about iOS development and my career as a software engineer.</p>
                 </div>
             </section>
