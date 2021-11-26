@@ -6,6 +6,14 @@
     --color-light: #f3f4f6;
 }
 
+blockquote {
+    border-left: #1dd8d2;
+    border-left-width: 5px;
+    border-left-style: inset;
+    padding-left: 10px;
+    font-style: italic;
+}
+
 @font-face {
     font-family: "JetBrains Mono";
     src: local(""), url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");

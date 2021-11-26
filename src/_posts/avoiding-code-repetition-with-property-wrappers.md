@@ -13,7 +13,7 @@ The `DRY` principle is one of the fundamentals of software development and it is
 
 While there are many approaches to reducing code duplication in Swift, in this article we're going to have a look at how `PropertyWrappers` can help us do this in a very simple manner.
 
-`PropertyWrapppers` provide us with a way of separating the property definition from the way we actually chose to store/retrieve the property. The way we achieve this in `Swift` is by making use of `getters` and `setters`, to override the way the OS will automatically store the variable in question. We can also use them to reuse property observers such as `didSet` and provide funcitonality that needs to be used across multiple variables.
+`PropertyWrapppers` provide us with a way of separating the property definition from the way we actually chose to store/retrieve the property. The way we achieve this in `Swift` is by making use of `getters` and `setters`, to override the way the OS will automatically store the variable in question. We can also use them to reuse property observers such as `didSet` and provide functionality that needs to be used across multiple variables.
 
 To better illustrate this, let's picture an example where we have a feature flag that is being fetched from a local representation of a remote store. This store will be kept in sync periodically with its remote counterpart on a background thread so that all our calls to it will be synchronous.
 
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
 
 While this approach is very valid, it will not scale very well. Every time we need to access a feature flag from any other part of the app we will need to repeat a lot of the functionality, leading to an increasing amount of code duplication. Worry not though! Swift has a lot of ways to prevent this from happening and this looks like a great example for a property wrapper!
 
-## Property Wrappper
+## Property Wrapper
 
 Our property wrapper will be in charge of abstracting all the logic we had on our `ViewController` above into its own `struct`. It will need to define a `store`, a `key` and a `defaultValue`. Then, the only thing we need to do is define a `struct` decorated by `@propertyWrapper` and that implements a `wrappedValue` property that contains the logic we need for our `FeatureFlag` variables.
 

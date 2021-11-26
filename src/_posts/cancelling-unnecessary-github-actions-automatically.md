@@ -17,7 +17,7 @@ One of these cases, which comes up quite often in our team, has to do with the w
 
 When I was doing some research into this I stumbled upon a potential solution which I believe is the most commonly used when tackling this problem. So much that even the [github team suggested](https://github.community/t/github-actions-cancel-redundant-builds-not-solved/16025/31) a while ago that there was nothing **built in** at the time and that the right approach was to use a **custom action** that talked to the github api. This would read the list of in-progress runs for a given repository and then make a decision on what to **cancel/keep** based on the source branch and the commit sha. In other words, you would get the list of actions being run from the API, compare with the current action and then query the cancel endpoint for the action to be cancelled if needed.
 
-These custom actions can be used at the start of the workflow by adding it on th=e `uses` property of your `.yml` file as you would do for any other action in the github marketplace.
+These custom actions can be used at the start of the workflow by adding it on the `uses` property of your `.yml` file as you would do for any other action in the github marketplace.
 
 ### Why might this not work for you?
 
