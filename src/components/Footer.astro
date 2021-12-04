@@ -20,9 +20,19 @@ let SOCIAL_MEDIA = [
     footer {
         margin-top: 32px;
         display: flex;
-        background: #f1f5f9;
+        background: var(--gray100);
         padding: 32px 36px;
         align-items: center;
         justify-content: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        footer {
+            background: var(--gray900);
+        }
+
+        .social > a > img {
+            filter: invert(100%);
+        }
     }
 </style>

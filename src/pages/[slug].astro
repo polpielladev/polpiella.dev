@@ -1,6 +1,4 @@
 ---
-import '../../public/style/blog-detail.css'
-import '../../public/style/global.css'
 import Metadata from '../components/Metadata.astro'
 import Header from '../components/Header.astro'
 import Tags from '../components/Tags.astro'
@@ -48,6 +46,8 @@ const { source } = astro;
         <meta name="description" content={excerpt} />
         <meta name="twitter:site" content="@polcodes" />
         <meta name="twitter:card" content="summary_large_image" />
+        <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
+        <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
     </head>
 
     <body>

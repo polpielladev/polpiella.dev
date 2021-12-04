@@ -17,7 +17,7 @@ const posts = Astro.fetchContent('../_posts/*.md')
     <meta name="twitter:site" content="@polcodes" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/style/global.css">
+    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')}>
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -50,11 +50,6 @@ const posts = Astro.fetchContent('../_posts/*.md')
             height: 100px;
             width: 100px;
         }
-
-        .job-title {
-            color: #00000085;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
@@ -67,7 +62,7 @@ const posts = Astro.fetchContent('../_posts/*.md')
                     <h2>
                         Personal blog by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
                     </h2>
-                    <p class="job-title">iOS developer @ BBC iPlayer</p>
+                    <p class="secondary">iOS developer @ BBC iPlayer</p>
                     <p>I talk about iOS development and my career as a software engineer.</p>
                 </div>
             </section>

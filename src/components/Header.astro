@@ -1,15 +1,13 @@
 <header>
     <a class="animated" href="/">
-        <img src="/assets/logo.svg" />
+        polpiella<span class="dev">DEV</span>
     </a>
-
 </header>
 
 <style>
     header {
         display: flex;
-        background: #f1f5f9;
-        padding: 16px 32px;
+        background: var(--gray100);
         margin-bottom: 32px;
         justify-content: space-between;
         align-items: center;
@@ -22,7 +20,11 @@
     }
 
     a {
+        font-size: 20px;
+        font-weight: bold;
         width: 220px;
+        padding: 24px;
+        text-decoration: none;
     }
 
     a.animated {
@@ -30,6 +32,25 @@
     }
 
     a.animated:hover {
-        transform: scale(1.1);
+        transform: scale(1.05);
+    }
+
+    .dev {
+        background-color: red;
+        padding: 4px;
+        margin-left: 2px;
+        border-radius: 5px;
+        background: #1dd8d2;
+        color: var(--gray900)
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        header {
+            background: var(--gray900);
+        }
+
+        a {
+            color: var(--gray100);
+        }
     }
 </style>

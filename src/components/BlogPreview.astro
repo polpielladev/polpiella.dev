@@ -33,4 +33,10 @@ const { slug, title, excerpt, date, readtime, tags } = post;
     .blog-preview:hover {
         background: #f1f5f9;
     }
+
+    @media (prefers-color-scheme: dark) {
+        .blog-preview:hover {
+            background: var(--gray800);
+        }   
+    }
 </style>

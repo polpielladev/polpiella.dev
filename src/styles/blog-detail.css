@@ -33,7 +33,7 @@ blockquote {
 
 code[class*="language-"],
 pre[class*="language-"] {
-    background: hsl(230, 1%, 98%);
+    background: hsl(230, 1%, 98%) !important;
     color: hsl(230, 8%, 24%);
     font-family: "JetBrains Mono", "Fira Mono", Menlo, Consolas,
         "DejaVu Sans Mono", monospace;
@@ -86,6 +86,12 @@ pre[class*="language-"] {
     font-family: "JetBrains Mono", "Fira Mono", Menlo, Consolas,
         "DejaVu Sans Mono", monospace;
     font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :not(pre) > code {
+        background-color: var(--gray900);
+    }
 }
 
 .token.comment,
