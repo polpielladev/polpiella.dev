@@ -3,12 +3,14 @@ import Metadata from './Metadata.astro';
 import Tags from './Tags.astro';
 const { post } = Astro.props;
 const { slug, title, excerpt, date, readtime, tags } = post;
+const formattedDate = new Date(date).toDateString();
 ---
-<a href={`/${slug}`} class="p-3 hover:bg-fuchsia-100 no-underline rounded" > 
-    <div>
-        <h1>{title}</h1>
-        <p>{excerpt}</p>
-        <Metadata date={date} readtime={readtime} />
+<a href={`/${slug}`} class="p-3 no-underline rounded"> 
+    <div class="prose">
+        <h3 class=" text-zinc-500 mb-0 font-bold">{formattedDate}</h3>
+        <h1 class="hover:text-fuchsia-900 mt-0 mb-2">{title}</h1>
+        <p class="mt-0 mb-0">{excerpt}</p>
+        <Metadata readtime={readtime} />
         <Tags tags={tags} />
     </div>
 </a>
