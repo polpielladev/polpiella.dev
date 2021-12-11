@@ -41,10 +41,10 @@ function getHTML(title) {
         }
 
         h1 {
-            font-size: 100px;
+            font-size: 90px;
             font-weight: 800;
             margin: 0;
-            line-height: 1.5;
+            line-height: 1;
         }
         img {
             aspect-ratio: 1;
