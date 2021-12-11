@@ -4,38 +4,11 @@ import Tags from './Tags.astro';
 const { post } = Astro.props;
 const { slug, title, excerpt, date, readtime, tags } = post;
 ---
-<a href={`/${slug}`}> 
-    <div class="blog-preview">
+<a href={`/${slug}`} class="p-3 hover:bg-fuchsia-100 no-underline rounded" > 
+    <div>
         <h1>{title}</h1>
         <p>{excerpt}</p>
         <Metadata date={date} readtime={readtime} />
         <Tags tags={tags} />
     </div>
 </a>
-
-<style>
-    a {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .blog-preview > * {
-        margin-bottom: 4px;
-    }
-
-    .blog-preview {
-        text-decoration: none;
-        margin-bottom: 8px;
-        border-radius: 8px;
-    }
-
-    .blog-preview:hover {
-        background: #f1f5f9;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .blog-preview:hover {
-            background: var(--gray800);
-        }   
-    }
-</style>
