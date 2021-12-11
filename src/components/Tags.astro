@@ -2,26 +2,17 @@
 const { tags } = Astro.props;
 ---
 
-<div class="tags">
-    {tags.map(tag => <div class="tag">{tag.name}</div>)}
+<div class="flex flex-wrap gap-2">
+    {tags.map(tag => <div class="bg-fuchsia-300 p-1 rounded text-xs font-bold">{tag.name}</div>)}
 </div>
 
 <style>
-    .tag {
+    /* .tag {
         padding: 2px 8px;
         border-radius: 4px;
         text-align: center;
         background: #1dd8d2;
         font-size: 13px;
         margin-bottom: 3px;
-    }
-
-    .tags {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .tags > * {
-        margin-right: 4px;
-    }
+    } */
 </style>
