@@ -47,7 +47,7 @@ function getHTML(title) {
             line-height: 1;
         }
         img {
-            aspect-ratio: 1;
+            aspect-ratio: 1.2;
             object-fit: contain;
             border-radius: 50%;
             box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
