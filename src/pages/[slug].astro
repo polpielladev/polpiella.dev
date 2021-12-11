@@ -53,6 +53,12 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
         <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+        <link
+            rel="alternate"
+            type="application/rss+xml"
+            title="RSS Feed for polpiella.dev"
+            href="/rss.xml"
+        />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     </head>
 
