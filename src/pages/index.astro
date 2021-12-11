@@ -25,15 +25,15 @@ const posts = Astro.fetchContent('../_posts/*.md')
       href="/rss.xml"
     />
 </head>
-<body class="dark:bg-zinc-900">
+<body class="dark:bg-gray-900">
     <main class="grid content-center min-h-screen">
         <Header />
         <div class="px-3 mx-auto my-0 max-w-3xl">
             <section class="flex gap-5 align-self-middle justify-start mb-8">
                 <img class="object-cover rounded-full w-2/12 h-auto drop-shadow-lg" src="/assets/profile.png" />
-                <div class="prose grid content-center">
+                <div class="prose dark:prose-invert grid content-center">
                     <h2 class="m-0">
-                        iOS Dev blog by <a class="font-bold underline decoration-amber-500 decoration-wavy hover:text-amber-700" target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
+                        iOS Dev blog by <a class="font-bold underline decoration-amber-500 decoration-wavy hover:text-amber-700 dark:hover:text-amber-300" target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
                     </h2>
                     <p class="m-0">iOS developer at <b>BBC iPlayer</b></p>
                     <p class="m-0">I love to talk about <b>iOS development</b> and my career as <b>a software engineer</b>.</p>
