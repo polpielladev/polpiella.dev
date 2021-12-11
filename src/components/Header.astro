@@ -1,56 +1,5 @@
-<header>
-    <a class="animated" href="/">
-        polpiella<span class="dev">DEV</span>
+<header class="flex bg-gray-100 mb-16 align-middle dark:bg-gray-800">
+    <a class="hover:scale-105 transition-transform font-bold text-xl p-5 dark:text-white" href="/">
+        polpiella<span class="bg-fuchsia-300 p-1 rounded ml-1 text-black">DEV</span>
     </a>
 </header>
-
-<style>
-    header {
-        display: flex;
-        background: var(--gray100);
-        margin-bottom: 32px;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    header > a > img {
-        object-fit: cover;
-        width: 220px;
-        height: auto;
-    }
-
-    a {
-        font-size: 20px;
-        font-weight: bold;
-        width: 220px;
-        padding: 24px;
-        text-decoration: none;
-    }
-
-    a.animated {
-        transition: transform ease 0.3s;
-    }
-
-    a.animated:hover {
-        transform: scale(1.05);
-    }
-
-    .dev {
-        background-color: red;
-        padding: 4px;
-        margin-left: 2px;
-        border-radius: 5px;
-        background: #1dd8d2;
-        color: var(--gray900)
-    }
-    
-    @media (prefers-color-scheme: dark) {
-        header {
-            background: var(--gray900);
-        }
-
-        a {
-            color: var(--gray100);
-        }
-    }
-</style>

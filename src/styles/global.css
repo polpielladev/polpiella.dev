@@ -1,5 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-    --gray50: #f9fafb;
+  /* --gray50: #f9fafb;
     --gray100: #f3f4f6;
     --gray200: #e5e7eb;
     --gray300: #d1d5db;
@@ -9,59 +13,59 @@
     --gray700: #374151;
     --gray800: #1f2937;
     --gray900: #111827;
-    --dark-mode-bg: #232a2f;
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
-        sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    --dark-mode-bg: #232a2f; */
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji;
 }
 
 * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 a {
-    color: inherit;
+  color: inherit;
 }
 
 body {
-    width: 100%;
-    min-height: 100vh;
-    justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  justify-content: center;
 }
 
 h1,
 h2 {
-    color: var(--gray800);
+  color: var(--gray800);
 }
 
 p {
-    color: var(--gray700);
+  color: var(--gray700);
 }
 
 .secondary {
-    color: var(--gray500);
+  color: var(--gray500);
 }
 
 @media (prefers-color-scheme: dark) {
-    body {
-        background-color: var(--dark-mode-bg);
-    }
+  body {
+    background-color: var(--dark-mode-bg);
+  }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
-        color: var(--gray50);
-    }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    color: var(--gray50);
+  }
 
-    p,
-    li {
-        color: var(--gray200);
-    }
+  p,
+  li {
+    color: var(--gray200);
+  }
 
-    .secondary {
-        color: var(--gray400);
-    }
+  .secondary {
+    color: var(--gray400);
+  }
 }
