@@ -44,6 +44,7 @@ function getHTML(title) {
             font-size: 100px;
             font-weight: 800;
             margin: 0;
+            line-height: 0.2;
         }
         img {
             aspect-ratio: 1;

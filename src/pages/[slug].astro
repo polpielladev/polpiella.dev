@@ -36,6 +36,7 @@ const { source } = astro;
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
 });
+const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(title)}`
 ---
 
 <html>
@@ -43,9 +44,11 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
         <title>{title}</title>
+        <meta name="description" content={excerpt} />
+        <meta property="og:image" content={fullImageURL} />
+        <meta name="twitter:image" content={fullImageURL} />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={excerpt} />
-        <meta name="description" content={excerpt} />
         <meta name="twitter:site" content="@polcodes" />
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
