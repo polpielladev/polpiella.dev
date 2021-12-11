@@ -24,49 +24,22 @@ const posts = Astro.fetchContent('../_posts/*.md')
       title="RSS Feed for polpiella.dev"
       href="/rss.xml"
     />
-    <style>
-        .home-container {
-            margin: 0 auto;
-            max-width: 900px;
-            line-height: 1.5;
-        }
-
-        .intro > div {
-            max-width: 400px;
-        }
-
-        .intro {
-            display: flex;
-            align-items: center;
-            justify-content: left;
-            gap: 20px;
-            margin-bottom: 32px;
-            padding: 16px;
-        }
-
-        .intro > img {
-            object-fit: cover;
-            border-radius: 50%;
-            height: 100px;
-            width: 100px;
-        }
-    </style>
 </head>
 <body>
-    <main>
+    <main class="grid content-center min-h-screen">
         <Header />
-        <div class="home-container">
-            <section class="intro">
-                <img src="/assets/profile.png" />
+        <div class="mx-auto my-0 pl-4 max-w-prose">
+            <section class="flex gap-5 align-self-middle justify-start mb-8">
+                <img class="object-cover rounded-full w-2/12 h-auto drop-shadow-lg" src="/assets/profile.png" />
                 <div>
                     <h2>
-                        Personal blog by <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
+                        Personal blog by <a class="font-bold underline decoration-fuchsia-900" target="_blank" rel="noopener noreferrer" href="https://twitter.com/polcodes">Pol Piella</a> 
                     </h2>
-                    <p class="secondary">iOS developer @ BBC iPlayer</p>
-                    <p>I talk about iOS development and my career as a software engineer.</p>
+                    <p class="text-gray-600">iOS developer @ BBC iPlayer</p>
+                    <p class="text-gray-600">I talk about iOS development and my career as a software engineer.</p>
                 </div>
             </section>
-            <section>
+            <section class="flex flex-col gap-5">
                 {posts.map(p => <BlogPreview post={p} />)}
             </section>
         </div>
