@@ -30,7 +30,6 @@ export async function getStaticPaths({ rss }) {
     });
 }
 
-const { slug } = Astro.request.params;
 const { post } = Astro.props;
 const { title, excerpt, tags, date, readtime, astro } = post;
 const { source } = astro;
@@ -48,17 +47,18 @@ const { source } = astro;
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
         <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     </head>
 
-    <body>
+    <body class="dark:bg-zinc-900">
         <Header />
         <div class="w-full">
-            <article class="prose prose-xl mx-auto my-0">
-                <header>
-                    <h1>{title}</h1>
+            <article class="prose prose-lg mx-auto my-0 px-3">
+                <header class="flex flex-col gap-5">
+                    <h1 class="m-0">{title}</h1>
                     <Tags tags={tags} />
-                    <Metadata date={date} readtime={readtime} slug={`${slug}`} />
-                    <hr />
+                    <Metadata date={date} readtime={readtime} />
+                    <hr class="m-0" />
                 </header>
                 <Markdown content={source} />
             </article>

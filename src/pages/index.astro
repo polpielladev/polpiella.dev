@@ -25,10 +25,10 @@ const posts = Astro.fetchContent('../_posts/*.md')
       href="/rss.xml"
     />
 </head>
-<body>
+<body class="dark:bg-zinc-900">
     <main class="grid content-center min-h-screen">
         <Header />
-        <div class="mx-auto my-0 pl-4 max-w-3xl">
+        <div class="px-3 mx-auto my-0 max-w-3xl">
             <section class="flex gap-5 align-self-middle justify-start mb-8">
                 <img class="object-cover rounded-full w-2/12 h-auto drop-shadow-lg" src="/assets/profile.png" />
                 <div>
@@ -39,7 +39,7 @@ const posts = Astro.fetchContent('../_posts/*.md')
                     <p class="text-gray-600">I talk about iOS development and my career as a software engineer.</p>
                 </div>
             </section>
-            <section class="flex flex-col gap-5">
+            <section class="flex flex-col gap-10">
                 {posts.map(p => <BlogPreview post={p} />)}
             </section>
         </div>
