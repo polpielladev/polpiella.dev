@@ -3,3 +3,6 @@ Disallow:
 
 User-agent: Twitterbot
 Disallow:
+
+User-agent: *
+Disallow: /
