@@ -17,7 +17,7 @@ I know a lot of people might be thinking that it is overkill and that there are 
 
 ### It is fun!
 
-For me, as well as my full-time job, coding is something that I like to do as a hobby, so exploring new technologies in a purposeful way (not doing the good old todo list or pokemon index tutorials 😅) is a great way to learn and it is loads of fun.
+For me, as well as my full-time job, coding is something that I like to do as a hobby, so exploring new technologies in a purposeful way (not doing the good old todo list or pokemon index tutorials 😅) is a great way to learn and it is a lot of fun.
 
 It also does give you your own app to maintain and loads of room for creativity and cool features to implement. I know from personal experience that sometimes we want to learn new things and get very quickly put off by the all the tutorials we see, so having the feeling that you're making something worthwhile and learning at the same time is fantastic!
 
