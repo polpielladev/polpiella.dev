@@ -9,7 +9,7 @@ author:
   name: "Pol Piella"
 ---
 
-In this article, I will take you through why I decided to create my personal blog from scratch and what technologies I used to do it and what influenced my decisions. Before I start though, I would like to mention that I am not a web developer (I only have a bit of experience in React) so most of what I am about to write about are things that worked for me, but might not be the best solutions.
+In this article, I will take you through why I decided to create my personal blog from scratch and what technologies I used to do it and what influenced my decisions. Before I start though, I would like to mention that **I am not a web developer** (I only have a bit of experience in React) so most of what I am about to write about are things that **worked for me**, but might not be the best/most efficient way of doing things.
 
 ## Why bother making your own personal site?
 
@@ -17,9 +17,9 @@ I know a lot of people might be thinking that it is overkill and that there are 
 
 ### It is fun!
 
-For me, as well as my full-time job, coding is something that I like to do as a hobby, so exploring new technologies in a purposeful way (not doing the good old todo list or pokemon index tutorials 😅) is a great way to learn and it is a lot of fun.
+For me, as well as my full-time job, coding is something that **I like to do as a hobby**, so exploring new technologies in a **purposeful** way (not doing the good old todo list or pokemon index tutorials 😅) is a great way to learn and it is a lot of fun.
 
-It also does give you your own app to maintain and loads of room for creativity and cool features to implement. I know from personal experience that sometimes we want to learn new things and get very quickly put off by the all the tutorials we see, so having the feeling that you're making something worthwhile and learning at the same time is fantastic!
+It also does give you your own app to **maintain** and a lot of room for creativity as well as cool features to implement. I know from personal experience that sometimes we want to learn new things but yet get **very quickly** put off by the **nature of some of the tutorials** or even **lack of ideas**, so having the feeling that you're making something **worthwhile** while still learning from it is fantastic!
 
 ### The content is yours and no one else's
 
@@ -51,13 +51,17 @@ I decided to stick with it for a while, even changing CMS providers from `Conten
 
 With the launch of [Next.js](https://nextjs.org) on 2020 and after watching a significant amount of tutorials to make sense of it 😅, I decided to migrate my site to it. This was a no-brainer for me, I could get a bunch of benefits like server-side rendering, moving all of the posts to my Github in a very easy manner and even **generate an RSS feed** at build-time, which was fantastic.
 
-This was a major improvement, SSR and static files made my site a lot faster and Next.js as a framework worked very well. There was still a problem, it is only a blog site, so it still seemed like a bit overkill the amount of javascript that I was loading and started to look at other solutions.
+This was a major improvement, **SSR** and **static files** made my site a lot faster and Next.js as a framework worked very well. There was still a problem though, that it being a fairly simple blog site, the amount of JS and files being loaded was pretty large, as it can be seen in the image below. Both images (the one below and its comparison which you can find in the following section) were captured in development builds of my site and the amount of javascript that I was loading unnecessarily is truly staggering.
+
+![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/nextjs.png)
 
 ### The final (for now) iteration: Astro
 
 Since the site is very simple and all of the previous iterations required a significant amount of Javascript, which deteriorated the site's performance unnecessarily (there is little to no interaction and it all could be done with static html and css). The problem with a vanilla application is that it makes things a lot more complex than writing an application with a library like React (with the downside of the latter needing Javascript). I started then looking into static site generators and found [Astro](https://astro.build), which allows you to use modern web technologies such as React, but compiles them to **static html and css** files with **no javascript** 🎉, which is exactly what I needed.
 
-It does also have a **remarkably** fast build time, which makes it ideal for scalability as the post count continues to increase.
+It does also have a **remarkably** fast build time, which makes it ideal for scalability as the post count continues to increase. And, of course, as you can see in the image below, I went from loading 49.8 MB of JS to **loading as little as zero!** 🎉
+
+![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/astro.png)
 
 ## Conclusion
 
