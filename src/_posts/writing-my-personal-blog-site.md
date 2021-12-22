@@ -1,0 +1,78 @@
+---
+title: "Why I wrote my personal blog site"
+slug: "why-I-wrote-my-personal-blog-site"
+excerpt: "A little note on why I decided to write and host all my blogs in my own personal blog website."
+date: "2021-12-22T05:35:07.322Z"
+readtime: "8"
+tags: [{ name: "Web", slug: "web" }, { name: "Career", slug: "career" }]
+author:
+  name: "Pol Piella"
+---
+
+In this article, I will take you through the reasons why I decided to create my personal blog from scratch, what technologies I used to do so and what influenced the decisions I made along the process.
+
+Before I start, I would like to mention that **I am not a web developer** (I only have a bit of experience in React) and that the point of this article is not to share best practices but to share my experience and what went into my thought process when making my own site.
+
+## Why bother making your own personal site?
+
+I know you might be thinking at this point, _Why bother?_. There are plenty of solutions out there that provide you with a suite of tools to get you writing very quickly, such as [Medium](https://medium.com) or [Dev.to](https://dev.to), both of which I use **a lot** on a daily basis. However, while these are awesome solutions, I have always been rather frustrated by the limitations of the tools and the lack of features that I find myself needing. An example of this that I encountered while using Medium, was having to create gists to be able to put code snippets in my blog posts, rather than them nicely being embedded in the post's markdown, among other things.
+
+### It is fun!
+
+Personally, as well as my full-time job, coding is something that **I like to do as a hobby**, so exploring new technologies in a **purposeful** way (not doing the good old todo list tutorials 😅) is a great way to learn and it is a lot of fun.
+
+It also gives you your own project to **maintain**, **grow** and a lot of room for creativity and cool features to implement. I sometimes find myself wanting to learn new tools or languages but get **very quickly** put off by the **nature of some of the tutorials** or even **lack of ideas** I have at the time, so having the feeling that you're making something **worthwhile** while still learning from it helps you get through the process.
+
+### The content is yours and no one else's
+
+I read [an article](https://yanngirard.typepad.com/yanns_blog/2015/10/why-you-shouldnt-blog-on-medium-.html) from [Yann Girard](https://twitter.com/girard_yann?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor) a while back on _Why you shouldn't write on Medium_ and something stood out to me:
+
+> But what it does [_Medium_] is that it completely kills the person behind the content. It kills the author. It turns the author into another useless side effect. A commodity. It turns the author into a machine. And no one really cares about the machine. Everybody cares about the product. About the output.
+
+Don't get me wrong though, I am a big fan of Medium and I read a lot of tech articles there, but that quote from Girard made me realise things that I had never had before, such as that I never check out people's profiles when I read an article on Medium or click through to any of their other articles. I subconsciously fall into the content-only consumption while giving little attention to the person who actually wrote it.
+
+This got me thinking that, as a developer, with the means (and the time during a nation-wide lock-down in the UK) of getting a site online, I could get a blog up and running that gave me complete freedom on how I want to show my content online and how I can style and organise my website.
+
+I have written a couple of posts on Medium, and really only ever published [one](https://medium.com/student-beans/functional-programming-in-swift-758968a48cbc) but have always found that getting feedback before publishing was not very convenient. Even after publishing, while people did comment to either praise or criticize the content, I found the editing process to not be very interactive or engaging for the person who raised the issue. This is another thing I managed to improve by adding an `Edit on Github` button to the post where people who found any mistakes or had suggestions could edit the post on Github, giving full reward to the person that flagged it and fixed it through a PR on the blog's repo, which is also open-sourced.
+
+### It can be your online business card
+
+What better way to introduce yourself to other people or recruiters than with your own site? What if your future employer was a casual (or even regular) - this is not my case by the way, I don't get a lot of readers at the moment 😅 - reader of your blog?
+
+The awesome thing about having it in your own domain is that you have the opportunity to expand it and style it in **whichever way you like**. From hosting your CV, showcasing your work or your passion or even creating a community or space to allow people to interact with you while they read your posts. And what better way to introduce yourself than saying that you have designed and built all of that yourself! 🔨
+
+## How did I build my blog?
+
+Well, that's a very good question. The truth is, I have had to go through **a number of iterations and technologies** to find what truly works for me. Heck, even the domain I thought I had decided on changed halfway through the process too.
+
+### The first iteration: React + headless CMS
+
+The first iteration of my personal site consisted of a very simple application built with React and with all my blog posts stored in a headless CMS thats sole purpose was to serve the markdown data to my site. This worked fine but it meant that a big amount of requests were needed, as it was fetching all blog posts when the home page loaded and then the specific posts on the detail pages too. I had not implemented any caching, which meant the site was **pretty slow** and I found that the content editing part of the CMS ended up being not too dissimilar from Medium itself.
+
+This defeated one of the goals of having my personal site, so started thinking about potential solutions. The main question that I kept asking myself was, do I really need a CMS? Is my content really going to change that often? Or could I potentially store the blog post in the site's repo and have the site serve the content from there? Turns out I could, and this massively helped with performance, build time and achieving the goal of allowing readers to submit editing requests through pull requests on the repo itself.
+
+Despite the fact that I knew this was my long-term goal for the site, I decided to stick with it for a while, even tried to change CMS providers from `Contentful` to `Ghost`, as it seemed like the content editing experience was a better, but it was not a very cost-effective solution.
+
+### The second iteration: Next.js
+
+With the launch of [Next.js](https://nextjs.org) in 2020 and after watching a significant amount of tutorials to make sense of it 😅, I decided to migrate my site to it. It seemed to be a no-brainer for me, I could get a bunch of benefits like server-side rendering, moving all of the posts to Github and serving them statically and even **generate an RSS feed** at build-time, which solved a lot of the frustrations I was facing on the initial implementation.
+
+This was a major improvement, **SSR** and **static files** made my site a lot faster and Next.js as a framework worked very well. There was still a problem though, that it being a fairly simple blog site, the amount of Javascript and files being loaded was pretty large, as it can be seen in the image below. As you can see, a fair amount of JS is loaded but simply due to the frameworks I was using, and not because of any user interaction or dynamic content or animations. This lead me to look into solutions that involved less JS, but still allowed me to use modern web technologies such as `React`.
+
+> Both images (the one below and its comparison which you can find in the following section) were captured in development builds of my site and the amount of javascript that I was loading unnecessarily is truly staggering.
+
+![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/nextjs.png)
+
+### The final (for now) iteration: Astro
+
+The problem with a vanilla application is that it makes things a lot more complex than writing an application with a library like React (with the downside of the latter needing Javascript). I started then looking into static site generators and found [Astro](https://astro.build), which allows you to use modern web technologies, but compiles them to **static html and css** files with **no javascript** 🎉, which is exactly what I needed.
+
+It does also have a **remarkably** fast build time, which makes it ideal for scalability as the number of posts continues to increase. And, of course, as you can see in the image below, I went from loading 49.8 MB of JS to **loading as little as zero!** 🎉
+
+![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/astro.png)
+
+## Conclusion
+
+I have to say that building my own site has been an **awesome experience**, I have learnt a lot along the way and I feel very proud of having my own space online where I can post **whenever I want** and **style it** and give it my **personal** touch whenever I get bored of my own design, which is quite often by the way.
+
+It also gives me an **application to maintain**, which is as **expandable** as I want it to be. Say in the future I want to have an `About` section, or links to any other social media or apps that I build, I can add it to my personal site too! 🎉
