@@ -2,7 +2,7 @@
 title: "Why I wrote my personal blog site"
 slug: "why-I-wrote-my-personal-blog-site"
 excerpt: "A little note on why I decided to write and host all my blogs in my own personal blog website."
-date: "2021-12-18T05:35:07.322Z"
+date: "2021-12-22T05:35:07.322Z"
 readtime: "8"
 tags: [{ name: "Web", slug: "web" }, { name: "Career", slug: "career" }]
 author:
