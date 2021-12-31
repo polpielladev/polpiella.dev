@@ -1,9 +1,9 @@
 ---
-import Metadata from './Metadata.astro';
-import Tags from './Tags.astro';
-const { post } = Astro.props;
-const { slug, title, excerpt, date, readtime, tags } = post;
-const formattedDate = new Date(date).toDateString();
+import Metadata from './Metadata.astro'
+import Tags from './Tags.astro'
+const { post } = Astro.props
+const { slug, title, excerpt, date, readtime, tags } = post
+const formattedDate = new Date(date).toDateString()
 ---
 <a href={`/${slug}`} class="no-underline rounded"> 
     <div class="prose dark:prose-invert">
