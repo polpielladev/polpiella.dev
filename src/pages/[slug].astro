@@ -38,46 +38,46 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
 })
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(title)}`
 ---
-
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-        <title>{title}</title>
-        <meta name="description" content={excerpt} />
-        <meta property="og:image" content={fullImageURL} />
-        <meta name="twitter:image" content={fullImageURL} />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={excerpt} />
-        <meta name="twitter:site" content="@polcodes" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
-        <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
-        <link
-            rel="alternate"
-            type="application/rss+xml"
-            title="RSS Feed for polpiella.dev"
-            href="/rss.xml"
-        />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <title>{title}</title>
+    <meta name="description" content={excerpt} />
+    <meta property="og:image" content={fullImageURL} />
+    <meta name="twitter:image" content={fullImageURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={excerpt} />
+    <meta name="twitter:site" content="@polcodes" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
+    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+        rel="alternate"
+        type="application/rss+xml"
+        title="RSS Feed for polpiella.dev"
+        href="/rss.xml"
+    />
+    <script hoist src="https://cdn.usefathom.com/script.js" data-site="FBLWSUCQ" defer></script>
+</head>
 
-    <body class="dark:bg-gray-900">
-        <Header />
-        <div class="w-full">
-            <article class="prose prose-lg dark:prose-invert prose-pre:shadow-lg prose-img:shadow-lg mx-auto my-0 px-3">
-                <header>
-                    <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
-                    <div class="flex flex-col gap-5">
-                        <h1 class="m-0">{title}</h1>
-                        <Tags tags={tags} />
-                        <Metadata readtime={readtime} />
-                        <hr class="m-0" />
-                    </div>
-                </header>
-                <Markdown content={source} />
-            </article>
-        </div>
-        <Footer />
-    </body>
+<body class="dark:bg-gray-900">
+    <Header />
+    <div class="w-full">
+        <article class="prose prose-lg dark:prose-invert prose-pre:shadow-lg prose-img:shadow-lg mx-auto my-0 px-3">
+            <header>
+                <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
+                <div class="flex flex-col gap-5">
+                    <h1 class="m-0">{title}</h1>
+                    <Tags tags={tags} />
+                    <Metadata readtime={readtime} />
+                    <hr class="m-0" />
+                </div>
+            </header>
+            <Markdown content={source} />
+        </article>
+    </div>
+    <Footer />
+</body>
 </html>
