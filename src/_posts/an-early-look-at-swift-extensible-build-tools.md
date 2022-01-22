@@ -13,7 +13,6 @@ author:
     name: "Pol Piella"
 ---
 
-
 If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colors, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work. 
 
 A similar thing happens with linting. Say that you work in a large app where multiple packages live under a single Xcode project. If you want to use [swiftlint]() to lint and spot potential problems in a certain package, you need to add a build phase to the Xcode project, as it is currently not possible to add build steps to packages. What this means though is that you won't get feedback on your linting problems if the target you have selected and are developing for is a Swift pacakge itself. You will still have to run the _combined_ target where your build phase is defined, which needs to be a Xcode project. This can get pretty frustrating when working on large codebases and it is an issue we have had to deal with for a while... until swift 5.6 arrives!
@@ -26,7 +25,7 @@ And that's what I did! In this article I will try to explain the process I follo
 
 ## Getting set up
 
-Luckily for us, to try it out, we do not need to wait for the Swift 5.6 release to come out. We can use the latest development snapshot to try it out. This is made available from the [Swift downloads page](https://www.swift.org/download/) and can be downloaded in multiple formats for different platforms. The one I'll be using is the one for Xcode, which can be downloaded directly by following [this link](https://download.swift.org/swift-5.6-branch/xcode/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a-osx.pkg). This snapshot is automatically created from the [release/5.6](https://github.com/apple/swift/tree/release/5.6) branch on the Swift repo.
+Luckily for us, to try it out, we do not need to wait for the Swift 5.6 release to come out. We can use the latest Swift 5.6 development snapshot. This is made available from the [Swift downloads page](https://www.swift.org/download/) and can be downloaded in multiple formats for different platforms. The one I'll be using is the one for Xcode, which can be downloaded directly by following [this link](https://download.swift.org/swift-5.6-branch/xcode/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a-osx.pkg). This snapshot is automatically created from the [release/5.6](https://github.com/apple/swift/tree/release/5.6) branch on the Swift repo.
 
 I will not go into too much detail about installing the development snapshot, but you can find an awesome article by [Marcin Krzyżanowski](https://twitter.com/krzyzanowskim) going into detail about it [here](https://blog.krzyzanowskim.com/2018/10/11/dealing-with-a-swift-toolchain/). 
 
