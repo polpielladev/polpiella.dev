@@ -126,6 +126,7 @@ func createBuildCommands(context: TargetBuildContext) throws -> [Command] {
             // Path for the output files
             outputFilesDirectory: outputPath
         ),
+    ]
 }
 ```
 
@@ -169,7 +170,7 @@ If you are following the article and coding as you read, you might now be wonder
 
 As per the generated file, it will live under `.build/plugins/output/GeneratedColors.swift` and it will get removed every time you run `swift clean` and readed on a build.
 
-## What happens to these generated files? 😕
+## What happens to these generated files? 🤔
 
 At this point, contrary to what it may seem, the generated files are part of the package itself and they will be compiled with it. This means that they can be used anywhere within the package or, if they are public they can be consumed by other packages! 
 
