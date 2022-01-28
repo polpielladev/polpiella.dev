@@ -13,9 +13,9 @@ author:
     name: "Pol Piella"
 ---
 
-If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colors, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work. 
+If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colours, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work. 
 
-A similar thing happens with linting. Say that you work in a large app where multiple packages live under a single Xcode project. If you want to use [swiftlint]() to lint and spot potential problems in a certain package, you need to add a build phase to the Xcode project, as it is currently not possible to add build steps to packages. What this means though is that you won't get feedback on your linting problems if the target you have selected and are developing for is a Swift pacakge itself. You will still have to run the _combined_ target where your build phase is defined, which needs to be a Xcode project. This can get pretty frustrating when working on large codebases and it is an issue we have had to deal with for a while... until swift 5.6 arrives!
+A similar thing happens with linting. Say that you work in a large app where multiple packages live under a single Xcode project. If you want to use [swiftlint]() to lint and spot potential problems in a certain package, you need to add a build phase to the Xcode project, as it is currently not possible to add build steps to packages. What this means though is that you won't get feedback on your linting problems if the target you have selected and are developing for is a Swift package itself. You will still have to run the _combined_ target where your build phase is defined, which needs to be a Xcode project. This can get pretty frustrating when working on large codebases and it is an issue we have had to deal with for a while... until swift 5.6 arrives!
 
 Ever since reading the [SwiftPM Extensible Build Tools Proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), which has now been implemented on the upcoming Swift 5.6 release, I have been itching to try and see how it works in practice and how easy it is to implement. I always feel like there is only so much you can gather from reading a proposal and, until you have a chance to try it out, you can't really get a sense of how it works. 
 
@@ -51,7 +51,7 @@ After you install it in VSCode, you can go to preferences and then change the `S
 
 ## Creating a plugin
 
-Now that the enviroinment is all set up, let's start making our plugin. A plugin is the way that the extensible build tools feature provides us to define what commands we want to run alongisde, before or after (not available yet) our builds. To get a bit of context, the package I will be working on is called `DesignSystem` and its purpose is to automatically generate Swift code for `xcassets` using [SwiftGen](https://github.com/SwiftGen/SwiftGen). This asset catalogue, called `Color.xcassets`, contains a bunch of `colorset`s. My intention is to have a plugin that can turn these into Swift code before a build runs and compiles the generated code.
+Now that the environment is all set up, let's start making our plugin. A plugin is the way that the extensible build tools feature provides us to define what commands we want to run alongside, before or after (not available yet) our builds. To get a bit of context, the package I will be working on is called `DesignSystem` and its purpose is to automatically generate Swift code for `xcassets` using [SwiftGen](https://github.com/SwiftGen/SwiftGen). This asset catalogue, called `Color.xcassets`, contains a bunch of `colorset`s. My intention is to have a plugin that can turn these into Swift code before a build runs and compiles the generated code.
 
 I will be building the plugin as a new product in the same package I created, but it could be easily extracted out into a separate package and depended on by my new package.
 
@@ -95,7 +95,7 @@ import PackagePlugin
 Now it's time to return some `Command`s. These are the processes that will be run when the plugin is invoked during the build. It is an `enum` type with two cases, each of which defines a purpose and a step in the build process as explained in the [SwiftPM Extensible Build Tools Proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md):
 
 * `buildCommand`s are only triggered when the defined outputs are not present or when any of its inputs have been modified.
-* `prebuildCommand`s are run straight after the package resolution step and just before the build begins. They can generate any arbitrary number of files from a given set of inputs. This is the the command we will be using in this article.
+* `prebuildCommand`s are run straight after the package resolution step and just before the build begins. They can generate any arbitrary number of files from a given set of inputs. This is the command we will be using in this article.
 
 Note that in the proposal there is talk of a third command called `postbuildCommand` which does not seem to be available yet. 
 
@@ -167,7 +167,7 @@ Then, just executing `swift build`, with some extra parameters to be able to poi
 
 If you are following the article and coding as you read, you might now be wondering the same thing I thought after running `swift build`. Where on earth are the generated files? Has it even run? I can't see any output in the console! Well, worry not, try adding the `--verbose` flag to the command and you should see an info log with the `displayName` specified for the plugin, which will give you a bit more information about what the plugin is doing.
 
-As per the generated file, it will live under `.build/plugins/output/GeneratedColors.swift` and it will get removed every time you run `swift clean` and readed on a build.
+As per the generated file, it will live under `.build/plugins/output/GeneratedColors.swift` and it will get removed every time you run `swift clean` and readded on a build.
 
 ## What happens to these generated files? 🤔
 
