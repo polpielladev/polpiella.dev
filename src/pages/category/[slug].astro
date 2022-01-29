@@ -1,0 +1,61 @@
+---
+import BlogPreview from '../../components/BlogPreview.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import _ from 'lodash'
+
+export async function getStaticPaths() {
+    const posts = Astro.fetchContent('../../_posts/*.md')
+    const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
+
+    return categories.map(category => {
+        const filteredPosts = posts
+            .filter(post => post.tags.map(tag => tag.slug).includes(category.slug))
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+        return {
+            params: { slug: category.slug },
+            props: { posts: filteredPosts, category }
+        }
+    })
+}
+
+const { posts, category } = Astro.props
+---
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <title>polpielladev 📱 | {category.name}</title>
+    <meta name="twitter:title" content={`Category: ${category.name}`} />
+    <meta name="twitter:description" content={`Category page with all the articles on ${category.name}`} />
+    <meta name="description" content={`Category page with all the articles on ${category.name}`} />
+    <meta name="twitter:site" content="@polpielladev" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href={Astro.resolve('../../styles/global.css')}>
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="RSS Feed for polpiella.dev"
+      href="/rss.xml"
+    />
+    <script hoist src="https://cdn.usefathom.com/script.js" data-site="FBLWSUCQ" defer></script>
+</head>
+<body class="dark:bg-gray-900 min-h-screen flex flex-col justify-between">
+    <Header />
+    <main class="grid content-center">
+        <div class="px-3 mx-auto my-0 max-w-3xl">
+            <section class="flex flex-col gap-5 items-center text-center mb-10 md:flex-row md:text-left">
+                <div class="prose dark:prose-invert grid content-center">
+                    <h1 class="text-5xl">{category.name}</h1>
+                </div>
+            </section>
+            <section class="flex flex-col gap-10">
+                {posts.map(p => <BlogPreview post={p} />)}
+            </section>
+        </div>
+    </main>
+    <Footer />
+</body>
+</html>

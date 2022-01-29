@@ -6,7 +6,6 @@ date: "2021-11-03T19:54:39.000Z"
 readtime: "7"
 tags:
     [
-        { name: "Architecture", slug: "architecture" },
         { name: "Swift", slug: "swift" },
     ]
 author:
