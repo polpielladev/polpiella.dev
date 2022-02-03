@@ -1,7 +1,7 @@
 ---
-import BlogPreview from '../components/BlogPreview.astro'
-import Header from '../components/Header.astro'
-import Footer from '../components/Footer.astro'
+import BlogPreview from '../components/BlogPreview'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 const posts = Astro.fetchContent('../_posts/*.md')
     .sort((a, b) => new Date(b.date) - new Date(a.date))

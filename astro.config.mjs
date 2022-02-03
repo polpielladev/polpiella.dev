@@ -3,5 +3,5 @@ export default {
         site: "https://polpiella.dev",
         sitemap: true,
     },
-    renderers: [],
+    renderers: ['@astrojs/renderer-react'],
 }

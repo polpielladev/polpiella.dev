@@ -1,7 +1,6 @@
----
-const { readtime, slug } = Astro.props
----
-<div class="flex align-middle gap-1 text-xs flex-wrap">
+export default function Metadata ({ readtime, slug }) { 
+    return (
+    <div class="flex align-middle gap-1 text-xs flex-wrap">
     <p class="mt-0 mb-2"><b>Read Time: </b>{`📖 ${readtime} minutes`}</p>
     {slug && (
         <div class="flex">
@@ -11,4 +10,5 @@ const { readtime, slug } = Astro.props
             </a>
         </div>
     )}
-</div>
+    </div>
+)}
