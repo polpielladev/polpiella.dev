@@ -10,8 +10,9 @@ export default {
 			astroRemark,
 			{
 				rehypePlugins: [
-                    'rehype-slug',
+					'rehype-slug',
 					['rehype-autolink-headings', { behavior: 'wrap' }],
+					['rehype-toc', { headings: ['h2', 'h3'] }]
 				],
 			},
 		],

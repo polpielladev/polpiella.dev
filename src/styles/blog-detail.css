@@ -14,6 +14,49 @@ h6 > a {
   text-decoration: none !important;
 }
 
+nav > ol {
+  padding: 0 !important;
+  list-style-type: none !important;
+}
+
+.toc-link {
+    @apply hover:bg-amber-200 dark:hover:bg-amber-800;
+}
+
+.toc {
+  font-size: 12px;
+  display: none;
+  position: fixed;
+  right: 50px;
+  width: 250px;
+  top: 150px;
+  list-style-type: none;
+  float: right;
+  height: 100vmax;
+  text-decoration: none;
+  line-height: 1.5;
+}
+
+@media screen and (min-width: 1310px) {
+  .toc {
+    display: block;
+  }
+}
+
+.toc a {
+  text-decoration: none;
+}
+
+.toc-level-2 {
+  list-style-type: square !important;
+}
+
+.toc::before {
+  content: "Table of Contents";
+  font-size: 16px;
+  font-weight: bold;
+}
+
 code[class*="language-"],
 pre[class*="language-"] {
   background: hsl(230, 1%, 98%) !important;
