@@ -33,7 +33,7 @@ In the next few sections, I’ll explain the process I followed, from getting it
 ## Running on macOS
 My initial intention was to only build my new markdown editor for `macOS`, which meant that I was happy to use the toolchain version of the library, with no need of building the `iOS` equivalents from source, as the documentation suggests.
 
-It is important to understand to understand some of the choices taken later on  that my application had a modular architecture and `swift-syntax` would be used from within a swift package itself.
+It is important to understand some of the choices taken later on that my application had a modular architecture and `swift-syntax` would be used from within a swift package itself.
  
 ### Embedding the `.dylib` directly
 To achieve this, I decided to embed the library directly in the app target instead of attempting to ship it with the Swift Package itself - I actually had no idea how I would go about this 😅:
@@ -120,12 +120,12 @@ The script above clones the [Swift](https://github.com/apple/swift) repo and use
 
 After this, it is a matter of compiling all of the libraries, both for device and simulator, with the correct hosts and architectures - note that the current machine architecture (in my case it is `arm64`) always gets appended to the list you pass in, so for the simulator, I just had to pass `x86_64` to build both.
 
-The output of the commands above will have created a `.dylib` with the two simulator slices (`x86_64` for intel-based macOS computers and `arm64` for silicon macOS computers), a separate `.dylib` with the `arm64` slice built for the `iphoneos` host and, lastly, a `.dylib` with the `arm64` and `x86_64` slices for the `macosx` host. How do we put all these together into something we can use in our app?
+The output of the commands above will have created a `.dylib` with the two simulator slices (`x86_64` for intel-based macOS computers and `arm64` for Apple Silicon computers), a separate `.dylib` with the `arm64` slice built for the `iphoneos` host and, lastly, a `.dylib` with the `arm64` and `x86_64` slices for the `macosx` host. How do we put all these together into something we can use in our app?
 
 ### Bundling all architectures in an xcframework
 The answer is to use a `xcframework`! It is a feature that was announced in [WWDC2019](https://developer.apple.com/videos/wwdc2019) which put an end to the _hacky_ _fat_ `framework`s approach that consisted in bundling all slices for both device and simulator architectures into a single binary.
 
-In fact, using these also called _universal_ binaries becomes an issue when trying to build for simulators running on Silicon machines, as these have the same architecture as devices (`arm64`) and two slices built for the same architecture can not be included in the same binary.
+In fact, using these also called _universal_ binaries becomes an issue when trying to build for simulators running on Apple Silicon machines, as these have the same architecture as devices (`arm64`) and two slices built for the same architecture can not be included in the same binary.
 
 `xcframework`s, on the other hand, work in such a way that we can bundle multiple `framework`s or libraries that serve different purposes and platforms (one for macOS, one for iOS devices and one for iOS simulators in my case) and import them directly into our applications. Then Xcode will do the magic of deciding which library to use based on the device the application will be running on.
 
