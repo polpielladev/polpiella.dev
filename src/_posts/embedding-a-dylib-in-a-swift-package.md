@@ -1,6 +1,6 @@
 ---
 title: "Embedding a dylib in a Swift Package"
-excerpt: "Building a Feature Flag Manager system using clean architecture and SOLID design principles."
+excerpt: "An article on how to embed and ship a dynamic library in a Swift package."
 slug: "embedding-a-dylib-in-a-swift-package"
 date: "2022-02-12T15:00:00.000Z"
 readtime: "8"
