@@ -15,30 +15,34 @@ author:
 
 I have recently been working on building my own Markdown editor for both `macOS` and `iOS` so that I can use it to write the articles for this blog.
 
-The project is inspired by [objc.io](https://www.objc.io)’s concept of [Markdown Playgrounds](https://talk.objc.io/collections/markdown-playgrounds), which is a Markdown editor tailored to writing Swift development articles, with features such as syntax highlighting and integration with the Swift REPL to run and check code snippets. 
+The project is inspired by [objc.io](https://www.objc.io)’s concept of [Markdown Playgrounds](https://talk.objc.io/collections/markdown-playgrounds), which is a Markdown editor tailored to writing Swift development articles, with features such as **syntax highlighting** and integration with the **Swift REPL** to execute code snippets. 
 
-This project was published in 2019, which means that, while the content is still valid, I wanted to take the opportunity and make my own version of it with the newer APIs such as the [swift-syntax](https://github.com/apple/swift-syntax) package from Apple.
+This project was published in 2019, which means that, while the content is still valid, I wanted to take the opportunity and **make my own version of it with the newer APIs** such as the [swift-syntax](https://github.com/apple/swift-syntax) package from Apple.
 
-In this article, I will go through one of the issues I had when trying to use the [swift-syntax](https://github.com/apple/swift-syntax) package and how I went about solving it. I am planning on writing a follow-up article on how [swift-syntax](https://github.com/apple/swift-syntax) works and how I designed my `CodeHighlighter` module, which has been a lot of fun to implement.
+In this article, I will go through one of the issues I had when trying to use the [swift-syntax](https://github.com/apple/swift-syntax) package and how I went about solving it.
+
+I am planning on writing a follow-up article on how [swift-syntax](https://github.com/apple/swift-syntax) works and how I designed my `CodeHighlighter` module in more detail as it has been a great learning experience.
 
 ## The Problem
 [Swift-syntax](https://github.com/apple/swift-syntax) is  a collection of Swift bindings for the [libSyntax](https://github.com/apple/swift/tree/main/lib/Syntax) library in the swift toolchain. This library, under the hood, depends on a dynamic library called `lib_InternalSwiftSyntaxParser.dylib`, which is also part of the Swift toolchain. 
 
-What this means is that, to make an application that uses the [swift-syntax](https://github.com/apple/swift-syntax) package, we need to find a way of embedding the `.dylib` file into our application, as Apple recommend in this package’s [Readme](#) file.
+What this means is that, to make an application that uses the [swift-syntax](https://github.com/apple/swift-syntax) package, we need to find a way of embedding the `.dylib` file into our application, as Apple recommend in this package’s [Readme](https://github.com/apple/swift-syntax/blob/main/README.md) file.
 
-In the next few sections, I’ll explain the process I’ll follow, from getting it up and running quickly for a single platform to making it available on all platforms I wanted my app to run on eventually.
+In the next few sections, I’ll explain the process I followed, from getting it up and running quickly for a single platform to making it available on all platforms I wanted my app to run on eventually.
 
 ## Running on macOS
-My initial intention was to only build my new markdown editor for `macOS`, which meant that I was happy to simply use the toolchain version of the library, with no need of building the `iOS` equivalents from source, as the documentation suggests.
+My initial intention was to only build my new markdown editor for `macOS`, which meant that I was happy to use the toolchain version of the library, with no need of building the `iOS` equivalents from source, as the documentation suggests.
+
+It is important to understand to understand some of the choices taken later on  that my application had a modular architecture and `swift-syntax` would be used from within a swift package itself.
  
 ### Embedding the `.dylib` directly
-To get it up and running quickly, as I was already working in a modular architecture environment, with Swift Packages in an Xcode project, I decided to embed the library directly in the app target instead of attempting to ship it with the Swift Package itself - I actually had no idea how I would go about this 😅:
+To achieve this, I decided to embed the library directly in the app target instead of attempting to ship it with the Swift Package itself - I actually had no idea how I would go about this 😅:
 ![](/assets/posts/embedding-a-dylib-in-a-swift-package/embedding-dylib-xcode.png)
 
 As you can see, this can be done directly by going to the `Frameworks, Libraries, and Embedded Content` section in the target’s `General` settings tab.
 
 ### The rpath solution
-While my app was building and running fine, it required the `.dylib` file to be embedded in the target’s side. This was hurting the portability of my new `CodeHighlighter`, as, if I were to move it to a separate project, it would not run out of the box. I would need to copy the `.dylib` required file from the toolchain and embed it in the app’s target.
+While my app was building and running fine at this stage, it required the `.dylib` file to be embedded in the target’s side. This was hurting the portability of my new `CodeHighlighter` package because, if I were to move it to a separate project, it would not run out of the box. I would need to copy the `.dylib` required file from the toolchain and embed it in the app’s target.
 
 Ideally, what I wanted to achieve, was that a single import was enough and that the Swift Package would ship with the library embedded and linked dynamically. But how do you link a library in a Swift Package?
 
@@ -47,7 +51,7 @@ The first thing we need to understand is that for the linker to find the dynamic
 
 I am not going to go into much detail on how rpaths works ([Marcin Krzyzanowski](https://twitter.com/krzyzanowskim) has [an amazing article](https://blog.krzyzanowskim.com/2018/12/05/rpath-what/) on this if you want to read more about it) but, to get it to work, we need to pass a path of the directory in which to find this `.dylib` to the linker. 
 
-This is usually set by using passing an `-rpath` flag to the linker's command and in my case, I am going to make this an absolute path, but this could be based on the `@executable_path` or `@loader_path` based on your needs.
+This is usually set by using passing an `-rpath` flag to the linker's command and, in my case, I am going to make this an absolute path, but this could be based on the `@executable_path` or `@loader_path` based on your needs.
 
 Luckily, it is not too hard to do this for Swift Packages. Each target can be passed a set of `linkerSettings` and, by using the `.unsafeFlag` method, we can funnel in any flag-value combination we like. In the snippet below, it is sufficient to set the `rpath` to the path where the `Package.swift` lives, which happens to be where the `.dylib` file is also located.
 
@@ -77,18 +81,18 @@ let package = Package(
 ## A ‘universal’ approach
 I quickly reached a point where I wanted to try and get it to build on iOS devices and this is where the headaches really started 😅. 
 
-Neither of the approaches above were sufficient, because the `.dylib` was built for the wrong host (it was built for `macOS` when I also wanted `iphonesimulator` and `iphoneos`) and, as soon as I ran it, I was prompted with the following error:
+Neither of the approaches above were sufficient, because the `.dylib` was built for the wrong host (it was built for `macosx` when I also wanted `iphonesimulator` and `iphoneos`) and, as soon as I ran it, I was prompted with the following error:
 ![](/assets/posts/embedding-a-dylib-in-a-swift-package/wrong-architecture-error.png)
 
-At this point I realised I needed to do a couple things in order to try and get the app building on multiple platforms:
-* Build the iOS libraries, as stated by [SwiftSyntax’s README.md](https://github.com/apple/swift-syntax/blob/main/README.md#embedding-in-an-ios-application).
+I needed to do a couple things in order to get the app building on multiple platforms:
+* Build the iOS libraries, as stated by [SwiftSyntax’s README.md](https://github.com/apple/swift-syntax/blob/main/README.md#embedding-in-an-ios-application). This is because in the toolchain, only the macOS binaries are provided.
 * Find a way to bundle multiple dylibs for different platforms in a single framework and distribute it with my `CodeHighlighter` package.
 
 ### Creating the iOS libraries
 
 I started by creating a convenience `make-ios-syntax-parser.sh` bash script which took care of building the multiple libraries. I followed the instructions from the Readme file and made it call the following commands:
 
-```swift
+```bash
 #!/usr/bin/env bash
 set -euo pipefail
 set -x
@@ -104,27 +108,28 @@ fi
 # Clean before building
 rm -rf build && mkdir build && pushd build
 
-# Build simulator dylib
+# Build Simulator dylib
 ../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build-iossim --host iphonesimulator --architectures x86_64
-# Build device dylib
+# Build Device dylib
 ../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build-ios --host iphoneos --architectures arm64
+# Build macOS dylib
+../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build --architectures x86_64
 ```
 
 The script above clones the [Swift](https://github.com/apple/swift) repo and uses the `update-checkout` script to check out the current version I will be building with: `release/5.5`. **This is very important as the libraries need to be built with the same version as the toolchain the client will be building with**.
 
-After this, it is a matter of compiling all of the libraries, both for device and simulator, with the correct hosts and architectures - note that the current machine architecture (in my case it is `arm64`) always gets appended to the list you pass in so for the simulator, so I just had to pass `x86_64` to build both.
+After this, it is a matter of compiling all of the libraries, both for device and simulator, with the correct hosts and architectures - note that the current machine architecture (in my case it is `arm64`) always gets appended to the list you pass in, so for the simulator, I just had to pass `x86_64` to build both.
 
-The output of the commands above will have created a `.dylib` with the two simulator slices (`x86_64` for intel-based macOS computers and `arm64` for silicon macOS computers), a separate `.dylib` just with the `arm64` slice built for the `iphoneos` host and, lastly, a `.dylib` with the `arm64` and `x86_64` slices for the `iphonesimulator` host. How do we put these two together into something we can use in our app?
+The output of the commands above will have created a `.dylib` with the two simulator slices (`x86_64` for intel-based macOS computers and `arm64` for silicon macOS computers), a separate `.dylib` with the `arm64` slice built for the `iphoneos` host and, lastly, a `.dylib` with the `arm64` and `x86_64` slices for the `macosx` host. How do we put all these together into something we can use in our app?
 
 ### Bundling all architectures in an xcframework
-
-Now that we have all of the pieces to the puzzle, how can we put it together? The answer is to use a `xcframework`! It is a feature that was announced in [WWDC2019](https://developer.apple.com/videos/wwdc2019) which put an end to the _hacky_ _fat_ `framework`s approach that consisted in bundling all slices for both device and simulator architectures into a single binary.
+The answer is to use a `xcframework`! It is a feature that was announced in [WWDC2019](https://developer.apple.com/videos/wwdc2019) which put an end to the _hacky_ _fat_ `framework`s approach that consisted in bundling all slices for both device and simulator architectures into a single binary.
 
 In fact, using these also called _universal_ binaries becomes an issue when trying to build for simulators running on Silicon machines, as these have the same architecture as devices (`arm64`) and two slices built for the same architecture can not be included in the same binary.
 
 `xcframework`s, on the other hand, work in such a way that we can bundle multiple `framework`s or libraries that serve different purposes and platforms (one for macOS, one for iOS devices and one for iOS simulators in my case) and import them directly into our applications. Then Xcode will do the magic of deciding which library to use based on the device the application will be running on.
 
-```swift
+```bash
 xcrun xcodebuild -create-xcframework \
   -library artifacts/simulator/lib_InternalSwiftSyntaxParser.dylib -headers artifacts/include \
   -library artifacts/device/lib_InternalSwiftSyntaxParser.dylib  -headers artifacts/include \
