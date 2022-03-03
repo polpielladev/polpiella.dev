@@ -14,47 +14,19 @@ h6 > a {
   text-decoration: none !important;
 }
 
-nav > ol {
-  padding: 0 !important;
-  list-style-type: none !important;
-}
-
-.toc-link {
-    @apply hover:bg-amber-200 dark:hover:bg-amber-800;
-}
-
 .toc {
-  font-size: 12px;
-  display: none;
-  position: fixed;
-  right: 50px;
-  width: 250px;
-  top: 150px;
-  list-style-type: none;
-  float: right;
-  height: 100vmax;
-  text-decoration: none;
-  line-height: 1.5;
-}
-
-@media screen and (min-width: 1310px) {
-  .toc {
-    display: block;
-  }
+  @apply bg-gray-100 dark:bg-gray-800 mt-2 rounded-md p-3 leading-5;
 }
 
 .toc a {
-  text-decoration: none;
-}
-
-.toc-level-2 {
-  list-style-type: square !important;
+  @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
 }
 
 .toc::before {
-  content: "Table of Contents";
+  content: "TABLE OF CONTENTS";
   font-size: 16px;
   font-weight: bold;
+  @apply text-gray-800 dark:text-gray-100;
 }
 
 code[class*="language-"],

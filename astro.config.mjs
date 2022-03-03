@@ -12,7 +12,7 @@ export default {
 				rehypePlugins: [
 					'rehype-slug',
 					['rehype-autolink-headings', { behavior: 'wrap' }],
-					['rehype-toc', { headings: ['h2', 'h3', 'h4'] }]
+					['rehype-toc', { headings: ['h2'] }]
 				],
 			},
 		],
