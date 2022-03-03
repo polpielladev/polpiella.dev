@@ -32,6 +32,10 @@ p > a::after {
   transition: top 0.35s cubic-bezier(0.25, 0.1, 0, 2.05) 0s, right, bottom, left;
 }
 
+.toc a {
+  @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
+}
+
 p > a:hover::after {
   top: 0;
   left: 0;
@@ -39,10 +43,6 @@ p > a:hover::after {
 
 .toc {
   @apply bg-gray-100 dark:bg-gray-800 mt-2 rounded-md p-3 leading-5;
-}
-
-.toc a {
-  @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
 }
 
 .toc::before {
