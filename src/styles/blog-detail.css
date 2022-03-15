@@ -36,6 +36,10 @@ p > a::after {
   @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
 }
 
+img {
+  margin: 0 auto;
+}
+
 p > a:hover::after {
   top: 0;
   left: 0;
