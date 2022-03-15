@@ -192,7 +192,7 @@ NSLayoutConstraint.activate([
 ])
 ```
 
-As you can see in the video below, the content is nicely centered and always keeps a width suitable for reading: 
+As you can see in the image below, the content is nicely centered and always keeps a width suitable for reading: 
 
 ![](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/readable-content-guide.png)
 
