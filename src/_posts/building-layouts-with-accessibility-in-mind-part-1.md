@@ -48,7 +48,7 @@ Now that we have laid the foundations for our text section, we can move on to de
 
 #### Title and Message Labels
 
-The next items on our list are both the title and subtitle label that conform the screen's text section. Since the initialisation code for both of them is going to be similar, a small static private function that encapsulates common initialiser code is in order. This function will only take in the text style for each label as a parameter:
+The next items on our list are both the title and subtitle label that comprise the screen's text section. Since the initialisation code for both of them is going to be similar, a small static private function that encapsulates common initialiser code is in order. This function will only take in the text style for each label as a parameter:
 
 ```swift
 class CopyContentView: UIView {
@@ -69,7 +69,7 @@ class CopyContentView: UIView {
 
 Closely inspecting the code above, we see the first signs of **keeping accessibility in mind** when creating each of the components. Since they will be wrapped in a `UIStackView`, we want our labels to take up as much space and lines as they need, which we can achieve by setting the `numberOfLines` property to 0.
 
-The `adjustFontsForContentSizeCategory` property tells the label to automatically react to changes in the device's content size setting and, similarily, setting the `.preferredFont` property to `true` picks an appropriate font size for its text style based on the user's content size category.
+The `adjustFontsForContentSizeCategory` property tells the label to automatically react to changes in the device's content size setting and, similarily, setting the font to `.preferredFont(forTextStyle:)` picks an appropriate font size for a given text style based on the user's content size category.
 
 ### UIStackView
 
@@ -93,7 +93,7 @@ We can then add a new private method to add the labels we created earlier to the
 ```swift
 private func layout() {
 		// 1
-    [titleLabel, bodyLabel].forEach { stackView.addArrangedSubview($0) }
+    [titleLabel, bodyLabel].forEach(stackView.addArrangedSubview(_:))
     
     // 2
     addSubview(stackView)
