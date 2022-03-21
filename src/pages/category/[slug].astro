@@ -5,7 +5,7 @@ import Footer from '../../components/Footer'
 import _ from 'lodash'
 
 export async function getStaticPaths() {
-    const posts = Astro.fetchContent('../../_posts/*.md')
+    const posts = Astro.fetchContent('../*.md')
     const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
 
     return categories.map(category => {
