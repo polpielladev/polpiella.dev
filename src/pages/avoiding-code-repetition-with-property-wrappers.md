@@ -7,6 +7,7 @@ readtime: "4"
 tags: [{ name: "Swift", slug: "swift" }]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 The `DRY` principle is one of the fundamentals of software development and it is aimed at **reducing the amount of duplication in our codebases**. The accronym stands for _don't repeat yourself_ and it encourages programmers to divide their code into smaller more reusable elements that can be shared across different parts of their applications.

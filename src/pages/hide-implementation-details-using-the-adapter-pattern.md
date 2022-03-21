@@ -11,6 +11,7 @@ tags:
     ]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 Recently, I have been working on a project where I have had to implement a mechanism to load data from an API ([SpaceX](https://documenter.getpostman.com/view/2025350/RWaEzAiG?version=latest)) while also providing a caching mechanism to allow users to have a good offline experience and to save the BE from unnecessary requests when data is available. This was an interesting project as there were a few challenges that needed to be tackled, such as cache invalidation, where to store the cache data, etc.

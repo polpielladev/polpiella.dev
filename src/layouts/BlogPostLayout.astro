@@ -5,33 +5,8 @@ import Tags from '../components/Tags'
 import Footer from '../components/Footer'
 import { Markdown } from 'astro/components'
 
-export async function getStaticPaths({ rss }) {
-    const posts = Astro.fetchContent('../_posts/*.md')
-    const sortedPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date))
-
-    rss({
-        title: 'polpiella.dev',
-        description: 'A blog about iOS development and software engineering.',
-        customData: `<language>en-us</language>`,
-        items: sortedPosts.map(item => ({
-            title: item.title,
-            description: item.astro.html,
-            link: `https://${item.slug}`,
-            pubDate: item.date,
-        })),
-        dest: '/rss.xml'
-    })
-
-    return posts.map((post) => {
-        return {
-            params: { slug: post.slug },
-            props: { post }
-        }
-    })
-}
-
-const { post } = Astro.props
-const { title, excerpt, tags, date, readtime, astro } = post
+const { content } = Astro.props
+const { title, excerpt, tags, date, readtime, astro } = content
 const { source } = astro
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'

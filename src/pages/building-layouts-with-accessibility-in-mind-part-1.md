@@ -12,6 +12,7 @@ tags:
     ]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 One of the most important things to keep in mind when building an app's UI is to make sure that it looks good **in all devices** and resizes accordingly for you **users' needs**.
@@ -36,11 +37,11 @@ The first thing we'll build is the title and message part of the UI. We will enc
 
 ```swift
 class CopyContentView: UIView {
-	let viewModel: CopyContentViewViewModel
-	
-	init(with viewModel: CopyContentViewViewModel) {
-		self.viewModel = viewModel
-	}
+    let viewModel: CopyContentViewViewModel
+
+    init(with viewModel: CopyContentViewViewModel) {
+        self.viewModel = viewModel
+    }
 }
 ```
 

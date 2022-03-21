@@ -7,6 +7,7 @@ readtime: "4"
 tags: [{ name: "CI/CD", slug: "ci-cd" }]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 If you use Github actions as your continuos integration solution and you work in a large enough project maintained by a **team of developers**, chances are that you will have dedicated workflows for pull requests, main/master pushes, uploading to the stores, etc. Most of these tend to be **expensive performance wise** and require dedicated CI runners for them to run on, so you want to trigger them only when it is **absolutely necessary** in order not to build a backlog and slow down development for the rest of your team.

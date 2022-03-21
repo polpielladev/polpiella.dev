@@ -11,6 +11,7 @@ tags:
     ]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colours, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work. 

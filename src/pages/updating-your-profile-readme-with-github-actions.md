@@ -7,6 +7,7 @@ readtime: "5"
 tags: [{ name: "CI/CD", slug: "ci-cd" }, { name: "Swift", slug: "swift" }]
 author:
     name: "Pol Piella"
+layout: ../layouts/BlogPostLayout.astro
 ---
 
 Github have recently introduced a way of personalising your Github profile to include relevant information and styles to be able to show off your skills and stats when people visit your profile.

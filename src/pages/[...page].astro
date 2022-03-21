@@ -2,9 +2,29 @@
 import BlogPreview from '../components/BlogPreview'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Paginator from '../components/Paginator'
 
-const posts = Astro.fetchContent('../_posts/*.md')
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
+export async function getStaticPaths({ rss, paginate }) {
+    const posts = Astro.fetchContent('./*.md')
+    const sortedPosts = posts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
+
+    rss({
+        title: 'polpiella.dev',
+        description: 'A blog about iOS development and software engineering.',
+        customData: `<language>en-us</language>`,
+        items: sortedPosts.map(item => ({
+            title: item.title,
+            description: item.astro.html,
+            link: `https://${item.slug}`,
+            pubDate: item.date,
+        })),
+        dest: '/rss.xml'
+    })
+  
+  return paginate(sortedPosts, { pageSize: 5 });
+}
+
+const { page } = Astro.props
 ---
 <html lang="en">
 <head>
@@ -41,7 +61,8 @@ const posts = Astro.fetchContent('../_posts/*.md')
                 </div>
             </section>
             <section class="flex flex-col gap-10">
-                {posts.map(p => <BlogPreview post={p} />)}
+                {page.data.map((post) => <BlogPreview post={post} /> )}
+                <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
             </section>
         </div>
         <Footer />
