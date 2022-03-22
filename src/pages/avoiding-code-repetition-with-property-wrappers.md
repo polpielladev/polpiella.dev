@@ -20,7 +20,7 @@ To better illustrate this, let's picture an example where we have a feature flag
 
 Let's now consider a protocol, `FeatureFlagStore`, and a concrete implementation, `FirebaseRemoteConfig`, for the sake of simplicity. This protocol will consist of a single method and its only responsibility will be to grab the values from the store given a key and a default value to be returned should the lookup fail for whatever reason.
 
-```swift
+```swift:FeatureFlagStore.swift
 protocol FeatureFlagStore {
     func retrieveFlag<T: Codable>(key: String, defaultValue: T) -> T
 }
@@ -32,7 +32,7 @@ In order to make sure we are retrieving the most up-to-date values from our loca
 
 Using a computed property, as shown below, we can make sure that the flag to enable/disable the new flow that is currently on a phased rollout is always fetched from the store. We give it a key, a default value and we instantiate our store and there we have it, now our user will either navigate to the `NewVC` or `OldVC` based on the state of the feature flag.
 
-```swift
+```swift:ViewController.swift
 class ViewController: UIViewController {
     let store: FlagStore = FirebaseRemoteConfig()
 
@@ -54,7 +54,7 @@ Our property wrapper will be in charge of abstracting all the logic we had on ou
 
 > Note that `PropertyWrappers` don't necessarily have to be `struct`s, they can also be `enum`s or `class`es. They must be decorated with `@propertyWrapper` and must implement a `wrappedValue` variable.
 
-```swift
+```swift:FeatureFlag.swift
 @propertyWrapper
 struct FeatureFlag<T: Decodable> {
     let store: FlagStore
@@ -81,7 +81,7 @@ In the example above, we have made the `struct` generic (constraint to the `Deco
 
 Finally, let's have a look at how much code we have removed from our `ViewController` with our new Property Wrapper 🤩
 
-```swift
+```swift:ViewController.swift
 class ViewController: UIViewController {
     @FeatureFlag(key: "is-new-flow-enabled", defaultValue: false)
     var isNewFlowEnabled: Bool

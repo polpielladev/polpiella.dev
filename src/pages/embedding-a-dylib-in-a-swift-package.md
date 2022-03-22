@@ -56,7 +56,7 @@ This is usually set by using passing an `-rpath` flag to the linker's command an
 
 Luckily, it is not too hard to do this for Swift Packages. Each target can be passed a set of `linkerSettings` and, by using the `.unsafeFlag` method, we can funnel in any flag-value combination we like. In the snippet below, it is sufficient to set the `rpath` to the path where the `Package.swift` lives, which happens to be where the `.dylib` file is also located.
 
-```swift
+```swift:Package.swift
 // swift-tools-version:5.5
 import PackageDescription
 import Foundation
@@ -93,7 +93,7 @@ I needed to do a couple things in order to get the app building on multiple plat
 
 I started by creating a convenience `make-ios-syntax-parser.sh` bash script which took care of building the multiple libraries. I followed the instructions from the Readme file and made it call the following commands:
 
-```bash
+```bash:make-ios-syntax-parser.sh
 #!/usr/bin/env bash
 set -euo pipefail
 set -x
@@ -146,7 +146,7 @@ In Xcode projects, it is enough to drag and drop the generated `.xcframework` fi
 
 Thankfully, this is pretty easy to do and all that is required is creating a `.binaryTarget`, which is provided a path to the `xcframework` file and then can then be added as a dependency to the `CodeHighlighter` Swift Package like so:
 
-```swift
+```swift:Package.swift
 // swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 

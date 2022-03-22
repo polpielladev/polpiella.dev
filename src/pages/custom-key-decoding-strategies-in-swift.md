@@ -15,7 +15,7 @@ layout: ../layouts/BlogPostLayout.astro
 
 One of my favorite Swift features is the `Codable` protocol and how easy it makes the job of parsing files, responses and dictionaries into suitable data structures. One of the most common usages of it, which is engrained in my day-to-day activities as an iOS developer, is to decode JSON responses that come back from an API. Most APIs use a [snake case format](https://en.wikipedia.org/wiki/Snake_case) when declaring keys in an object and, if we try to decode our Swift structure (where the convention is to use [camel case format](https://en.wikipedia.org/wiki/Camel_case) when declaring variables), we will see that it will give us a decoding error, as the naming will mismatch. Let's look at a very simple API response:
 
-```json
+```json:UserResponse.json
 {
     "created_at": "2021-11-03T03:58:39.653Z",
     "name": "Joe Bloggs",
@@ -26,7 +26,7 @@ One of my favorite Swift features is the `Codable` protocol and how easy it make
 
 And its Swift counterpart `Decodable` struct:
 
-```swift
+```swift:User.swift
 struct User: Decodable {
     let createdAt: String
     let name: String
@@ -39,7 +39,7 @@ What we will see if we try and decode our response using a `JSONDecoder` is that
 
 Let's also test-drive our approach, by creating a very simple `XCTestCase` with a single failing test to start with that we can then make adjustments to and verify our approach is working as expected.
 
-```swift
+```swift:KeyDecodingStrategiesTests.swift
 import XCTest
 
 struct Parser {
@@ -77,7 +77,7 @@ When we run the test, we can see that we get a failure, as the variable `created
 
 `CodingKeys` is a special nested `enum` type that can be included in a `Codable` entity and it provides a list of properties that the response must include to be able to successfully decode successfully. It has to conform to the `CodingKey` protocol and is very useful as it allows us to ignore certain values from the response and provide the equivalent response name for a given codable variable by conforming to the `String` protocol. Let's take a look at how we can make our above example work by using `CodingKeys`:
 
-```swift
+```swift:User.swift
 struct User: Decodable {
     let createdAt: String
     let name: String
@@ -105,7 +105,7 @@ Swift provides a way to customise the way that `JSONDecoder` parses the keys for
 
 From the three enum values above, we can quickly see that there is a setting for the issue we had above, which is `convertFromSnakeCase`. Let's look at how we would go about implementing taking a simple `Parser` struct as an example:
 
-```swift
+```swift:User.swift
 struct User: Decodable {
     let createdAt: String
     let name: String
@@ -134,7 +134,7 @@ While this works great for converting from snake case to camel case, what happen
 
 Let's now consider a variation on the response coming back from the server:
 
-```json
+```json:UserResponse.json
 {
     "Created At": "2021-11-03T03:58:39.653Z",
     "Name": "Joe Bloggs",
@@ -147,7 +147,7 @@ What we need to be able to decode this response, as we did above, is to modify t
 
 The `custom` enum case has an associated value which consists of a closure of type `([CodingKey]) -> CodingKey`, with the coding keys to be modified as an input array and the resulting coding key as a return value. Knowing this, let's implement our new decoding strategy which turns the keys above into camel case by removing all whitespaces and converting the first letter in the key to lowercase:
 
-```swift
+```swift:User.swift
 
 struct Parser {
     struct CustomKey: CodingKey {

@@ -23,7 +23,7 @@ While these operations can be very straight-forward to implement and work as exp
 
 Let's picture a scenario where we want to verify that the post data we are retrieving from the cache is still valid before we return it to the client:
 
-```swift
+```swift:LocalPostsLoadService.swift
 struct LocalPostsLoadService {
     let cache: CacheStore
     let decoder: JSONDecoder
@@ -60,7 +60,7 @@ To solve the issue we described above without having to set waits or thread slee
 
 The great thing about this is that this closure is the exact same as the `Date` initialiser which we were using before so, by providing `Date.init` as a default we will get the current date every time we want to retrieve values from the cache without having to change any of our production code! 🎉
 
-```swift
+```swift:LocalPostsLoadService.swift
 struct LocalPostsLoadService {
     let cache: CacheStore
     let currentDate: () -> Date
@@ -96,7 +96,7 @@ You might notice in the example above that this concept is also applied to other
 
 In order to validate that our cache invalidation code works as expected, we need to make sure that we can return cache data. Since the purpose of this is to test the local post loader implementation and not the cache, we can inject a mocked instance of our `CacheStore` to the `LocalPostsLoadService` class. I will not go into the implementation detail or what mocking is in detail in this article, but here is what the mocked class looks like:
 
-```swift
+```swift:MockCacheStore.swift
 class MockCacheStore: CacheStore {
     var postsDataToReturn: (Date, Data)?
 
@@ -111,7 +111,7 @@ class MockCacheStore: CacheStore {
 
 Now that we have a way of returning data from the cache store, we can proceed to create our test class and make sure that the cache invalidation mechanism works as expected and, since now we are able to inject any date to the loader, we can test a date that is within 2 days from the timestamp, one that is exactly two days from the timestamp and one that is over two days to make sure that our invalidation is working fine.
 
-```swift
+```swift:DateBlogPostsTests.swift
 class DateBlogPostsTests: XCTestCase {
     func test_retrieveCache_returnsContentWhenDataIsNotStale() {
         let sut = makeSUT(addingNumberOfDays: .zero)

@@ -35,7 +35,7 @@ In this first part, we'll look at the basic layout of the copy content view and 
 
 The first thing we'll build is the title and message part of the UI. We will encapsulate these UI elements into a custom `UIView` called `CopyContentView` and store the state of the UI in a view model, which the view will be initialised with:
 
-```swift
+```swift:CopyContentView.swift
 class CopyContentView: UIView {
     let viewModel: CopyContentViewViewModel
 
@@ -51,7 +51,7 @@ Now that we have laid the foundations for our text section, we can move on to de
 
 The next items on our list are both the title and subtitle label that comprise the screen's text section. Since the initialisation code for both of them is going to be similar, a small static private function that encapsulates common initialiser code is in order. This function will only take in the text style for each label as a parameter:
 
-```swift
+```swift:CopyContentView.swift
 class CopyContentView: UIView {
 		// ...
 		let titleLabel = ContentView.createLabel(textStyle: .title1)
@@ -76,7 +76,7 @@ The `adjustFontsForContentSizeCategory` property tells the label to automaticall
 
 It is time to lay out the components in its container view now. To help us with resizing and distributing the labels, we create a vertical, fill-distributed and center-aligned `UIStackView`: 
 
-```swift
+```swift:CopyContentView.swift
 class CopyContentView: UIView {
     let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -91,7 +91,7 @@ class CopyContentView: UIView {
 
 We can then add a new private method to add the labels we created earlier to the `UIStackView`, which in turn will be laid out in our `CopyContentView` using `NSLayoutConstraint`s, allowing for it to be centered in the view and resize when needed, without ever overflowing:
 
-```swift
+```swift:CopyContentView.swift
 private func layout() {
 		// 1
     [titleLabel, bodyLabel].forEach(stackView.addArrangedSubview(_:))
@@ -126,7 +126,7 @@ Now that we have our resizing view, it is time to test it in a `UIViewController
 
 To ease with the resizing code we will look at in the next section, the code below adds both views (content and button) to a plain `UIView` which will solely act as a container:
 
-```swift
+```swift:ViewController.swift
 private func layout() {
     // 1
     let containerView = UIView()
@@ -184,7 +184,7 @@ While we can fix this by adding a magic number constraint and make the container
 
 We can use the `readableContentGuide` property on the view controller's view, which gives us a set of anchors to constraint our content to that will ensure that, based on the user's content size category preference, our content will always be read with ease, by just making a couple of constraint changes:
 
-```swift
+```swift:ViewController.swift
 NSLayoutConstraint.activate([
     containerView.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor),
     containerView.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor),

@@ -19,6 +19,18 @@ p > a {
   text-decoration: none !important;
 }
 
+.remark-code-title {
+  font-size: 13px;
+  @apply text-gray-500 dark:text-gray-400 font-bold underline decoration-dashed;
+}
+
+.remark-code-title::before {
+  content: "📁";
+  margin-right: 5px;
+  display: inline-block;
+  text-decoration: none;
+}
+
 p > a::after {
   content: "";
   position: absolute;

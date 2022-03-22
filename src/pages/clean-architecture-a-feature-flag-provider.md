@@ -43,7 +43,7 @@ The first layer that we want to implement will consist of every single provider 
 
 How can we solve this? **Abstraction!** In Swift, it is particularly easy to abstract types, as we can simply create a protocol and make each of our providers conform to it.
 
-```swift
+```swift:FeatureFlagManager.swift
 protocol FeatureFlagManager {
     func variation<T: FeatureFlag>(for flag: T) -> T.T
 }
@@ -67,7 +67,7 @@ As mentioned in our requirements section, and because the providers will return 
 
 Thankfully, and as it is usually the case, the answer is very simple. We just need to create another abstraction that our providers can extend:
 
-```swift
+```swift:FeatureFlagUserAuthenticator.swift
 protocol FeatureFlagUserAuthenticator {
     setUser(_ user: User?)
 }
@@ -83,7 +83,7 @@ struct User {
 
 The last requirement we need to implement is to integrate this abstraction as a dependency to all our modules and write concrete implementations of the `FeatureFlag` abstractions for the variations we want get. For this, I opted to have a struct per module only containing the flags that the module needs. Let's look at Settings as an example:
 
-```swift
+```swift:SettingsFeatureFlag.swift
 struct SettingsFeatureFlag<T: Decodable>: FeatureFlag {
     let key: String
     let defaultValue: T
@@ -109,7 +109,7 @@ In order to do this, we just need to use dependency injection in our modules and
 
 For example, the settings and feed modules only need to get variations, so they will only have to depend on `FeatureFlagManager` while our Login an Registration modules will need to only depend on `FeatureFlagUserAuthenticator`:
 
-```swift
+```swift:ViewModels.swift
 // MARK: - SettingViewModel
 
 class SettingsViewModel {

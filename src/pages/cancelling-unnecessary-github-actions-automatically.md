@@ -32,7 +32,7 @@ Using a custom action inside your workflow **requires the job to run before it c
 
 Github actions have a feature called **[concurrency](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency)**, which allows you to create a concurrency group, in which **only one job or workflow** will run simultaneously at a single time. On top of this, you can also decide to **cancel any previous jobs in the group** by adding a single flag to it. This is how it would look on your `.yml` file:
 
-```yaml
+```yaml:CI.yml
 concurrency:
     group: ${{ github.head_ref }}
     cancel-in-progress: true

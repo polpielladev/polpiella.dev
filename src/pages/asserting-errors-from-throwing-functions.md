@@ -22,7 +22,7 @@ The code we'll be testing consists of a single function which validates that the
 
 You will notice that the error being thrown is a custom `ValidationError` enum with a single case `validationFailed`. In turn, this has an array of `FieldError`s as an associated value. The reason for this design is that we want to collect multiple errors and throw them all at once, rather than throwing an individual error per field. This will allow the client code to get **all of the errors at once** without having to fix, re-run, then fix again if there are multiple failures.
 
-```swift
+```swift:Validator.swift
 enum ValidationError: Error, Equatable {
     case validationFailed([FieldError])
     
@@ -57,7 +57,7 @@ We can then write `catch` blocks, one targetting the error we're expecting to be
 
 The `wait(for:timeout:)` function can then be used to wait for the expectation to fulfill with a timeout of 0 seconds, as it is a synchronous operation. 
 
-```swift
+```swift:ValidatorTests.swift
 func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThrown() {
     let expectation = expectation(description: "Should have thrown an email validation failed error")
     do {
@@ -85,7 +85,7 @@ Another way to achieve the same result as with expectations, but with a much mor
 
 What we need to do to perform this test is to call `XCTAssertThrowsError` and pass in the call to `try validate`. Then, using a trailing closure as the second parameter, we can perform assertions on the error being thrown.
 
-```swift
+```swift:ValidatorTests.swift
 func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThrown() {
     XCTAssertThrowsError(
         try validate(
@@ -104,7 +104,7 @@ func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThro
 
 There is one thing to note about the example above and it is that I had to write an extension on `ValidationError` to make it conform to `Equatable`. I like to do this in the test context itself and not in the type declaration code if the conformance is only required for assertions in unit tests. An equatable-less version of the same code can be found below by making use of `guard case`:
 
-```swift
+```swift:ValidatorTests.swift
 func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThrown() {
     XCTAssertThrowsError(
         try validate(

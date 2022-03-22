@@ -9,6 +9,7 @@ export default {
 		render: [
 			astroRemark,
 			{
+				remarkPlugins: ['remark-code-titles'],
 				rehypePlugins: [
 					'rehype-slug',
 					['rehype-autolink-headings', { behavior: 'wrap' }],

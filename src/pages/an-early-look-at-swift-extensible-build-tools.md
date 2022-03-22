@@ -58,7 +58,7 @@ I will be building the plugin as a new product in the same package I created, bu
 
 First, I need to define the `plugin` that will be built and used both as a product and a target in the `Package.swift` file. In a similar way as for other kinds of products and targets, the new swift-tools version comes with static methods on both the `Target` and `Plugin` types which can be used to define the plugin.
 
-```swift
+```swift:Package.swift
 // swift-tools-version: 5.6
 import PackageDescription
 
@@ -83,7 +83,7 @@ Then, we need to provide some sources to be able to define the implementation of
 
 We start by creating a `struct`, decorated with `@main` - this is so `swift` can tell that this is the entry point for the plugin. This `struct` will conform to `BuildToolPlugin` and implement its `createBuildCommands` method.
 
-```swift 
+```swift:DesignSystemPlugin.swift
 import PackagePlugin
 
 @main struct SwiftGenPlugin: BuildToolPlugin {
@@ -102,7 +102,7 @@ Note that in the proposal there is talk of a third command called `postbuildComm
 
 Let's now see how to implement the `prebuildCommand` in our plugin:
 
-```swift
+```swift:DesignSystemPlugin.swift
 func createBuildCommands(context: TargetBuildContext) throws -> [Command] {
     // Get the path for the output files
     let outputPath = context.pluginWorkDirectory
@@ -141,7 +141,7 @@ Aside from passing it an executable, we can also pass in arguments, which in thi
 
 Now that the core logic is in place, how do we tell it to run for a specific target? We can specify it through a new parameter in the static `Target` functions we normally use:
 
-```swift
+```swift:Package.swift
 // swift-tools-version: 5.6
 import PackageDescription
 

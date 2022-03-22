@@ -29,7 +29,7 @@ Let's start by looking at what needs to be converted in our example:
 
 In Swift, the nicest way of bridging this interface mismatch is by creating a protocol that our concrete implementations can conform to and then make our target class depend solely on any number of types conforming to this abstraction, which satisfies the presentation layer's requirements.
 
-```swift
+```swift:FetchService.swift
 protocol FetchService {
     func fetchLaunches(_ completion: @escaping (Result<[LaunchViewModel], Error>) -> Void)
 }
@@ -39,7 +39,7 @@ protocol FetchService {
 
 Let's now look at what the API adapter would look like. Let's assume we have a class that takes care of fetching the data (launches in this example) for us and returns the `Launch` remote model. We can then create an adapter class that conforms to the `FetchService` protocol we created above and implement the method `fetchLaunches`, where we will call the API we inject and then map the response from `Result<[Launch], Error>` over to `Result<[LaunchViewModel], Error>` like so:
 
-```swift
+```swift:SpaceXAPIAdapter.swift
 public struct SpaceXAPIAdapter: FetchService {
     let api: SpaceXAPI
 
@@ -69,7 +69,7 @@ Once the API adapter was implemented, the next logical step was to try and do th
 
 The adapters responsibility on the method conformance will be to decode this data into an array of `LaunchViewModel`s using a `JSONDecoder`.
 
-```swift
+```swift:SpaceXCacheAdapter.swift
 struct SpaceXCacheAdapter: FetchService {
     let store: SpaceXStore
     let decoder: JSONDecoder
@@ -101,7 +101,7 @@ This now allow us to change our `SpaceXStore` implementation to anything we like
 
 The last piece of our puzzle is the actual service class that will get called by the presentation layer. Let's create it providing a primary source of data and a backup incase the the primary source fails. One might ask now, which one is which? How do we know if the primary source is the cache or the API? The truth is, **it doesn't matter, that is something for the composition root to deal with! To the service, both primary and backup sources look exactly the same**:
 
-```swift
+```swift:SpaceXService.swift
 public struct SpaceXService {
     private let source: FetchService
     private let backup: FetchService
@@ -140,7 +140,7 @@ The adapter implementation of the service now **allows us to change which source
 
 Now that we have all of our adapters in places, we can build our objects at the composition root and pass them through to our presentation layer. For the sake of this example, let's consider a factory method for a `HomeViewController` where the `SpaceXService` can be injected:
 
-```swift
+```swift:Coordinator.swift
 static func makeHomeViewController() -> HomeViewController {
     let cache = CacheAdapter(store: SpaceXStore())
     let api = SpaceXAPIAdapter(api: SpaceXAPI())
@@ -150,7 +150,7 @@ static func makeHomeViewController() -> HomeViewController {
 
 In the code snippet above, we are using the cache as our primary source and the api as the backup source, which means that **a request to the API will only be made if there is no cache present or it is not valid**. Now, as we stated in the introduction, the requirements might change in the future and retrieving from cache migth not be what we want. Well, our approach is ready for these kind of changes and it makes it very easy to swap our sources priorities only changing a line in the composition root and leaving the service as it is:
 
-```swift
+```swift:Coordinator.swift
 static func makeHomeViewController() -> HomeViewController {
     // ...
     return HomeViewController(service: SpaceXService(source: api, backup: cache))

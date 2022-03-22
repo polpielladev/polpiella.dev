@@ -28,7 +28,7 @@ The first thing I did when I cloned the project locally was to create a director
 
 On top of this, I created another directory called `templates` with a single file inside: `README.md.tpl`. The contents of this file are the exact same as the README.md I have at the root of the repo but with one exception, I added a new section for the content I will be fetching dynamically with a single placeholder that I can then find and replace in my library:
 
-```md
+```md:Readme.md.tpl
 [...]
 
 ### Latest articles in my [blog](https://www.polpiella.codes)
@@ -46,7 +46,7 @@ Once we have our template sorted, it is time to finally write some code! 🧑‍
 
 I then created a `struct` that would encapsulate all of the rss feed loading and parsing logic and will return the model needed by the script. Please note that you can use the `RSSFeedItem` returned by the parsing library, but I decided to create my own `Post` type that would decouple my model logic from the library's model implementation:
 
-```swift
+```swift:RSSFeedLoader.swift
 import FeedKit
 import Foundation
 
@@ -85,7 +85,7 @@ extension RSSFeedLoader: PostFeedLoader {
 
 Now that I had fetched my latest blog posts, I needed a way of writing this content to my profile's `README.md`. To do this, I started by converting my array of `Post`s into a Markdown compatible string representation of a list of links:
 
-```swift
+```swift:Post+Markdown.swift
 extension Post {
     var markdown: String { "- [\(title)](\(link))" }
 }
@@ -93,7 +93,7 @@ extension Post {
 
 Last thing to do after having the content formatted correctly was to create the command itself. I used Apple's ArgumentParser package to be able to create a command and pass arugments to it from the command line. This allowed me to pass the paths of the template and the output `README.md` files so that I don't have to perform any path operations form within the executable itself. You can see the whole script implementation below:
 
-```swift
+```swift:main.swift
 import Foundation
 import ArgumentParser
 
@@ -141,7 +141,7 @@ For my project, as I am using `Swift`, I need to use an agent capable of running
 
 In order to translate our requirements to something that `Github` can understand, we need to first create a `.yml` file in the directory mentioned above. Once we have this, let's start by naming our action and giving it a few triggers:
 
-```yml
+```yml:CI.yml
 name: Fetch latest blog posts and update README.md
 
 on:
@@ -155,7 +155,7 @@ In the code snippet above, we are telling our action what it should be triggered
 
 Now that we have set the triggers, we need to tell the action what to run and where to run it on. We can do this by adding a `build` to the `jobs` property as follows:
 
-```yml
+```yml:CI.yml
 jobs:
     build:
         runs-on: macos-latest

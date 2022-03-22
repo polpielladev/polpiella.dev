@@ -24,7 +24,7 @@ The functionality we want to build is to fetch some data from our BE service or 
 
 Let's get started by building the request publisher that will be used to fetch the `User` object from the BE.
 
-```swift
+```swift:DataFetcher.swift
 func getNewUserProfile(userID: String?) -> AnyPublisher<User, Never> {
     URLSession
         .shared
@@ -45,7 +45,7 @@ func getNewUserProfile(userID: String?) -> AnyPublisher<User, Never> {
 
 Now that we have built our network service method, the next thing we have to do is call this endpoint every time that a specific notification is received. To do this, we will create a custom notification named `user-sign-in` and we will use the built-in `publisher` method in the `NotificationCenter` API to listen for events:
 
-```swift
+```swift:DataFetcher.swift
 var cancellables = Set<AnyCancellable>()
 
 NotificationCenter
@@ -71,7 +71,7 @@ All of this is great, but what happens if multiple notifications happen in a sho
 
 Luckily for us, we have an operator that can take care of all the cancelling operations for us. In the example we are looking at in this blog, we only care about the latest request and we want any previous lingering requests that have not been fulfilled to be cancelled and the resources to be freed up. Let's look at the example from the previous section, but this time using `switchToLatest` instead:
 
-```swift
+```swift:DataFetcher.swift
 var cancellables = Set<AnyCancellable>()
 
 NotificationCenter
