@@ -62,7 +62,7 @@ This was a major improvement, **SSR** and **static files** made my site a lot fa
 
 > Both images (the one below and its comparison which you can find in the following section) were captured in development builds of my site and the amount of javascript that I was loading unnecessarily is truly staggering.
 
-![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/nextjs.png)
+![Result of inspecting site build with NextJS](/assets/posts/writing-my-personal-blog-site/nextjs.png)
 
 ### The final (for now) iteration: Astro
 
@@ -70,7 +70,7 @@ The problem with a vanilla application is that it makes things a lot more comple
 
 It does also have a **remarkably** fast build time, which makes it ideal for scalability as the number of posts continues to increase. And, of course, as you can see in the image below, I went from loading 49.8 MB of JS to **loading as little as zero!** 🎉
 
-![Concurrency cancelled run ](/assets/posts/writing-my-personal-blog-site/astro.png)
+![Result of inspecting site build with astro](/assets/posts/writing-my-personal-blog-site/astro.png)
 
 ## Conclusion
 

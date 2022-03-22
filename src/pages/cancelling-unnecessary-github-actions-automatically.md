@@ -40,4 +40,4 @@ concurrency:
 
 The beauty about this solution, apart from the fact that it is very simple and requires no dependencies, is that just a new run being scheduled in the same concurrency group will cause the ongoing ones to be cancelled. It will also give you a nice message explaining that the job was cancelled because a new one with a higher priority was scheduled, as you can see in the image below.
 
-![Concurrency cancelled run ](/assets/posts/cancelling-unnecessary-github-actions-automatically/action-cancelled.png)
+![Concurrency cancelled run](/assets/posts/cancelling-unnecessary-github-actions-automatically/action-cancelled.png)

@@ -172,7 +172,7 @@ The constraints above are all we need if we inspect iPhone devices, and lead us 
 
 But what happens when we look at the iPad? Does it look like we are making a good use of the screen's real estate? Note that we have made the message text a bit longer to see the behaviour of longer text in bigger screens.
 
-![](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/full-width.png)
+![iPad full width layout screenshot](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/full-width.png)
 
 Well, let's just say it doesn't look great 😅
 
@@ -195,7 +195,7 @@ NSLayoutConstraint.activate([
 
 As you can see in the image below, the content is nicely centered and always keeps a width suitable for reading: 
 
-![](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/readable-content-guide.png)
+![iPad readable content guide layout](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/readable-content-guide.png)
 
 ## Why do we need a part 2?
 

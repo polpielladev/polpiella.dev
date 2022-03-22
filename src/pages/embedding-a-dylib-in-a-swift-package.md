@@ -38,7 +38,7 @@ It is important to understand some of the choices taken later on that my applica
  
 ### Embedding the `.dylib` directly
 To achieve this, I decided to embed the library directly in the app target instead of attempting to ship it with the Swift Package itself - I actually had no idea how I would go about this 😅:
-![](/assets/posts/embedding-a-dylib-in-a-swift-package/embedding-dylib-xcode.png)
+![Embedding dynamic library directly into Xcode](/assets/posts/embedding-a-dylib-in-a-swift-package/embedding-dylib-xcode.png)
 
 As you can see, this can be done directly by going to the `Frameworks, Libraries, and Embedded Content` section in the target’s `General` settings tab.
 
@@ -83,7 +83,7 @@ let package = Package(
 I quickly reached a point where I wanted to try and get it to build on iOS devices and this is where the headaches really started 😅. 
 
 Neither of the approaches above were sufficient, because the `.dylib` was built for the wrong host (it was built for `macosx` when I also wanted `iphonesimulator` and `iphoneos`) and, as soon as I ran it, I was prompted with the following error:
-![](/assets/posts/embedding-a-dylib-in-a-swift-package/wrong-architecture-error.png)
+![Error message due to dylib being the wrong architecture](/assets/posts/embedding-a-dylib-in-a-swift-package/wrong-architecture-error.png)
 
 I needed to do a couple things in order to get the app building on multiple platforms:
 * Build the iOS libraries, as stated by [SwiftSyntax’s README.md](https://github.com/apple/swift-syntax/blob/main/README.md#embedding-in-an-ios-application). This is because in the toolchain, only the macOS binaries are provided.
@@ -180,4 +180,4 @@ The last thing to do was to check that the approach worked. In order to do so, I
 
 I created the project as a multi-platform SwiftUI app so that I could run it for both macOS and  iOS and this is the result I got! It ran without any issues and worked as expected! 🎉
 
-![](/assets/posts/embedding-a-dylib-in-a-swift-package/output.png)
+![App running in multiple platforms](/assets/posts/embedding-a-dylib-in-a-swift-package/output.png)
