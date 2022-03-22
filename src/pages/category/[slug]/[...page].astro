@@ -1,26 +1,28 @@
 ---
-import BlogPreview from '../../components/BlogPreview'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
+import BlogPreview from '../../../components/BlogPreview'
+import Header from '../../../components/Header'
+import Footer from '../../../components/Footer'
+import Paginator from '../../../components/Paginator'
 import _ from 'lodash'
 
-export async function getStaticPaths() {
-    const posts = Astro.fetchContent('../*.md')
+export async function getStaticPaths({ paginate }) {
+    const posts = Astro.fetchContent('../../*.md')
     const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
-
+    
     return categories.map(category => {
         const filteredPosts = posts
             .filter(post => post.tags.map(tag => tag.slug).includes(category.slug))
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
 
-        return {
+        return paginate(filteredPosts, {
+            pageSize: 5,
             params: { slug: category.slug },
-            props: { posts: filteredPosts, category }
-        }
+            props: { category }
+        })
     })
 }
 
-const { posts, category } = Astro.props
+const { page, category } = Astro.props
 ---
 <html lang="en">
 <head>
@@ -33,7 +35,7 @@ const { posts, category } = Astro.props
     <meta name="twitter:site" content="@polpielladev" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href={Astro.resolve('../../styles/global.css')}>
+    <link rel="stylesheet" href={Astro.resolve('../../../styles/global.css')}>
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -52,7 +54,8 @@ const { posts, category } = Astro.props
                 </div>
             </section>
             <section class="flex flex-col gap-10">
-                {posts.map(p => <BlogPreview post={p} />)}
+                {page.data.map(p => <BlogPreview post={p} />)}
+                <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
             </section>
         </div>
     </main>
