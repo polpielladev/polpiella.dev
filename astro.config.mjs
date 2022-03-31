@@ -1,4 +1,5 @@
 import astroRemark from '@astrojs/markdown-remark'
+import react from '@astrojs/react'
 
 export default {
     buildOptions: {
@@ -18,5 +19,5 @@ export default {
 			},
 		],
 	},
-    renderers: ['@astrojs/renderer-react'],
+	integrations: [react()]
 }

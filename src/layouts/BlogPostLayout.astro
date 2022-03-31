@@ -1,4 +1,6 @@
 ---
+import "../styles/blog-detail.css"
+import "../styles/global.css"
 import Metadata from '../components/Metadata'
 import Header from '../components/Header'
 import Tags from '../components/Tags'
@@ -25,8 +27,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
     <meta name="twitter:description" content={excerpt} />
     <meta name="twitter:site" content="@polpielladev" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
-    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
         rel="alternate"

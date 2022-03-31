@@ -141,7 +141,7 @@ For my project, as I am using `Swift`, I need to use an agent capable of running
 
 In order to translate our requirements to something that `Github` can understand, we need to first create a `.yml` file in the directory mentioned above. Once we have this, let's start by naming our action and giving it a few triggers:
 
-```yml:CI.yml
+```yaml:CI.yml
 name: Fetch latest blog posts and update README.md
 
 on:
@@ -155,7 +155,7 @@ In the code snippet above, we are telling our action what it should be triggered
 
 Now that we have set the triggers, we need to tell the action what to run and where to run it on. We can do this by adding a `build` to the `jobs` property as follows:
 
-```yml:CI.yml
+```yaml:CI.yml
 jobs:
     build:
         runs-on: macos-latest
