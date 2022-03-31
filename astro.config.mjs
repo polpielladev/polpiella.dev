@@ -1,4 +1,5 @@
 import astroRemark from '@astrojs/markdown-remark'
+import react from '@astrojs/react'
 
 export default {
     buildOptions: {
@@ -9,6 +10,7 @@ export default {
 		render: [
 			astroRemark,
 			{
+				syntaxHighlight: 'prism',
 				remarkPlugins: ['remark-code-titles'],
 				rehypePlugins: [
 					'rehype-slug',
@@ -18,5 +20,5 @@ export default {
 			},
 		],
 	},
-    renderers: ['@astrojs/renderer-react'],
+	integrations: [react()]
 }

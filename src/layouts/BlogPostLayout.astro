@@ -1,4 +1,6 @@
 ---
+import "../styles/blog-detail.css"
+import "../styles/global.css"
 import Metadata from '../components/Metadata'
 import Header from '../components/Header'
 import Tags from '../components/Tags'
@@ -25,8 +27,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
     <meta name="twitter:description" content={excerpt} />
     <meta name="twitter:site" content="@polpielladev" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="stylesheet" href={Astro.resolve('../styles/blog-detail.css')} />
-    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
         rel="alternate"
@@ -40,7 +40,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
 <body class="dark:bg-gray-900">
     <Header />
     <div class="w-full">
-        <article class="prose prose-lg dark:prose-invert prose-img:shadow-sm prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
+        <article class="prose prose-pre:mt-2 prose-lg dark:prose-invert prose-img:shadow-sm prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
             <header>
                 <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
                 <div class="flex flex-col gap-5">

@@ -1,4 +1,5 @@
 ---
+import "../styles/global.css" 
 import BlogPreview from '../components/BlogPreview'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -37,7 +38,6 @@ const { page } = Astro.props
     <meta name="twitter:site" content="@polpielladev" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')}>
     <link
       rel="alternate"
       type="application/rss+xml"
