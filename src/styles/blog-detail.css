@@ -48,6 +48,14 @@ p > a::after {
   @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
 }
 
+blockquote > p {
+  margin: 0 !important;
+}
+
+blockquote {
+  padding: 15px 10px;
+}
+
 img {
   margin: 0 auto;
 }
