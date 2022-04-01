@@ -16,7 +16,7 @@ export async function getStaticPaths({ rss, paginate }) {
         items: sortedPosts.map(item => ({
             title: item.title,
             description: item.astro.html,
-            link: `https://${item.slug}`,
+            link: `https://www.polpiella.dev/${item.slug}`,
             pubDate: item.date,
         })),
         dest: '/rss.xml'
