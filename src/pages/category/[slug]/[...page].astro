@@ -7,7 +7,7 @@ import Paginator from '../../../components/Paginator'
 import _ from 'lodash'
 
 export async function getStaticPaths({ paginate }) {
-    const posts = Astro.fetchContent('../../*.md')
+    const posts = Astro.fetchContent('../../*.md').filter(post => !post.draft)
     const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
     
     return categories.map(category => {
