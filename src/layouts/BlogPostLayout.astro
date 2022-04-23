@@ -7,7 +7,7 @@ import BaseLayout from '../components/BaseLayout'
 import { Markdown } from 'astro/components'
 
 const { content } = Astro.props
-const { title, excerpt, tags, date, readtime, astro } = content
+const { title, excerpt, tags, date, readtime, astro, slug } = content
 const { source } = astro
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
@@ -15,13 +15,13 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(title)}`
 ---
 <BaseLayout title={title} description={excerpt} imageURL={fullImageURL}>
-    <article class="prose prose-pre:mt-2 prose-lg dark:prose-invert prose-img:shadow-sm prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
-        <header>
+    <article class="prose prose-pre:mt-2 prose-lg dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
+        <header class="mb-8">
             <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
             <div class="flex flex-col gap-5">
                 <h1 class="m-0">{title}</h1>
                 <Tags tags={tags} />
-                <Metadata readtime={readtime} />
+                <Metadata readtime={readtime} slug={slug} />
             </div>
         </header>
         <Markdown content={source} />

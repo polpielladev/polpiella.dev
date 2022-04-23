@@ -31,7 +31,8 @@ p > a {
   text-decoration: none;
 }
 
-p > a::after {
+p > a::after,
+#gh-link::after {
   content: "";
   position: absolute;
   top: 5px;
@@ -60,7 +61,8 @@ img {
   margin: 0 auto;
 }
 
-p > a:hover::after {
+p > a:hover::after,
+#gh-link:hover::after {
   top: 0;
   left: 0;
 }

@@ -8,7 +8,7 @@ export default function BaseLayout({ title, description, imageURL, children }) {
       <Head description={description} title={title} imageURL={imageURL} />
       <body class="dark:bg-gray-900 min-h-screen flex flex-col justify-between">
         <Header />
-        <main class="grid content-center">
+        <main>
           {children}
         </main>
         <Footer />
