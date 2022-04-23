@@ -2,9 +2,8 @@
 import "../styles/blog-detail.css"
 import "../styles/global.css"
 import Metadata from '../components/Metadata'
-import Header from '../components/Header'
 import Tags from '../components/Tags'
-import Footer from '../components/Footer'
+import BaseLayout from '../components/BaseLayout'
 import { Markdown } from 'astro/components'
 
 const { content } = Astro.props
@@ -15,43 +14,16 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
 })
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(title)}`
 ---
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-    <title>{title}</title>
-    <meta name="description" content={excerpt} />
-    <meta property="og:image" content={fullImageURL} />
-    <meta name="twitter:image" content={fullImageURL} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={excerpt} />
-    <meta name="twitter:site" content="@polpielladev" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link
-        rel="alternate"
-        type="application/rss+xml"
-        title="RSS Feed for polpiella.dev"
-        href="/rss.xml"
-    />
-    <script hoist src="https://cdn.usefathom.com/script.js" data-site="FBLWSUCQ" defer></script>
-</head>
-
-<body class="dark:bg-gray-900">
-    <Header />
-    <div class="w-full">
-        <article class="prose prose-pre:mt-2 prose-lg dark:prose-invert prose-img:shadow-sm prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
-            <header>
-                <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
-                <div class="flex flex-col gap-5">
-                    <h1 class="m-0">{title}</h1>
-                    <Tags tags={tags} />
-                    <Metadata readtime={readtime} />
-                </div>
-            </header>
-            <Markdown content={source} />
-        </article>
-    </div>
-    <Footer />
-</body>
-</html>
+<BaseLayout title={title} description={excerpt} imageURL={fullImageURL}>
+    <article class="prose prose-pre:mt-2 prose-lg dark:prose-invert prose-img:shadow-sm prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3">
+        <header>
+            <h3 class=" text-zinc-400 m-0 font-bold">{formattedDate}</h3>
+            <div class="flex flex-col gap-5">
+                <h1 class="m-0">{title}</h1>
+                <Tags tags={tags} />
+                <Metadata readtime={readtime} />
+            </div>
+        </header>
+        <Markdown content={source} />
+    </article>
+</BaseLayout>
