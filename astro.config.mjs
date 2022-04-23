@@ -10,7 +10,6 @@ export default {
 		render: [
 			astroRemark,
 			{
-				syntaxHighlight: 'prism',
 				remarkPlugins: ['remark-code-titles'],
 				rehypePlugins: [
 					'rehype-slug',
