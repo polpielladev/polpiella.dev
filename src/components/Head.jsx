@@ -11,7 +11,7 @@ export default function Head({ title, description, imageURL }) {
       <meta name="description" content={description} />
       <meta name="twitter:site" content="@polpielladev" />
       <meta name="twitter:card" content="summary_large_image" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      <link rel="icon" type="image/png" href="/assets/profile.png" />
       <link
         rel="alternate"
         type="application/rss+xml"
