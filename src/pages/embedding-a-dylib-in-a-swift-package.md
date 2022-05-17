@@ -110,11 +110,11 @@ fi
 rm -rf build && mkdir build && pushd build
 
 # Build Simulator dylib
-../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build-iossim --host iphonesimulator --architectures x86_64
+../.checkouts/swift/utils/build-tooling-libs --release --no-assertions --build-dir /tmp/parser-lib-build-iossim --host iphonesimulator --architectures x86_64
 # Build Device dylib
-../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build-ios --host iphoneos --architectures arm64
+../.checkouts/swift/utils/build-tooling-libs --release --no-assertions --build-dir /tmp/parser-lib-build-ios --host iphoneos --architectures arm64
 # Build macOS dylib
-../.checkouts/swift/utils/build-parser-lib --release --no-assertions --build-dir /tmp/parser-lib-build --architectures x86_64
+../.checkouts/swift/utils/build-tooling-libs --release --no-assertions --build-dir /tmp/parser-lib-build --architectures x86_64
 ```
 
 The script above clones the [Swift](https://github.com/apple/swift) repo and uses the `update-checkout` script to check out the current version I will be building with: `release/5.5`. **This is very important as the libraries need to be built with the same version as the toolchain the client will be building with**.
