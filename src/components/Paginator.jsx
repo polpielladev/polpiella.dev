@@ -6,9 +6,9 @@ const Link = ({ url, children }) => (
   </a>
 )
 
-export default function Metadata({ previousURL, nextURL }) {
+export default function Paginator({ previousURL, nextURL }) {
   return (
-    <div className="flex justify-start gap-3 dark:text-gray-100">
+    <div className="mb-5 flex justify-start gap-3 dark:text-gray-100">
       {previousURL && <Link url={previousURL}>&larr; Newer Articles</Link>}
       {nextURL && <Link url={nextURL}>Older Articles &rarr;</Link>}
     </div>

@@ -63,9 +63,9 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
         <h1 class='text-5xl'>{category.name}</h1>
       </div>
     </section>
+    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
     <section class='flex flex-col gap-10'>
       {page.data.map((p) => <BlogPreview post={p} />)}
-      <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
     </section>
   </div>
 </BaseLayout>
