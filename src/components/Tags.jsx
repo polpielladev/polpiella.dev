@@ -5,8 +5,7 @@ export default function Tags({ tags }) {
         <a
           href={`/category/${tag.slug}`}
           key={tag.slug}
-          className="rounded bg-amber-300 p-1 text-xs font-bold text-gray-900 no-underline"
-        >
+          className="rounded bg-amber-300 p-1 text-xs font-bold text-gray-900 no-underline">
           {tag.name}
         </a>
       ))}

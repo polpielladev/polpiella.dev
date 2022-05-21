@@ -16,8 +16,7 @@ export default function Social() {
           key={social.url}
           target="_blank"
           rel="noopener noreferrer"
-          href={social.url}
-        >
+          href={social.url}>
           <img width="25px" height="25px" src={social.asset} />
         </a>
       ))}

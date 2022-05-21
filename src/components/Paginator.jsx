@@ -1,8 +1,7 @@
 const Link = ({ url, children }) => (
   <a
     className="rounded bg-gray-300 p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
-    href={url}
-  >
+    href={url}>
     {children}
   </a>
 )

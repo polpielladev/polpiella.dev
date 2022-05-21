@@ -25,8 +25,7 @@ export default function Head({ title, description, imageURL }) {
         hoist="true"
         src="https://cdn.usefathom.com/script.js"
         data-site="FBLWSUCQ"
-        defer
-      ></script>
+        defer></script>
     </head>
   )
 }

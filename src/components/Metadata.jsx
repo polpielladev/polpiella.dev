@@ -11,8 +11,7 @@ export default function Metadata({ readtime, slug }) {
           className="relative flex content-center items-center gap-1 no-underline"
           target="_blank"
           rel="noopener noreferrer"
-          href={`https://github.com/pol-piella/polpiella.dev/edit/main/src/pages/${slug}.md`}
-        >
+          href={`https://github.com/pol-piella/polpiella.dev/edit/main/src/pages/${slug}.md`}>
           <img className="m-0 w-5 dark:invert" src="/assets/github.svg" />
           <b>Found a mistake? Edit on Github!</b>
         </a>

@@ -6,8 +6,7 @@ export default function Header() {
       <div className="w-100 mx-auto flex max-w-screen-lg justify-between">
         <a
           className="flex items-center text-xl font-bold transition-transform hover:scale-105 dark:text-white"
-          href="/"
-        >
+          href="/">
           polpiella
           <span className=" ml-1 rounded bg-amber-400 p-1 text-black">DEV</span>
         </a>

@@ -13,8 +13,7 @@ export default function Footer() {
           className="font-bold underline decoration-amber-400 decoration-wavy hover:text-amber-500"
           href="https://www.monolisa.dev/buy"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           MonoLisa
         </a>
       </p>
