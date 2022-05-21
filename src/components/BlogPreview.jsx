@@ -3,7 +3,7 @@ import Metadata from './Metadata'
 import Tags from './Tags'
 
 export default function BlogPreview({ post }){
-    const { slug, title, excerpt, date, readtime, tags } = post
+    const { slug, title, excerpt, date, readtime, tags } = post.frontmatter
     const formattedDate = new Date(date).toDateString()
 
     return (

@@ -1,18 +1,17 @@
 ---
-import "../../../styles/global.css"
 import BaseLayout from '../../../components/BaseLayout'
 import BlogPreview from '../../../components/BlogPreview'
 import Paginator from '../../../components/Paginator'
 import _ from 'lodash'
 
 export async function getStaticPaths({ paginate }) {
-    const posts = Astro.fetchContent('../../*.md').filter(post => !post.draft)
-    const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
-    
+    const posts = await Astro.glob('../../*.md')
+    const categories = _.uniqBy(posts.flatMap((post) => post.frontmatter.tags), 'slug')
+
     return categories.map(category => {
         const filteredPosts = posts
-            .filter(post => post.tags.map(tag => tag.slug).includes(category.slug))
-            .sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
+            .filter(post => post.frontmatter.tags.map(tag => tag.slug).includes(category.slug))
+            .sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf())
 
         return paginate(filteredPosts, {
             pageSize: 5,

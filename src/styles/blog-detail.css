@@ -24,6 +24,10 @@ p > a {
   @apply text-gray-500 dark:text-gray-400 font-bold underline decoration-dashed;
 }
 
+pre > code {
+  font-family: 'MonoLisa', monospace !important;
+}
+
 .remark-code-title::before {
   content: "📁";
   margin-right: 5px;

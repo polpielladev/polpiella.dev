@@ -2,7 +2,7 @@
 title: "Using Property Wrappers to avoid code repetition"
 excerpt: "Exploring how Property Wrappers can come in handy to avoid code repetition"
 slug: "avoiding-code-repetition-with-property-wrappers"
-date: "2021-08-25T15:54:39.000Z"
+pubDate: "2021-08-25"
 readtime: "4"
 tags: [{ name: "Swift", slug: "swift" }]
 author:

@@ -1,27 +1,13 @@
 ---
 import BaseLayout from '../components/BaseLayout'
-import "../styles/global.css" 
 import BlogPreview from '../components/BlogPreview'
 import Paginator from '../components/Paginator'
 
 export async function getStaticPaths({ rss, paginate }) {
-    const posts = Astro.fetchContent('./*.md').filter(post => !post.draft)
-    const sortedPosts = posts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
-
-    rss({
-        title: 'polpiella.dev',
-        description: 'A blog about iOS development and software engineering.',
-        customData: `<language>en-us</language>`,
-        items: sortedPosts.map(item => ({
-            title: item.title,
-            description: item.astro.html,
-            link: `https://www.polpiella.dev/${item.slug}`,
-            pubDate: item.date,
-        })),
-        dest: '/rss.xml'
-    })
-  
-  return paginate(sortedPosts, { pageSize: 5 });
+    const posts = await Astro.glob('./*.md')
+    const sortedPosts = posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf())
+    
+    return paginate(sortedPosts, { pageSize: 5 });
 }
 
 const { page } = Astro.props

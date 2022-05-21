@@ -2,7 +2,7 @@
 title: "An early look at Swift extensible build tools"
 slug: "an-early-look-at-swift-extensible-build-tools"
 excerpt: "Trying out the Swift Package Manager's brand new extensible build tool by using the Swift 5.6 development snapshot."
-date: "2022-01-22T13:00:00.000Z"
+pubDate: "2022-01-22"
 readtime: "10"
 tags:
     [

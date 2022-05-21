@@ -2,7 +2,7 @@
 title: "Custom key decoding strategies in Swift"
 excerpt: "How to take advantage of the custom key decoding strategies to avoid unnecessary CodingKeys implementations"
 slug: "custom-key-decoding-strategies-in-swift"
-date: "2021-11-03T19:54:39.000Z"
+pubDate: "2021-11-03"
 readtime: "7"
 tags:
     [

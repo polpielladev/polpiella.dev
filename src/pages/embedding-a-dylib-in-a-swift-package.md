@@ -2,7 +2,7 @@
 title: "Embedding a dylib in a Swift Package"
 excerpt: "An article on how to embed and ship a dynamic library in a Swift package."
 slug: "embedding-a-dylib-in-a-swift-package"
-date: "2022-02-12T15:00:00.000Z"
+pubDate: "2022-02-12"
 readtime: "8"
 tags:
     [

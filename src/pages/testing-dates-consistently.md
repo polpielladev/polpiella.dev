@@ -2,7 +2,7 @@
 title: "Testing dates consistently"
 slug: "testing-dates-consistently"
 excerpt: "A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example."
-date: "2021-07-02T16:18:26.000Z"
+pubDate: "2021-07-02"
 readtime: "6"
 tags:
     [

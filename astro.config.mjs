@@ -1,23 +1,19 @@
-import astroRemark from '@astrojs/markdown-remark'
-import react from '@astrojs/react'
+import react from '@astrojs/react';
+import tailwind from '@astrojs/tailwind';
+import { defineConfig } from "astro/config";
 
-export default {
-    buildOptions: {
-        site: "https://polpiella.dev",
-        sitemap: true,
-    },
-    markdownOptions: {
-		render: [
-			astroRemark,
-			{
-				remarkPlugins: ['remark-code-titles'],
-				rehypePlugins: [
-					'rehype-slug',
-					['rehype-autolink-headings', { behavior: 'wrap' }],
-					['rehype-toc', { headings: ['h2'] }]
-				],
-			},
-		],
-	},
-	integrations: [react()]
-}
+// https://astro.build/config
+export default defineConfig({
+  site: "https://polpiella.dev",
+  markdown: {
+    remarkPlugins: ['remark-code-titles'],
+    rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', {
+      behavior: 'wrap'
+    }], ['rehype-toc', {
+      headings: ['h2']
+    }]],
+    shikiConfig: {
+    }
+  },
+  integrations: [tailwind(), react()]
+});
