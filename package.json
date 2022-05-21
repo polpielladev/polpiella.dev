@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "npm run format:check && astro build",
     "preview": "astro preview",
-    "format": "prettier --write ./**/*.{js,jsx,md,css,astro}"
+    "format:fix": "prettier --write ./**/*.{js,jsx,md,css,astro}",
+    "format:check": "prettier --check ./**/*.{js,jsx,md,css,astro}"
   },
   "devDependencies": {
     "@astrojs/react": "^0.1.2",
