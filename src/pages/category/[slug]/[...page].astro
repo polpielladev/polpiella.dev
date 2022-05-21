@@ -3,24 +3,24 @@ import BaseLayout from '../../../components/BaseLayout'
 import BlogPreview from '../../../components/BlogPreview'
 import Paginator from '../../../components/Paginator'
 
-// From: https://stackoverflow.com/a/40808569 - To avoid using `lodash`
-const uniqBy = (arr, predicate) => {
-  const cb = typeof predicate === 'function' ? predicate : (o) => o[predicate]
-
-  return [
-    ...arr
-      .reduce((map, item) => {
-        const key = item === null || item === undefined ? item : cb(item)
-
-        map.has(key) || map.set(key, item)
-
-        return map
-      }, new Map())
-      .values(),
-  ]
-}
-
 export async function getStaticPaths({ paginate }) {
+  // From: https://stackoverflow.com/a/40808569 - To avoid using `lodash`
+  const uniqBy = (arr, predicate) => {
+    const cb = typeof predicate === 'function' ? predicate : (o) => o[predicate]
+
+    return [
+      ...arr
+        .reduce((map, item) => {
+          const key = item === null || item === undefined ? item : cb(item)
+
+          map.has(key) || map.set(key, item)
+
+          return map
+        }, new Map())
+        .values(),
+    ]
+  }
+
   const posts = await Astro.glob('../../*.md')
   const categories = uniqBy(
     posts.flatMap((post) => post.frontmatter.tags),
