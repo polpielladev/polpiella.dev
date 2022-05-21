@@ -30,15 +30,5 @@
     "@astrojs/rss": "^0.2.0",
     "chrome-aws-lambda": "10.1.0",
     "playwright-core": "1.14.0"
-  },
-  "prettier": {
-    "plugins": [
-      "prettier-plugin-astro",
-      "prettier-plugin-tailwindcss"
-    ],
-    "semi": false,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "bracketSameLine": true
   }
 }
