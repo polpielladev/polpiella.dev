@@ -11,9 +11,11 @@ export async function getStaticPaths({ rss, paginate }) {
 }
 
 const { page } = Astro.props
+const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI("polpiella.dev")}`
 ---
 <BaseLayout title="polpielladev 📱 | A blog about software engineering and app development"
-            description="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!">
+            description="A blog where I talk about software development topics in languages like Swift, Javascript and using frameworks such as Next.js, React, Combine and many more!"
+            imageURL={fullImageURL}>
     <div class="px-3 mx-auto my-0 max-w-3xl">
         <section class="flex flex-col gap-5 items-center text-center mb-8 md:flex-row md:text-left">
             <img class="object-cover m-0 w-20 h-auto" src="/assets/profile.png" />
