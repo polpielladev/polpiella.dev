@@ -1,24 +1,24 @@
 ---
-title: "An early look at Swift extensible build tools"
-slug: "an-early-look-at-swift-extensible-build-tools"
+title: 'An early look at Swift extensible build tools'
+slug: 'an-early-look-at-swift-extensible-build-tools'
 excerpt: "Trying out the Swift Package Manager's brand new extensible build tool by using the Swift 5.6 development snapshot."
-pubDate: "2022-01-22"
-readtime: "10"
+pubDate: '2022-01-22'
+readtime: '10'
 tags:
-    [
-        { name: "Swift Package Manager", slug: "spm" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'Swift Package Manager', slug: 'spm' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
-If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colours, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work. 
+If you have ever used the `Xcode` pre-build step on Xcode projects to generate build files on the fly for Swift packages you will have noticed that it is not really possible to add new files between package resolution and build. This includes examples where you need to generate Swift code from resources such as translations, colours, images, etc. or even fetching a file from the server at build time and embedding it in your package, which I have had to try to do and _fail_ recently at work.
 
 A similar thing happens with linting. Say that you work in a large app where multiple packages live under a single Xcode project. If you want to use [swiftlint]() to lint and spot potential problems in a certain package, you need to add a build phase to the Xcode project, as it is currently not possible to add build steps to packages. What this means though is that you won't get feedback on your linting problems if the target you have selected and are developing for is a Swift package itself. You will still have to run the _combined_ target where your build phase is defined, which needs to be a Xcode project. This can get pretty frustrating when working on large codebases and it is an issue we have had to deal with for a while... until swift 5.6 arrives!
 
-Ever since reading the [SwiftPM Extensible Build Tools Proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), which has now been implemented on the upcoming Swift 5.6 release, I have been itching to try and see how it works in practice and how easy it is to implement. I always feel like there is only so much you can gather from reading a proposal and, until you have a chance to try it out, you can't really get a sense of how it works. 
+Ever since reading the [SwiftPM Extensible Build Tools Proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), which has now been implemented on the upcoming Swift 5.6 release, I have been itching to try and see how it works in practice and how easy it is to implement. I always feel like there is only so much you can gather from reading a proposal and, until you have a chance to try it out, you can't really get a sense of how it works.
 
 And that's what I did! In this article I will try to explain the process I followed to try this feature out and the results I got.
 
@@ -28,7 +28,7 @@ And that's what I did! In this article I will try to explain the process I follo
 
 Luckily for us, to try it out, we do not need to wait for the Swift 5.6 release to come out. We can use the latest Swift 5.6 development snapshot. This is made available from the [Swift downloads page](https://www.swift.org/download/) and can be downloaded in multiple formats for different platforms. The one I'll be using is the one for Xcode, which can be downloaded directly by following [this link](https://download.swift.org/swift-5.6-branch/xcode/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a/swift-5.6-DEVELOPMENT-SNAPSHOT-2022-01-11-a-osx.pkg). This snapshot is automatically created from the [release/5.6](https://github.com/apple/swift/tree/release/5.6) branch on the Swift repo.
 
-I will not go into too much detail about installing the development snapshot, but you can find an awesome article by [Marcin Krzyżanowski](https://twitter.com/krzyzanowskim) going into detail about it [here](https://blog.krzyzanowskim.com/2018/10/11/dealing-with-a-swift-toolchain/). 
+I will not go into too much detail about installing the development snapshot, but you can find an awesome article by [Marcin Krzyżanowski](https://twitter.com/krzyzanowskim) going into detail about it [here](https://blog.krzyzanowskim.com/2018/10/11/dealing-with-a-swift-toolchain/).
 
 I will point out a couple of things that, in this particular case, do not work as you would expect and that you should be aware of - basically so you don't waste as much time as I have trying to figure out how to get around them 😅.
 
@@ -40,13 +40,13 @@ If you go ahead and add the appropriate `// swift-tools-version: 5.6` line to yo
 
 ![Swift Package toolchain error](/assets/posts/an-early-look-at-swift-extensible-build-tools/error.png)
 
-This has been experienced by other developers, as this filed [radar](http://www.openradar.me/radar?id=4968169147990016) states. It is also [mentioned in a forum by an Apple employee](https://forums.swift.org/t/se-0271-package-manager-resources/30730/78) that the `libSwiftPM` library is not loaded from the toolchain, which causes the package resolution issue above. 
+This has been experienced by other developers, as this filed [radar](http://www.openradar.me/radar?id=4968169147990016) states. It is also [mentioned in a forum by an Apple employee](https://forums.swift.org/t/se-0271-package-manager-resources/30730/78) that the `libSwiftPM` library is not loaded from the toolchain, which causes the package resolution issue above.
 
 Worry not though, thankfully we are not fully dependent on Xcode to make this work, we have other alternatives.
 
 ### VS Code to the rescue!
 
-Thanks to the great [Swift VSCode extension](https://marketplace.visualstudio.com/items?itemName=sswg.swift-lang) created by the [server side swift work group](https://forums.swift.org/t/introducing-swift-for-visual-studio-code/54246) not too long ago, built on top of `sourcekit-lsp`, you can now develop Swift packages in a similar way as you would do in Xcode. It also allows you to change the toolchain being used, which results in being able to get around the Xcode issue. 
+Thanks to the great [Swift VSCode extension](https://marketplace.visualstudio.com/items?itemName=sswg.swift-lang) created by the [server side swift work group](https://forums.swift.org/t/introducing-swift-for-visual-studio-code/54246) not too long ago, built on top of `sourcekit-lsp`, you can now develop Swift packages in a similar way as you would do in Xcode. It also allows you to change the toolchain being used, which results in being able to get around the Xcode issue.
 
 After you install it in VSCode, you can go to preferences and then change the `Sourcekit-lsp: Toolchain Path` and the `Swift: Path` to point to your development snapshot.
 
@@ -79,7 +79,7 @@ let package = Package(
 )
 ```
 
-Then, we need to provide some sources to be able to define the implementation of this plugin. This is done in a similar way as a normal `target`, but instead of defining the sources under `Sources/DesignSystem`, they must be defined under `Plugins/DesignSystemPlugin`. Let's create a file called `DesignSystemPlugin.swift` at that path. Having done this, it is now time to write some Swift code for the plugin itself. 
+Then, we need to provide some sources to be able to define the implementation of this plugin. This is done in a similar way as a normal `target`, but instead of defining the sources under `Sources/DesignSystem`, they must be defined under `Plugins/DesignSystemPlugin`. Let's create a file called `DesignSystemPlugin.swift` at that path. Having done this, it is now time to write some Swift code for the plugin itself.
 
 We start by creating a `struct`, decorated with `@main` - this is so `swift` can tell that this is the entry point for the plugin. This `struct` will conform to `BuildToolPlugin` and implement its `createBuildCommands` method.
 
@@ -95,10 +95,10 @@ import PackagePlugin
 
 Now it's time to return some `Command`s. These are the processes that will be run when the plugin is invoked during the build. It is an `enum` type with two cases, each of which defines a purpose and a step in the build process as explained in the [SwiftPM Extensible Build Tools Proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md):
 
-* `buildCommand`s are only triggered when the defined outputs are not present or when any of its inputs have been modified.
-* `prebuildCommand`s are run straight after the package resolution step and just before the build begins. They can generate any arbitrary number of files from a given set of inputs. This is the command we will be using in this article.
+- `buildCommand`s are only triggered when the defined outputs are not present or when any of its inputs have been modified.
+- `prebuildCommand`s are run straight after the package resolution step and just before the build begins. They can generate any arbitrary number of files from a given set of inputs. This is the command we will be using in this article.
 
-Note that in the proposal there is talk of a third command called `postbuildCommand` which does not seem to be available yet. 
+Note that in the proposal there is talk of a third command called `postbuildCommand` which does not seem to be available yet.
 
 Let's now see how to implement the `prebuildCommand` in our plugin:
 
@@ -116,7 +116,7 @@ func createBuildCommands(context: TargetBuildContext) throws -> [Command] {
             executable: context.packageDirectory.appending("swiftgen"),
             // Arguments passed to the executable
             arguments: [
-                "run", "xcassets", 
+                "run", "xcassets",
                 "\(context.packageDirectory)/Sources/DesignSystem/Resources/Colors.xcassets",
                 "--param", "publicAccess",
                 "--templateName", "swift5",
@@ -132,8 +132,8 @@ func createBuildCommands(context: TargetBuildContext) throws -> [Command] {
 
 As you can see, we can make use of the context we are given to retrieve the path to the executable, the output directory and so on. In the snippet above, I make use of `packageDirecotry` and `pluginWorkDirectory` from the context object:
 
-* **Package Directory** is a path to the root of the directory where the `Package.swift` file lives. Used here to find both the asset catalogues that are to be processed and the executable.
-* **Plugin Work Directory** is a path to the directory created for the plugin to do its work. It has write permissions so we can create any files within it.
+- **Package Directory** is a path to the root of the directory where the `Package.swift` file lives. Used here to find both the asset catalogues that are to be processed and the executable.
+- **Plugin Work Directory** is a path to the directory created for the plugin to do its work. It has write permissions so we can create any files within it.
 
 Aside from passing it an executable, we can also pass in arguments, which in this case handle the correct `swiftgen` commands and environment variables which we can set if we need to.
 
@@ -162,7 +162,7 @@ let package = Package(
 )
 ```
 
-Then, just executing `swift build`, with some extra parameters to be able to point to the iphone sdk and use UIKit, should make the plugin run. 
+Then, just executing `swift build`, with some extra parameters to be able to point to the iphone sdk and use UIKit, should make the plugin run.
 
 ## It works? Why can't I see it running?
 
@@ -172,7 +172,7 @@ As per the generated file, it will live under `.build/plugins/output/GeneratedCo
 
 ## What happens to these generated files? 🤔
 
-At this point, contrary to what it may seem, the generated files are part of the package itself and they will be compiled with it. This means that they can be used anywhere within the package or, if they are public they can be consumed by other packages! 
+At this point, contrary to what it may seem, the generated files are part of the package itself and they will be compiled with it. This means that they can be used anywhere within the package or, if they are public they can be consumed by other packages!
 
 What this means is we have just made a package which holds a bunch of colors in an asset catalogue and automatically generates a public interface for clients to consume! How cool! 🎉
 

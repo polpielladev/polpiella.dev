@@ -6,11 +6,9 @@ export default function BaseLayout({ title, description, imageURL, children }) {
   return (
     <html lang="en">
       <Head description={description} title={title} imageURL={imageURL} />
-      <body className="dark:bg-gray-900 min-h-screen flex flex-col justify-between">
+      <body className="flex min-h-screen flex-col justify-between dark:bg-gray-900">
         <Header />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>

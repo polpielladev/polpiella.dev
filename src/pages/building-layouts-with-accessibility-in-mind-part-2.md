@@ -1,17 +1,17 @@
 ---
-title: "Building layouts with accessibility in mind - Part 2"
-excerpt: "Make use of `UIScrollView`s to make the layout built in part 1 even more accessible to all users."
-slug: "building-layouts-with-accessibility-in-mind-part-2"
-pubDate: "2022-03-31"
-readtime: "5"
+title: 'Building layouts with accessibility in mind - Part 2'
+excerpt: 'Make use of `UIScrollView`s to make the layout built in part 1 even more accessible to all users.'
+slug: 'building-layouts-with-accessibility-in-mind-part-2'
+pubDate: '2022-03-31'
+readtime: '5'
 tags:
-    [
-        { name: "UIKit", slug: "uikit" },
-        { name: "Accessibility", slug: "accessibility" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'UIKit', slug: 'uikit' },
+    { name: 'Accessibility', slug: 'accessibility' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -33,7 +33,7 @@ Despite the fact that `UIScrollView`s are extremely powerful and they help us ov
 
 You can think of `UIScrollView`s as plain `UIView`s with super powers. If the content you put in it fits within the **frame** of the `UIScrollView`, it will display it as a normal `UIView` would. However, if the content suddenly gets **too big to fit** in the `UIScrollView`'s frame, it will increase **its content size and it will become scrollable** to allow users to reach any overflowing content.
 
-> If you have ever done any `css` in the past, this is similar to setting `overflow-x: scroll` or `overflow-y: scroll` in an element, with more setup code 😅. 
+> If you have ever done any `css` in the past, this is similar to setting `overflow-x: scroll` or `overflow-y: scroll` in an element, with more setup code 😅.
 
 To layout content inside a `UIScrollView`, we first need to add any subviews, which we'll refer to as content from now on, to its view hierarchy:
 
@@ -63,29 +63,30 @@ NSLayoutConstraint.activate([
 		containerView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
 ])
 ```
- 
+
 If we look at the result now and inspect it with the view debugger, we'll see that while the content scrolls, it seems to not be centred and we get a runtime warning:
- 
- ![Gif showing the runtime warning and not content in the wrong position](/assets/posts/building-layouts-with-accessibility-in-mind-part-2/runtime-warning.png)
- 
- The warning occurs because we have not set a constraint for the content's height, hence the initial height content size is ambiguous. This is a bit tricky because, if we constraint the content's height to the `UIScrollView`'s frame's height, then we'll lose the scrolling and our content will no longer be accessible.
- 
- To overcome this issue and allow our content's initial size to be full height (and hence center the content), we can constraint the `containerView`'s height anchor to the `scrollView`'s frame layout's height anchor, but with a priority of `defaultLow`. 
- 
- This will make sure the content size is not ambiguous and will initially take up the whole of the `UIScrollView`'s frame but, as soon as the `containerView`'s height overflows, it will break the height constraint to the frame layout guide we have set up and make use of the content layout guide constraints instead.
- 
- ```swift:ViewController.swift
+
+![Gif showing the runtime warning and not content in the wrong position](/assets/posts/building-layouts-with-accessibility-in-mind-part-2/runtime-warning.png)
+
+The warning occurs because we have not set a constraint for the content's height, hence the initial height content size is ambiguous. This is a bit tricky because, if we constraint the content's height to the `UIScrollView`'s frame's height, then we'll lose the scrolling and our content will no longer be accessible.
+
+To overcome this issue and allow our content's initial size to be full height (and hence center the content), we can constraint the `containerView`'s height anchor to the `scrollView`'s frame layout's height anchor, but with a priority of `defaultLow`.
+
+This will make sure the content size is not ambiguous and will initially take up the whole of the `UIScrollView`'s frame but, as soon as the `containerView`'s height overflows, it will break the height constraint to the frame layout guide we have set up and make use of the content layout guide constraints instead.
+
+```swift:ViewController.swift
 let heightConstraint = scrollView.frameLayoutGuide.heightAnchor.constraint(equalTo: containerView.heightAnchor)
 heightConstraint.priority = .defaultLow
- 
+
 NSLayoutConstraint.activate([
 		// ...
 		heightConstraint
 ])
- ```
- 
+```
+
 ## The result
-That's it! In these two posts, we have built a screen which looks great in the whole range of iOS/iPadOS devices, and respects the user's content size preferences. 
+
+That's it! In these two posts, we have built a screen which looks great in the whole range of iOS/iPadOS devices, and respects the user's content size preferences.
 
 Let's take a look at the result:
 

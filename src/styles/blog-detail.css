@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "MonoLisa";
-  src: local(""), url("/fonts/MonoLisa-Regular.woff2") format("woff2");
+  font-family: 'MonoLisa';
+  src: local(''), url('/fonts/MonoLisa-Regular.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -21,7 +21,7 @@ p > a {
 
 .remark-code-title {
   font-size: 13px;
-  @apply text-gray-500 dark:text-gray-400 font-bold underline decoration-dashed;
+  @apply font-bold text-gray-500 underline decoration-dashed dark:text-gray-400;
 }
 
 pre > code {
@@ -29,7 +29,7 @@ pre > code {
 }
 
 .remark-code-title::before {
-  content: "📁";
+  content: '📁';
   margin-right: 5px;
   display: inline-block;
   text-decoration: none;
@@ -37,7 +37,7 @@ pre > code {
 
 p > a::after,
 #gh-link::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 5px;
   left: 5px;
@@ -50,7 +50,7 @@ p > a::after,
 }
 
 .toc a {
-  @apply no-underline hover:text-gray-500 dark:hover:text-gray-400 text-gray-700 dark:text-gray-300;
+  @apply text-gray-700 no-underline hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-400;
 }
 
 blockquote > p {
@@ -72,11 +72,11 @@ p > a:hover::after,
 }
 
 .toc {
-  @apply bg-gray-100 dark:bg-gray-800 mt-2 rounded-md p-3 leading-5;
+  @apply mt-2 rounded-md bg-gray-100 p-3 leading-5 dark:bg-gray-800;
 }
 
 .toc::before {
-  content: "TABLE OF CONTENTS";
+  content: 'TABLE OF CONTENTS';
   font-size: 16px;
   font-weight: bold;
   @apply text-gray-800 dark:text-gray-100;

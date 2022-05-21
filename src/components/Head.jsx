@@ -2,7 +2,10 @@ export default function Head({ title, description, imageURL }) {
   return (
     <head>
       <meta charSet="UTF-8" />
-      <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+      <meta
+        name="viewport"
+        content="width=device-width,minimum-scale=1,initial-scale=1"
+      />
       <title>{title}</title>
       <meta property="og:image" content={imageURL} />
       <meta name="twitter:image" content={imageURL} />
@@ -18,7 +21,12 @@ export default function Head({ title, description, imageURL }) {
         title="RSS Feed for polpiella.dev"
         href="/rss.xml"
       />
-      <script hoist="true" src="https://cdn.usefathom.com/script.js" data-site="FBLWSUCQ" defer></script>
+      <script
+        hoist="true"
+        src="https://cdn.usefathom.com/script.js"
+        data-site="FBLWSUCQ"
+        defer
+      ></script>
     </head>
   )
 }

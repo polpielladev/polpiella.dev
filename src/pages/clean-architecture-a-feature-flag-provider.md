@@ -1,16 +1,16 @@
 ---
-title: "Clean Architecture: A Feature Flag Manager"
-excerpt: "Building a Feature Flag Manager system using clean architecture and SOLID design principles."
-slug: "clean-architecture-a-feature-flag-provider"
-pubDate: "2021-05-14"
-readtime: "7"
+title: 'Clean Architecture: A Feature Flag Manager'
+excerpt: 'Building a Feature Flag Manager system using clean architecture and SOLID design principles.'
+slug: 'clean-architecture-a-feature-flag-provider'
+pubDate: '2021-05-14'
+readtime: '7'
 tags:
-    [
-        { name: "Architecture", slug: "architecture" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'Architecture', slug: 'architecture' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -22,11 +22,11 @@ In this blog post we will be looking at how to build a Feature Flag Manager in a
 
 Your company is growing very quickly and, as it does, a bunch of new features are getting tested and rolled out every week. A great part of this process will involve experimentation and A/B testing to make sure that the content and features you are deploying are providing the right value to your users. When you start refining the work ready to be picked up, you get the following requirements:
 
--   Flags will come from multiple providers that your company is currently trialing. Some will come from your in-house experimentation BE service, some others will come from Firebase and others will come from LaunchDarkly.
--   Flags will be used in multiple screens throughout a bunch of different features (you can think of these as different modules).
--   As you are supporting a wide number of providers, the experimentation values you get back might be very different. Hence, you should make your abstraction very generic and only constrain it to `Decodable` types.
--   The current user must be passed to the providers as they are using attributes to determine which variation to serve when a flag is evaluated. This only needs to be done
--   The first flags will be used in the **Settings **and **Feed** modules, which are two of the most worked on screens in our app and we need to test a lot of hypothesis there.
+- Flags will come from multiple providers that your company is currently trialing. Some will come from your in-house experimentation BE service, some others will come from Firebase and others will come from LaunchDarkly.
+- Flags will be used in multiple screens throughout a bunch of different features (you can think of these as different modules).
+- As you are supporting a wide number of providers, the experimentation values you get back might be very different. Hence, you should make your abstraction very generic and only constrain it to `Decodable` types.
+- The current user must be passed to the providers as they are using attributes to determine which variation to serve when a flag is evaluated. This only needs to be done
+- The first flags will be used in the **Settings **and **Feed** modules, which are two of the most worked on screens in our app and we need to test a lot of hypothesis there.
 
 ## Architecture
 
@@ -38,8 +38,8 @@ I like to do this step side-by-side with an `XCode` playground open so that I ca
 
 The first layer that we want to implement will consist of every single provider that holds and retrieves feature flags. These SDKs or BE services can come in many different shapes and forms but the concepts, as we explained in the requirements will be the same. Also, it is worth noting that these SDKs will have a bunch of other methods that we don't really care about, and we want to only expose what is needed by the modules that require the Feature Flag module as a dependency. There are a couple of **SOLID** principles here that we need to keep in mind when designing this layer:
 
--   **Interface Segregation: **What this basically means is that the clients (our Settings and Feed modules) should only depend on what they strictly need. So, from these clients, we only want to make a call to get a variation, so that should literally be our only dependency.
--   **Dependency Inversion: **This means that clients should depend on abstractions (e.g. protocols) and not in concretions (e.g. classes). This will be a problem if we depend directly on the providers themselves, as it will break this SOLID principle.
+- **Interface Segregation: **What this basically means is that the clients (our Settings and Feed modules) should only depend on what they strictly need. So, from these clients, we only want to make a call to get a variation, so that should literally be our only dependency.
+- **Dependency Inversion: **This means that clients should depend on abstractions (e.g. protocols) and not in concretions (e.g. classes). This will be a problem if we depend directly on the providers themselves, as it will break this SOLID principle.
 
 How can we solve this? **Abstraction!** In Swift, it is particularly easy to abstract types, as we can simply create a protocol and make each of our providers conform to it.
 
@@ -62,8 +62,8 @@ Here we go! We now extend all of our providers to conform to this protocol and, 
 
 As mentioned in our requirements section, and because the providers will return values based on user attributes, we need to pass the `User` object to the providers. Now, how can we do this? The first instinct would be to add a method to the `FeatureFlagManager` called `setUser` that we can then extend each provider with, but that approach would not be the most suitable one? Why? Let's revisit some SOLID principles again:
 
--   **Single Responsibility: **By adding the capability to set the user to the `FeatureFlagManager` protocol, we have now broken the single responsibility principle. Our class now has two reasons to change/two responsibilities: one to fetch feature flags and one to set the current user.
--   **Interface Segregation: **Doing what we just said will also mean that we will break the interface segregation principle that we mentioned above, as now every client that depends on the `FeatureFlagManager` will have to provide concrete implementation of both `setUser` and `variation` even if they only need one of them!
+- **Single Responsibility: **By adding the capability to set the user to the `FeatureFlagManager` protocol, we have now broken the single responsibility principle. Our class now has two reasons to change/two responsibilities: one to fetch feature flags and one to set the current user.
+- **Interface Segregation: **Doing what we just said will also mean that we will break the interface segregation principle that we mentioned above, as now every client that depends on the `FeatureFlagManager` will have to provide concrete implementation of both `setUser` and `variation` even if they only need one of them!
 
 Thankfully, and as it is usually the case, the answer is very simple. We just need to create another abstraction that our providers can extend:
 

@@ -1,17 +1,17 @@
 ---
-title: "Testing dates consistently"
-slug: "testing-dates-consistently"
-excerpt: "A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example."
-pubDate: "2021-07-02"
-readtime: "6"
+title: 'Testing dates consistently'
+slug: 'testing-dates-consistently'
+excerpt: 'A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example.'
+pubDate: '2021-07-02'
+readtime: '6'
 tags:
-    [
-        { name: "Unit Tests", slug: "unit-tests" },
-        { name: "Dependency Injection", slug: "dependency-injection" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'Unit Tests', slug: 'unit-tests' },
+    { name: 'Dependency Injection', slug: 'dependency-injection' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

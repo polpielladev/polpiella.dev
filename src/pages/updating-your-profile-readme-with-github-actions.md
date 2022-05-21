@@ -1,12 +1,12 @@
 ---
-title: "How I use Github Actions to update my Github profile"
-slug: "updating-your-profile-readme-with-github-actions"
-excerpt: "In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action."
-pubDate: "2021-07-15"
-readtime: "5"
-tags: [{ name: "CI/CD", slug: "ci-cd" }, { name: "Swift", slug: "swift" }]
+title: 'How I use Github Actions to update my Github profile'
+slug: 'updating-your-profile-readme-with-github-actions'
+excerpt: 'In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action.'
+pubDate: '2021-07-15'
+readtime: '5'
+tags: [{ name: 'CI/CD', slug: 'ci-cd' }, { name: 'Swift', slug: 'swift' }]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -132,10 +132,10 @@ I was very surprised to see how easy it is to set up Github Actions for any repo
 
 For my project, as I am using `Swift`, I need to use an agent capable of running it and be able to perform the following requirements:
 
--   The job should run on a nightly basis (I don't update my blog more than once a day, so running it at mighnight every day would be okay).
--   Check out the repository before any other script is run.
--   Run the executable.
--   If there are any changes to `README.md`, commit and push. If not, do nothing.
+- The job should run on a nightly basis (I don't update my blog more than once a day, so running it at mighnight every day would be okay).
+- Check out the repository before any other script is run.
+- Run the executable.
+- If there are any changes to `README.md`, commit and push. If not, do nothing.
 
 #### Translating our requirements into .yml
 
