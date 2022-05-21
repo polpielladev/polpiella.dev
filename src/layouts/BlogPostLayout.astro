@@ -5,9 +5,7 @@ import Tags from '../components/Tags'
 import BaseLayout from '../components/BaseLayout'
 import { Markdown } from 'astro/components'
 
-const { content } = Astro.props
-const { title, excerpt, tags, pubDate, readtime, astro, slug } = content
-const { source } = astro
+const { title, excerpt, tags, pubDate, readtime, slug } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
@@ -29,8 +27,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
         <Metadata {readtime} {slug} />
       </div>
     </header>
-    <Markdown content={source}>
-
-    </Markdown>
+    <slot></slot>
   </article>
 </BaseLayout>
