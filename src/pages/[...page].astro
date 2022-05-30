@@ -67,7 +67,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
         </p>
       </div>
     </section>
-    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
     {page.currentPage == 1 && (
       <section class="prose dark:prose-invert prose-a:no-underline dark:prose-a:text-gray-200 prose-a:text-gray-700">
         <h1 class="mb-3 text-2xl font-bold">Browse by topic</h1>
@@ -75,7 +74,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
           {categories.map((category) => (
             <a
               href={`/category/${category.slug}`}
-              key={category.slug}
               class="rounded bg-gray-300 px-2  transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800">
               {category.name}
             </a>
@@ -83,6 +81,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
         </div>
       </section>
     )}
+    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
     <section class='flex flex-col gap-10'>
       {page.data.map((post) => <BlogPreview post={post} />)}
     </section>
