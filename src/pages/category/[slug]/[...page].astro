@@ -1,40 +1,71 @@
 ---
-import "../../../styles/global.css"
 import BaseLayout from '../../../components/BaseLayout'
 import BlogPreview from '../../../components/BlogPreview'
 import Paginator from '../../../components/Paginator'
-import _ from 'lodash'
 
 export async function getStaticPaths({ paginate }) {
-    const posts = Astro.fetchContent('../../*.md').filter(post => !post.draft)
-    const categories = _.uniqBy(posts.flatMap((post) => post.tags), 'slug')
-    
-    return categories.map(category => {
-        const filteredPosts = posts
-            .filter(post => post.tags.map(tag => tag.slug).includes(category.slug))
-            .sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf())
+  // From: https://stackoverflow.com/a/40808569 - To avoid using `lodash`
+  const uniqBy = (arr, predicate) => {
+    const cb = typeof predicate === 'function' ? predicate : (o) => o[predicate]
 
-        return paginate(filteredPosts, {
-            pageSize: 5,
-            params: { slug: category.slug },
-            props: { category }
-        })
+    return [
+      ...arr
+        .reduce((map, item) => {
+          const key = item === null || item === undefined ? item : cb(item)
+
+          map.has(key) || map.set(key, item)
+
+          return map
+        }, new Map())
+        .values(),
+    ]
+  }
+
+  const posts = await Astro.glob('../../*.md')
+  const categories = uniqBy(
+    posts.flatMap((post) => post.frontmatter.tags),
+    'slug'
+  )
+
+  return categories.map((category) => {
+    const filteredPosts = posts
+      .filter((post) =>
+        post.frontmatter.tags.map((tag) => tag.slug).includes(category.slug)
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.frontmatter.pubDate).valueOf() -
+          new Date(a.frontmatter.pubDate).valueOf()
+      )
+
+    return paginate(filteredPosts, {
+      pageSize: 5,
+      params: { slug: category.slug },
+      props: { category },
     })
+  })
 }
 
 const { page, category } = Astro.props
+const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
+  `Category: ${category.name}`
+)}`
 ---
-<BaseLayout title={`Category: ${category.name}`} 
-            description={`Category page with all the articles on ${category.name}`}>
-    <div class="px-3 mx-auto my-0 max-w-3xl">
-        <section class="flex flex-col gap-5 items-center text-center mb-10 md:flex-row md:text-left">
-            <div class="prose dark:prose-invert grid content-center">
-                <h1 class="text-5xl">{category.name}</h1>
-            </div>
-        </section>
-        <section class="flex flex-col gap-10">
-            {page.data.map(p => <BlogPreview post={p} />)}
-            <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
-        </section>
-    </div>
+
+<BaseLayout
+  title={`Category: ${category.name}`}
+  description={`Category page with all the articles on ${category.name}`}
+  imageURL={fullImageURL}>
+  <div class='px-3 mx-auto my-0 max-w-3xl flex flex-col gap-7'>
+    <section
+      class='flex flex-col gap-5 items-center text-center md:flex-row md:text-left'>
+      <div class='prose dark:prose-invert grid content-center'>
+        <h1 class='text-5xl'>{category.name}</h1>
+      </div>
+    </section>
+    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+    <section class='flex flex-col gap-10'>
+      {page.data.map((p) => <BlogPreview post={p} />)}
+    </section>
+  </div>
 </BaseLayout>

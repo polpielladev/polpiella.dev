@@ -1,15 +1,12 @@
 ---
-title: "Custom key decoding strategies in Swift"
-excerpt: "How to take advantage of the custom key decoding strategies to avoid unnecessary CodingKeys implementations"
-slug: "custom-key-decoding-strategies-in-swift"
-date: "2021-11-03T19:54:39.000Z"
-readtime: "7"
-tags:
-    [
-        { name: "Swift", slug: "swift" },
-    ]
+title: 'Custom key decoding strategies in Swift'
+excerpt: 'How to take advantage of the custom key decoding strategies to avoid unnecessary CodingKeys implementations'
+slug: 'custom-key-decoding-strategies-in-swift'
+pubDate: '2021-11-03'
+readtime: '7'
+tags: [{ name: 'Swift', slug: 'swift' }]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -99,9 +96,9 @@ After running the test again, we get no failures, which means that this approach
 
 Swift provides a way to customise the way that `JSONDecoder` parses the keys for a given input based on the variables defined in our `Codable` struct. This can be modified by using the `keyDecodingStrategy` variable in the decoder, which can have three possible values:
 
--   `useDefaultKeys`: It is the default value for this property and does not modify the key names during the decoding process.
--   `custom`: Takes in a closure in which you can provide a custom key modifications strategy during the decoding process.
--   `convertFromSnakeCase`: Converts the keys from snake case format to their equivalent camel case representation.
+- `useDefaultKeys`: It is the default value for this property and does not modify the key names during the decoding process.
+- `custom`: Takes in a closure in which you can provide a custom key modifications strategy during the decoding process.
+- `convertFromSnakeCase`: Converts the keys from snake case format to their equivalent camel case representation.
 
 From the three enum values above, we can quickly see that there is a setting for the issue we had above, which is `convertFromSnakeCase`. Let's look at how we would go about implementing taking a simple `Parser` struct as an example:
 

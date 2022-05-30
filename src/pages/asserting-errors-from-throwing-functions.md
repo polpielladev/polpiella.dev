@@ -1,16 +1,13 @@
 ---
-title: "Asserting errors from throwing functions"
-slug: "asserting-errors-from-throwing-functions"
-excerpt: "Looking at how to use expecations and XCTAssertThrowsError to assert specific errors are being thrown in Swift."
-date: "2022-01-16T18:00:00.000Z"
-readtime: "4"
+title: 'Asserting errors from throwing functions'
+slug: 'asserting-errors-from-throwing-functions'
+excerpt: 'Looking at how to use expecations and XCTAssertThrowsError to assert specific errors are being thrown in Swift.'
+pubDate: '2022-01-16'
+readtime: '4'
 tags:
-    [
-        { name: "Unit Tests", slug: "unit-tests" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [{ name: 'Unit Tests', slug: 'unit-tests' }, { name: 'Swift', slug: 'swift' }]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -18,14 +15,14 @@ A very common scenario when designing and testing APIs in Swift is to use `throw
 
 ## The system under test
 
-The code we'll be testing consists of a single function which validates that the fields in a sign up form are not empty. It takes in three arguments: an email, a username and a password - these are primitive type representations of the values held in each form field - and it returns `true` **if none of the fields are empty** or throws an error **if any of them are**. 
+The code we'll be testing consists of a single function which validates that the fields in a sign up form are not empty. It takes in three arguments: an email, a username and a password - these are primitive type representations of the values held in each form field - and it returns `true` **if none of the fields are empty** or throws an error **if any of them are**.
 
 You will notice that the error being thrown is a custom `ValidationError` enum with a single case `validationFailed`. In turn, this has an array of `FieldError`s as an associated value. The reason for this design is that we want to collect multiple errors and throw them all at once, rather than throwing an individual error per field. This will allow the client code to get **all of the errors at once** without having to fix, re-run, then fix again if there are multiple failures.
 
 ```swift:Validator.swift
 enum ValidationError: Error, Equatable {
     case validationFailed([FieldError])
-    
+
     enum FieldError: Error {
         case password
         case email
@@ -51,11 +48,11 @@ In the following sections we will be looking at two different techniques to asse
 
 ## Expectations
 
-A technique which checks that the function throws a specific error is to use `XCTestExpectation`s. We can do this by defining our expectation at the beginning of the test function and then doing a `do/catch` to `try` and run the `validate` function. 
+A technique which checks that the function throws a specific error is to use `XCTestExpectation`s. We can do this by defining our expectation at the beginning of the test function and then doing a `do/catch` to `try` and run the `validate` function.
 
 We can then write `catch` blocks, one targetting the error we're expecting to be thrown (`ValidationError.validationFailed([.email])`), where we will **fulfill the expectation**. We can then write another catch block targetting any other error where we will make sure that the test fails using the `XCTFail` type. This ensures that we only fulfill the expectation if the right error is thrown and fail if **no/unexpected errors** are thrown.
 
-The `wait(for:timeout:)` function can then be used to wait for the expectation to fulfill with a timeout of 0 seconds, as it is a synchronous operation. 
+The `wait(for:timeout:)` function can then be used to wait for the expectation to fulfill with a timeout of 0 seconds, as it is a synchronous operation.
 
 ```swift:ValidatorTests.swift
 func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThrown() {
@@ -81,7 +78,7 @@ This pattern does the job very well and covers our test case, but as we can see 
 
 ## XCTAssertThrowsError
 
-Another way to achieve the same result as with expectations, but with a much more concise and declarative syntax, is to use one of the lesser used APIs in XCTest - `XCTAssertThrowsError`. In particular, we will the flavour seen in the snippet below, which takes advantage of the second parameter of the function to perform assertions on the error being thrown by the function under test. This parameter is a closure of type `(Error) -> Void` which allows you to perform any operations on the error that was thrown. I have to admit I was not aware this closure existed until fairly recently, so I am partly writing this article as a note for my future-self 😅. 
+Another way to achieve the same result as with expectations, but with a much more concise and declarative syntax, is to use one of the lesser used APIs in XCTest - `XCTAssertThrowsError`. In particular, we will the flavour seen in the snippet below, which takes advantage of the second parameter of the function to perform assertions on the error being thrown by the function under test. This parameter is a closure of type `(Error) -> Void` which allows you to perform any operations on the error that was thrown. I have to admit I was not aware this closure existed until fairly recently, so I am partly writing this article as a note for my future-self 😅.
 
 What we need to do to perform this test is to call `XCTAssertThrowsError` and pass in the call to `try validate`. Then, using a trailing closure as the second parameter, we can perform assertions on the error being thrown.
 
@@ -97,7 +94,7 @@ func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThro
         XCTAssertEqual(
             error as? ValidationError,
             .validationFailed([.email])
-        ) 
+        )
     }
 }
 ```
@@ -109,15 +106,14 @@ func testWhenValidatingAFormWithEmptyEmail_ThenAValidationFailedEmailErrorIsThro
     XCTAssertThrowsError(
         try validate(
             email: "",
-            username: "polpielladev", 
+            username: "polpielladev",
             password: "blog-post"
         )
     ) { error in
-        guard case .validationFailed([.email]) = error as? ValidationError else { 
-            XCTFail("Should have thrown an email validation failed error")) 
-            return 
+        guard case .validationFailed([.email]) = error as? ValidationError else {
+            XCTFail("Should have thrown an email validation failed error"))
+            return
         }
     }
 }
 ```
-

@@ -1,5 +1,5 @@
-import playwright from "playwright-core"
-import chromium from "chrome-aws-lambda"
+import playwright from 'playwright-core'
+import chromium from 'chrome-aws-lambda'
 
 function getHTML(title) {
   return `
@@ -113,7 +113,7 @@ function getHTML(title) {
 export default async (req, res) => {
   try {
     await chromium.font(
-      "https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf"
+      'https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf'
     )
     const { query } = req
     const { title } = query
@@ -128,10 +128,10 @@ export default async (req, res) => {
     })
 
     await page.setContent(getHTML(title))
-    const data = await page.screenshot({ type: "png" })
+    const data = await page.screenshot({ type: 'png' })
     await browser.close()
-    res.setHeader("Cache-Control", "s-maxage=31536000, stale-while-revalidate")
-    res.setHeader("Content-Type", "image/png")
+    res.setHeader('Cache-Control', 's-maxage=31536000, stale-while-revalidate')
+    res.setHeader('Content-Type', 'image/png')
     res.end(data)
   } catch (error) {
     console.error(error)

@@ -1,17 +1,17 @@
 ---
-title: "Building layouts with accessibility in mind - Part 1"
-excerpt: "Exploring the power of `UIStackView` and layout guides to lay out a view with accessibility in mind."
-slug: "building-layouts-with-accessibility-in-mind-part-1"
-date: "2022-03-15T18:00:00.000Z"
-readtime: "8"
+title: 'Building layouts with accessibility in mind - Part 1'
+excerpt: 'Exploring the power of `UIStackView` and layout guides to lay out a view with accessibility in mind.'
+slug: 'building-layouts-with-accessibility-in-mind-part-1'
+pubDate: '2022-03-15'
+readtime: '8'
 tags:
-    [
-        { name: "UIKit", slug: "uikit" },
-        { name: "Accessibility", slug: "accessibility" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'UIKit', slug: 'uikit' },
+    { name: 'Accessibility', slug: 'accessibility' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -23,7 +23,7 @@ In this article, which is the first of two parts, where we'll build a fully acce
 
 ## What we'll be building
 
-Our UI is simple and it is an adaptation of a real-world feature that I have recently had to implement at work. The layout consists of a title, a subtitle and a button, which we can think of a CTA. 
+Our UI is simple and it is an adaptation of a real-world feature that I have recently had to implement at work. The layout consists of a title, a subtitle and a button, which we can think of a CTA.
 
 As it can be seen in the screenshot below, the button needs to be pinned to the bottom of the screen and the rest of the content should be centered in the rest of the screen, taking up as much space as possible:
 
@@ -56,7 +56,7 @@ class CopyContentView: UIView {
 		// ...
 		let titleLabel = ContentView.createLabel(textStyle: .title1)
     let bodyLabel = ContentView.createLabel(textStyle: .body)
-    
+
     private static func createLabel(textStyle: UIFont.TextStyle) -> UILabel {
         let label = UILabel()
         label.numberOfLines = .zero
@@ -74,7 +74,7 @@ The `adjustFontsForContentSizeCategory` property tells the label to automaticall
 
 ### UIStackView
 
-It is time to lay out the components in its container view now. To help us with resizing and distributing the labels, we create a vertical, fill-distributed and center-aligned `UIStackView`: 
+It is time to lay out the components in its container view now. To help us with resizing and distributing the labels, we create a vertical, fill-distributed and center-aligned `UIStackView`:
 
 ```swift:CopyContentView.swift
 class CopyContentView: UIView {
@@ -95,10 +95,10 @@ We can then add a new private method to add the labels we created earlier to the
 private func layout() {
 		// 1
     [titleLabel, bodyLabel].forEach(stackView.addArrangedSubview(_:))
-    
+
     // 2
     addSubview(stackView)
-    
+
     NSLayoutConstraint.activate([
 		    // 3
         stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -114,6 +114,7 @@ private func layout() {
 ```
 
 Let's closely inspect what we're doing in the `layout` method above:
+
 1. First, we add the labels as arranged subviews, **leaving the layout responsibilities to the `UIStackView`**.
 2. We add the `UIStackView` to the `CopyContentView` using the `addSubview` method. Now that the `UIStackView` is part of the view hierarchy, we can add constraints relative to its superview.
 3. The leading and trailing anchors will always be pinned to the superview's leading and trailing anchors.
@@ -131,12 +132,12 @@ private func layout() {
     // 1
     let containerView = UIView()
     containerView.translatesAutoresizingMaskIntoConstraints = false
-    
+
     // 2
     addSubview(containerView)
     containerView.addSubview(contentView)
     containerView.addSubview(button)
-    
+
     NSLayoutConstraint.activate([
         // 3
         containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -178,7 +179,7 @@ Well, let's just say it doesn't look great 😅
 
 ### Readable Content Guide
 
-The screenshot above shows that the text spans too wide on larger screen sizes, such as the iPad Pro's. This is not ideal as it makes the text harder to read for users and might force them to move their heads from side to side to be able to read what's on screen. 
+The screenshot above shows that the text spans too wide on larger screen sizes, such as the iPad Pro's. This is not ideal as it makes the text harder to read for users and might force them to move their heads from side to side to be able to read what's on screen.
 
 While we can fix this by adding a magic number constraint and make the container width not take up more than that number (say for example 500 points), that feels arbitrary and leaves us thinking that there has to be a better solution... and in fact there is!
 
@@ -193,7 +194,7 @@ NSLayoutConstraint.activate([
 ])
 ```
 
-As you can see in the image below, the content is nicely centered and always keeps a width suitable for reading: 
+As you can see in the image below, the content is nicely centered and always keeps a width suitable for reading:
 
 ![iPad readable content guide layout](/assets/posts/building-layouts-with-accessibility-in-mind-part-1/readable-content-guide.png)
 

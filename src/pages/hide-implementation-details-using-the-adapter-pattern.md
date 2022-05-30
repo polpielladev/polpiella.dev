@@ -1,16 +1,16 @@
 ---
-title: "Hiding implementation details using the adapter pattern in Swift"
-slug: "hide-implementation-details-using-the-adapter-pattern"
-excerpt: "How to hide implementation details using the adapter pattern and decoupling multiple layers of an application, making it easy to test and adapt."
-date: "2021-08-01T21:39:39.000Z"
-readtime: "6"
+title: 'Hiding implementation details using the adapter pattern in Swift'
+slug: 'hide-implementation-details-using-the-adapter-pattern'
+excerpt: 'How to hide implementation details using the adapter pattern and decoupling multiple layers of an application, making it easy to test and adapt.'
+pubDate: '2021-08-01'
+readtime: '6'
 tags:
-    [
-        { name: "Architecture", slug: "architecture" },
-        { name: "Swift", slug: "swift" },
-    ]
+  [
+    { name: 'Architecture', slug: 'architecture' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
-    name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -24,8 +24,8 @@ To achieve this goal, I decided to go with the **Adapter** design pattern. As de
 
 Let's start by looking at what needs to be converted in our example:
 
--   The API returns a `Launch` type which needs to conform to `Decodable` and can be decoded from the body of the server's response. While the easy approach would be to use this in our presentation layer, **this would tightly couple our local and remote implementations**, which is not ideal. This is why we will only use our `Launch` decodable type in the `API` module and we will convert it into a `LaunchViewModel` within the API adapter.
--   The cache implementation stores encoded versions of our `LaunchViewModel` type as `Data` and we also need a way to convert this into a `LaunchViewModel` type that our presentation layer can understand. This will be the cache adapter's responsibility.
+- The API returns a `Launch` type which needs to conform to `Decodable` and can be decoded from the body of the server's response. While the easy approach would be to use this in our presentation layer, **this would tightly couple our local and remote implementations**, which is not ideal. This is why we will only use our `Launch` decodable type in the `API` module and we will convert it into a `LaunchViewModel` within the API adapter.
+- The cache implementation stores encoded versions of our `LaunchViewModel` type as `Data` and we also need a way to convert this into a `LaunchViewModel` type that our presentation layer can understand. This will be the cache adapter's responsibility.
 
 In Swift, the nicest way of bridging this interface mismatch is by creating a protocol that our concrete implementations can conform to and then make our target class depend solely on any number of types conforming to this abstraction, which satisfies the presentation layer's requirements.
 
