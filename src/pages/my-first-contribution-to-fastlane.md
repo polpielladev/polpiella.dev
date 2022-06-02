@@ -1,12 +1,16 @@
 ---
-title: "My first contribution to Fastlane"
-slug: "my-first-contribution-to-fastlane"
+title: 'My first contribution to Fastlane'
+slug: 'my-first-contribution-to-fastlane'
 excerpt: "A short article on the recent contribution I made to Fastlane's open source project."
-pubDate: "2022-06-02"
-readtime: "5"
-tags: [{ name: "CI/CD", slug: "ci-cd" }, { name: "Open Source", slug: "open-source" }]
+pubDate: '2022-06-02'
+readtime: '5'
+tags:
+  [
+    { name: 'CI/CD', slug: 'ci-cd' },
+    { name: 'Open Source', slug: 'open-source' },
+  ]
 author:
-  name: "Pol Piella"
+  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -15,6 +19,7 @@ I have recently contributed for the first time to one of the tools that I have u
 In the following sections, I will walk through the changes and the motivation behind them as well as sharing a couple of thoughts on the process.
 
 ## Motivation and context
+
 A couple of weeks ago, I embarked on a journey at work to modernise the way we upload app archives to [App Store Connect](https://appstoreconnect.apple.com). Specifically, our implementation relied on the use of the [Application Loader Tool, most commonly known as `altool`](https://keith.github.io/xcode-man-pages/altool.1.html), and its `--upload-app` flag. We used a combination of `username` and `password` for authentication and a path to an App Store signed `ipa` file to be uploaded.
 
 ```bash:Terminal
@@ -22,7 +27,7 @@ A couple of weeks ago, I embarked on a journey at work to modernise the way we u
 xcrun altool --upload-app -f ipa_path -t ios -u username -p password
 ```
 
-While this had been working fine, we wanted to move towards a  **more modern and robust approach** and make use of a fastlane action that would achieve the same result. The main reason for the change was to have **better access to feedback and  support from the fastlane community** when encountering any issues and the improvements we could make as part of this process, such as sharing authentication between multiple fastlane actions and teams across our company and improving our CI's **performance and reliability**. 
+While this had been working fine, we wanted to move towards a **more modern and robust approach** and make use of a fastlane action that would achieve the same result. The main reason for the change was to have **better access to feedback and support from the fastlane community** when encountering any issues and the improvements we could make as part of this process, such as sharing authentication between multiple fastlane actions and teams across our company and improving our CI's **performance and reliability**.
 
 Making this leap forward would also allow us to make use of the [App Store Connect API](https://developer.apple.com/documentation/appstoreconnectapi) (which is what fastlane uses under the hood when provided with an api key) and replace our `username/password` authentication credentials with a generated key, which can be revoked at any time.
 
@@ -30,7 +35,7 @@ After doing some research, we chose to make use of [fastlane's deliver action](h
 
 We then proceeded to create an api key and replace our usage of `altool` with the new `deliver` action in our `Fastfile`, which I have to say was very straight-forward.
 
-That's it, job done! ⭐️ Well,... not quite. We had another usage of `altool` that we ideally wanted to replace with a fastlane action. In this particular case, `altool` was used to validate an App Store signed `ipa` with the App Store Connect without actually uploading it (by calling it with the `--validate-app` flag) — much like a dry run of `--upload-app`. We run this workflow on a nightly basis and it has proven very useful to us as it can warn us of any issues before it is time for us to do a release. 
+That's it, job done! ⭐️ Well,... not quite. We had another usage of `altool` that we ideally wanted to replace with a fastlane action. In this particular case, `altool` was used to validate an App Store signed `ipa` with the App Store Connect without actually uploading it (by calling it with the `--validate-app` flag) — much like a dry run of `--upload-app`. We run this workflow on a nightly basis and it has proven very useful to us as it can warn us of any issues before it is time for us to do a release.
 
 ```bash:Terminal
 # This command verifies a binary with App Store Connect
@@ -40,7 +45,8 @@ xcrun altool --validate-app -f ipa_path -t ios -u username -p password
 After digging through fastlane's documentation, issues and reading through Apple forums trying to find replacements for the `altool --validate-app` command I could not find anything that suited our needs. I then decided to start a [Github Discussion](https://github.com/fastlane/fastlane/discussions/20204) in fastlane's repo to ask if there was something I could use that would suit my needs or if the contributors thought that this would be a nice feature to have within `deliver`.
 
 ## The process
-Not long after asking — literally on the same day! 🤩 — [Lukas Grabowsky (@lucgrabowski)](https://github.com/lucgrabowski), one of fastlane's contributors, replied saying that, while such feature did not exist, it was possible to add it to `deliver` by making use of an [iTunes Transporter flag called verify](https://help.apple.com/itc/transporteruserguide/en.lproj/static.html#apdATD1E2248-D1E1A1303-D1E2248A1126). This looked ideal! 
+
+Not long after asking — literally on the same day! 🤩 — [Lukas Grabowsky (@lucgrabowski)](https://github.com/lucgrabowski), one of fastlane's contributors, replied saying that, while such feature did not exist, it was possible to add it to `deliver` by making use of an [iTunes Transporter flag called verify](https://help.apple.com/itc/transporteruserguide/en.lproj/static.html#apdATD1E2248-D1E1A1303-D1E2248A1126). This looked ideal!
 
 > [iTunes Transporter](https://help.apple.com/itc/transporteruserguide/en.lproj/static.html#itc16ef2f321) is a tool provided by Apple to handle content delivery to multiple Apple platforms, one of them being App Store Connect. This is the tool which fastlane uses under the hood to deliver any application archives or metadata to App Store Connect.
 
@@ -59,6 +65,7 @@ This command would then report errors such as the binary being built with a tool
 ![A screenshot showing the captured output of an error generated by the new verify-only flag.](/assets/posts/my-first-contribution-to-fastlane/error-output.png)
 
 ## Conclusion
-To sum up and give a couple of thoughts after doing this work, I would like to say that I thoroughly enjoyed working on adding this flag to the repo, as it helped me get a better understanding of the way the tool works and it ultimately solved a particular use case that might prove useful to other developers. 
+
+To sum up and give a couple of thoughts after doing this work, I would like to say that I thoroughly enjoyed working on adding this flag to the repo, as it helped me get a better understanding of the way the tool works and it ultimately solved a particular use case that might prove useful to other developers.
 
 I would also like to encourage any developer to go ahead and submit pull requests or open discussions on any open source projects that they have an idea/improvement/fix for. Maintainers will really appreciate it and, aside from it being a great learning process, it is a way of giving back to tools that we take for granted and we can help support. I will definitely be keeping my eyes peeled for any changes I can make and not hesitate to submit bug fixes or feature requests going forward! 🚀
