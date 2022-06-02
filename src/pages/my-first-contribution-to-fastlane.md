@@ -57,7 +57,7 @@ Once I had a prototype working, I went over and read the [CONTRIBUTING.md](https
 The resulting flag can be used as follows form version `2.206.0` of fastlane (or alternatively form a project's `Fastfile`):
 
 ```swift
-bundle exec fastlane deliver --verify --ipa <path_to_your_api>
+bundle exec fastlane deliver --verify_only --ipa <path_to_your_api>
 ```
 
 This command would then report errors such as the binary being built with a toolchain which was not suitable for the App Store — such as a beta version of Xcode:
