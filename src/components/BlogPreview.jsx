@@ -7,7 +7,7 @@ export default function BlogPreview({ post }) {
 
   return (
     <div className="prose flex flex-col dark:prose-invert">
-      <h4 className=" m-0 font-bold text-zinc-400">{formattedDate}</h4>
+      <h5 className=" m-0 font-bold text-zinc-400">{formattedDate}</h5>
       <div className="flex flex-col gap-2">
         <a href={`/${slug}`} className="m-0 rounded no-underline">
           <h1 className="m-0 hover:text-amber-900 dark:hover:text-amber-300">
