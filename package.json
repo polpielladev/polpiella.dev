@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "npm run format:check && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "format:fix": "prettier --write ./**/*.{js,jsx,md,css,astro}",
     "format:check": "prettier --check ./**/*.{js,jsx,md,css,astro}"

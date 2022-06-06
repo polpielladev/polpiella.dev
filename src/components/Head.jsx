@@ -24,7 +24,7 @@ export default function Head({ title, description, imageURL }) {
       <script
         hoist="true"
         src="https://cdn.usefathom.com/script.js"
-        data-site="FBLWSUCQ"
+        data-site={import.meta.env.FATHOM_ENTITY_ID}
         defer></script>
     </head>
   )

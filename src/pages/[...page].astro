@@ -2,6 +2,8 @@
 import BaseLayout from '../components/BaseLayout'
 import BlogPreview from '../components/BlogPreview'
 import Paginator from '../components/Paginator'
+import getPopularPosts from '../services/getPopularPosts'
+import uniqBy from '../utils/uniqBy'
 
 export async function getStaticPaths({ rss, paginate }) {
   const posts = await Astro.glob('./*.md')
@@ -11,31 +13,25 @@ export async function getStaticPaths({ rss, paginate }) {
       new Date(a.frontmatter.pubDate).valueOf()
   )
 
-  const uniqBy = (arr, predicate) => {
-    const cb = typeof predicate === 'function' ? predicate : (o) => o[predicate]
-
-    return [
-      ...arr
-        .reduce((map, item) => {
-          const key = item === null || item === undefined ? item : cb(item)
-
-          map.has(key) || map.set(key, item)
-
-          return map
-        }, new Map())
-        .values(),
-    ]
-  }
-
   const categories = uniqBy(
     posts.flatMap((post) => post.frontmatter.tags),
     'slug'
   )
 
-  return paginate(sortedPosts, { pageSize: 5, props: { categories } })
+  const response = await getPopularPosts()
+
+  const popularPosts = response.map((post) => {
+    const fullPost = posts.find((p) => p.frontmatter.slug === post.slug)
+    return { ...post, fullPost }
+  })
+
+  return paginate(sortedPosts, {
+    pageSize: 5,
+    props: { categories, popularPosts },
+  })
 }
 
-const { page, categories } = Astro.props
+const { page, categories, popularPosts } = Astro.props
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
   'polpiella.dev'
 )}`
@@ -70,7 +66,23 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </section>
     </div>
     <aside
-      class='prose prose-a:text-gray-700 prose-a:no-underline dark:prose-invert dark:prose-a:text-gray-200 max-w-xs lg:block hidden'>
+      class='prose prose-a:text-gray-700 prose-a:no-underline dark:prose-invert dark:prose-a:text-gray-200 max-w-xs lg:flex lg:flex-col lg:gap-4 hidden'>
+      <!-- Show top posts -->
+      <section class='flex flex-col gap-3 mb-4'>
+        <h1 class='m-0 text-2xl font-bold'>Most popular posts</h1>
+        {popularPosts &&
+          popularPosts.map((post, index) => {
+            const icon = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'
+            return (
+              <a href={`/${post.slug}`}>
+                <h4 class="m-0">{icon}</h4>
+                <h4 class="m-0 hover:underline">{post.fullPost.frontmatter.title} </h4>
+                <small>Viewed by {post.uniques} people 👀</small>
+              </a>
+              <hr class='m-0' />
+            )
+          })}
+      </section>
       <!-- Browse by category -->
       <section>
         <h1 class='mb-3 text-2xl font-bold'>Browse by topic</h1>
