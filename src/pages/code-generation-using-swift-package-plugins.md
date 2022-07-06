@@ -1,0 +1,366 @@
+---
+title: 'Code generation using Swift Package Plugins'
+slug: 'code-generation-using-swift-package-plugins'
+excerpt: 'How to build a Swift Package Plugin to automatically generate unit tests from input Swift files.'
+pubDate: '2022-07-05'
+readtime: '7'
+tags:
+  [
+    { name: 'Swift Package Manager', slug: 'spm' },
+    { name: 'Swift', slug: 'swift' },
+  ]
+author:
+  name: 'Pol Piella'
+layout: ../layouts/BlogPostLayout.astro
+---
+
+A while ago I was working on a new service at work which consisted of a Swift Package which exposed a protocol similar to `Decodable` for the rest of our app to use. In fact, the protocol inherited from `Decodable` itself and looked like this:
+
+```swift:Fetchable.swift
+protocol Fetchable: Decodable, Equatable {}
+```
+
+The new package would take types which conformed to `Fetchable` and attempt to decode them from a block of JSON data, either from a remote or cached source.
+
+As part of this work, since this service is crucial to the correct functioning of the app, we wanted to make sure there was always a fail-safe. For this reason, we made the app ship with a fallback JSON file which would be used if decoding failed for both remote and cached data. 
+
+We needed the new types conforming to `Fetchable` to decode correctly from the fallback data **no matter what**. There was a problem though, it would sometimes be hard to spot if there were any errors either in the fallback JSON file or in the models themselves, as decoding errors would happen at **runtime** and only when certain screens/features were accessed.
+
+To give us more **confidence** about the code we were shipping, we added a number of **unit tests**, which attempted to decode each of these models conforming to the `Fetchable` protocol against the fallback JSON we shipped with. These would give us an early indication on our CI that there was a mistake either in the fallback data or in the models, and, if all tests passed, we would know for certain that the new service would always have a **functioning fail-safe** once we released it.
+
+We wrote these tests **manually** but we soon realised that this solution wasn't **scalable** because, as more and more types conforming to the `Fetchable` protocol were added, we were introducing a lot of code duplication and potential for someone to eventually forget to write these tests for a specific feature.
+
+We thought of automating the process, but we faced a few issues because of the nature of our codebase, which is highly modular with a mixture of Xcode projects and Swift Packages. Some architectural decisions also meant that we had to gather a lot of symbol information to be able to get the correct types to generate tests from. 
+
+## What made me look at it again?
+
+After forgetting about it for a while, the announcement of Xcode 14 allowing Swift Package Plugins to be used within Xcode projects along with a couple of architecture changes which made extracting type information a lot easier, gave me the motivation to start investigating this again.
+
+> Note that build tool plugins for Xcode projects are not yet available in Xcode 14 Beta 2 as the release notes specify, but will be made available in a future version of Xcode 14. ![Image taken from the release notes of Xcode Beta 2](/assets/posts/code-generation-using-swift-package-plugins/release-notes.png)
+
+Over the past couple of weeks I have been looking at how to generate unit tests using a package plugin and, in this article, I will explain where I got up to and what it involved.
+
+## Implementation Details
+
+I set out on a mission to create a [Build Tool Plugin](https://www.polpiella.dev/an-early-look-at-swift-extensible-build-tools) which, unlike [Command Plugins](https://github.com/apple/swift-evolution/blob/main/proposals/0332-swiftpm-command-plugins.md) - introduced with Xcode 14 - which run arbitrarily and rely on user input, run as part of the build process of a Swift Package.
+
+I knew I needed to create an executable, as Build Tool Plugins rely on these to be able to perform actions. This script would be written completely in Swift, as that is the language I am most comfortable with, and would have the following responsibilities:
+
+1. Scan a target directory and extract all `.swift` files. The target would be scanned recursively, to make sure no subdirectories are missed.
+2. Use [sourcekit](https://github.com/apple/swift/tree/main/tools/SourceKit), or more specifically [SourceKitten](https://github.com/jpsim/SourceKitten), to scan through those `.swift` files and gather type information. This would allow extracting all the types that conform to the `Fetchable` protocol so that tests could be written against them.
+3. After getting those types, generate a `.swift` file with a `XCTestCase` containing unit tests for each of these types.
+
+## Let's write some code! 🔨
+
+As with all Swift Packages, the simplest way to get started is by running `swift package init` on the command line. 
+
+This creates two targets, one where the implementation code containing the `Fetchable` protocol definition and the types conforming to it will live, and a test target where the plugin to generate unit tests for such types will be applied.
+
+```swift:Package.swift
+// swift-tools-version: 5.6
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "CodeGenSample",
+    platforms: [.macOS(.v10_11)],
+    products: [
+        .library(
+            name: "CodeGenSample",
+            targets: ["CodeGenSample"]),
+    ],
+    dependencies: [
+    ],
+    targets: [
+        .target(
+            name: "CodeGenSample",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "CodeGenSampleTests",
+            dependencies: ["CodeGenSample"]
+        )
+     ]
+)
+```
+
+### Writing an executable
+
+As mentioned earlier, All build tool plugins need an executable to perform all necessary operations.
+
+To aid with the development of this command line too, a couple of dependencies will be used. The first one is [SourceKitten](https://github.com/jpsim/SourceKitten) - specifically its SourceKittenFramework library, a Swift wrapper to help write [sourcekit](https://github.com/apple/swift/tree/main/tools/SourceKit) requests using Swift code and, the second one is [swift-argument-parser](https://github.com/apple/swift-argument-parser), a package provided by Apple to make it easy to create command line tools and parse command line arguments passed in during execution in a more swifty and type-safe way. 
+
+After creating the `executableTarget` and giving it both dependencies, this is what the `Package.swift` looks like:
+
+```swift:Package.swift
+// swift-tools-version: 5.6
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "CodeGenSample",
+    platforms: [.macOS(.v10_11)],
+    products: [
+        .library(
+            name: "CodeGenSample",
+            targets: ["CodeGenSample"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/jpsim/SourceKitten.git", exact: "0.32.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
+    ],
+    targets: [
+        .target(
+            name: "CodeGenSample",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "CodeGenSampleTests",
+            dependencies: ["CodeGenSample"]
+        ),
+        .executableTarget(
+            name: "PluginExecutable",
+            dependencies: [
+                .product(name: "SourceKittenFramework", package: "SourceKitten"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        )
+     ]
+)
+```
+
+Executable targets need an entry point so, under the source directory for the `PluginExecutable` target, a file called `PluginExecutable.swift` where all the executable logic would live must be created.
+
+> Note that this file can be named however you like, I tend to name it the same way as the target I create in the `Package.swift`. 
+
+The script, shown below, imports the necessary dependencies and creates the executable's entry point (which must be decorated with `@main`) and declaring the 4 inputs to passed through when executing it. 
+
+All the logic and method calls live in the `run` function, which is the method that gets run when the executable is called. This is part of `ArgumentParser`'s syntax, if you want to learn more about it, there is [an awesome article by Andy Ibañez](https://www.andyibanez.com/posts/writing-commandline-tools-argumentparser-part1/) on the topic which can be very helpful.
+
+```swift:PluginExecutable.swift
+import SourceKittenFramework
+import ArgumentParser
+import Foundation
+
+@main
+struct PluginExecutable: ParsableCommand {
+    @Argument(help: "The protocol name to match")
+    var protocolName: String
+
+    @Argument(help: "The module's name")
+    var moduleName: String
+
+    @Option(help: "Directory containing the swift files")
+    var input: String
+
+    @Option(help: "The path where the generated files will be created")
+    var output: String
+
+    func run() throws {
+		    // 1
+        let files = try deepSearch(URL(fileURLWithPath: input, isDirectory: true))
+        // 2
+        setenv("IN_PROCESS_SOURCEKIT", "YES", 1)
+        let structures = try files.map { try Structure(file: File(path: $0.path)!) }
+        // 3
+        var matchedTypes = [String]()
+        structures.forEach { walkTree(dictionary: $0.dictionary, acc: &matchedTypes) }
+        // 4
+        try createOutputFile(withContent: matchedTypes)
+    }
+
+    // ...
+}
+```
+
+Let's now focus on the `run` method above to understand what will happen when the executable is run by the plugin:
+1. First, the target directory is scanned to find all `.swift` files in it. This is done recursively so that subdirectories are not missed. The path to this directory is passed as an argument to the executable.
+2. For each of the files found in the previous call, a `Structure` request is made through [SourceKitten](https://github.com/jpsim/SourceKitten) to find out the type information for the Swift code in the file. Note that an environment variable (`IN_PROCESS_SOURCEKIT`) is also being set to true. This is needed to ensure that the in-process version of sourcekit is selected so that it can comply with the plugin's sandboxing rules. 
+
+> Xcode ships with two versions of the sourcekit executable, one that parses files in-process and another one which uses XPC to send requests to a daemon which parses files out of process. The latter is the default on mac and, to be  able to use sourcekit as part of the plugin process, the in process version must be chosen. [This was recently implemented as an environment variable on SourceKitten](https://github.com/jpsim/SourceKitten/pull/728) and is key to running other executables which use sourcekit under the hood, such as `SwiftLint`.
+
+3. Walk all the responses from the previous call and scan the type information to extract any types which conform to the `Fetchable` protocol.
+4. Create an output file with unit tests for each of these types at the location specified by the `output` argument passed to the executable.
+
+> Note that there is no focus on the specifics of each of the calls above, but if you are interested in the implementation, [the repo containing all the code](https://github.com/pol-piella/code-gen-sample) is now public on Github! 🎉
+
+### Creating the plugin
+
+In the same way as for the executable, a `.plugin` target must be added to the `Package.swift` and a `.swift` file must be created containing the plugin's implementation (`Plugins/SourceKitPlugin/SourceKitPlugin.swift`).
+
+```swift:Package.swift
+// swift-tools-version: 5.6
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "CodeGenSample",
+    platforms: [.macOS(.v10_11)],
+    products: [
+        .library(
+            name: "CodeGenSample",
+            targets: ["CodeGenSample"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/jpsim/SourceKitten.git", exact: "0.32.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
+    ],
+    targets: [
+        .target(
+            name: "CodeGenSample",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "CodeGenSampleTests",
+            dependencies: [“CodeGenSample"],
+plugins: [“SourceKitPlugin”],
+        ),
+        .executableTarget(
+            name: "PluginExecutable",
+            dependencies: [
+                .product(name: "SourceKittenFramework", package: "SourceKitten"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
+        .plugin(
+            name: "SourceKitPlugin",
+            capability: .buildTool(),
+            dependencies: [.target(name: "PluginExecutable")]
+        )
+     ]
+)
+```
+
+The code below shows the plugin's initial implementation, with a `struct` which conforms to the `BuildToolPlugin`'s protocol. This requires a `createBuildCommands` method to be implemented, where an array with a single build command is returned.
+
+> This plugin uses a `buildCommand` instead of a `preBuildCommand` as it needs to be run as part of the build process and not before it, so it can get a chance to build and use the executable it is depending on. Another point in favour of using a `buildCommand` in this case is that it will only get run when its input files change, rather than every time the target is built.
+
+This command must be given a name and a path for the executable to be run, which can be found in the plugin's context:
+
+```swift:SourceKitPlugin.swift
+import PackagePlugin
+
+@main
+struct SourceKitPlugin: BuildToolPlugin {
+    func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+        return [
+            .buildCommand(
+                displayName: "Protocol Extraction!",
+                executable: try context.tool(named: "PluginExecutable").path,
+                arguments: [
+                    "FindThis",
+                    🤷‍♂️,
+                    "--input",
+                    🤷‍♂️,
+                    "--output",
+                    🤷‍♂️
+                ],
+                environment: ["IN_PROCESS_SOURCEKIT": "YES"],
+                outputFiles: [🤷‍♂️]
+            )
+        ]
+    }
+}
+```
+
+As it can be seen in the code above, there are a few gaps that need to be filled (🤷‍♂️):
+
+1. Providing an `outputPath` where the unit tests file will be generated. This file can be generated in the `pluginWorkDirectory`, which again can be found in the plugin's context. This directory provides read-write access and any files that are created within it will be part of the package's build process.
+2. Providing an input path and a module name. This is the trickiest part, these need to point the sources from target being tested rather than the target that the plugin is being applied to - the unit tests. Thankfully, the plugin's target's dependencies are accessible and we can grab the dependency we are interested in from that array. This dependency will be internal (`target` rather than `product`) and it will give the executable both its name and directory.
+
+```swift:SourceKitPlugin.swift
+import PackagePlugin
+
+@main
+struct SourceKitPlugin: BuildToolPlugin {
+    func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+        let outputPath = context.pluginWorkDirectory.appending(“GeneratedTests.swift”)
+
+        guard let dependencyTarget = target
+            .dependencies
+            .compactMap { dependency -> Target? in
+                switch dependency {
+                case .target(let target): return target
+                default: return nil
+                }
+            }
+            .filter { "\($0.name)Tests" == target.name  }
+            .first else {
+                Diagnostics.error("Could not get a dependency to scan!”)
+
+                return []
+        }
+
+        return [
+            .buildCommand(
+                displayName: "Protocol Extraction!",
+                executable: try context.tool(named: "PluginExecutable").path,
+                arguments: [
+                    "Fetchable",
+	                 dependencyTarget.name,
+                    "--input",
+                    dependencyTarget.directory,
+                    "--output",
+                    outputPath
+                ],
+                environment: ["IN_PROCESS_SOURCEKIT": "YES"],
+                outputFiles: [outputPath]
+            )
+        ]
+    }
+}
+```
+
+> Note the way that optionality is handled above. If a *suitable* target can't be found within the test target's dependencies, then the [Diagnostics API](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md#plugin-api) is used to relay an error back to Xcode and tell it to fail the build process.
+
+## Let's see the result
+
+That's the plugin done! Let's run it in Xcode now! To test this approach, a file with the following content was added to the `CodeGenSample` target:
+
+```swift:CodeGenSample.swift
+import Foundation
+
+protocol Fetchable: Decodable, Equatable {}
+
+struct FeatureABlock: Fetchable {
+    let featureA: FeatureA
+    
+    struct FeatureA: Fetchable {
+        let url: URL
+    }
+}
+
+enum Root {
+    struct RootBlock: Fetchable {
+        let url: URL
+        let areAllFeaturesEnabled: Bool
+    }
+}
+```
+
+> Note that the script will stop at the first occurrence of the `Fetchable` protocol within a structure. This means that any nested `Fetchable` conforming types one be tested, just the outer model.
+
+Given this input and running the tests on the main target, a `XCTestCase` is generated and run, containing tests for the two types conforming to the `Fetchable` protocol.
+
+```swift:GeneratedTests.swift
+import XCTest
+@testable import CodeGenSample
+
+class GeneratedTests: XCTestCase {
+	func testFeatureABlock() {
+		assertCanParseFromDefaults(FeatureABlock.self)
+	}
+	func testRoot_RootBlock() {
+		assertCanParseFromDefaults(Root.RootBlock.self)
+	}
+
+    private func assertCanParseFromDefaults<T: Fetchable>(_ type: T.Type) {
+        // Logic goes here...
+    }
+}
+```
+
+And all the tests pass 😅✅ and, although they don't really do a whole lot at the moment, the implementation can be extended to provide some sample data and a `JSONDecoder` instance to do the parsing for each of the unit tests. 
