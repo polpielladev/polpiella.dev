@@ -1,7 +1,11 @@
 import rss from '@astrojs/rss'
 
 const postImportResult = import.meta.globEager('./*.md')
-const posts = Object.values(postImportResult)
+const posts = Object.values(postImportResult).sort(
+  (a, b) =>
+    new Date(b.frontmatter.pubDate).valueOf() -
+    new Date(a.frontmatter.pubDate).valueOf()
+)
 
 export const get = async () => {
   const htmls = await Promise.all(
@@ -11,7 +15,7 @@ export const get = async () => {
   const rssItems = posts.map((post, index) => ({
     link: post.url,
     title: post.frontmatter.title,
-    pubDate: post.frontmatter.pubDate,
+    pubDate: Date(post.frontmatter.pubDate),
     description: htmls[index],
   }))
 
