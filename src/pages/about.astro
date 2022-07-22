@@ -7,19 +7,52 @@ import Talk from '../components/Talk'
 <BaseLayout>
   <div class='flex mx-auto my-0 gap-1'>
     <div class='px-3 my-0 flex flex-col gap-5'>
-      <section class='prose dark:prose-invert'>
-        <h2>Who am I?</h2>
-        <p>
-          Passionate iOS developer with over 4 years of experience in the
-          industry, looking for a senior role. I have experience working in apps
-          with millions of users and working in agile, cross-discipline software
-          development teams. I do also like getting involved with the iOS
-          community and write articles regularly in my blog.
-        </p>
+      <section class='prose dark:prose-invert mb-5'>
+        <h2 class='m-0 mb-3'>Who am I?</h2>
+        <div class='flex gap-5'>
+          <p class='m-0'>
+            Passionate iOS developer with over 4 years of experience in the
+            industry, looking for a senior role. I have experience working in
+            apps with millions of users and working in agile, cross-discipline
+            software development teams. I do also like getting involved with the
+            iOS community and write articles regularly in my blog.
+          </p>
+          <img
+            class='m-0 rounded h-full w-64 object-cover hidden sm:block'
+            src='/assets/happy-pol.jpg'
+          />
+        </div>
+
         <h4>Outside of work I like...</h4>
+        <ul>
+          <li>
+            <p class='m-0'>
+              Making <b>music!</b> I have played the piano since I was a kid and
+              like tinkering with my computer and make some electronic music.
+
+              <b>Fun fact:</b> I used to DJ quite a lot while I was at uni and I
+              once played a warm up set for Paris Hilton! 🎧
+            </p>
+          </li>
+
+          <li>
+            <p class='m-0'>
+              All things football! I am a big FC Barcelona fan and I really
+              enjoy both watching and playing football. I am also a big fan of
+              football shirts and been collecting them since I was very young!
+            </p>
+          </li>
+
+          <li>
+            <p class='m-0'>
+              Fashion, sneakers in particular! I love buying the latest trend,
+              Nike Dunks are my latest obsession!
+            </p>
+          </li>
+        </ul>
       </section>
-      <section class='prose dark:prose-invert'>
-        <h2>Talks</h2>
+      <section class='prose dark:prose-invert mb-5'>
+        <h2 class='m-0 mb-2'>Talks</h2>
         <p>
           🗣 I have previously delivered some talks about iOS development at
           these events:
@@ -39,8 +72,8 @@ import Talk from '../components/Talk'
         </div>
       </section>
       <section class='prose dark:prose-invert'>
-        <h2>Where have I worked?</h2>
-        <p>Here are some of the places I have worked for!</p>
+        <h2 class='m-0 mb-2'>Where have I worked?</h2>
+        <p class='mb-8'>Here are some of the places I have worked for!</p>
         <ul
           class=' list-none relative border-l border-gray-200 dark:border-gray-700 mx-2'>
           <TimelineEvent
@@ -58,7 +91,8 @@ import Talk from '../components/Talk'
             background='black'
             company='BBC iPlayer'
             description='Worked in a team of iOS engineers focused on maintaining and developing new features for the iPlayer app, consumed by millions of monthly users in the UK. During my time here, I have worked in multiple modularisation projects and effectively dealing with legacy Objective-C code, as well as doing a lot of work to improve the CI systems and being part of the cross-product CI guild.'
-            startDate='June 2022'
+            startDate='September 2021'
+            endDate='June 2022'
           />
 
           <TimelineEvent
@@ -67,7 +101,8 @@ import Talk from '../components/Talk'
             background='#8edae2'
             company='Student Beans'
             description='Worked on a very fast-paced environment releasing new features and refactoring legacy code to bring it up to speed with our coding standards. I lead projects such as implementing a fully-fledged A/B testing and remote config system in our iOS client as welll as improving our CI pull requests pipelines to automate processes such as linting, inline warnings, etc.'
-            startDate='June 2022'
+            startDate='April 2020'
+            endDate='September 2021'
           />
 
           <TimelineEvent
@@ -76,7 +111,8 @@ import Talk from '../components/Talk'
             background='#133e74'
             company='Music Tribe'
             description='Worked on developing companion apps for music technology products such as mixing desks and audio interfaces. As well as developing a native iOS application using Swift, I worked on a React-based login flow that run within a Chromium embedded browser in a mixing console.'
-            startDate='June 2022'
+            startDate='July 2018'
+            endDate='April 2020'
           />
         </ul>
       </section>

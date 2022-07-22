@@ -15,16 +15,15 @@ export default function TimelineEvent({
         style={{ backgroundColor: background }}>
         <img className="h-5 w-5" src={image} />
       </span>
-      <h3 class="mb-0 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+      <h3 class="m-0 mb-2 flex items-center font-semibold text-gray-900 dark:text-white">
         {title}
       </h3>
-      <p class="m-0 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-        🏢 {company}
-      </p>
-      <time class="mb-2 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-        📆 {startDate} - {endDate ?? 'Present'}
+      <h4 class="m-0 mb-2 leading-none">{company}</h4>
+      <time class="mb-4 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
+        {startDate} - {endDate ?? 'Present'}
       </time>
-      <p class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">
+
+      <p class="m-0 text-base font-normal text-gray-500 dark:text-gray-400">
         {description}
       </p>
       {metadataLink && (
