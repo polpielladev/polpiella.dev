@@ -9,7 +9,7 @@ const SOCIAL_MEDIA = [
 
 export default function Social() {
   return (
-    <div className="mt-5 mb-7 flex justify-center gap-8 align-middle">
+    <div className="mt-5 mb-5 flex justify-center gap-8 align-middle">
       {SOCIAL_MEDIA.map((social) => (
         <a
           className="transition-transform hover:scale-110 dark:invert"
