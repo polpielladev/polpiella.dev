@@ -13,7 +13,7 @@ export default function Header() {
         <Social />
         <a
           href="/about"
-          class="m-0 inline-flex items-center rounded-lg bg-amber-400 py-2 px-4 text-center text-sm font-bold text-black no-underline hover:bg-amber-300 focus:outline-none focus:ring-4">
+          className="m-0 inline-flex items-center rounded-lg bg-amber-400 py-2 px-4 text-center text-sm font-bold text-black no-underline hover:bg-amber-300 focus:outline-none focus:ring-4">
           About Me
         </a>
       </div>
