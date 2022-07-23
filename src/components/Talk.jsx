@@ -1,4 +1,4 @@
-export default function Talk({ title, location, excerpt, slides }) {
+export default function Talk({ title, location, excerpt, slides = null }) {
   return (
     <div className="grid justify-items-center rounded-lg border border-gray-200 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800">
       <div className="max-w-sm">
@@ -14,8 +14,8 @@ export default function Talk({ title, location, excerpt, slides }) {
         {slides && (
           <a
             href={slides}
-            className="m-0 inline-flex items-center rounded-lg bg-blue-700 py-2 px-3 text-center text-sm font-medium text-white no-underline hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            Download Slides
+            class="m-0 inline-flex items-center rounded-lg bg-amber-400 py-2 px-4 text-center text-sm font-bold text-black no-underline hover:bg-amber-300 focus:outline-none focus:ring-4">
+            Download Slides &darr;
           </a>
         )}
       </div>

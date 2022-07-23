@@ -4,7 +4,10 @@ import TimelineEvent from '../components/TimelineEvent'
 import Talk from '../components/Talk'
 ---
 
-<BaseLayout>
+<BaseLayout
+  title='About'
+  description='Find out a bit more about me and what I do!'
+  imageURL=''>
   <div class='flex mx-auto my-0 gap-1'>
     <div class='px-3 my-0 flex flex-col gap-5'>
       <section class='prose dark:prose-invert text-center mb-5'>
@@ -91,6 +94,15 @@ import Talk from '../components/Talk'
             endDate='April 2020'
           />
         </ul>
+      </section>
+      <section class='prose dark:prose-invert text-center max-w-xs mx-auto'>
+        <h2 class='m-0 mb-2'>Still curious?</h2>
+        <p>Download a PDF version of my CV using the button below 📁</p>
+        <a
+          href='/pol-piella-cv.pdf'
+          class='m-0 inline-flex items-center rounded-lg text-black bg-amber-400 py-2 px-4 text-center text-sm font-bold no-underline hover:bg-amber-300 focus:outline-none focus:ring-4'>
+          Download my CV &darr;
+        </a>
       </section>
     </div>
   </div>
