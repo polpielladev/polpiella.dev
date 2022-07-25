@@ -15,7 +15,7 @@ export const get = async () => {
   const rssItems = posts.map((post, index) => ({
     link: post.url,
     title: post.frontmatter.title,
-    pubDate: Date(post.frontmatter.pubDate),
+    pubDate: post.frontmatter.pubDate,
     description: htmls[index],
   }))
 
