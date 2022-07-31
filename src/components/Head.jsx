@@ -26,6 +26,18 @@ export default function Head({ title, description, imageURL }) {
         src="https://cdn.usefathom.com/script.js"
         data-site={import.meta.env.FATHOM_ENTITY_ID}
         defer></script>
+      <script
+        hoist="true"
+        data-name="BMC-Widget"
+        data-cfasync="false"
+        src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+        data-id="polpielladev"
+        data-description="Support me on Buy me a coffee!"
+        data-message=""
+        data-color="#ff813f"
+        data-position="Right"
+        data-x_margin="18"
+        data-y_margin="18"></script>
     </head>
   )
 }
