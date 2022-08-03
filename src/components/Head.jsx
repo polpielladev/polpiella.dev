@@ -34,10 +34,11 @@ export default function Head({ title, description, imageURL }) {
         data-id="polpielladev"
         data-description="Support me on Buy me a coffee!"
         data-message=""
-        data-color="#ff813f"
+        data-color="#fbbf24"
         data-position="Right"
         data-x_margin="18"
-        data-y_margin="18"></script>
+        data-y_margin="18"
+        defer></script>
     </head>
   )
 }
