@@ -44,7 +44,7 @@ p > a::after,
   z-index: -1;
   width: 100%;
   height: 100%;
-  @apply bg-amber-100 dark:bg-amber-300 dark:opacity-30;
+  @apply bg-gray-100 dark:bg-gray-600 dark:opacity-30;
   border-radius: 4px;
   transition: top 0.35s cubic-bezier(0.25, 0.1, 0, 2.05) 0s, right, bottom, left;
 }
