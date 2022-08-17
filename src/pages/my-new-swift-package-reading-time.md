@@ -71,8 +71,8 @@ let package = Package(
 
 There are two main parts to the logic of the `ReadTime` API:
 
-1. The markdown content is read and parsed using [swift-markdown](https://github.com/apple/swift-markdown). All link elements are replaced with text elements with just their title so their URLs do not count towards the word count. A similar thing happens to image elements, which are removed and not counted towards the word count.
-2. The number of words is retrieved from the text processed in step 1, removing any emoji characters, which should not be processed. Then this word count is divided by the word-per-minute value and converted to milliseconds to provide the estimate reading time.
+1. The markdown content is read and parsed using [swift-markdown](https://github.com/apple/swift-markdown). All link elements are then replaced by text elements with just the link’s title so that their URLs do not count towards the word count. A similar thing happens to image elements, which are completely removed.
+2. The number of words is retrieved from the text processed in step 1, removing any emoji characters, which should not be processed. Then this word count is divided by the word-per-minute value and converted to milliseconds to provide the estimated reading time.
 
 > Note that this is early stages in the development process of the API, so the treatment of images might change, as I feel like some images provide a big cognitive load which cannot simply be ignored. If you have an idea for a solution or have seen an editor that deals with this in a good way, please feel free to file an issue or open a PR in the repo, which is Open Source.
 
@@ -85,7 +85,7 @@ The code snippet below shows what valid markdown with links and images looks lik
 [pol link](https://pol.link)
 ```
 
-And this is the same text after the processing step, where the image element is removed and the only the link title as a plain text element are kept:
+And this is the same text after the processing step, where the image element is removed and the only the link title as a plain text element is kept:
 
 ```markdown:Article.md
 pol link
