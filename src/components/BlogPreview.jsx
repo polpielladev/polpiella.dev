@@ -1,3 +1,5 @@
+import Tags from './Tags'
+
 export default function BlogPreview({ post }) {
   const { slug, title, excerpt, pubDate, readtime, tags } = post.frontmatter
   const formattedDate = new Date(pubDate).toDateString()
@@ -10,6 +12,7 @@ export default function BlogPreview({ post }) {
             {title}
           </h2>
         </a>
+        <p className="m-0">{excerpt}</p>
         <div>
           <span class="mr-2 inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
             <svg
@@ -41,7 +44,7 @@ export default function BlogPreview({ post }) {
             {readtime} minute read
           </span>
         </div>
-        <p className="m-0">{excerpt}</p>
+        <Tags tags={tags} />
       </div>
     </div>
   )
