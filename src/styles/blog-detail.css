@@ -1,11 +1,3 @@
-@font-face {
-  font-family: 'MonoLisa';
-  src: local(''), url('/fonts/MonoLisa-Regular.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
 h2 > a,
 h3 > a,
 h4 > a,
@@ -17,10 +9,6 @@ h6 > a {
 .remark-code-title {
   font-size: 13px;
   @apply font-bold text-gray-500 underline decoration-dashed dark:text-gray-400;
-}
-
-pre > code {
-  font-family: 'MonoLisa', monospace !important;
 }
 
 .remark-code-title::before {

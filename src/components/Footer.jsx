@@ -6,18 +6,8 @@ export default function Footer() {
       <div className="p-5">
         <Social />
       </div>
-      <p className=" mb-1 text-center text-gray-600 dark:text-gray-300">
-        Made with 💛 by Pol Piella Abadia
-      </p>
       <p className=" mb-5 text-center text-gray-600 dark:text-gray-300">
-        Code block font:{' '}
-        <a
-          className="font-bold underline decoration-amber-400 decoration-wavy hover:text-amber-500"
-          href="https://www.monolisa.dev/buy"
-          target="_blank"
-          rel="noopener noreferrer">
-          MonoLisa
-        </a>
+        Made with 💛 by Pol Piella Abadia
       </p>
     </footer>
   )
