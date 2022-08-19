@@ -19,9 +19,9 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
   <article
     class='prose prose-pre:mt-2 max-w-full sm:max-w-prose prose-lg dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 px-3'>
     <header class='mb-8'>
+      <p class=' text-zinc-400 m-0 font-bold'>{formattedDate}</p>
       <div class='flex flex-col gap-3'>
-        <h1 class='m-0'>{title}</h1>
-        <Tags {tags} />
+        <h1 class='text-4xl m-0'>{title}</h1>
         <div>
           <span
             class='mr-2 inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300'>
@@ -36,25 +36,10 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
                 d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
                 clip-rule='evenodd'></path>
             </svg>
-            {formattedDate}
-          </span>
-
-          <span
-            class='inline-flex items-center rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-200 dark:text-blue-800'>
-            <svg
-              aria-hidden='true'
-              class='mr-1 h-3 w-3'
-              fill='currentColor'
-              viewBox='0 0 20 20'
-              xmlns='http://www.w3.org/2000/svg'>
-              <path
-                fill-rule='evenodd'
-                d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-                clip-rule='evenodd'></path>
-            </svg>
             {readtime} minute read
           </span>
         </div>
+        <Tags {tags} />
       </div>
     </header>
     <slot></slot>
