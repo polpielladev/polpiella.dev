@@ -16,10 +16,10 @@ export default function BlogPreview({ post }) {
           </h2>
         </a>
         <div>
-          <span class="mr-2 inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+          <span className="mr-2 inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
             <svg
               aria-hidden="true"
-              class="mr-1 h-3 w-3"
+              className="mr-1 h-3 w-3"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg">
