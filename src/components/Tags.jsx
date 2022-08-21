@@ -7,9 +7,9 @@ export default function Tags({ tags }) {
           href={`/category/${tag.slug}`}
           key={tag.slug}>
           <div
-            class="inline-flex items-center justify-between rounded-lg bg-yellow-300 py-0.5 px-4 text-xs text-gray-700 transition-colors hover:bg-yellow-200"
+            className="inline-flex items-center justify-between rounded-lg bg-yellow-300 py-0.5 px-4 text-xs text-gray-700 transition-colors hover:bg-yellow-200"
             aria-label="Component requires Tailwind v3.0">
-            <span class="text-sm font-medium">{tag.name}</span>
+            <span className="text-sm font-medium">{tag.name}</span>
           </div>
         </a>
       ))}
