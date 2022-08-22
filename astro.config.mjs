@@ -28,4 +28,5 @@ export default defineConfig({
   legacy: {
     astroFlavoredMarkdown: true,
   },
+  trailingSlash: 'never',
 })
