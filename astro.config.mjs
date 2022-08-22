@@ -28,7 +28,4 @@ export default defineConfig({
   legacy: {
     astroFlavoredMarkdown: true,
   },
-  // Fixes missing first page of `paginate`
-  // https://github.com/withastro/astro/issues/4306
-  trailingSlash: 'always',
 })
