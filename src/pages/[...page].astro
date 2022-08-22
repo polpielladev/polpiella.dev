@@ -5,7 +5,7 @@ import Paginator from '../components/Paginator'
 import getPopularPosts from '../services/getPopularPosts'
 import uniqBy from '../utils/uniqBy'
 
-export async function getStaticPaths({ rss, paginate }) {
+export async function getStaticPaths({ paginate }) {
   const posts = await Astro.glob('./*.md')
   const sortedPosts = posts.sort(
     (a, b) =>
