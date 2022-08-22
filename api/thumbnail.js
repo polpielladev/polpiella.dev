@@ -20,67 +20,60 @@ function getHTML(title) {
             margin: 0;
             padding: 0;
         }
+        
+        .container > p {
+            color: #a1a1aa;
+        }
+
         .container {
             position: relative;
             width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
             gap: 30px;
             padding: 40px;
-        }
-
-        .line {
-            position: absolute;
-            right: 20px;
-            width: 20px;
-            height: 100%;
-            background-color: #fcd34d;
+            text-align: center;
         }
 
         h1 {
-            font-size: 90px;
+            font-size: 48px;
             font-weight: 800;
             margin: 0;
             line-height: 1;
+            max-width: 680px;
         }
+
         img {
-            aspect-ratio: 1.2;
-            object-fit: contain;
+            aspect-ratio: 1;
+            object-fit: cover;
             border-radius: 50%;
             box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-            width: 100px;
-            height: auto;
+            width: 45px;
         }
 
         .blog-info {
             display: flex;
+            justify-content: space-between;
             gap: 20px;
+            width: 100%;
+            position: absolute;
+            align-items: center;
+            bottom: 20px;
+            padding: 0 30px;
         }
 
-        .blog-info > div {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 10px;
-        }
         .rounded {
             margin-left: 3px;
-            border-radius: 10px;
+            border-radius: 6px;
             background-color: #fbbf24;
-            padding: 5px;
-        }
-
-        .underlined {
-            text-decoration: underline;
-            text-decoration-style: wavy;
-            text-decoration-color: #fbbf24;
+            padding: 3px;
         }
 
         h2 {
-            font-size: 35px;
+            font-size: 20px;
             font-weight: 800;
             margin: 0;
         }
@@ -88,25 +81,28 @@ function getHTML(title) {
         p {
             font-size: 20px;
         }
+        .author {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            gap: 10px
+        }
         </style>
-    </head>
-    <body>
+        </head>
+        <body>
         <div class="container">
-        <div class="line"></div>
-        <h1>${title}</h1>
-        <div class="blog-info">
-            <img src="https://polpiella.dev/assets/profile.png" />
-            <div>
-            <h2>polpiella<span class="rounded">DEV</span></h2>
-            <p>
-                An <b>iOS development</b> blog by
-                <b class="underlined">Pol Piella</b>
-            </p>
+            <h1>${title}</h1>
+            <p>https://polpiella.dev</p>
+            <div class="blog-info">
+                <div class="author">
+                <img src="https://polpiella.dev/assets/profile.png" />
+                <p>Pol Piella Abadia</p>
+                </div>
+                <h2>polpiella<span class="rounded">DEV</span></h2>
             </div>
         </div>
-        </div>
-    </body>
-    </html>
+        </body>
+        </html>
     `
 }
 
@@ -124,7 +120,7 @@ export default async (req, res) => {
     })
 
     const page = await browser.newPage({
-      viewport: { width: 1200, height: 630 },
+      viewport: { width: 850, height: 630 },
     })
 
     await page.setContent(getHTML(title))
