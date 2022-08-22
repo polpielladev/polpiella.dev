@@ -1,3 +1,5 @@
+import baseCSS from '../styles/base.css'
+
 export default function Head({ title, description, imageURL }) {
   return (
     <head>
@@ -14,6 +16,7 @@ export default function Head({ title, description, imageURL }) {
       <meta name="description" content={description} />
       <meta name="twitter:site" content="@polpielladev" />
       <meta name="twitter:card" content="summary_large_image" />
+      <link rel="stylesheet" href={baseCSS} />
       <link rel="icon" type="image/png" href="/assets/profile.png" />
       <link
         rel="alternate"

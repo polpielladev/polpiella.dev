@@ -24,7 +24,7 @@ export default defineConfig({
     ],
     shikiConfig: {},
   },
-  integrations: [tailwind(), react()],
+  integrations: [tailwind({ config: { applyBaseStyles: false } }), react()],
   legacy: {
     astroFlavoredMarkdown: true,
   },
