@@ -34,6 +34,42 @@ img {
   margin: 0 auto;
 }
 
+.astro-code {
+  background-color: unset !important;
+}
+
+:root {
+  --astro-code-foreground: #374151;
+  --astro-code-token-default: #374151;
+  --astro-code-color-text: #374151;
+  --astro-code-token-constant: #0550ae;
+  --astro-code-token-string: #0a3069;
+  --astro-code-token-comment: #6e7781;
+  --astro-code-token-keyword: #cf222e;
+  --astro-code-token-parameter: #374151;
+  --astro-code-token-function: #0550ae;
+  --astro-code-token-string-expression: #0a3069;
+  --astro-code-token-punctuation: #374151;
+  --astro-code-token-link: #0550ae;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --astro-code-foreground: #d1d5db;
+    --astro-code-token-default: #d1d5db;
+    --astro-code-color-text: #d1d5db;
+    --astro-code-token-constant: #d19a66;
+    --astro-code-token-string: #98c379;
+    --astro-code-token-comment: #7f848e;
+    --astro-code-token-keyword: #c678dd;
+    --astro-code-token-parameter: #abb2bf;
+    --astro-code-token-function: #61afef;
+    --astro-code-token-string-expression: #98c379;
+    --astro-code-token-punctuation: #d1d5db;
+    --astro-code-token-link: #61afef;
+  }
+}
+
 .toc {
   @apply mt-2 rounded-md bg-gray-100 p-3 leading-5 dark:bg-gray-800;
 }

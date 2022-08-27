@@ -22,7 +22,9 @@ export default defineConfig({
         },
       ],
     ],
-    shikiConfig: {},
+    shikiConfig: {
+      theme: 'css-variables',
+    },
   },
   integrations: [tailwind({ config: { applyBaseStyles: false } }), react()],
   legacy: {
