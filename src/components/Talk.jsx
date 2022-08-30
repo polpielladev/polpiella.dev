@@ -5,9 +5,9 @@ export default function Talk({ title, location, excerpt, slides = null }) {
         <h2 className="m-0 mb-1 font-bold tracking-tight text-gray-900 dark:text-white">
           {title}
         </h2>
-        <h4 className="m-0 mb-3 text-gray-400 dark:text-gray-300">
+        <p className="m-0 mb-3 font-bold text-gray-400 dark:text-gray-300">
           📍 {location}
-        </h4>
+        </p>
         <p className=" m-0 mb-3 text-sm font-normal text-gray-700 dark:text-gray-400">
           {excerpt}
         </p>
