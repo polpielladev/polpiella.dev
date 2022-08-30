@@ -26,7 +26,7 @@ export default defineConfig({
       theme: 'css-variables',
     },
   },
-  integrations: [tailwind({ config: { applyBaseStyles: false } }), react()],
+  integrations: [tailwind(), react()],
   legacy: {
     astroFlavoredMarkdown: true,
   },

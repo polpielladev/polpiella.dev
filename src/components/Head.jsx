@@ -1,5 +1,3 @@
-import baseCSS from '../styles/base.css'
-
 export default function Head({ title, description, imageURL }) {
   return (
     <head>
@@ -16,7 +14,6 @@ export default function Head({ title, description, imageURL }) {
       <meta name="description" content={description} />
       <meta name="twitter:site" content="@polpielladev" />
       <meta name="twitter:card" content="summary_large_image" />
-      <link rel="stylesheet" href={baseCSS} />
       <link rel="icon" type="image/png" href="/assets/profile.png" />
       <link
         rel="alternate"
@@ -28,19 +25,6 @@ export default function Head({ title, description, imageURL }) {
         hoist="true"
         src="https://cdn.usefathom.com/script.js"
         data-site={import.meta.env.FATHOM_ENTITY_ID}
-        defer></script>
-      <script
-        hoist="true"
-        data-name="BMC-Widget"
-        data-cfasync="false"
-        src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-        data-id="polpielladev"
-        data-description="Support me on Buy me a coffee!"
-        data-message=""
-        data-color="#fbbf24"
-        data-position="Right"
-        data-x_margin="18"
-        data-y_margin="18"
         defer></script>
     </head>
   )
