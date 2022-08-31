@@ -1,4 +1,4 @@
-import Tags from './Tags'
+import Tags from '@components/Tags'
 
 export default function BlogPreview({ post }) {
   const { slug, title, excerpt, pubDate, readtime, tags } = post.frontmatter

@@ -1,4 +1,4 @@
-import Social from './Social'
+import Social from '@components/Social'
 
 export default function Header() {
   return (
