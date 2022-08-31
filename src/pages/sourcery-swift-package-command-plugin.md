@@ -34,15 +34,15 @@ protocol Camera {
 }
 ```
 
-When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not created. We just want to make sure that the right calls to the camera service are made from our system under test (SUT). For this reason, it makes sense to create a mock version of the protocol with no implementation but with a set of variables to help us unit test and assert that the correct calls have been made. This is a very common scenario in Software Development and, if you have ever maintained a big codebase with a lot of unit tests, this can be a bit tedious too.
+When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not created. We just want to make sure that the right calls to the camera service are made from our system under test (SUT).
 
-> Little sidebar: In this article I will use the term `Mock` only for simplicity sake as that is the terminology that Sourcery's template uses. `Mock` is a rather overloaded term though and normally, if I was creating the test doubles myself I would further specify the terminology to whether it is a `Spy`, a `Dummy`, etc. There is a [very good article](https://martinfowler.com/articles/mocksArentStubs.html) by [Martin Fowler](https://twitter.com/martinfowler) if you are interested in learning a bit more about test doubles.
+For this reason, it makes sense to create a mock implementation of the protocol with empty methods and a set of variables to help us unit test and assert that the correct calls are being made. This is a very common scenario in Software Development and, if you have ever maintained a big codebase with a lot of unit tests, this can be a bit tedious to do too.
 
 Well, worry not! Sourcery can help! There is a template called [AutoMockable](https://github.com/krzysztofzablocki/Sourcery/blob/master/Templates/Templates/AutoMockable.stencil) which generates mocks for any protocols in its given input sources which conform to the `AutoMockable` protocol.
 
-> The AutoMockable template, along with many others, can be found in [Sourcery's repo](https://github.com/krzysztofzablocki/Sourcery/tree/master/Templates/Templates). You can also [write a template of your own](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md) to meet your project's needs.
+> Little sidebar: In this article I use the term `Mock` extensibly as it lines up with the terminology that Sourcery's template uses. `Mock` is a rather overloaded term though and normally, if I was to create a test double, I would further specify the type's depending on the purpose it serves (could be a `Spy`, a `Fake`, a `Stub`, etc.). There is a [very good article](https://martinfowler.com/articles/mocksArentStubs.html) by [Martin Fowler](https://twitter.com/martinfowler) if you are interested in learning a bit more about test doubles.
 
-Let's now update the `Camera` protocol to conform to the newly defined and empty `AutoMockable` protocol. This interface simply acts as a target for Sourcery to find and generate a mock from it.
+Let's now update the `Camera` protocol to conform to the newly defined and empty `AutoMockable` protocol. This interface's sole purpose is to act as a target for Sourcery to find and generate code from it.
 
 ```swift:NavigationView.swift
 // Protocol to be matched
@@ -56,15 +56,15 @@ public protocol Camera: AutoMockable {
 }
 ```
 
-If we run this Sourcery command now with the input file and template above:
+Then the Sourcery command can be run, passing in the template and input files above:
 
 ```bash:Terminal
-sourcery --sources SampleCode.swift --templates AutoCases.stencil --output .
+sourcery --sources SampleCode.swift --templates AutoMockable.stencil --output .
 ```
 
-> Alternatively, and this is the way that the plugin in this article will be configured, a `.sourcery.yml` configuration file can be provided to set all the relevant values. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict with its values will be ignored.
+> Alternatively, and this is the way that the plugin in this article will be configured, a `.sourcery.yml` configuration file can be provided. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict with its values will be ignored.
 
-Then a file is generated with the following content:
+Once the command has finished executing a new file will appear with the template's name followed by `.generated.swift` and under the specified output directory. In this case this would be `./AutoMockable.generated.swift`:
 
 ```swift:AutoMockable.generated.swift
 // Generated using Sourcery 1.8.2 — https://github.com/krzysztofzablocki/Sourcery
@@ -140,20 +140,22 @@ class CameraMock: Camera {
 }
 ```
 
-The file above contains what you would expect from a mocked protocol: conformance to it with empty implementations and a set of variables to check whether these protocol methods have been called. And the best part... Sourcery writes it for you! 🎉
+The file above contains what you would expect from a mock: conformance to it with empty method implementations and a set of variables to check whether these protocol methods have been called. And the best part... Sourcery writes it for you! 🎉
 
 ## How to run Sourcery from a Swift Package?
 
-By now you might be wondering how or when to run Sourcery in a Swift package. You could do it manually and drag the files in or run the script from the command line in the package's directory but, for Swift Packages, there are two built-in ways of running executables:
+By now you might be wondering how or when to run Sourcery in a Swift package. You could do it manually and drag the files in to the package or run the script from the command line in the package's directory but, for Swift Packages, there are two built-in ways of running executables:
 
-1. Via a **command plugin**, which needs to be triggered manually.
+1. Via a **command plugin**, which is run arbitrarily based on user input
 2. Via a **build tool plugin**, which runs as part of the package's build process.
 
-In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin.
+In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin, which presents numerous very interesting challenges.
 
 ## Creating the plugin package
 
-Let's first start by creating an empty package and getting rid of tests and other folders we might not need. Then we can create a new `plugin` target and add the sourcery's binary as its executable. Since this package will be used by clients, the plugin also needs to be defined as a product for consumers:
+Let's first start by creating an empty package and getting rid of tests and other folders we will not need for now. Then we can create a new `plugin` target and add Sourcery's binary as its dependency.
+
+For this plugin to be used by consumers it also needs to be defined as a product:
 
 ```swift:Package.swift
 // swift-tools-version: 5.6
@@ -187,16 +189,16 @@ let package = Package(
 
 Let's take a closer look at the code above, step by step:
 
-1. First, teh plugin is defined in the target list.
-2. A `.command` capability is defined with a `custom` intent, as none of the default capabilities (`documentationGeneration` and `sourceCodeFormatting`) matches this use case. It is very important to give `verb` a sensible name as this is the way the plugin will be called from the command line.
+1. The plugin target is defined.
+2. A `.command` capability is defined with a `custom` intent, as none of the default capabilities (`documentationGeneration` and `sourceCodeFormatting`) match this command's use case. It is important to give `verb` a sensible name as this is the way the plugin will be called from the command line.
 3. The plugin needs to ask for the user's permissions to write to the package's directory, as that is where the generated files will be dumped.
 4. A binary target is defined for the plugin to use. This will give the plugin access to the executable through its context.
 
-> I know that I have brushed through a few of the concepts above but if you would like to learn more about command plugins, [here is an awesome article](https://theswiftdev.com/beginners-guide-to-swift-package-manager-command-plugins/) by [Tibor Bödecs](https://twitter.com/tiborbodecs) ⭐. I have [an article about binary targets in Swift Packages](https://www.polpiella.dev/binary-targets-in-modern-swift-packages) if you'd like to learn a bit more about that too 📦.
+> I know that I have not gone into a lot of detail about a few of the concepts above but if you would like to learn more about command plugins, [here is an awesome article](https://theswiftdev.com/beginners-guide-to-swift-package-manager-command-plugins/) by [Tibor Bödecs](https://twitter.com/tiborbodecs) ⭐. I have [an article about binary targets in Swift Packages](https://www.polpiella.dev/binary-targets-in-modern-swift-packages) if you'd like to learn a bit more about that too 📦.
 
 ## Writing the plugin
 
-Now that the package is created, it is time to write some code! Let's start by creating `SourceryCommand.swift` under `Plugins/SourceryCommand` and add a struct conforming to `CommandPlugin` as its entrypoint:
+Now that the package is created, it is time to write some code! Let's start by creating a file named `SourceryCommand.swift` under `Plugins/SourceryCommand` and add a struct conforming to `CommandPlugin`, which will act as the plugin's entrypoint:
 
 ```swift:SourceryCommand.swift
 import PackagePlugin
@@ -248,18 +250,18 @@ func performCommand(context: PluginContext, arguments: [String]) async throws {
 
 Let's take a closer look at the code above:
 
-1. First, the `.sourcery.yml` file must be provided by the target package at its root directory, otherwise an error is thrown.
+1. First, the `.sourcery.yml` file must be provided by the target package at its root directory, otherwise an error is thrown. This will allow Sourcery to do its magic and make the package configurable 🪄.
 2. The URL with the executable's path is retrieved from the command's context.
-3. A `Process` is created and Sourcery's executable's URL is passed to it.
-4. This step is a bit of a work-around. Sourcery uses caching to reduce code generation times between subsequent runs but the problem is that these caches are files which get read and written to outside of the package's folder. This is not allowed by the plugin's sandboxing rules, so must be disabled for a plugin to work.
+3. A `Process` is created and Sourcery's executable's URL is set as its executable path.
+4. This step is a bit of a work-around. Sourcery uses caching to reduce code generation times between subsequent runs, but the problem is that these caches are files which get read and written to outside of the package's folder. This is not allowed by the plugin's sandboxing rules, so the `--disableCache` flag is used to disable this behaviour and allow the command to run.
 5. The process is run and awaited synchronously.
-6. Last but not least, ensure that the process has exited with a status code of 0. In any other case, let the consumer know that it has not succeeded through the `Diagnostics` API.
+6. Last but not least, the process termination status and code are checked to make sure the process has exited gracefully. In any other case, the consumer is notified of an error through the `Diagnostics` API.
 
-That's it! We have a working sourcery command plugin, let's now use it 🚀
+That's it! Let's now use it 🚀
 
 ## Using the package
 
-Consider a client consuming the package that has brought the dependency into their `Package.swift` file:
+Consider a client consuming the plugin that has brought the dependency into their `Package.swift` file:
 
 ```swift:Package.swift
 // swift-tools-version: 5.6
@@ -288,14 +290,14 @@ let package = Package(
 )
 ```
 
-> Note that, unlike build tool plugins, command plugins do not need to be applied to any targets. They can only be run manually.
+> Note that, unlike build tool plugins, command plugins do not need to be applied to any targets, as they need to be run manually.
 
-The client has a single usage of the `AutoMockable` template above (which lives in their codebase under `Sources/SourceryPluginSample/SourceryTemplates`) matching the example shown earlier in the article:
+The client has a single usage of the `AutoMockable` template above (which can be found under `Sources/SourceryPluginSample/SourceryTemplates`) matching the example shown earlier in the article:
 
-```swift:HotDrink.swift
-protocol AutoCases {}
+```swift:Camera.swift
+protocol AutoMockable {}
 
-public protocol Camera {
+protocol Camera: AutoMockable {
     func start()
     func stop()
     func capture(_ completion: @escaping (UIImage?) -> Void)
@@ -303,7 +305,7 @@ public protocol Camera {
 }
 ```
 
-As required by the plugin, the client also provides a `.sourcery.yml` config file at the root directory of the package:
+As required by the plugin, the client also provides a `.sourcery.yml` config file at the root directory of the `SourceryPluginSample` package:
 
 ```yaml:.sourcery.yml
 sources:
@@ -319,20 +321,24 @@ The client's all set up, but how do they run the package now? 🤔 Well there ar
 
 ### Command Line
 
-One way to run the plugin is from the command line. A list of plugins available for a specific plugin can be retrieved by running `swift package plugin --list` from the package's directory and then a package can be picked and executed by running `swift package <command's verb>`, in this particular case `swift package sourcery-code-generation`. Note that since this package requires special permissions, the `--allow-writing-to-package-directory` flag must be passed along with the command:
+One way to run the plugin is from the command line. A list of plugins available for a specific package can be retrieved by running `swift package plugin --list` from the package's directory. A package can then be picked from the list and executed by running `swift package <command's verb>`, in this particular case `swift package sourcery-code-generation`.
+
+Note that since this package requires special permissions, the `--allow-writing-to-package-directory` flag must be passed along with the command:
 
 <Video src='/assets/posts/sourcery-swift-package-command-plugin/sourcery-command-cli.mp4' />
 
+At this point you might be thinking, why would I bother writing a plugin that I have to still run from the command line when I can have a simple script do the same job in a couple of lines of bash? Well, let's take a look at what's coming in Xcode 14 and you'll see why I would definitely advocate for writing a plugin 📦.
+
 ### Xcode
 
-This is the most exciting way to run command plugins but, unfortunately it is only available on Xcode 14 at the moment. Hence, if you need to run the command and are not yet using Xcode 14, please refer to the Command Line section.
+This is the most exciting way to run command plugins but, unfortunately it is only available in Xcode 14. Hence, if you need to run the command and are not yet using Xcode 14, please refer to the Command Line section.
 
-If you are lucky enough to be using Xcode 14, you can simply do it by right clicking on the package that has the plugin as a dependency and simply click it. As you see in the video below, the command generates an `AutoCases.generated` file with the content from Sourcery:
+If you are lucky enough to be using Xcode 14, you can execute any of a package's commands by right clicking on the package in the file explorer, finding the plugin to execute from the list and just clicking it. As you see in the video below, the command generates an `AutoCases.generated` file with the content from Sourcery:
 
 <Video src='/assets/posts/sourcery-swift-package-command-plugin/sourcery-command-xcode.mp4' />
 
 ## Next Steps
 
-Note that this is an initial implementation of the plugin. I will be looking into improving it and making it a bit more robust.
+This is an initial implementation of the plugin. I will be looking into improving it and making it a bit more robust. As always, I am very committed to building in public and make all the content I can from my posts Open Source so anyone can file issues or create any PRs with improvements or fixes. This is no different 😀, [here is the link to the public repo](https://github.com/pol-piella/sourcery-plugins).
 
-Also, if you liked this article, keep your eyes peeled for the second part of this coming soon, where I will be making a Sourcery build tool plugin. I know it doesn't sound like a lot, but it's not an easy task! 🔨
+Also, if you liked this article, keep your eyes peeled for the second part coming soon, where I will be making a Sourcery build tool plugin. I know it doesn't sound like a lot, but it's not an easy task! 🔨
