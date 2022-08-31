@@ -1,7 +1,7 @@
 ---
 import '../styles/blog-detail.css'
 import Tags from '../components/Tags'
-import BaseLayout from '../components/BaseLayout'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
 const { title, excerpt, tags, pubDate, readtime, slug } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {

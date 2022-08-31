@@ -1,4 +1,4 @@
 module.exports = {
-  content: ['./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}'],
+  content: ['./src/**/*.{html,js,astro,jsx,ts,tsx}'],
   plugins: [require('@tailwindcss/typography')],
 }

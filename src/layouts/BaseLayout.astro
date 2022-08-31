@@ -1,0 +1,50 @@
+---
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+
+const {
+  title = 'polpielladev 📱 | A blog about software engineering and app development',
+  description = 'Blog posts about iOS mobile app development by Pol Piella.',
+  image,
+} = Astro.props
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/png" href="/assets/profile.png" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="RSS Feed for polpiella.dev"
+      href="/rss.xml"
+    />
+
+    <meta property="og:url" content="https://polpiella.dev" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@polpielladev" />
+    <meta name="twitter:creator" content="@polpielladev" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <script
+      src="https://cdn.usefathom.com/script.js"
+      data-site={import.meta.env.FATHOM_ENTITY_ID}
+      defer
+    ></script>
+  </head>
+  <body class="flex min-h-screen flex-col justify-between dark:bg-gray-900">
+    <Header />
+    <main class="flex flex-auto"><slot /></main>
+    <Footer />
+  </body>
+</html>

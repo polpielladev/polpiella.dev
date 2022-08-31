@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../components/BaseLayout'
+import BaseLayout from '../layouts/BaseLayout.astro'
 import BlogPreview from '../components/BlogPreview'
 import Paginator from '../components/Paginator'
 import getPopularPosts from '../services/getPopularPosts'
@@ -37,10 +37,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
 )}`
 ---
 
-<BaseLayout
-  title='polpielladev 📱 | A blog about software engineering and app development'
-  description='Blog posts about iOS mobile app development by Pol Piella.'
-  imageURL={fullImageURL}>
+<BaseLayout imageURL={fullImageURL}>
   <div class='flex mx-auto my-0 gap-1'>
     <div class='px-3 my-0 max-w-3xl flex flex-col gap-5'>
       <section
