@@ -19,14 +19,14 @@ setup: |
 
 ## What is Sourcery?
 
-[Sourcery](https://github.com/krzysztofzablocki/Sourcery) is one of the most popular code generation tools for Swift. It uses [SwiftSyntax](https://github.com/apple/swift-syntax) under the hood and its purpose is to save developers time by automatically generating boilercode plate. It works by scanning a set of input files it and then, with the help of some [templates](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md), it outputs Swift code based on the definitions in such templates.
+[Sourcery](https://github.com/krzysztofzablocki/Sourcery) is one of the most popular code generation tools for Swift. It uses [SwiftSyntax](https://github.com/apple/swift-syntax) under the hood and its purpose is to save developers time by automatically generating boilerplate code. Sourcery works by scanning a set of input files and then, with the help of some [templates](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md), it generates Swift code as an ouput based on the definitions in such templates.
 
 ## An Example
 
 Let's consider a very simple example. Say we have a protocol which provides a public API for a camera session service:
 
 ```swift:Camera.swift
-public protocol Camera {
+protocol Camera {
   func start()
   func stop()
   func capture(_ completion: @escaping (UIImage?) -> Void)
@@ -34,13 +34,15 @@ public protocol Camera {
 }
 ```
 
-When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not generated and we can mock this protocol. This is a very common scenario in Software Development and, if you have ever maintained a big codebase with a lot of unit tests, this can be a bit tedious too.
+When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not created. We just want to make sure that the right calls to the camera service are made from our system under test (SUT). For this reason, it makes sense to create a mock version of the protocol with no implementation but with a set of variables to help us unit test and assert that the correct calls have been made. This is a very common scenario in Software Development and, if you have ever maintained a big codebase with a lot of unit tests, this can be a bit tedious too.
 
-Well, worry not! Sourcery can help! There is a template called [AutoMockable](https://github.com/krzysztofzablocki/Sourcery/blob/master/Templates/Templates/AutoMockable.stencil) which generates mocks for any protocols in its given input sources which conforming to the `AutoMockable` protocol.
+> Little sidebar: In this article I will use the term `Mock` only for simplicity sake as that is the terminology that Sourcery's template uses. `Mock` is a rather overloaded term though and normally, if I was creating the test doubles myself I would further specify the terminology to whether it is a `Spy`, a `Dummy`, etc. There is a [very good article](https://martinfowler.com/articles/mocksArentStubs.html) by [Martin Fowler](https://twitter.com/martinfowler) if you are interested in learning a bit more about test doubles.
 
-> The AutoMockable, along with many others, can be found in [Sourcery's repo](https://github.com/krzysztofzablocki/Sourcery/tree/master/Templates/Templates). You can also [write a template of your own](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md) for Sourcery to use.
+Well, worry not! Sourcery can help! There is a template called [AutoMockable](https://github.com/krzysztofzablocki/Sourcery/blob/master/Templates/Templates/AutoMockable.stencil) which generates mocks for any protocols in its given input sources which conform to the `AutoMockable` protocol.
 
-Let's now update the `Camera` protocol to conform to the newly defined and empty `AutoMockable` protocol. This interface simply acts as a target for Sourcery to find and generate code from it.
+> The AutoMockable template, along with many others, can be found in [Sourcery's repo](https://github.com/krzysztofzablocki/Sourcery/tree/master/Templates/Templates). You can also [write a template of your own](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Writing%20templates.md) to meet your project's needs.
+
+Let's now update the `Camera` protocol to conform to the newly defined and empty `AutoMockable` protocol. This interface simply acts as a target for Sourcery to find and generate a mock from it.
 
 ```swift:NavigationView.swift
 // Protocol to be matched
@@ -60,7 +62,7 @@ If we run this Sourcery command now with the input file and template above:
 sourcery --sources SampleCode.swift --templates AutoCases.stencil --output .
 ```
 
-> Alternatively, and this is the way that our plugin will be configured, a `.sourcery.yml` configuration can be provided to set all the relevant values. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict will be ignored.
+> Alternatively, and this is the way that the plugin in this article will be configured, a `.sourcery.yml` configuration file can be provided to set all the relevant values. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict with its values will be ignored.
 
 Then a file is generated with the following content:
 
@@ -138,14 +140,16 @@ class CameraMock: Camera {
 }
 ```
 
+The file above contains what you would expect from a mocked protocol: conformance to it with empty implementations and a set of variables to check whether these protocol methods have been called. And the best part... Sourcery writes it for you! 🎉
+
 ## How to run Sourcery from a Swift Package?
 
-By now you might be wondering how or when to run this command in a Swift package. You could do it manually and drag the files in or run the script from the command line in the package's directory but, for Swift Packages, there are two proper ways of running executables:
+By now you might be wondering how or when to run Sourcery in a Swift package. You could do it manually and drag the files in or run the script from the command line in the package's directory but, for Swift Packages, there are two built-in ways of running executables:
 
 1. Via a **command plugin**, which needs to be triggered manually.
 2. Via a **build tool plugin**, which runs as part of the package's build process.
 
-In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin, but it is a lot more complicated.
+In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin.
 
 ## Creating the plugin package
 
