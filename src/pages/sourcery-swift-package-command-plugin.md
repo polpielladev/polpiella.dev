@@ -23,7 +23,7 @@ setup: |
 
 ## An Example
 
-Let's consider a very simple example. Say we have a protocol which provides a public API for a camera session service:
+Consider a protocol which provides a public API for a camera session service:
 
 ```swift:Camera.swift
 protocol Camera {
@@ -34,17 +34,19 @@ protocol Camera {
 }
 ```
 
-When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not created. We just want to make sure that the right calls to the camera service are made from our system under test (SUT).
+When we come to unit test features that use this new `Camera` service, we want to make sure that an actual `AVCaptureSession` is not created. We just want to make sure that the right calls to the camera service are made from our system under test (SUT), rather than testing the `Camera` service implementation itself.
 
 For this reason, it makes sense to create a mock implementation of the protocol with empty methods and a set of variables to help us unit test and assert that the correct calls are being made. This is a very common scenario in Software Development and, if you have ever maintained a big codebase with a lot of unit tests, this can be a bit tedious to do too.
 
-Well, worry not! Sourcery can help! There is a template called [AutoMockable](https://github.com/krzysztofzablocki/Sourcery/blob/master/Templates/Templates/AutoMockable.stencil) which generates mocks for any protocols in its given input sources which conform to the `AutoMockable` protocol.
+Well, worry not! Sourcery can help! ⭐️ There is a template called [AutoMockable](https://github.com/krzysztofzablocki/Sourcery/blob/master/Templates/Templates/AutoMockable.stencil) which generates mocks for any protocols conforming to `AutoMockable` in its input sources.
 
-> Little sidebar: In this article I use the term `Mock` extensibly as it lines up with the terminology that Sourcery's template uses. `Mock` is a rather overloaded term though and normally, if I was to create a test double, I would further specify the type's depending on the purpose it serves (could be a `Spy`, a `Fake`, a `Stub`, etc.). There is a [very good article](https://martinfowler.com/articles/mocksArentStubs.html) by [Martin Fowler](https://twitter.com/martinfowler) if you are interested in learning a bit more about test doubles.
+> Little sidebar: In this article I use the term `Mock` extensibly as it lines up with the terminology that Sourcery's template uses. `Mock` is a rather overloaded term though and normally, if I was to create a test double, I would further specify the type's name depending on the purpose it serves (could be a `Spy`, a `Fake`, a `Stub`, etc.). There is a [very good article](https://martinfowler.com/articles/mocksArentStubs.html) by [Martin Fowler](https://twitter.com/martinfowler) explaining the differences if you are interested in learning a bit more about test doubles.
 
 Let's now update the `Camera` protocol to conform to the newly defined and empty `AutoMockable` protocol. This interface's sole purpose is to act as a target for Sourcery to find and generate code from it.
 
-```swift:NavigationView.swift
+```swift:Camera.swift
+import UIKit
+
 // Protocol to be matched
 protocol AutoMockable {}
 
@@ -56,15 +58,15 @@ public protocol Camera: AutoMockable {
 }
 ```
 
-Then the Sourcery command can be run, passing in the template and input files above:
+At this point the Sourcery command can be run on the input file above, specifying the path to the `AutoMockable` template file:
 
 ```bash:Terminal
-sourcery --sources SampleCode.swift --templates AutoMockable.stencil --output .
+sourcery --sources Camera.swift --templates AutoMockable.stencil --output .
 ```
 
-> Alternatively, and this is the way that the plugin in this article will be configured, a `.sourcery.yml` configuration file can be provided. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict with its values will be ignored.
+> Alternatively, and this is the way that the plugin in this article will be configured, a `.sourcery.yml` configuration file can be provided. If a configuration file is provided or can be found by Sourcery, then all command line arguments that conflict with its values will be ignored. If you want to learn more about configuration files, [there is a section in Sourcery's repo covering the topic](https://github.com/krzysztofzablocki/Sourcery/blob/master/guides/Usage.md#configuration-file).
 
-Once the command has finished executing a new file will appear with the template's name followed by `.generated.swift` and under the specified output directory. In this case this would be `./AutoMockable.generated.swift`:
+Once the command has finished executing, a new file will appear with the template's name followed by `.generated.swift` and under the specified output directory. In this case, this would be `./AutoMockable.generated.swift`:
 
 ```swift:AutoMockable.generated.swift
 // Generated using Sourcery 1.8.2 — https://github.com/krzysztofzablocki/Sourcery
@@ -140,16 +142,16 @@ class CameraMock: Camera {
 }
 ```
 
-The file above contains what you would expect from a mock: conformance to it with empty method implementations and a set of variables to check whether these protocol methods have been called. And the best part... Sourcery writes it for you! 🎉
+The file above contains what you would expect from a mock: conformance to the target protocol with empty method implementations and a set of variables to check whether these protocol methods have been called. And the best part... Sourcery writes it all for you! 🎉
 
 ## How to run Sourcery from a Swift Package?
 
 By now you might be wondering how or when to run Sourcery in a Swift package. You could do it manually and drag the files in to the package or run the script from the command line in the package's directory but, for Swift Packages, there are two built-in ways of running executables:
 
 1. Via a **command plugin**, which is run arbitrarily based on user input
-2. Via a **build tool plugin**, which runs as part of the package's build process.
+2. Via a **build tool plugin**, which is run as part of the package's build process.
 
-In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin, which presents numerous very interesting challenges.
+In this article I will be covering what a Sourcery command plugin looks like, but I am already working on a part two where I will be creating a build tool plugin, which presents numerous interesting challenges.
 
 ## Creating the plugin package
 
@@ -333,7 +335,7 @@ At this point you might be thinking, why would I bother writing a plugin that I 
 
 This is the most exciting way to run command plugins but, unfortunately it is only available in Xcode 14. Hence, if you need to run the command and are not yet using Xcode 14, please refer to the Command Line section.
 
-If you are lucky enough to be using Xcode 14, you can execute any of a package's commands by right clicking on the package in the file explorer, finding the plugin to execute from the list and just clicking it. As you see in the video below, the command generates an `AutoCases.generated` file with the content from Sourcery:
+If you are lucky enough to be using Xcode 14, you can execute any of a package's commands by right clicking on the package in the file explorer, finding the plugin to execute from the list and just clicking it. As you see in the video below, the command generates an `AutoMockable.generated.swift` file with the content from Sourcery:
 
 <Video src='/assets/posts/sourcery-swift-package-command-plugin/sourcery-command-xcode.mp4' />
 
