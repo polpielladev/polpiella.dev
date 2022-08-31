@@ -233,6 +233,12 @@ func performCommand(context: PluginContext, arguments: [String]) async throws {
     // 5
     try process.run()
     process.waitUntilExit()
+
+    // 6
+    let gracefulExit = process.terminationReason == .exit && process.terminationStatus == 0
+    if !gracefulExit {
+        Diagnostics.error("🛑 The plugin execution failed")
+    }
 }
 ```
 
@@ -242,7 +248,8 @@ Let's take a closer look at the code above:
 2. The URL with the executable's path is retrieved from the command's context.
 3. A `Process` is created and Sourcery's executable's URL is passed to it.
 4. This step is a bit of a work-around. Sourcery uses caching to reduce code generation times between subsequent runs but the problem is that these caches are files which get read and written to outside of the package's folder. This is not allowed by the plugin's sandboxing rules, so must be disabled for a plugin to work.
-5. Last but not least, the process is run and awaited synchronously.
+5. The process is run and awaited synchronously.
+6. Last but not least, ensure that the process has exited with a status code of 0. In any other case, let the consumer know that it has not succeeded through the `Diagnostics` API.
 
 That's it! We have a working sourcery command plugin, let's now use it 🚀
 
