@@ -2,7 +2,7 @@
 title: 'Handling multiple git SSH keys'
 slug: 'handling-multiple-git-ssh-keys'
 excerpt: 'A whistle stop tour through my git configuration, showing how to effectively deal with two different git users and SSH keys.'
-pubDate: '2022-27-09'
+pubDate: '2022-09-27'
 readtime: '4'
 tags: [{ name: 'Git', slug: 'git' }]
 author:
@@ -43,7 +43,7 @@ ssh-add <path_to_work_key>
 
 Next step was to add the key to my account in my code hosting service (Github):
 
-![A screenshot showing the create SSH page in Github.](/assets/posts/new-ssh-key.png)
+![A screenshot showing the create SSH page in Github.](/assets/posts/handling-multiple-git-ssh-keys/new-ssh-key.png)
 
 > The SSH key settings can be found in the account's settings.
 
@@ -100,7 +100,7 @@ git clone git@work:pol-piella/reading-time.git
 
 As I mentioned above, both these hosts will resolve to `github.com` but the cool thing is that they will use differnet SSH keys. 🎉
 
-## Notes
+## Before you go
 
 Bear in mind that this is the way I like to work and it might not be the best way. My approach forces me to be very explicit whenever I set a remote and I am used to it by now. I can quickly see which key is being used by just inspecting the remote with the following command: `git remote get-url origin --all`, which doesn't require me to go digging into the config file when errors occur.
 
