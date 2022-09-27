@@ -1,7 +1,7 @@
 ---
 title: 'Handling multiple git SSH keys'
 slug: 'handling-multiple-git-ssh-keys'
-excerpt: 'A whistle stop tour through my git configuration, showing how to effectively deal with two different github accounts.'
+excerpt: 'A whistle stop tour through my git configuration, showing how to effectively deal with two different git users and SSH keys.'
 pubDate: '2022-27-09'
 readtime: '4'
 tags: [{ name: 'Git', slug: 'git' }]
@@ -41,9 +41,9 @@ ssh-add <path_to_work_key>
 
 ## Adding the key to the code hosting provider
 
-Next step was to add the key to my account on my code hosting service (Github):
+Next step was to add the key to my account in my code hosting service (Github):
 
-![](/assets/posts/new-ssh-key.png)
+![A screenshot showing the create SSH page in Github.](/assets/posts/new-ssh-key.png)
 
 > The SSH key settings can be found in the account's settings.
 
