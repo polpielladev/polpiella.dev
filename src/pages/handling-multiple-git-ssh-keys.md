@@ -16,9 +16,9 @@ I have finally decided to stop and learn more about ssh config in order to find 
 
 ## Creating SSH keys
 
-Firs thing I did was to start from scratch and remove all SSH keys I had. I then created two new ones: one for my work Github account and one for my personal one.
+First thing I did was to start from scratch and remove all SSH keys I had. I then created two new ones: one for my work Github account and one for my personal one.
 
-> Note that, while I use Github, this example will work for any code hosting service as the SSH config is for git rather than the specific services themselves.
+> Note that, while I use Github, this example will work for any code hosting service you choose to use as the SSH config is for git rather than the specific services themselves.
 
 To create the new keys I used the `ssh-keygen` command from the terminal:
 
@@ -29,7 +29,7 @@ ssh-keygen -t ed25519 -C "<my_personal_email>"
 ssh-keygen -t ed25519 -C "<my_work_email>"
 ```
 
-> When creating the keys, you need to choose a location where to store them. I would recommend using the default path suggested by `ssh-keygen` and append github username for the account the key is associated with to the file's name (i.e. `~/.ssh/id_ed25519_<git_username>`).
+> When creating new keys, you need to choose a location where to store them. I would recommend using the default path suggested by `ssh-keygen` and append github username for the account the key is associated with to the file's name (i.e. `~/.ssh/id_ed25519_<git_username>`).
 
 With both keys created, I then added them to the `ssh-agent` like so:
 
@@ -47,18 +47,18 @@ Next step was to add the key to my account in my code hosting service (Github):
 
 > The SSH key settings can be found in the account's settings.
 
-To populate the key in Github I needed to retrieve its raw contents. I did this using `pbcopy` on the public keys:
+To create the key in Github I needed to paste in its raw contents. I obtained these in string format by using `pbcopy` on each of the public keys:
 
 ```bash:Terminal
 # This needs to be the public key (suffixed with `.pub`)
 pbcopy < id_ed25519_<git_username>.pub
 ```
 
-> Note that this has to be done for each of the two accounts, and the right SSH key must be associated with its respective account.
+> Note that this has to be done for each of the two accounts, and the right SSH key must be associated with its respective account in the code hosting service.
 
 ## Creating an SSH config
 
-Now that the keys were ready to be used, I then went on to create a SSH config from scratch (I wanted to fully understand how this process works, so removed everything I had) which would choose a key based on a set of rules. I did this by creating a file called `config` under the `~/.ssh` directory.
+Now that the keys were ready to be used, I then went on to create a SSH config from scratch (I wanted to fully understand how this process works, so I removed everything I had). To do so, I created a file called `config` under the `~/.ssh` directory, which its sole purpose was to pick the correct key based on a git repository's remote URL.
 
 I then populated it with two different configurations, one for work and one for personal use:
 
@@ -78,15 +78,15 @@ Host work
 
 Let's break the configuration above down to understand what it's doing:
 
-1. Specifies a host with a given name, in this case it can be either `work` or `personal`.
+1. The first thing is to specify a host with a given name, in this case it can be either `work` or `personal`.
 2. Host name will always be `github.com`, this means that whenever we use the `work` or `personal` hosts, they will always resolve to `github.com`.
-3. Uses the correct SSH key based on the host provided.
+3. Finally, we define which SSH key to use for each configuration.
 
-That's it! Last thing I needed to do at this point was to actually use this config.
+That's it! Last thing I needed to do at this point was to actually use this config and verify it all worked.
 
 ## Using the new configurations
 
-In order to determine which key a given repository would use, I needed to make some changes to my local repositories' remote URLs (and going forward the new ones I clone). Since two new hosts have been defined, to use the right key, a repository must be cloned with one of those names in the remote URL. For example, my new package `ReadingTime` should now be cloned to use a personal key as follows:
+In order to determine which key a given repository would use, I needed to make some changes to my local repositories' remote URLs (and any new ones I clone in the future). Since two new hosts have been defined, to use the right key, a repository must be cloned with one of those names defined in cofig (personal or work) as the host in its remote URL. For example, my new package `ReadingTime` would now be cloned to use a personal key as follows:
 
 ```bash:Terminal
 git clone git@personal:pol-piella/reading-time.git
@@ -98,10 +98,10 @@ Or to use a work key, it can be cloned like so:
 git clone git@work:pol-piella/reading-time.git
 ```
 
-As I mentioned above, both these hosts will resolve to `github.com` but the cool thing is that they will use differnet SSH keys. 🎉
+As I mentioned above, both these hosts will resolve to `github.com` but the cool thing is that they will now use differnet SSH keys. 🎉
 
 ## Before you go
 
-Bear in mind that this is the way I like to work and it might not be the best way. My approach forces me to be very explicit whenever I set a remote and I am used to it by now. I can quickly see which key is being used by just inspecting the remote with the following command: `git remote get-url origin --all`, which doesn't require me to go digging into the config file when errors occur.
+Bear in mind that this is the way I like to work and it might not be the best way. My approach forces me to be very explicit whenever I set a remote and I am used to it. I can quickly see which key is being used by just inspecting the remote with the following command: `git remote get-url origin --all`, which doesn't require me to go digging into the config file when errors occur.
 
 There are other approaches, such as setting specific repos or organisations as the hostnames so that you don't have to remember to change the git clone command, so make sure you do some research and find the way that suits your workflow the most 😃.
