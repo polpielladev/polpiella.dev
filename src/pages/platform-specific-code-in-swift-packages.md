@@ -2,26 +2,28 @@
 title: 'Platform specific code in Swift Packages'
 slug: 'platform-specific-code-in-swift-packages'
 excerpt: 'A set of examples showing how useful compiler directives can become when building cross-platform Swift programs.'
-pubDate: '2022-08-17'
+pubDate: '2022-10-06'
 readtime: '7'
 tags:
   [
-    { name: 'Swift Package Manager', slug: 'spm' },
-    { name: 'Open Source', slug: 'open-source' },
-    { name: 'Swift', slug: 'swift' },
+    { name: 'Swift', slug: 'swift' }
   ]
 author:
   name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
-I have recently been trying to get a command line tool written entirely in Swift which uses my pacakge [Reading Time](https://swiftpackageindex.com/pol-piella/reading-time) to run in different environments and platforms. The tool takes in the path to a markdown file as an input and outputs the estimated average time it would take to read it.
+I have recently been trying to get a command line tool which uses my Swift Package [Reading Time](https://swiftpackageindex.com/pol-piella/reading-time) to run in different environments and platforms. 
 
-While compiling for multiple platforms and architectures, I have faced challenges and errors of all kinds. In this article, I will explain how I leveraged the power of [compiler directives](https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID538) to get past some of these.
+The tool takes in the path to a markdown file as an input and outputs the estimated average time it would take to read it.
+
+When compiling for multiple platforms and architectures, I have faced challenges and errors of all kinds. In this article I will explain how I leveraged the power of [compiler directives in Swift](https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID538) to get past some of these.
 
 ## What are compiler directives?
 
-Compiler directives, also referred to as [Compiler Control Statements](https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID538) in Apple's documentation, allow developers to make changes to the compiler's behaviour directly from Swift code. In this article I am going to focus on conditional statements (`#if/#endif` blocks) which can be used to provide multiple compilation routes based on a given value.
+Compiler directives, also referred to as [Compiler Control Statements](https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID538) in Apple's documentation, allow developers to make changes to the compiler's behaviour directly from Swift code. 
+
+In this article I am going to focus on conditional statements (`#if/#endif` blocks) which can be used to provide multiple compilation routes based on a given value. These conditional statements can use Boolean literals (`true` or `false`), a custom value defined via Xcode's `Active Compilation Conditions` build setting or one of the platform conditions listed by Apple [in the Swift Book](https://docs.swift.org/swift-book/ReferenceManual/Statements.html#ID539). 
 
 For example, conditional compiler statements can be used to perform different logic based on a scheme's configuration (commonly `DEBUG` vs `RELEASE`):
 
@@ -34,14 +36,13 @@ networking.logLevel = .error
 ```
 
 ## APIs not available
-
-A common use case of compiler directives is to provide alternative implementations (or even entirely bypass) of APIs which are unavailable under certain conditions, such as on specific operating systems or architectures.
+A common use case of compiler directives is to provide alternative implementations, or even entirely bypass APIs which are unavailable under a certain set of conditions, such as on specific operating systems or architectures.
 
 This becomes incredibly important when cross-compiling code, as toolchains will usually differ across different environments.
 
 ### ByWords option
 
-I faced two major issues when compiling the `ReadingTime` library for platforms outside the Apple echosystem. The library uses the following code to get the number of words from a string:
+I faced two major issues when compiling the `ReadingTime` library for platforms outside the Apple ecosystem. The library uses the following code to get the number of words from a string:
 
 ```swift:ReadingTime.swift
 private static func count(wordsIn string: String) -> Int {
@@ -54,7 +55,9 @@ private static func count(wordsIn string: String) -> Int {
 }
 ```
 
-This code, in comparison to other approaches such as using `CharacterSet`s works great as it uses a smarter mechanism than just splitting by certain characters (usually punctuation, new lines and white spaces) and makes the approach compatible with a wider range of languages. This code compiled great on macOS and iOS but, as soon as I tried to compile for any other platforms or architectures, I faced the following error:
+This code, in comparison to other approaches such as using `CharacterSet`s works great as it uses a smarter mechanism than just splitting by certain characters (usually punctuation, new lines and white spaces) and makes the approach compatible with a wider range of languages. 
+
+This code compiled with no errors on macOS and iOS but, as soon as I tried to compile for any other platforms or architectures, I faced the following error:
 
 ![]()
 
