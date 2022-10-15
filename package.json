@@ -1,7 +1,11 @@
 {
   "name": "polpiella.dev",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -30,7 +34,7 @@
   "dependencies": {
     "@resvg/resvg-js": "^2.1.0",
     "isomorphic-fetch": "^3.0.0",
-    "satori": "^0.0.41",
-    "satori-html": "^0.1.0"
+    "satori": "0.0.41",
+    "satori-html": "0.1.0"
   }
 }
