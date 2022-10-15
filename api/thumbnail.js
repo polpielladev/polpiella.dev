@@ -16,10 +16,11 @@ export default async (req, res) => {
       },
     }
 
-    const inter = await fetch('https://polpiella.dev/fonts/inter.ttf')
-    const interArrayBuffer = inter.arrayBuffer()
+    const inter = await fetch('https://polpiella.dev/fonts/inter.ttf').then(
+      (res) => res.arrayBuffer()
+    )
 
-    const markup = html` <div style="display: flex;">${title}</div> `
+    const markup = html`<div style="display: flex;">${title}</div>`
 
     const svg = await satori(markup, {
       width: 1200,
@@ -27,7 +28,7 @@ export default async (req, res) => {
       fonts: [
         {
           name: 'Inter',
-          data: interArrayBuffer,
+          data: inter,
           weight: 400,
           style: 'normal',
         },
