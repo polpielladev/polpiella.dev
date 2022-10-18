@@ -58,12 +58,39 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </section>
 
       <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+
       <section class='flex flex-col gap-8'>
         {page.data.map((post) => <BlogPreview post={post} />)}
+      </section>
+
+      <section class='prose dark:text-white text-black prose-a:text-gray-700 prose-a:no-underline dark:prose-invert dark:prose-a:text-gray-200 mt-4 lg:hidden aling-middle'>
+        <form class="shadow-md flex flex-col gap-1 items-center max-w-sm mx-auto text-center border-2 p-6 dark:border-gray-500 border-gray-200 rounded-2xl" action="https://www.getrevue.co/profile/ios-ci-newsletter/add_subscriber" method="post" id="revue-form" name="revue-form"  target="_blank">
+            <p class='m-0 text-xl font-bold'>Subscribe to the iOS CI Newsletter</p>
+            <p class="m-0 text-sm max-w-[250px]">Subscribe to stay up-to-date with all things iOS CI!</p>
+            <div class="flex pt-2">
+            <input class="revue-form-field dark:bg-gray-700 dark:border-gray-500 border-gray-200 border-2 border-r-0 rounded-l-lg px-1" placeholder="Your email address..." type="email" name="member[email]" id="member_email">
+            <button class="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 rounded-r-md" type="submit" value="Subscribe" name="member[subscribe]" id="member_submit">Subscribe</button>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 pt-2">By subscribing, you agree with Revue’s <a class="" target="_blank" href="https://www.getrevue.co/terms">Terms of Service</a> and <a target="_blank" href="https://www.getrevue.co/privacy">Privacy Policy</a>.
+          </div>
+        </form>
       </section>
     </div>
     <aside
       class='prose prose-a:text-gray-700 prose-a:no-underline dark:prose-invert dark:prose-a:text-gray-200 max-w-xs lg:flex lg:flex-col lg:gap-4 hidden'>
+      <!-- Subscription box -->
+      <section class='mb-4 border-gray-200'>
+        <form class="flex flex-col gap-1" action="https://www.getrevue.co/profile/ios-ci-newsletter/add_subscriber" method="post" id="revue-form" name="revue-form"  target="_blank">
+            <h1 class='m-0 text-2xl font-bold'>Subscribe to the iOS CI Newsletter</h1>
+            <p class="m-0">Subscribe to stay up-to-date with all things iOS CI!</p>
+            <div class="flex pt-2">
+            <input class="revue-form-field dark:bg-gray-700 dark:border-gray-500 border-gray-200 border-2 border-r-0 rounded-l-lg px-1" placeholder="Your email address..." type="email" name="member[email]" id="member_email">
+            <button class="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 rounded-r-md" type="submit" value="Subscribe" name="member[subscribe]" id="member_submit">Subscribe</button>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 pt-2">By subscribing, you agree with Revue’s <a class="" target="_blank" href="https://www.getrevue.co/terms">Terms of Service</a> and <a target="_blank" href="https://www.getrevue.co/privacy">Privacy Policy</a>.
+          </div>
+        </form>
+      </section>
       <!-- Show top posts -->
       <section class='flex flex-col gap-3 mb-4'>
         <h1 class='m-0 text-2xl font-bold'>Most popular posts</h1>
