@@ -12,19 +12,17 @@ setup: |
 layout: ../layouts/BlogPostLayout.astro
 ---
 
-This week I have started a journey to develop and release my first ever macOS application. It is going to be menu bar only and its job is going to be muting all the computer's input devices using [CoreAudio](https://developer.apple.com/documentation/coreaudio). 
+This week I have started a journey to develop and (maybe) release my first ever macOS application. This will be a menu bar app, called Shush, which will allow users to mute all their computer's input devices using [CoreAudio](https://developer.apple.com/documentation/coreaudio).
 
-I want to mention that the project is open source and I am going to try and share as much as possible through tweets and articles like this one. Make sure you follow me on [Twitter](https://pol.link/twitter) if you want to stay up to date! 👀
-
-In the following sections, I will through what it takes to **create a menu bar app with no dock icon**.
+In the following sections, I will go through what my initial steps were to **create a menu bar app with no dock icon**.
 
 > This article will only cover setup/bootstrapping code and the app will not have any functionality yet.
 
 ## Creating the app
 
-To make this app, I decided to use [AppKit](https://developer.apple.com/documentation/appkit), so that I did not need to provide a SwiftUI view as an entry point. This would still allow me to write SwiftUI code further down the line if needed but it would give me full control over the startup sequence and architecture.
+To make this app, I decided to use [AppKit](https://developer.apple.com/documentation/appkit), as it is easier for me to reason with its bootstrapping code and it meant that I did not need to provide a SwiftUI view as an entry point. This would still allow me to write SwiftUI code further down the line if I wanted to and it would give me full control over the startup sequence and architecture.
 
-Hence, I went ahead and removed all boilerplate SwiftUI code that comes when you create a new macOS app in Xcode. I then created a single `main.swift` file which became the new entry point for the app:
+For this reason, I removed all boilerplate SwiftUI code that comes when you create a new macOS app in Xcode and I created a single `main.swift` file, which would be the new entry point for the application:
 
 ```swift:main.swift
 import AppKit
@@ -39,18 +37,19 @@ app.setActivationPolicy(.accessory)
 _ = NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
 ```
 
-Let's go through the app startup code step by step:
-
+Let's go through the app startup code above step by step:
 1. A reference to the application is obtained through the `NSApplication` object.
 2. An empty `AppDelegate` class is created and set as the `delegate` for the `NSApplication` object.
-3. Since I want this app to be menu bar only, I set its `activationPolicy` to `accessory`. This prevents the app icon from showing up in the Dock.
-4. The app is then started with any command line arguments provided.
+3. The app's `activationPolicy` is set to `accessory`. This prevents the app icon from showing up in the Dock.
+4. The app is then started with all command line arguments provided.
 
-Running the application at this point does nothing as the menu bar item has not yet been set up but we can already see that the app does not appear in the dock! 🎉
+Running the application at this point does nothing as the menu bar item has not yet been set up but it can be seen that the app icon does not appear in the dock despite it being running! 🎉
+
+<Video src='/assets/posts/a-menu-bar-only-macos-app-using-appkit/no-dock.mp4' />
 
 ## Setting up a menu bar icon
 
-In the `AppDelegate`, I implemented the good old `applicationDidFinishLaunching` method and proceeded to create a menu bar item in it:
+In the `AppDelegate`, I then implemented the good old `applicationDidFinishLaunching` method and added the code to create an instance of `NSStatusBar` and make a single `NSStatusItem` with variable length:
 
 ```swift:AppDelegate.swift
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -73,17 +72,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 Again, let's go back and step through the code above:
 
-1. First, two variables are declared to keep both the status bar and status bar item in memory throughout the lifetime of the app.
-2. These two variables are then initialised and assigned.
-3. The icon for the status bar item is then set to a microphone using a [SF Symbol](https://developer.apple.com/sf-symbols/).
+1. First, two variables are declared to keep both instances of `NSStatusBar` and `NSStatusItem` in memory.
+2. These two variables are then initialised and assigned as soon as the application is launched.
+3. The icon for the `NSStatusItem` is then set to a microphone using a [SF Symbol](https://developer.apple.com/sf-symbols/).
 
-Running the app again will now show a menu bar icon which will prove our app has been set up correctly. 
+Running the app again will now show a menu bar icon which will prove our app has been set up correctly 🎙️.
 
-### Adding a menu item
+### Adding a `NSMenu`
 
-Let's now add a menu to our app icon. This will have one item for now to toggle the mute all inputs but eventually more preferences will be added.
+Let's now add a `NSMenu` to our `NSStatusItem` in the menu bar so that when the user interacts with it is shown a view. This will have a single `NSMenuItem` for now to allow users to toggle the input mute state of the system but eventually more preferences and settings will be added.
 
-Let's go back to the `AppDelegate.swift` and add a menu:
+Let's go back to the `AppDelegate.swift`:
+
 ```swift:AppDelegate.swift
 // ...
 func applicationDidFinishLaunching(_ notification: Notification) {
@@ -114,16 +114,16 @@ func applicationDidFinishLaunching(_ notification: Notification) {
 }
 ```
 
-Let's break down the code and understand what's happening:
+Let's break down the code to understand what's going on:
 1. Create a `NSMenuItem` to allow users to toggle the mute state.
-2. Add an action to trigger whenever the menu item is pressed.
-3. Create a `NSMenu` which will hold the toggle mute menu item and any other functionality that is added in the future.
+2. Add an action that will be triggered every time the `NSMenuItem` is pressed.
+3. Create a `NSMenu` which will hold the toggle mute `NSMenuItem` and any other items that are added in the future.
 4. Set the newly created `NSMenu` as the status bar item's menu.
-5. 
+5. Change the `NSStatusItem` button's image based on the mute state of the application.
 
-And finally, running the app again now shows the menu when the menu bar item is pressed and the icon dynamically changes when the menu item is pressed.
+And finally, running the app again now shows a view when the menu bar item is pressed and the icon dynamically changes when the `NSMenuItem` within it is tapped on.
 
 <Video src='/assets/posts/a-menu-bar-only-macos-app-using-appkit/toggle-mute.mp4' />
 
 ## More to come...
-In future articles, I will share how I set up a floating window to convey some extra information, dynamically update and show content based on keyboard shortcuts and many others...
+In future articles, I will share how I set up a floating window to convey extra information, dynamically update and show content based on keyboard shortcuts and even show the Core Audio implementation to mute and unmute all input devices...
