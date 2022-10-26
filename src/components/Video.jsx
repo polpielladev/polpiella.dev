@@ -1,5 +1,12 @@
-export default function Video({ src }) {
+export default function Video({ src, controls = true }) {
   return (
-    <video controls playsInline className="mx-auto max-h-[800px]" src={src} />
+    <video
+      controls={controls}
+      playsInline
+      autoPlay
+      loop
+      className="mx-auto max-h-[800px]"
+      src={src}
+    />
   )
 }
