@@ -1,0 +1,53 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Talk from '@components/Talk'
+---
+
+<BaseLayout
+  title="About"
+  description="Find out a bit more about me and what I do!"
+  imageURL="">
+  <div class="px-3 my-0 flex flex-col mx-auto prose dark:prose-invert">
+    <section>
+      <h1 class="mb-0">🗣️ Speaking</h1>
+      <p class="mb-0">
+        Aside from blogging and writing content online, I also enjoy speaking
+        about mobile development at conferences and events. Here are some of the
+        past talks I have delivered and some upcoming ones too!
+      </p>
+    </section>
+    <section class="flex flex-col">
+      <h2>2022</h2>
+      <div class="flex flex-col gap-6">
+        <Talk
+          title="Exploring the power of Swift beyond app development"
+          date="17th of November"
+          event="Arc remote engineering job fair latam"
+        />
+        <Talk
+          title="Getting ahead of the game: Avoid release day drama!"
+          date="10th of November"
+          event="Mobile Devops Summit 2022"
+        />
+        <Talk
+          title="Fantastic Swift tools and where to find them"
+          date="9th of November"
+          event="Do iOS Amsterdam"
+        />
+        <Talk
+          title="Code generation using Swift package plugins"
+          date="4th of July"
+          event="NSManchester"
+        />
+      </div>
+    </section>
+    <section class="flex flex-col">
+      <h2>👋 Say hi</h2>
+      <p>
+        I am always looking for opportunities to do some public speaking or even
+        run a workshop! If you have an opportunity you think might suit me,
+        don't hesitate to contact me.
+      </p>
+    </section>
+  </div>
+</BaseLayout>

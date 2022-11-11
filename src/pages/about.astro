@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
-import Talk from '@components/Talk'
 import Timeline from '@components/Timeline'
 import getJobExperience from '@services/getJobExperience'
 
@@ -19,37 +18,24 @@ const jobs = getJobExperience()
       <section class="prose dark:prose-invert mb-5">
         <h2 class="m-0 mb-2">A bit about me</h2>
         <div class="flex gap-5">
-          <p class="m-0">
-            I'm a passionate iOS developer with over 4 years of experience in
-            the industry. I worked in apps with millions of monthly users as
-            well as in agile, cross-discipline software development teams. I do
-            also like getting involved with the iOS community by giving talks
-            and writing articles in my blog.
-          </p>
+          <div class="flex flex-col gap-2">
+            <p class="m-0">
+              I'm a passionate iOS developer with over 4 years of experience in
+              the industry. I worked in apps with millions of monthly users as
+              well as in agile, cross-discipline software development teams. I
+              do also like getting involved with the iOS community by giving
+              talks and writing articles in my blog.
+            </p>
+            <a href="/speaking"
+              >Find out more about where I have spoken and where I'm going next!
+              ✈️.</a
+            >
+          </div>
+
           <img
-            class="m-0 rounded h-full w-64 object-cover hidden sm:block"
-            src="/assets/happy-pol.jpg"
+            class="m-0 rounded h-full w-80 object-cover hidden sm:block"
+            src="/assets/speaking.jpeg"
             alt="A photo of Pol sitting outside in the sun and smiling."
-          />
-        </div>
-      </section>
-      <section class="prose dark:prose-invert mb-5">
-        <h2 class="m-0 mb-2">Talks</h2>
-        <p>
-          🗣 I have previously delivered some talks about iOS development at
-          these events:
-        </p>
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 w-full">
-          <Talk
-            title="Code generation using Swift Package Plugins"
-            location="NSManchester"
-            excerpt="A talk on how to use the new Swift Package Plugins API to generate code as part of their build processes using SourceKit."
-            slides="/talks/nsmanchester-code-generation-swift-packages.key"
-          />
-          <Talk
-            title="The iPlayer deployment process"
-            location="BBC Engineering Summit"
-            excerpt="Together with a colleague from the Android team, we gave an internal talk on how our mobile app deployment process works."
           />
         </div>
       </section>
