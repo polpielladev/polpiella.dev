@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import NewsletterPane from '@components/NewsletterPane'
+---
+
+<BaseLayout
+  title="Successfully unsubscribed"
+  description="You will no longer receive emails from the iOS CI Newsleter."
+  imageURL=""
+  center={true}>
+  <NewsletterPane title="Sad to see you go... 🥹">
+    <h3 class="mt-0"></h3>
+    <p class="text-center">
+      <strong>You've successfully unsubscribed</strong>. Remember that you can
+      resubscribe at any point by going to the <a>newsletter page</a>.
+    </p>
+  </NewsletterPane>
+</BaseLayout>

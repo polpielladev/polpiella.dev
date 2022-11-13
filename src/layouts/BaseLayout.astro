@@ -6,6 +6,7 @@ const {
   title = 'polpielladev 📱 | A blog about software engineering and app development',
   description = 'Blog posts about iOS mobile app development by Pol Piella.',
   image,
+  center = false,
 } = Astro.props
 ---
 
@@ -44,7 +45,9 @@ const {
   </head>
   <body class="flex min-h-screen flex-col justify-between dark:bg-gray-900">
     <Header />
-    <main class="flex flex-auto"><slot /></main>
+    <main class={`flex flex-auto ${center ? 'items-center' : ''}`}>
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>
