@@ -1,6 +1,25 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import Subscribe from '@components/Subscribe'
+import Parser from 'rss-parser'
+
+const parser = new Parser()
+
+const { items } = await parser.parseURL(
+  'https://sendy.polpiella.dev/campaigns-rss?a=I8YAOkQbYijtGLtK0H9GbAHucrwltO&i=1'
+)
+const MAPPED_ISSUE_DATES = {
+  'iOS CI Newsletter - Issue #2': 'Nov 6, 2022',
+  'iOS CI Newsletter - Issue #1': 'Oct 23, 2022',
+}
+
+const dateForIssue = (issue) => {
+  if (MAPPED_ISSUE_DATES[issue.title]) {
+    return MAPPED_ISSUE_DATES[issue.title]
+  }
+  const dateComponents = issue.pubDate.split(',')
+  return `${dateComponents[1]}, ${dateComponents[2]}`
+}
 ---
 
 <BaseLayout
@@ -34,6 +53,25 @@ import Subscribe from '@components/Subscribe'
         </div>
         <Subscribe client:visible />
       </header>
+
+      <section>
+        <h2 class="mt-0">Issues</h2>
+        {
+          items.map((item) => (
+            <div>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                class="m-0"
+                href={item.link}>
+                {item.title}
+              </a>
+              <p class="m-0">{dateForIssue(item)}</p>
+              <hr class="my-5 w-28" />
+            </div>
+          ))
+        }
+      </section>
     </div>
   </div>
 </BaseLayout>

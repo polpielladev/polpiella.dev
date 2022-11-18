@@ -12,9 +12,9 @@
   },
   "devDependencies": {
     "@astrojs/react": "1.1.1",
+    "@astrojs/rss": "1.0.0",
     "@astrojs/tailwind": "1.0.0",
     "@tailwindcss/typography": "0.5.4",
-    "@astrojs/rss": "1.0.0",
     "astro": "1.1.2",
     "autoprefixer": "10.4.8",
     "prettier": "2.7.1",
@@ -25,7 +25,8 @@
     "rehype-autolink-headings": "6.1.1",
     "rehype-slug": "5.0.1",
     "rehype-toc": "3.0.2",
-    "remark-code-titles": "^0.1.2"
+    "remark-code-titles": "^0.1.2",
+    "rss-parser": "^3.12.0"
   },
   "dependencies": {
     "chrome-aws-lambda": "10.1.0",
