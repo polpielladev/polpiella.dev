@@ -12,23 +12,19 @@ layout: ../layouts/BlogPostLayout.astro
 
 A couple of weeks ago I gave a talk about how to gain confidence in your release process at the [Mobile Devops Summit](https://www.mobiledevops.io/summit), a remote event organised by [Bitrise](https://bitrise.io). Off the back of it, I thought it would be a good idea to write an article going into the specifics of the talk and the motivation behind it.
 
-> If you missed the talk and still would like to watch it, I have made [the recording available on my youtube channel](https://www.youtube.com/watch?v=w5yLsR_aGWQ).
+> If you missed the talk and would like to watch it, I have made [the recording available on my Youtube channel](https://www.youtube.com/watch?v=w5yLsR_aGWQ).
 
 ## Motivation
 
-As an iOS developer, there are CI pipelines which are crucial to the delivery of an app but, because of their nature, they are not run very frequently. A great example of this is a release pipeline, which automates archiving an application, signing it and submitting it to [App Store Connect](https://appstoreconnect.apple.com) and is only run when the app is ready for release.
+As an iOS developer, there are certain CI pipelines which are crucial to the delivery of an app but, because of their nature, they are not run frequently. A great example of this is a release pipeline, which automates archiving an application, signing it and submitting it to [App Store Connect](https://appstoreconnect.apple.com) and is only run when the app is ready for release.
 
-When a pipeline is not run often any issues with it will go unnoticed and will only creep up when the pipeline is needed. While some of theses issues are trivial, you want these kind of processes to go as smoothly as possible and, in the case of a release pipeline, gain confidence that the app will go out to users in a swift manner, rather than having to spend time fixing errors.
+When a pipeline is not run often, any issues with it will go unnoticed and will only creep up when the pipeline is next needed. While some of theses issues are trivial to fix, you want these kind of processes to go as smoothly as possible and, in the case of a release pipeline, gain confidence that the app will go out to users in a swift manner, rather than having to spend time fixing errors.
 
 Let's take a look over the following sections at two different errors that can happen on release day and can certainly be tricky to debug.
 
 ### Archiving errors
 
 Build errors are easy to spot as an app is usually built on the CI numerous times every day. On the other hand, there are some errors which are specific to archiving an application, a process that usually only happens when we need to generate an artifact which then needs to be distributed.
-
-Let's look at an example of an archive-only error we had at work a while back.
-
-> Note that this error seems to be specific to Xcode 13 and does not seem to be a problem on Xcode 14. Unfortunately for us, we were using Xcode 13 at the time and we found out about this while integrating the first SwiftUI views into our application.
 
 Let's consider a modular iOS application which defines iOS 15 as the minimum deployment version. We want to introduce a new feature which is built entirely with SwiftUI, so we create a new module called `Schedule` (as a Swift package):
 
@@ -58,13 +54,15 @@ let package = Package(
 )
 ```
 
-The new module is then imported by the application target and displayed when needed. The app can be built, the tests run fine and the views look great, the app is now using SwiftUI! 🎉 Time goes by and the next release day comes along, with a lot of excitement on getting feedback from users on that new view. But as soon as the release pipeline is triggered, there is an error with archiving the app:
+The new module is then imported by the application target and displayed when needed. The app can be built, the tests run fine and the new view looks great, the app is now using SwiftUI! 🎉
+
+Time goes by and the next release day comes along, with a lot of excitement on getting feedback from users on that new view. But as soon as the release pipeline is run, there is an error related to archiving the application:
 
 ![A screenshot of the app's build logs showing a failure on archive.](/assets/posts/testing-your-release-pipeline-using-fastlane/archive-error.jpg)
 
-Looking at the build log above, it looks like the app is being archived for `armv7`. The problem here is that SwiftUI is not available on the `armv7` SDKs, which is causing the compiler to not find any SwiftUI symbols. After looking at some related [Apple Developer Forum threads](), it seemed that if an app has a minimum deployment version of iOS 11 or higher, it should not be built for that architecture.
+Looking at the build log above, it looks like the app is being archived for `armv7`. The problem here is that SwiftUI is not available on the `armv7` SDKs, which is causing the compiler to not find any SwiftUI symbols. After looking at some related [Apple Developer Forum threads](https://developer.apple.com/forums/thread/690405), it seemed that if an app has a minimum deployment version of iOS 11 or higher, it should not be built for that architecture.
 
-So what's happening? Well, after multiple attempts at fixing the error it turns out that, even though the new package is being imported by a target with a minimum deployment version of iOS 15, a minimum iOS version needs to be set under `platforms` in the `Package.swift` to make the error go away:
+So what's happening? Well, after multiple attempts at fixing the error, it turns out that even though the new package is being imported by a target with a minimum deployment version of iOS 15, a minimum iOS version needs to be set under `platforms` in the `Package.swift` to make the error go away:
 
 ```swift:Package.swift
 // swift-tools-version: 5.6
@@ -95,23 +93,25 @@ let package = Package(
 )
 ```
 
+> Note that this error seems to be specific to Xcode 13 and does not seem to be a problem on Xcode 14.
+
 ### Upload errors
 
 Now that we've seen an archive error, let's take a look at an example of an upload error. Let's consider now that the new SwiftUI module is a framework instead (in an Xcode project) and is used by different targets. Each of these embeds and signs the framework.
 
 The app builds, runs and archives without any issues but as soon as it is uploaded it to App Store Connect, an error occurs:
 
-![A screenshot of an error occuring when uploading to App Store Connect. The issue is that the app contains duplicated bundles, which is not allowed](/assets/posts/testing-your-release-pipeline-using-fastlane/upload-error.jpg)
+![A screenshot of an error occurring when uploading to App Store Connect. The issue is that the app contains duplicated bundles, which is not allowed](/assets/posts/testing-your-release-pipeline-using-fastlane/upload-error.jpg)
 
-By embedding and signing multiple times, we're creating copies of the same bundle, which causes an upload error. This is due to the fact that there can't be more than one bundle with the same identifier. The fix is straightforward but can sometimes be hard to spot if you're new to modularised codebases. To get around this, the framework can be embedded and signed once at the app target's level and then any other target which uses it can just choose to not embed it.
+By embedding and signing multiple times, we're creating duplicate copies of the same bundle, which causes an upload error. This is due to the fact that there can't be more than one bundle with the same identifier. The fix is straightforward but can sometimes be hard to spot if you're new to modularised codebases. To get around this, the framework should be embedded and signed only once at the app target's level and then any other target which uses it should choose to not embed it.
 
 ## Catching these errors early
 
-Even though the issues above did not require major code changes, they did certainly take a while to diagnose and investigate. And that is time that you are delaying your relase. This might be okay if your relase only includes new features and improvements but think of a situation where you're doing a patch release which fixes a major crash, you certainly want your app to go out to users as soon as possible.
+Even though the issues above did not require major code changes, they did certainly take a while to diagnose and investigate. And that is time that you are delaying your release by. This might not be a big deal if your release only includes new features and improvements but think of a situation where you're doing a patch release which fixes a major crash, you certainly want your app to go out to users as quickly as possible.
 
-It is important to note at this time that the article does not show you how to prevent these issues from occuring but rather helps you spot them early. The issue now is how do we test these kind of pipelines? They can be quite cumbersome and lengthy and, to take up a lot of CI resources and time during the team's working hours would cause disruption. Here is where scheduled CI runs come in very handy.
+It is important to note that this article does not show you how to prevent these issues from occurring but rather helps you spot them early, so you have time to fix them ahead of the next release. The issue with testing these kind of pipelines is that they can be quite cumbersome and lengthy and, to take up a lot of CI resources and time during the team's working hours would cause disruption. Here is where scheduled CI runs come in very handy.
 
-The idea behind them is that you can schedule your pipeline to be run at a specific date and time recurringly using [cron expressions](https://crontab.guru). In the following sections, I will build a recurring Github Action which will archive the app, sign it for the App Store and then verify the binary with [App Store Connect](https://appstoreconnect.apple.com) using [fastlane](https://fastlane.tools).
+The idea behind them is that you can schedule your pipeline to be run at a specific date and time recurringly using [cron expressions](https://crontab.guru). In the following sections, I will build a Github Action which will archive the app, sign it for the App Store and then verify the binary with [App Store Connect](https://appstoreconnect.apple.com) using [fastlane](https://fastlane.tools).
 
 ## Implementing a nightly Github action
 
@@ -142,7 +142,7 @@ lane :release do
 end
 ```
 
-By looking at the errors encountered above, the new `nightly` lane needs to verify that the app can be archived correctly and that the binary produced can be uploaded to App Store Connect. The problem is that if we duplicate the release's lane code verbatim, it will submit a build to Testflight, which is not what we want. Instead, we should use deliver's `verify_only` flag so that the build is never submitted, only verified:
+By looking at the errors encountered above, the new `nightly` lane needs to verify that the app can be archived correctly and that the binary produced can be uploaded to App Store Connect. The problem is that if we duplicate the release's lane code verbatim it will submit a build to TestFlight, which is not what we want. Instead, we should use deliver's `verify_only` flag so that the build is never submitted, only verified:
 
 ```ruby:Fastfile
 lane :release do
@@ -172,7 +172,7 @@ end
 
 ### Creating a nightly workflow
 
-Now that the nightly lane is implemented, it needs to be run at a given time every day. To achieve this, a new [Github Actions workflow](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) file called `nightly.yml` which runs on a system with macos-latest as its operating system and just calls the nightly lane on the repo. On top of this, the action below uses a `schedule` tag with a chron expression to tell Github this action needs to run every day at midnight:
+Now that the nightly lane is implemented, it needs to be run at a given time every day. To achieve this, a new [Github Actions workflow](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) file called `nightly.yml`, which runs on a system with macos-latest as its operating system and just calls the nightly lane on the repo, is created under the `.github/workflows` directory. On top of this, the action below uses a `schedule` tag with a chron expression to tell Github this action needs to run every day at midnight:
 
 ```yml:nightly.yml
 name: Nightly
@@ -190,12 +190,12 @@ jobs:
       run: bundle exec fastlane nightly
 ```
 
-> Note that there is some extra setup such as authentication with App Store Connect that has been neglected in this article for the sake of simplicity. If you are interested in learning a bit more about how to handle authentication with App Store Connect and fastlane, keep an eye on this blog as I will write an article on the topic soon.
+> There is some extra setup such as authentication with App Store Connect that has been ignored in this article for the sake of simplicity. If you are interested in learning a bit more about how to handle authentication with App Store Connect and fastlane, keep an eye on this blog as I will write an article on the topic soon.
 
 ## When scheduled workflows shine
 
 Scheduled workflows come in very handy when you want to gain confidence in processes which are very important but don’t get run very often (e.g. release pipeline).
 
-They are also great at performing time and resource consuming tasks (such as end to end tests) with minimal disruption and code. For example, instead of running E2E tests on every push to main, they can be run once in the evening with all changes from the day.
+They are also great at performing time and resource consuming tasks (such as end to end tests) with minimal disruption and cost. For example, instead of running E2E tests on every push to main, they can be run once in the evening, testing all changes from the day.
 
-Last but not least, another great use case of scheduled CI runs is to automate repetitive processes. As an example, at work we have a certificate which needs to be issued every month, so we have a Github action which runs at the beginning of each month and replaces the current certificate with a freshly issued one which is made available to developers.
+Last but not least, another great use case of scheduled CI runs is automating repetitive processes. As an example, at work we have a certificate which needs to be issued every month, so we created a Github action which runs at the beginning of each month and replaces the current certificate with a freshly issued one.
