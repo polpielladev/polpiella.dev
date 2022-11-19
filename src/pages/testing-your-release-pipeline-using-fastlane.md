@@ -1,9 +1,9 @@
 ---
 title: 'Testing your release pipeline using Fastlane'
 slug: 'testing-your-release-pipeline-using-fastlane'
-excerpt: 'A quick look at how very simple dependency injection 💉 can help testing date differences using cache invalidation as an example.'
+excerpt: 'Some processes are very important but they do not get run frequently. In this article, I will go through how scheduled CI runs can help you spot CI failures early and gain confidence on your important and infrequent processes, such as release pipelines.'
 pubDate: '2022-11-19'
-readtime: '6'
+readtime: '9'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }]
 author:
   name: 'Pol Piella'
