@@ -60,7 +60,7 @@ let package = Package(
 
 The new module is then imported by the application target and displayed when needed. The app can be built, the tests run fine and the views look great, the app is now using SwiftUI! 🎉 Time goes by and the next release day comes along, with a lot of excitement on getting feedback from users on that new view. But as soon as the release pipeline is triggered, there is an error with archiving the app:
 
-![A screenshot of the app's build logs showing a failure on archive.](/assets/posts/testing-your-release-pipeline-using-fastlane/archive-error.png)
+![A screenshot of the app's build logs showing a failure on archive.](/assets/posts/testing-your-release-pipeline-using-fastlane/archive-error.jpg)
 
 Looking at the build log above, it looks like the app is being archived for `armv7`. The problem here is that SwiftUI is not available on the `armv7` SDKs, which is causing the compiler to not find any SwiftUI symbols. After looking at some related [Apple Developer Forum threads](), it seemed that if an app has a minimum deployment version of iOS 11 or higher, it should not be built for that architecture.
 
@@ -101,7 +101,7 @@ Now that we've seen an archive error, let's take a look at an example of an uplo
 
 The app builds, runs and archives without any issues but as soon as it is uploaded it to App Store Connect, an error occurs:
 
-![A screenshot of an error occuring when uploading to App Store Connect. The issue is that the app contains duplicated bundles, which is not allowed](/assets/posts/testing-your-release-pipeline-using-fastlane/upload-error.png)
+![A screenshot of an error occuring when uploading to App Store Connect. The issue is that the app contains duplicated bundles, which is not allowed](/assets/posts/testing-your-release-pipeline-using-fastlane/upload-error.jpg)
 
 By embedding and signing multiple times, we're creating copies of the same bundle, which causes an upload error. This is due to the fact that there can't be more than one bundle with the same identifier. The fix is straightforward but can sometimes be hard to spot if you're new to modularised codebases. To get around this, the framework can be embedded and signed once at the app target's level and then any other target which uses it can just choose to not embed it.
 
