@@ -25,11 +25,11 @@
     "rehype-autolink-headings": "6.1.1",
     "rehype-slug": "5.0.1",
     "rehype-toc": "3.0.2",
-    "remark-code-titles": "^0.1.2",
-    "rss-parser": "^3.12.0"
+    "remark-code-titles": "^0.1.2"
   },
   "dependencies": {
     "chrome-aws-lambda": "10.1.0",
-    "playwright-core": "1.25.1"
+    "playwright-core": "1.25.1",
+    "rss-parser": "^3.12.0"
   }
 }
