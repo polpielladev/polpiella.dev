@@ -34,7 +34,10 @@ let package = Package(
     name: "GithubWorkflowMetrics",
     platforms: [.macOS(.v10_15)],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0")
+        .package(
+            url: "https://github.com/apple/swift-argument-parser.git",
+            from: "1.2.0"
+        )
     ],
     targets: [
         .executableTarget(
@@ -101,11 +104,17 @@ func run() async throws {
     let url = URL(string: "https://api.github.com/repos/\(repository)/actions/runs?created=\(DateProvider.provide())")!
     var urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
     if let token {
-        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        urlRequest
+            .setValue(
+                "Bearer \(token)",
+                forHTTPHeaderField: "Authorization"
+            )
     }
             
     let (data, _) = try await URLSession.shared.data(for: urlRequest)
-    let decodedData = try JSONDecoder.snakeCaseDecoder.decode(WorkflowsResponse.self, from: data)
+    let decodedData = try JSONDecoder
+        .snakeCaseDecoder
+        .decode(WorkflowsResponse.self, from: data)
 }
 ``` 
 
@@ -160,8 +169,13 @@ func run() async throws {
             .workflowRuns
             .filter { $0.conclusion == "success" }
             .reduce(into: [String: [WorkflowDataPoint]]()) { partialOutput, workflow in
-                let duration = workflow.updatedAt.timeIntervalSince(workflow.runStartedAt)
-                let dataPoint = WorkflowDataPoint(duration: duration, date: workflow.runStartedAt)
+                let duration = workflow
+                    .updatedAt
+                    .timeIntervalSince(workflow.runStartedAt)
+                let dataPoint = WorkflowDataPoint(
+                    duration: duration, 
+                    date: workflow.runStartedAt
+                )
                 if var timeIntervals = partialOutput[workflow.name] {
                     timeIntervals.append(dataPoint)
                     partialOutput[workflow.name] = timeIntervals
@@ -171,7 +185,9 @@ func run() async throws {
             }
     
     // 2    
-    let encodedOutput = try JSONEncoder.snakeCaseEncoder.encode(output)
+    let encodedOutput = try JSONEncoder
+        .snakeCaseEncoder
+        .encode(output)
     
     // 3
     if let prettyPrintedString = String(data: encodedOutput, encoding: .utf8) {
