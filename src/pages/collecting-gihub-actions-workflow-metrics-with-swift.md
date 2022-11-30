@@ -73,7 +73,7 @@ The code above declares a `struct` conforming to `AsyncParsableCommand` decorate
 2. A token string to authorise the request to [Github's api](https://docs.github.com/en/rest). This property is optional and should only be passed as an option when trying to access private repositories. The property is decorated with the `@Option` property wrapper from [swift-argument-parser](https://github.com/apple/swift-argument-parser) for this reason.
 
 ## Calling Github's API
-Github's API provides an [endpoint to retrieve all workflow runs for a repository](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). The app can make use of [URLSession's await-friendly APIs](https://wwdcbysundell.com/2021/using-async-await-with-urlsession/) to retrieve call the workflow runs endpoint and decode the response from the API into a `Decodable` type:
+Github's API provides an [endpoint to retrieve all workflow runs for a repository](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). The app can make use of [URLSession's await-friendly APIs](https://wwdcbysundell.com/2021/using-async-await-with-urlsession/) to call the workflow runs endpoint and decode the response data from the API into a `Decodable` type:
 
 ```swift:GithubWorkflowMetrics.swift
 struct WorkflowsResponse: Decodable {
@@ -181,17 +181,17 @@ func run() async throws {
 ```
 
 Let's break down the code:
-1. The decoded data from Github's API's response is modified and [reduced into](https://developer.apple.com/documentation/swift/array/reduce(into:_:)) a more suitable format. The output type is an `Encodable` `struct` with two properties: the name of the workflow and a set of data points representing each of the runs associated with that workflow. In turn, each of the data points has the duration in seconds and the date when it was run.
+1. The decoded data from Github's API's response is modified and [reduced into](https://developer.apple.com/documentation/swift/array/reduce(into:_:)) a more suitable format. The output type is an `Encodable` `struct` with two properties: **the name of the workflow** and a **set of data points** representing each of the runs associated with that workflow. In turn, each of the data points has the duration in seconds and the date when it was run.
 2. The `Output` type is encoded into `Data` using a custom `JSONEncoder`. This encoder sets an output formatting type of `.prettyPrinted` to ensure data is easily readable by the application's users.
 3. The data is converted into a `String` which can be printed to the console.
 
 ## Let's test it!
-The application takes a repo and, if it is private, a bearer token with the necessary permissions as inputs:
+The application takes in a repository name and, if such repository is private, a bearer token with the necessary permissions:
 ```bash:Terminal
 swift run GithubWorkflowMetrics pol-piella/reading-time
 ```
 
-> [reading-time](https://github.com/pol-piella/reading-time) is an Open-Source public repository and, for that reason, it does not require any authentication.
+> [reading-time](https://github.com/pol-piella/reading-time) is an Open-Source public repository and, as such, it does not require a bearer token.
 
 The command above yields the following result, which shows all runs for each workflow in the [reading-time](https://github.com/pol-piella/reading-time) repository with their date and duration in seconds 🎉:
 
