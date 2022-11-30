@@ -10,9 +10,9 @@ author:
 layout: ../layouts/BlogPostLayout.astro
 ---
 
-This week I have been looking at collecting metrics from [Github Actions Workflow runs](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). These metrics will help us monitor the duration of each of our workflows over time, making it easier to spot sudden increases in CI run times.
+This week at work I have been looking at collecting metrics from [Github Actions Workflow runs](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). These metrics will help us monitor and plot the duration of our Github Action workflows over time.
 
-These metrics are retrieved using a command line application which queries the [workflow runs endpoint from Github's API](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository) and modifies its response to calculate how long each workflow run took.
+To achieve this, I created a command line application which queries [Github's API](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository) and uses its response to calculate how long each workflow run takes.
 
 The command line application is built using an executable target in a Swift Package with the help of [Apple's swift-argument-parser library](https://github.com/apple/swift-argument-parser). Specifically, the application makes use of the [AsyncParsableCommand](https://github.com/apple/swift-argument-parser/blob/main/Sources/ArgumentParser/Parsable%20Types/AsyncParsableCommand.swift) to run asynchronous code within an `async/await` context.
 
