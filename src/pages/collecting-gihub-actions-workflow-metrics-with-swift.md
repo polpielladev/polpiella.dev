@@ -101,7 +101,7 @@ extension JSONDecoder {
 }
 
 func run() async throws {
-    let url = URL(string: "https://api.github.com/repos/\(repository)/actions/runs?created=\(DateProvider.provide())")!
+    let url = URL(string: "https://api.github.com/repos/\(repository)/actions/runs?status=success&created=\(DateProvider.provide())")!
     var urlRequest = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
     if let token {
         urlRequest
@@ -167,7 +167,6 @@ func run() async throws {
 	// 1
 	decodedData
             .workflowRuns
-            .filter { $0.conclusion == "success" }
             .reduce(into: [String: [WorkflowDataPoint]]()) { partialOutput, workflow in
                 let duration = workflow
                     .updatedAt
