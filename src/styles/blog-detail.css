@@ -18,6 +18,14 @@ h6 > a {
   text-decoration: none;
 }
 
+:not(pre) > code {
+  display: inline-block;
+  white-space: normal;
+  max-width: 100%;
+  word-break: break-all;
+  word-wrap: break-word;
+} 
+
 .toc a {
   @apply text-gray-700 no-underline hover:text-gray-500 hover:underline dark:text-gray-300 dark:hover:text-gray-400 !important;
 }
