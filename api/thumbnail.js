@@ -32,13 +32,13 @@ export default async (req, res) => {
                   ${title}
               </h1>
           </div>
-          <div style="display: flex; position: absolute; bottom: 20px; right: 40px; align-items: center; gap: 20px;">
+          <div style="display: flex; position: absolute; bottom: 20px; right: 40px; align-items: center;">
               <img
                   src="https://polpiella.dev/assets/profile.jpg"
-                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 100px;"
+                  style="width: 100px; height: 100px; object-fit: cover; border-radius: 100px; margin-right: 16px;"
               />
-              <div style="color: #FFFBFB; display: flex; flex-direction: column; gap: 10px;">
-                  <p style="font-size: 20px; margin: 0;">Pol Piella Abadia</p>
+              <div style="color: #FFFBFB;">
+                  <p style="font-size: 20px; font-weight: bold; margin: 0; margin-bottom: 8px;">Pol Piella Abadia</p>
                   <p style="color: #e5e7eb; margin: 0;">@polpielladev</p>
               </div>
           </div>
