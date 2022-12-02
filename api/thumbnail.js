@@ -16,7 +16,7 @@ export default async (req, res) => {
     }
   }
 
-  const inter = await fetch('https://polpiella.dev/inter.ttf').then((res) =>
+  const inter = await fetch('https://polpiella.dev/fonts/inter.ttf').then((res) =>
     res.arrayBuffer()
   )
 
