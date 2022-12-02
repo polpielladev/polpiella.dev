@@ -9,7 +9,14 @@ export default function InfoPane({
   circleImage = true,
 }) {
   return (
-    <div className="flex flex-col items-center gap-8 text-center md:flex-row md:text-left">
+    <div className="flex w-full flex-col gap-8 text-left md:flex-row">
+      <img
+        className={`m-0 h-28 w-28 ${
+          circleImage ? 'rounded-full' : ''
+        } block justify-start object-cover md:hidden`}
+        src={image}
+        alt={alt}
+      />
       <div className="prose grid content-center dark:prose-invert">
         <div className="mb-4">
           <h1 className={`m-0 ${subtitle == null ? 'mb-4' : ''}`}>{title}</h1>
@@ -23,9 +30,9 @@ export default function InfoPane({
         <p className="m-0 text-gray-500 dark:text-gray-400">{description}</p>
       </div>
       <img
-        className={`m-0 aspect-square w-40 ${
+        className={`m-0 aspect-square h-40 w-40 ${
           circleImage ? 'rounded-full' : ''
-        } object-cover`}
+        } hidden object-cover md:block`}
         src={image}
         alt={alt}
       />

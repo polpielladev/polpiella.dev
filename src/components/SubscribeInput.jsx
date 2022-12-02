@@ -53,12 +53,16 @@ export default function SubscribeInput() {
             required
           />
         </div>
-        <label htmlFor="gdpr" class="ml-2 text-sm font-medium text-gray-400">
-          <strong class="text-gray-900">No spam, ever!</strong> By checking this
-          box you consent to receive emails from hi@polpiella.dev only
-          containing issues from the iOS CI Newsletter. Your email will never be
-          shared and you can unsubscribe at any time from any of the emails you
-          receive.
+        <label
+          htmlFor="gdpr"
+          class="ml-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <strong class="text-gray-900 dark:text-gray-100">
+            No spam, ever!
+          </strong>{' '}
+          By checking this box you consent to receive emails from
+          hi@polpiella.dev only containing issues from the iOS CI Newsletter.
+          Your email will never be shared and you can unsubscribe at any time
+          from any of the emails you receive.
         </label>
       </div>
     </form>
