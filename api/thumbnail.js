@@ -1,5 +1,4 @@
 import { Resvg } from '@resvg/resvg-js'
-import satori from 'satori'
 import { html } from 'satori-html'
 import fetch from 'isomorphic-fetch'
 
