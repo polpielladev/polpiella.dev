@@ -28,7 +28,7 @@ export default async (req, res) => {
             style="position:absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;"
           />
           <div style="width: 100%; height: 100%; display: flex; align-items: center; margin-left: 150px;">
-              <h1 style="width: 100%; color: #FFFBFB; max-width: 1000px; font-size: 85px; line-height: 102.87px; font-weight: 500;">
+              <h1 style="width: 100%; color: #FFFBFB; max-width: 900px; font-size: 85px; line-height: 102.87px; font-weight: 500;">
                   ${title}
               </h1>
           </div>
@@ -37,7 +37,7 @@ export default async (req, res) => {
                   src="https://polpiella.dev/assets/profile.jpg"
                   style="width: 100px; height: 100px; object-fit: cover; border-radius: 100px; margin-right: 16px;"
               />
-              <div style="color: #FFFBFB; display: flex;">
+              <div style="color: #FFFBFB; display: flex; flex-direction: column;">
                   <p style="font-size: 20px; font-weight: bold; margin: 0; margin-bottom: 8px;">Pol Piella Abadia</p>
                   <p style="color: #e5e7eb; margin: 0;">@polpielladev</p>
               </div>
