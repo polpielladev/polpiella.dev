@@ -28,10 +28,10 @@
     "remark-code-titles": "^0.1.2"
   },
   "dependencies": {
-    "@resvg/resvg-js": "2.2.0",
+    "@resvg/resvg-js": "^2.2.0",
     "isomorphic-fetch": "^3.0.0",
     "rss-parser": "^3.12.0",
-    "satori": "0.0.41",
-    "satori-html": "0.1.0"
+    "satori": "^0.0.44",
+    "satori-html": "^0.3.0"
   }
 }
