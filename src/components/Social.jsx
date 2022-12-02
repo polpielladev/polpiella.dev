@@ -25,9 +25,9 @@ const SOCIAL_MEDIA = [
   },
 ]
 
-export default function Social() {
+export default function Social({ size = 25 }) {
   return (
-    <div className="flex justify-center gap-8 align-middle">
+    <div className="flex gap-8">
       {SOCIAL_MEDIA.map((social) => (
         <a
           className="transition-transform hover:scale-110 dark:invert"
@@ -35,7 +35,7 @@ export default function Social() {
           target="_blank"
           rel={`noopener noreferrer ${social.rel}`}
           href={social.url}>
-          <img width="25px" height="25px" src={social.asset} alt={social.alt} />
+          <img width={`${size}px`} height={`${size}px`} className="m-0" src={social.asset} alt={social.alt} />
         </a>
       ))}
     </div>

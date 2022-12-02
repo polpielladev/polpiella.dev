@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
-import Subscribe from '@components/Subscribe'
+import SubscribeInput from '@components/SubscribeInput'
 import Parser from 'rss-parser'
+import InfoPane from '@components/InfoPane'
 
 const parser = new Parser()
 
@@ -26,33 +27,22 @@ const dateForIssue = (issue) => {
   title="iOS CI Newsletter"
   description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
   image="https://polpiella.dev/assets/newsletter-og.png">
-  <div
-    class="flex sm:max-w-3xl w-full m-auto my-0 gap-1 prose dark:prose-invert h-full items-center flex-1">
-    <div class="px-3 my-0 flex flex-col gap-5">
-      <!-- Header... -->
+  <div class="flex my-0 gap-1 prose dark:prose-invert h-full">
+    <div class="my-0 flex flex-col gap-5">
       <header class="w-full">
-        <div class="flex gap-4 justify-center items-center">
-          <div>
-            <h1>iOS CI Newsletter</h1>
-            <p>
-              A fortnightly independent newsletter gathering all updates and
-              news about Continuous Integration and Continuous Delivery from the
-              iOS community.
-            </p>
-            <p>
-              This newsletter will include interviews, tutorials and even memes
-              about CI!
-            </p>
-          </div>
-          <img
-            src="/assets/ci-newsletter.svg"
-            class="w-72 m-0 hidden sm:block"
-            alt=""
-            srcset=""
-          />
-        </div>
-        <Subscribe client:load />
+        <InfoPane
+          title="iOS CI Newsletter"
+          description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
+          alt="/assets/profile.jpg"
+          image="/assets/ci-newsletter.svg"
+          circleImage={false}
+        />
       </header>
+
+      <section class="mt-4 mb-4 w-full">
+        <h3 class="m-0 mb-2">Subscribe</h3>
+        <SubscribeInput />
+      </section>
 
       <section>
         <h2 class="mt-0">Issues</h2>
