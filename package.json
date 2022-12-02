@@ -2,6 +2,10 @@
   "name": "polpiella.dev",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
