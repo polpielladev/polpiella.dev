@@ -7,6 +7,7 @@ const {
   description = 'Blog posts about iOS mobile app development by Pol Piella.',
   image,
   center = false,
+  activeNav = 'index',
 } = Astro.props
 ---
 
@@ -45,7 +46,7 @@ const {
   </head>
   <body
     class="flex min-h-screen flex-col max-w-2xl px-4 mx-auto justify-between dark:bg-gray-900">
-    <Header />
+    <Header activeNav={activeNav} />
     <main class={`flex flex-auto ${center ? 'items-center' : ''}`}>
       <slot />
     </main>
