@@ -20,12 +20,9 @@ export async function getStaticPaths({ paginate }) {
 }
 
 const { page } = Astro.props
-const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
-  'polpiella.dev'
-)}`
 ---
 
-<BaseLayout image={fullImageURL} activeNav="index">
+<BaseLayout image="https://polpiella.dev/assets/home.jpg" activeNav="index">
   <div class="my-0 max-w-2xl flex flex-col">
     <InfoPane
       title="Pol Piella Abadia"
