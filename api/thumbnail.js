@@ -31,7 +31,7 @@ export default async (req, res) => {
 </html>
 <div style="display: flex; position: relative; flex-direction: column; width: 100vw; height: 100vh;">
   <div style="width: 100%; height: 100%; display: flex; align-items: center; margin-left: 150px;">
-      <h1 style="width: 100%; color: #FFFBFB; max-width: 1000px; font-size: 85px; line-height: 102.87px; font-weight: 500;">
+      <h1 style="width: 100%; color: #FFFBFB; max-width: 1000px; font-size: 85px; line-height: 102.87px; font-weight: 400;">
           ${title}
       </h1>
   </div>
