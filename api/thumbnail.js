@@ -5,6 +5,7 @@ import fetch from 'isomorphic-fetch'
 
 export default async (req, res) => {
   const { query } = req
+  
   const { title } = query
 
   const opts = {
