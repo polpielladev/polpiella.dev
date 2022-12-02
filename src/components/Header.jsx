@@ -1,5 +1,3 @@
-import Social from '@components/Social'
-
 export default function Header({ activeNav }) {
   return (
     <header className="mb-8 mt-4">
