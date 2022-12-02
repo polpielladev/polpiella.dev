@@ -20,16 +20,8 @@ export default async (req, res) => {
     res.arrayBuffer()
   )
 
-  const markup = html`<html lang="en">
-  <head>
-      <style>
-          * {
-              margin: 0;
-              padding: 0;
-          }
-      </style>
-  </head>
-  <body>
+  const markup = html`<html>
+  <body style="margin: 0; padding: 0">
       <div style="display: flex; position: relative; flex-direction: column; width: 100vw; height: 100vh;">
           <div style="width: 100%; height: 100%; display: flex; align-items: center; margin-left: 150px;">
               <h1 style="width: 100%; color: #FFFBFB; max-width: 1000px; font-size: 85px; line-height: 102.87px; font-weight: 500;">
@@ -52,7 +44,7 @@ export default async (req, res) => {
           </div>
       </div>
   </body>
-  </html>`
+</html>`
 
   const svg = await satori(markup, {
     width: 1200,
