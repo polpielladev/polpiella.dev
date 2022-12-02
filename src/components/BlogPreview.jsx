@@ -9,9 +9,7 @@ export default function BlogPreview({ post }) {
       </p>
       <div className="flex flex-col gap-2">
         <a href={`/${slug}`} className="m-0 rounded no-underline">
-          <h2 className="m-0 max-w-md hover:text-amber-900 dark:hover:text-amber-300">
-            {title}
-          </h2>
+          <h2 className="m-0 max-w-md hover:underline">{title}</h2>
         </a>
         <p className="m-0">{excerpt}</p>
       </div>
