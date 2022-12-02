@@ -37,7 +37,7 @@ export default async (req, res) => {
                   src="https://polpiella.dev/assets/profile.jpg"
                   style="width: 100px; height: 100px; object-fit: cover; border-radius: 100px; margin-right: 16px;"
               />
-              <div style="color: #FFFBFB;">
+              <div style="color: #FFFBFB; display: flex;">
                   <p style="font-size: 20px; font-weight: bold; margin: 0; margin-bottom: 8px;">Pol Piella Abadia</p>
                   <p style="color: #e5e7eb; margin: 0;">@polpielladev</p>
               </div>
