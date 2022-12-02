@@ -28,8 +28,12 @@
     "remark-code-titles": "^0.1.2"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.2.0",
     "chrome-aws-lambda": "10.1.0",
+    "fetch": "^1.1.0",
+    "html": "^1.0.0",
     "playwright-core": "1.25.1",
-    "rss-parser": "^3.12.0"
+    "rss-parser": "^3.12.0",
+    "satori": "^0.0.44"
   }
 }

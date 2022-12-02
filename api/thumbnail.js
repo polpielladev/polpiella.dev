@@ -1,135 +1,74 @@
-import playwright from 'playwright-core'
-import chromium from 'chrome-aws-lambda'
-
-function getHTML(title) {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-        <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-            Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container > p {
-            color: #a1a1aa;
-        }
-
-        .container {
-            position: relative;
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            padding: 40px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 48px;
-            font-weight: 800;
-            margin: 0;
-            line-height: 1;
-            max-width: 680px;
-        }
-
-        img {
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 50%;
-            box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-            width: 45px;
-        }
-
-        .blog-info {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%;
-            position: absolute;
-            align-items: center;
-            bottom: 20px;
-            padding: 0 30px;
-        }
-
-        .rounded {
-            margin-left: 3px;
-            border-radius: 6px;
-            background-color: #fbbf24;
-            padding: 3px;
-        }
-
-        h2 {
-            font-size: 20px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        p {
-            font-size: 20px;
-        }
-        .author {
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            gap: 10px
-        }
-        </style>
-        </head>
-        <body>
-        <div class="container">
-            <h1>${title}</h1>
-            <p>https://polpiella.dev</p>
-            <div class="blog-info">
-                <div class="author">
-                <img src="https://polpiella.dev/assets/profile.png" />
-                <p>Pol Piella Abadia</p>
-                </div>
-                <h2>polpiella<span class="rounded">DEV</span></h2>
-            </div>
-        </div>
-        </body>
-        </html>
-    `
-}
+import { Resvg } from '@resvg/resvg-js'
+import satori from 'satori'
+import { html } from 'satori-html'
+import fetch from 'isomorphic-fetch'
 
 export default async (req, res) => {
-  try {
-    await chromium.font(
-      'https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf'
-    )
-    const { query } = req
-    const { title } = query
-    const browser = await playwright.chromium.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-    })
+  const { query } = req
+  const { title } = query
 
-    const page = await browser.newPage({
-      viewport: { width: 850, height: 630 },
-    })
-
-    await page.setContent(getHTML(title))
-    const data = await page.screenshot({ type: 'png' })
-    await browser.close()
-    res.setHeader('Cache-Control', 's-maxage=31536000, stale-while-revalidate')
-    res.setHeader('Content-Type', 'image/png')
-    res.end(data)
-  } catch (error) {
-    console.error(error)
+  const opts = {
+    background: '#fff',
+    fitTo: {
+      mode: 'width',
+      value: 2400
+    }
   }
+
+  const inter = await fetch('https://polpiella.dev/inter.ttf').then((res) =>
+    res.arrayBuffer()
+  )
+
+  const markup = html`<html>
+  <head>
+      <style>
+          * {
+              margin: 0;
+              padding: 0;
+          }
+      </style>
+  </head>
+</html>
+<div style="display: flex; position: relative; flex-direction: column; width: 100vw; height: 100vh;">
+  <div style="width: 100%; height: 100%; display: flex; align-items: center; margin-left: 150px;">
+      <h1 style="width: 100%; color: #FFFBFB; max-width: 1000px; font-size: 85px; line-height: 102.87px; font-weight: 500;">
+          ${title}
+      </h1>
+  </div>
+  <img
+    src="https://polpiella.dev/assets/og-background.png"
+    style="position:absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: -1;"
+  />
+  <div style="display: flex; position: absolute; bottom: 20px; right: 40px; align-items: center; gap: 20px;">
+      <img
+          src="https://polpiella.dev/assets/profile.jpg"
+          style="width: 100px; height: 100px; object-fit: cover; border-radius: 100px;"
+      />
+      <div style="color: #FFFBFB; display: flex; flex-direction: column; gap: 5px;">
+          <p style="font-size: 20px;">Pol Piella Abadia</p>
+          <p style="color: #e5e7eb;">@polpielladev</p>
+      </div>
+  </div>
+</div>`
+
+  const svg = await satori(markup, {
+    width: 1200,
+    height: 630,
+    fonts: [
+      {
+        name: 'Inter',
+        data: inter,
+        weight: 400,
+        style: 'normal'
+      }
+    ]
+  })
+
+  const resvg = new Resvg(svg, opts)
+
+  const pngData = resvg.render()
+  const pngBuffer = pngData.asPng()
+
+  res.setHeader('Content-Type', 'image/png')
+  res.status(200).send(pngBuffer)
 }
