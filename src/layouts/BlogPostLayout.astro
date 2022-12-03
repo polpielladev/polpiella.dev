@@ -1,6 +1,7 @@
 ---
 import '@styles/blog-detail.css'
 import BaseLayout from '@layouts/BaseLayout.astro'
+import Subscribe from '@components/Subscribe'
 
 const { title, excerpt, pubDate } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
@@ -25,5 +26,6 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </div>
     </header>
     <slot />
+    <Subscribe client:load />
   </article>
 </BaseLayout>
