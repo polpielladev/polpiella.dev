@@ -14,13 +14,7 @@ export default defineConfig({
         {
           behavior: 'wrap',
         },
-      ],
-      [
-        'rehype-toc',
-        {
-          headings: ['h2'],
-        },
-      ],
+      ]
     ],
     shikiConfig: {
       theme: 'css-variables',

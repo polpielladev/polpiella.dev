@@ -6,16 +6,25 @@ h6 > a {
   text-decoration: none !important;
 }
 
-.remark-code-title {
-  font-size: 13px;
-  @apply font-bold text-gray-500 underline decoration-dashed dark:text-gray-400;
+div.remark-code-title {
+  @apply font-semibold dark:bg-zinc-800 bg-zinc-300 text-sm dark:text-blue-400 text-blue-700 px-5 font-mono py-2 rounded-t-md border border-zinc-700/70
 }
 
-.remark-code-title::before {
-  content: '📁';
-  margin-right: 5px;
-  display: inline-block;
-  text-decoration: none;
+div.remark-code-title + pre {
+  @apply mt-0 rounded-t-none border-t-0
+}
+
+pre.astro-code {
+  @apply border border-zinc-700/70
+}
+
+:not(pre) > code {
+  margin: 0 !important;
+  @apply px-1 dark:bg-gray-800 bg-gray-100 rounded-lg;
+}
+
+:not(pre) > code::after, :not(pre) > code::before {
+  content: "" !important;
 }
 
 :not(pre) > code {
@@ -24,10 +33,6 @@ h6 > a {
   max-width: 100%;
   word-break: break-all;
   word-wrap: break-word;
-} 
-
-.toc a {
-  @apply text-gray-700 no-underline hover:text-gray-500 hover:underline dark:text-gray-300 dark:hover:text-gray-400 !important;
 }
 
 blockquote > p {
@@ -40,10 +45,6 @@ blockquote {
 
 img {
   margin: 0 auto;
-}
-
-.astro-code {
-  background-color: unset !important;
 }
 
 :root {
@@ -76,15 +77,4 @@ img {
     --astro-code-token-punctuation: #d1d5db;
     --astro-code-token-link: #61afef;
   }
-}
-
-.toc {
-  @apply mt-2 rounded-md bg-gray-100 p-3 leading-5 dark:bg-gray-800;
-}
-
-.toc::before {
-  content: 'TABLE OF CONTENTS';
-  font-size: 16px;
-  font-weight: bold;
-  @apply text-gray-800 dark:text-gray-100;
 }
