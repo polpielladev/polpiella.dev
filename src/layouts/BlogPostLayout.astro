@@ -29,6 +29,8 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </h1>
     </header>
     <slot />
-    <Subscribe client:visible />
+    <div class="mt-14">
+      <Subscribe client:visible />
+    </div>
   </article>
 </BaseLayout>
