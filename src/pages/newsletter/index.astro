@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
-import SubscribeInput from '@components/SubscribeInput'
+import Subscribe from '@components/Subscribe'
 import Parser from 'rss-parser'
 import InfoPane from '@components/InfoPane'
 
@@ -41,8 +41,7 @@ const dateForIssue = (issue) => {
       </header>
 
       <section class="mt-4 mb-4 w-full">
-        <h3 class="m-0 mb-2">Subscribe</h3>
-        <SubscribeInput client:load />
+        <Subscribe hideDescription client:load />
       </section>
 
       <section>

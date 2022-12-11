@@ -38,7 +38,7 @@ export default function SubscribeInput() {
           name="submit"
           id="submit"
           disabled={!isEmailValid(email) || !gdprConsent}
-          className="rounded-md bg-[#5FF8FE] py-2 px-4 font-semibold text-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
+          className="rounded-md bg-cyan-400 py-2 px-4 font-semibold text-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
           Subscribe
         </button>
       </div>
