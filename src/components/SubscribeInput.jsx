@@ -22,7 +22,7 @@ export default function SubscribeInput() {
           type="email"
           name="email"
           id="email"
-          className="flex-grow rounded-md bg-slate-100 p-2 dark:bg-slate-700 dark:text-gray-200"
+          className="flex-grow rounded-md bg-slate-200 p-2 dark:bg-slate-700 dark:text-gray-200"
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Your email address..."
         />
