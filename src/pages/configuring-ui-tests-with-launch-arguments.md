@@ -99,7 +99,7 @@ final class UITesting: XCTestCase {
 }
 ```
 
-<Video src='/assets/posts/configuring-ui-tests-with-launch-arguments/localisation.mp4' controls={false} />
+<Video client:load src='/assets/posts/configuring-ui-tests-with-launch-arguments/localisation.mp4' controls={false} />
 
 ## Content size
 
@@ -125,4 +125,4 @@ final class UITesting: XCTestCase {
 
 The video below shows a set of UI tests running with different content size categories.
 
-<Video src='/assets/posts/configuring-ui-tests-with-launch-arguments/dynamic-type.mp4' controls={false} />
+<Video client:load src='/assets/posts/configuring-ui-tests-with-launch-arguments/dynamic-type.mp4' controls={false} />
