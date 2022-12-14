@@ -6,7 +6,7 @@ pubDate: '2021-07-02'
 readtime: '6'
 tags:
   [
-    { name: 'Unit Tests', slug: 'unit-tests' },
+    { name: 'Testing', slug: 'testing' },
     { name: 'Dependency Injection', slug: 'dependency-injection' },
     { name: 'Swift', slug: 'swift' },
   ]

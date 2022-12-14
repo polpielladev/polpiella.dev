@@ -5,7 +5,7 @@ excerpt: 'Looking at how to use expecations and XCTAssertThrowsError to assert s
 pubDate: '2022-01-16'
 readtime: '4'
 tags:
-  [{ name: 'Unit Tests', slug: 'unit-tests' }, { name: 'Swift', slug: 'swift' }]
+  [{ name: 'Testing', slug: 'testing' }, { name: 'Swift', slug: 'swift' }]
 author:
   name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro

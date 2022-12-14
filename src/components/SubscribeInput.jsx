@@ -42,21 +42,21 @@ export default function SubscribeInput() {
           Subscribe
         </button>
       </div>
-      <div class="flex">
-        <div class="flex h-5 items-center">
+      <div className="flex">
+        <div className="flex h-5 items-center">
           <input
             type="checkbox"
             name="gdpr"
             id="gdpr"
             onChange={(e) => setGdprConsent(e.target.checked)}
-            class="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+            className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
             required
           />
         </div>
         <label
           htmlFor="gdpr"
-          class="ml-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-          <strong class="text-gray-900 dark:text-gray-100">
+          className="ml-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <strong className="text-gray-900 dark:text-gray-100">
             No spam, ever!
           </strong>{' '}
           By checking this box you consent to receive emails from
