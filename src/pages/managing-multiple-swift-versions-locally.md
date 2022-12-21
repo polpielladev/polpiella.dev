@@ -14,7 +14,7 @@ setup: |
 
 The most common way of installing a version of Swift is by downloading [Xcode](https://developer.apple.com/xcode-cloud/).
 
-Some cases might require you to download a toolchain not associated with an Xcode release, such as a development snapshot for an upcoming release of Swift or a Swift toolchain for a different architecture such as WebAssembly.
+Some cases might require you to download a toolchain not associated with an Xcode release, such as a development snapshot for an upcoming release of Swift or a Swift toolchain for a different architecture such as [WebAssembly](https://github.com/swiftwasm/swift/releases/tag/swift-wasm-5.7.1-RELEASE).
 
 This article explains how to install and use a Swift toolchain both manually and using a command line tool called [swiftenv](https://github.com/kylef/swiftenv).
 
