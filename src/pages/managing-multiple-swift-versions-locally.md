@@ -1,5 +1,5 @@
 ---
-title: 'Managing multiple Swift versions locally'
+title: 'Managing multiple versions of Swift locally'
 slug: 'managing-multiple-swift-versions-locally'
 excerpt: 'A guide on how to download, install and manage different versions of Swift.'
 pubDate: '2022-12-21'
@@ -12,7 +12,7 @@ setup: |
   import Video from '../components/Video.jsx'
 ---
 
-The most common way of installing a version of Swift is by downloading a specific version of [Xcode](https://developer.apple.com/xcode-cloud/).
+The most common way of installing a version of Swift is by downloading [Xcode](https://developer.apple.com/xcode-cloud/).
 
 Some cases might require you to download a toolchain not associated with an Xcode release, such as a development snapshot for an upcoming release of Swift or a Swift toolchain for a different architecture such as WebAssembly.
 
@@ -44,11 +44,11 @@ Once the wizard completes all install actions, you can find the new toolchain un
 
 ### Swiftenv
 
-[Swiftenv](https://github.com/kylef/swiftenv) allows you to install and manage different Swift versions from the command line.
+[Swiftenv](https://github.com/kylef/swiftenv) allows you to install and manage different Swift versions from the terminal.
 
 > This article doesn't go into how to install [swiftenv](https://github.com/kylef/swiftenv), but if you want to find out more about getting [swiftenv](https://github.com/kylef/swiftenv) setup, please refer to the official documentation.
 
-[Swiftenv](https://github.com/kylef/swiftenv) can install the same trunk development snapshot toolchain from the previous with a single command:
+[Swiftenv](https://github.com/kylef/swiftenv) can install the same trunk development snapshot toolchain from the previous section with a single command:
 
 ```bash:Terminal
 swiftenv install DEVELOPMENT-SNAPSHOT-2022-11-19-a
@@ -56,7 +56,7 @@ swiftenv install DEVELOPMENT-SNAPSHOT-2022-11-19-a
 
 > You can find a list of available versions by running `swiftenv install --list` and a list of development snapshots available by running `swiftenv install --list-snapshots`.
 
-You can verify the previous command did the job by checking the installed Swift versions in the system:
+You can then verify the previous command worked by checking the installed Swift versions in the system:
 
 ```bash:Terminal
 swiftenv versions
@@ -64,7 +64,7 @@ swiftenv versions
 
 ## Xcode
 
-Xcode has out of the box support for switching between different Swift toolchains. The `Xcode > Toolchains` menu lists all installed toolchains in the system:
+Xcode has out of the box support for switching between different Swift toolchains. The `Xcode > Toolchains` menu lists all installed toolchains:
 
 ![](/assets/posts/managing-multiple-swift-versions-locally/select-toolchain.png)
 
@@ -74,9 +74,7 @@ Pick a toolchain from the list to start using it. Xcode shows an indicator next 
 
 ## Command line
 
-[Swiftenv](https://github.com/kylef/swiftenv) provides an easy way to switch between Swift versions directly from the command line without needing to know the path to the toolchain. 
-
-[Swiftenv](https://github.com/kylef/swiftenv) can select a Swift toolchain either locally, which selects it just for the current directory, or globally, which selects it system-wide:
+[Swiftenv](https://github.com/kylef/swiftenv) provides an easy way to switch between Swift versions directly from the command line. It can select a Swift toolchain either **locally**, which selects it just for the current directory, or **globally**, which selects it system-wide:
 
 ```bash:Terminal
 # Just in the current directory
