@@ -15,30 +15,31 @@ setup: |
 layout: ../layouts/BlogPostLayout.astro
 ---
 
-As the year is coming to an end, I want to reflect on everything I have done this year and set a few goals for 2023.
+As the year is coming to an end, I wanted to reflect on everything I have done this year and set a few goals for 2023.
 
 ## The blog 💪
 
-This year has been great for my blog. I have written 24 articles and, for the past couple of months, I have started doing weekly posts, which is something I am looking to keep up in the new year.
+This year has been great for my blog. I have written 24 articles and I have started doing weekly posts, which is something I am looking to keep up in the new year.
 
 Through writing, I am starting to build a knowledge database for myself and others. It is a great feeling when I need to search for information and end up referring to an article on my blog. This, and the fact that writing and sharing my thoughts with people helps me learn and properly understand a topic, are the main reasons I write articles.
 
 ### The most read articles
 
-I collect analytics on my blog in a privacy-friendly, GDPR-compliant way using [Fathom](https://usefathom.com). These help me understand the articles' performance so that I can learn from them and improve my content curation and writing style.
+I collect analytics on my blog in a privacy-friendly, GDPR-compliant way using [Fathom](https://usefathom.com). These analytics help me understand each articles performance so that I can learn from them and improve my content curation and writing style.
 
 I was going through the data from this year and found that these were the most read articles:
 
-1. [An early look at Swift extensible build tools](/an-early-look-at-swift-extensible-build-tools): This was the best performing article I have ever written. Before [Swift extensible build tools came out](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), I decided to download a development snapshot of Swift and try it out. The article got featured by [Dave Verwer](https://twitter.com/daveverwer) in [iOS Dev Weekly](https://iosdevweekly.com/) and by [Antoine van der Lee](https://twitter.com/twannl) in [SwiftLee Weekly](https://www.avanderlee.com/swiftlee-weekly), which really helped expand the reach of the article.
+1. [An early look at Swift extensible build tools](/an-early-look-at-swift-extensible-build-tools): This was the best performing article I have ever written. Before [Swift extensible build tools came out](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), I decided to download a development snapshot of Swift and try it out. The article got featured by [Dave Verwer](https://twitter.com/daveverwer) in [iOS Dev Weekly](https://iosdevweekly.com/) and by [Antoine van der Lee](https://twitter.com/twannl) in [SwiftLee Weekly](https://www.avanderlee.com/swiftlee-weekly), which really helped to expand its reach.
 
 > Something that makes me very proud of this article is that if you google 'Swift Extensible Build Tools', my article comes up as the first result! 🤩 ![A screenshot showing how a Google search of Swift Extensible Build Tools yields my article as the first result](/assets/posts/looking-back-at-my-2022/extensible-build-tools.png)
 
 2. [Embedding a dylib in a Swift Package](/embedding-a-dylib-in-a-swift-package): This article, which is also Swift Package related, did really well this year. I decided to write about something I had recently done at work for my future self: **how to embed a xcframework in a Swift Package**. This article also got shared in [iOS Dev Weekly](https://iosdevweekly.com) and was my first feature in [Adam Rush's](https://twitter.com/Adam9Rush) [SwiftlyRush](https://www.swiftlyrush.com/) newsletter.
-3. [Binary targets in modern Swift packages](/binary-targets-in-modern-swift-packages): This article provided a thorough guide on the state of binary targets in Swift Packages in 2022. This was the best performing article that wasn't featured in a newsletter.
+
+3. [Binary targets in modern Swift packages](/binary-targets-in-modern-swift-packages): This article provided a thorough guide on the state of binary targets in Swift Packages in 2022, and was the best performing article that wasn't featured in a newsletter.
 
 ### How do people find my blog?
 
-I also wanted to look back and reflect on **how people were actually finding my blog**. To do this, I used [Fathom](https://usefathom.com/) again and looked at the list of top referrers:
+I wanted to look back and reflect on **how people were actually finding my blog**. To do this, I used [Fathom](https://usefathom.com/) again and looked at the list of top referrers:
 
 ![A list of the top referrers for polpiella.dev](/assets/posts/looking-back-at-my-2022/top-referrers.png)
 
@@ -48,7 +49,7 @@ I want to take this chance to thank every one who has shared my articles this ye
 
 ## A new role
 
-In September this year I got the chance to apply for an internal promotion. At the BBC, the normal process for promotion is to apply for an open position within your team or in another team at the company. I was lucky enough to be told by my boss that there was a vacant role in my team after one of my colleagues left so I decided to go for it, do the interview process and, fortunately, I was successful in my application!
+In September this year I got the chance to apply for an internal promotion. At the BBC, the typical process for promotion is to apply for an open position within your team or in another team within the company. I was lucky enough to be told by my boss that there was a vacant role in my team after one of my colleagues left so I decided to go for it, do the interview process and, fortunately, I was successful in my application!
 
 From September this year, I became a Senior Software Engineer and met one of my goals for the year 🎉
 
@@ -56,7 +57,7 @@ From September this year, I became a Senior Software Engineer and met one of my 
 
 I have wanted to start an email newsletter to share content from the iOS community for a long time. It wasn't until October this year, and thanks to [Tunde](https://twitter.com/tundsdev)'s encouragement, that I left my fears and self-doubts behind and started [the iOS CI Newsletter](https://polpiella.dev/newsletter).
 
-I am so happy I did!!! It gets sent out every two weeks with news about iOS CI/CD and I really enjoy putting it together. I also wanted to take this chance to thank everyone who has subscribed, it already has over 300 subscribers just after 5 issues 🤯. You can access all previous issues [in the newsletter home page](https://polpiella.dev/newsletter) if you have missed them.
+I am so happy I did!!! It gets sent out every two weeks with news about iOS CI/CD and I really enjoy putting it together. I also wanted to take this chance to thank everyone who has subscribed: it already has over 300 subscribers after just 5 issues 🤯. You can access all previous issues [in the newsletter home page](https://polpiella.dev/newsletter) if you have missed them.
 
 <Subscribe client:load />
 
@@ -69,7 +70,7 @@ I wanted to put a lot of focus on improving my public speaking skills this year 
 3. [Mobile Devops Summit by Bitrise](https://www.mobiledevops.io/summit).
 4. [Arc.dev Remote LatAm Job Fair](https://www.codementor.io/events/exploring-the-power-of-swift-beyond-app-development-fprz1hw3tl/video).
 
-I met some wonderful people and my talks were very well received!
+I met lots of wonderful people and my talks were very well received!
 
 ## My first interview
 
