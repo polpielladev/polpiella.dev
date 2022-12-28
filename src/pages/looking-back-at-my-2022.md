@@ -10,8 +10,6 @@ tags:
   ]
 author:
   name: 'Pol Piella'
-setup: |
-  import Subscribe from '../components/Subscribe.jsx'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
@@ -58,8 +56,6 @@ From September this year, I became a Senior Software Engineer and met one of my 
 I have wanted to start an email newsletter to share content from the iOS community for a long time. It wasn't until October this year, and thanks to [Tunde](https://twitter.com/tundsdev)'s encouragement, that I left my fears and self-doubts behind and started [the iOS CI Newsletter](https://polpiella.dev/newsletter).
 
 I am so happy I did!!! It gets sent out every two weeks with news about iOS CI/CD and I really enjoy putting it together. I also wanted to take this chance to thank everyone who has subscribed: it already has over 300 subscribers after just 5 issues 🤯. You can access all previous issues [in the newsletter home page](https://polpiella.dev/newsletter) if you have missed them.
-
-<Subscribe client:load />
 
 ## Public Speaking
 
