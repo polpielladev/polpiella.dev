@@ -4,7 +4,7 @@ export default function BlogPreview({ post }) {
 
   return (
     <div className="prose flex w-full flex-col dark:prose-invert">
-      <p className=" m-0 text-sm font-semibold text-zinc-400">
+      <p className=" m-0 text-sm font-semibold text-zinc-500 dark:text-zinc-300">
         {formattedDate}
       </p>
       <div className="flex flex-col gap-2">

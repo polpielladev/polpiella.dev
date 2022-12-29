@@ -19,8 +19,8 @@ export default function ThemeToggle() {
   }, [theme]);
 
   return (
-    <button onClick={handleClick} className="w-10 aspect-square">
-        <img src={theme === "light" ? "assets/moon.svg" : "assets/sun.svg"} />
+    <button onClick={handleClick} className="w-10 aspect-square" aria-label={`Enable ${theme == "light" ? "dark" : "light"} mode`}>
+        <img src={theme === "light" ? "assets/moon.svg" : "assets/sun.svg"} alt="Icon depicting the theme to switch to" />
     </button>
   );
 }
