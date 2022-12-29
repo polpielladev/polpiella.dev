@@ -1,5 +1,5 @@
 ---
-import Header from '@components/Header'
+import Header from '@components/Header.astro'
 import Footer from '@components/Footer'
 
 const {
@@ -43,6 +43,25 @@ const {
       data-site={import.meta.env.FATHOM_ENTITY_ID}
       defer
     ></script>
+
+    <script>
+      const theme = (() => {
+        if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+          return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          return "dark";
+        }
+        return "light";
+      })();
+    
+      if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+      } else {
+        document.documentElement.classList.add("dark");
+      }
+      window.localStorage.setItem("theme", theme);
+    </script>
   </head>
   <body
     class="flex min-h-screen flex-col max-w-2xl px-4 mx-auto justify-between dark:bg-gray-900">
