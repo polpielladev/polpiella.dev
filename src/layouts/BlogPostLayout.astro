@@ -5,7 +5,7 @@ import Subscribe from '@components/Subscribe'
 
 const { title, excerpt, pubDate } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
-  dateStyle: "full",
+  dateStyle: 'full',
 })
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
   title
@@ -16,15 +16,12 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
   <article
     class="prose prose-pre:bg-slate-700 hover:prose-a:underline focus:prose-a:underline prose-a:no-underline lg:prose-lg max-w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0">
     <header class="flex flex-col justify-center items-center mb-8">
-        <time
+      <time
         datetime={pubDate}
-        class="block text-center text-zinc-400 mb-3 text-sm sm:text-base"
-      >
+        class="block text-center text-zinc-400 mb-3 text-sm sm:text-base">
         {formattedDate}
       </time>
-      <h1
-      class="text-2xl sm:text-4xl font-sans m-0 font-semibold text-center"
-      >
+      <h1 class="text-2xl sm:text-4xl font-sans m-0 font-semibold text-center">
         {title}
       </h1>
     </header>

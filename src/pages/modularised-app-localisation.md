@@ -17,7 +17,7 @@ setup: |
   import Video from '../components/Video.jsx'
 ---
 
-It had been a while since I had to start a new side project from scratch which required support for multiple languages from the get-go. Certainly not from scratch in a codebase where the code was divided into different modules by making use of Swift Packages. 
+It had been a while since I had to start a new side project from scratch which required support for multiple languages from the get-go. Certainly not from scratch in a codebase where the code was divided into different modules by making use of Swift Packages.
 
 I had to remind myself of a lot of the processes which make localisation possible, so I thought it would be good to write an article I can refer to when I next start a project like this.
 
@@ -65,7 +65,7 @@ The home screen has a button which allows the user to navigate to the detail scr
 
 That looks great, but currently the screens use hardcoded strings written in English. The app requires its content to be translated into two other languages: Catalan and Spanish.
 
-While this could be achieved in a number of ways, my personal preference is that each feature (or screen) contains only the localised strings it needs, which increases the feature's portability and reusability. 
+While this could be achieved in a number of ways, my personal preference is that each feature (or screen) contains only the localised strings it needs, which increases the feature's portability and reusability.
 
 This can be done in Swift Packages by placing all the necessary `.lproj` files with all content to be localised (in this case only `Localizable.strings` files) in the target's folder - my preference is under a parent `Resources/` folder and defining these as resources for the specific target in the `Package.swift`.
 
@@ -122,7 +122,7 @@ One way of enable new localisations in the 'Features' Swift Package would be to 
 
 <Video src='/assets/posts/modularised-app-localisation/adding-a-localisation.mp4' />
 
-> Note that for this to work, the localisation will need to have at least 1 localised file (e.g. an empty `Localizable.strings` file). In this case, because the app target is built using UIKit and the launch screen storyboard  was chosen to be localised when adding the new localisation (see video above), there is already one localised file.
+> Note that for this to work, the localisation will need to have at least 1 localised file (e.g. an empty `Localizable.strings` file). In this case, because the app target is built using UIKit and the launch screen storyboard was chosen to be localised when adding the new localisation (see video above), there is already one localised file.
 
 This will now allow packages to get the supported localisations from the main bundle and choose which resources to use accordingly.
 
@@ -142,7 +142,7 @@ This setting will then tell the app target that it is fine to have different loc
 
 There are a couple of things to bear in mind with this approach though:
 
-1. There is no longer any need to add localisations to the app target, adding the `lproj` with the localised content to the package's resources is enough. When a user changes locale, the package will either show content for that locale if it exists as a resource or for the default provided in its  `Package.swift`.
+1. There is no longer any need to add localisations to the app target, adding the `lproj` with the localised content to the package's resources is enough. When a user changes locale, the package will either show content for that locale if it exists as a resource or for the default provided in its `Package.swift`.
 2. There is as many supported regions as there are localisations resources. What this means is that there isn't a single source of truth to determine which localisations are supported across the app. This can lead to issues where, for example, a feature has localised content which has not yet been sourced for other features. In that case, there is no way to hide it other than removing the resource itself:
 
 <Video src='/assets/posts/modularised-app-localisation/mixed-localisations.mp4' />
@@ -153,6 +153,6 @@ Point number two is portrayed in the video above, where the user has its device 
 
 Something I would always encourage is to automate the process of retrieving the localised strings for a given bundle as much as you can. If your app has a lot of screens, you will want to make the process of adding localised strings as easy and streamlined as possible.
 
-A tool I have been using for a while is [SwiftGen](https://github.com/SwiftGen/SwiftGen), which can generate `Swift` interfaces for all sorts of assets and resources, such as `Localizable.strings` files. 
+A tool I have been using for a while is [SwiftGen](https://github.com/SwiftGen/SwiftGen), which can generate `Swift` interfaces for all sorts of assets and resources, such as `Localizable.strings` files.
 
 Creating a build tool plugin which makes use of this executable could make the process of supporting new localisations a lot easier and consistent across features.

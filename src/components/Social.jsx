@@ -35,7 +35,13 @@ export default function Social({ size = 25 }) {
           target="_blank"
           rel={`noopener noreferrer ${social.rel}`}
           href={social.url}>
-          <img width={`${size}px`} height={`${size}px`} className="m-0" src={social.asset} alt={social.alt} />
+          <img
+            width={`${size}px`}
+            height={`${size}px`}
+            className="m-0"
+            src={social.asset}
+            alt={social.alt}
+          />
         </a>
       ))}
     </div>

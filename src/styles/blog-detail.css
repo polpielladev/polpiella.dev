@@ -7,24 +7,25 @@ h6 > a {
 }
 
 div.remark-code-title {
-  @apply font-semibold dark:bg-zinc-800 bg-zinc-300 text-sm dark:text-blue-400 text-blue-700 px-5 font-mono py-2 rounded-t-md border border-zinc-700/70
+  @apply rounded-t-md border border-zinc-700/70 bg-zinc-300 px-5 py-2 font-mono text-sm font-semibold text-blue-700 dark:bg-zinc-800 dark:text-blue-400;
 }
 
 div.remark-code-title + pre {
-  @apply mt-0 rounded-t-none border-t-0
+  @apply mt-0 rounded-t-none border-t-0;
 }
 
 pre.astro-code {
-  @apply border border-zinc-700/70
+  @apply border border-zinc-700/70;
 }
 
 :not(pre) > code {
   margin: 0 !important;
-  @apply px-1 dark:bg-gray-800 bg-gray-100 rounded-lg;
+  @apply rounded-lg bg-gray-100 px-1 dark:bg-gray-800;
 }
 
-:not(pre) > code::after, :not(pre) > code::before {
-  content: "" !important;
+:not(pre) > code::after,
+:not(pre) > code::before {
+  content: '' !important;
 }
 
 :not(pre) > code {

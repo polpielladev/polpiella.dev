@@ -4,10 +4,7 @@ slug: 'looking-back-at-my-2022'
 excerpt: 'As 2022 comes to an end, I take a look at what I have done this year and set goals for 2023.'
 pubDate: '2022-12-28'
 readtime: '6'
-tags:
-  [
-    { name: 'Career', slug: 'career' }
-  ]
+tags: [{ name: 'Career', slug: 'career' }]
 author:
   name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
@@ -78,11 +75,11 @@ Being a long-time fan and listener of the podcast myself I didn't hesitate and r
 
 Enough looking back to what I did this year and let me tell you where I want to go from here and what to expect from me in the new year:
 
-* Weekly articles in the blog.
-* Speaking at a minimum of 5 conferences or events.
-* Find a sponsor for my blog or for the iOS CI Newsletter. If you're reading this and would be interested in helping me keep creating content for free, hit me up! 😜
-* Grow my Twitter to 1k followers.
-* Release at least one monetisable product.
-* Grow the iOS CI Newsletter to a minimum of 500 subscribers.
+- Weekly articles in the blog.
+- Speaking at a minimum of 5 conferences or events.
+- Find a sponsor for my blog or for the iOS CI Newsletter. If you're reading this and would be interested in helping me keep creating content for free, hit me up! 😜
+- Grow my Twitter to 1k followers.
+- Release at least one monetisable product.
+- Grow the iOS CI Newsletter to a minimum of 500 subscribers.
 
 I will start working on these goals in the new year but now it is time to relax, enjoy being back home and make the most of the time I am spending with my family and friends. Before I go, I want to wish you a Merry Belated Christmas and a Happy New Year! See you in 2023 👋

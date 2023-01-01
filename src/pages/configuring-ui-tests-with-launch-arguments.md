@@ -70,7 +70,7 @@ struct TestApp: App {
             UIView.setAnimationsEnabled(false)
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -89,7 +89,7 @@ final class UITesting: XCTestCase {
         // Create and launch the app under test
         let app = XCUIApplication()
         app.launchArguments = [
-            "-AppleLanguages", "(es)", 
+            "-AppleLanguages", "(es)",
             "-AppleLocale", "es_ES"
         ]
         app.launch()
@@ -105,7 +105,7 @@ final class UITesting: XCTestCase {
 
 `XCUIApplication` provides a powerful set of tools to test an app's accessibility compliance. For example, [Rob Whitaker](https://twitter.com/RobRWAPP)'s [A11yUITests Swift Package](https://github.com/rwapp/A11yUITests) makes excellent use of native UI testing tools to verify an app complies with common mobile accessibility rules and guidelines.
 
-The built in `UIPreferredContentSizeCategoryName` launch argument modifies the content size category for a `XCUIApplication` instance. This parameter, in combination with [snapshot testing](https://github.com/pointfreeco/swift-snapshot-testing), can help identify shortcomings in app's accessibility support automatically. 
+The built in `UIPreferredContentSizeCategoryName` launch argument modifies the content size category for a `XCUIApplication` instance. This parameter, in combination with [snapshot testing](https://github.com/pointfreeco/swift-snapshot-testing), can help identify shortcomings in app's accessibility support automatically.
 
 ```swift:NavigationUITests.swift
 final class UITesting: XCTestCase {

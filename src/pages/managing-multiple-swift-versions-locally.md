@@ -22,7 +22,7 @@ This article explains how to install and use a Swift toolchain both manually and
 
 On macOS, toolchains come in the form of `.pkg` files. Users can install these toolchains manually by downloading them from the vendor website directly and following the instructions in the package's install wizard.
 
-The next sections show how to download, install, and setup a Swift toolchain, more specifically the [trunk development snapshot for macOS provided by Apple](https://www.swift.org/download/#trunk-development-main). 
+The next sections show how to download, install, and setup a Swift toolchain, more specifically the [trunk development snapshot for macOS provided by Apple](https://www.swift.org/download/#trunk-development-main).
 
 ### Manually
 

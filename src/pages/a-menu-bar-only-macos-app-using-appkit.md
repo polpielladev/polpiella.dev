@@ -79,7 +79,7 @@ Again, let's go back and step through the code above:
 
 Running the app again will now show a menu bar icon which will prove our app has been set up correctly 🎙️.
 
-> Why use `NSStatusBar` and `NSStatusItem` when there is a shiny new [MenuBarExtra](https://developer.apple.com/documentation/SwiftUI/MenuBarExtra)  View you can use in SwiftUI? The main reason is compatibility, I want my menu bar to be available to older macOS versions and the new `MenuBarExtra` API is only compatible with macOS Ventura at the moment. I would like to have both code implementations (AppKit and SwiftUI) side-by-side with `@available` checks, so I might look at doing that in the future 👀.
+> Why use `NSStatusBar` and `NSStatusItem` when there is a shiny new [MenuBarExtra](https://developer.apple.com/documentation/SwiftUI/MenuBarExtra) View you can use in SwiftUI? The main reason is compatibility, I want my menu bar to be available to older macOS versions and the new `MenuBarExtra` API is only compatible with macOS Ventura at the moment. I would like to have both code implementations (AppKit and SwiftUI) side-by-side with `@available` checks, so I might look at doing that in the future 👀.
 
 ### Adding a `NSMenu`
 

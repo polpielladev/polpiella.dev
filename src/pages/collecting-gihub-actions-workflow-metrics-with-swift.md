@@ -4,7 +4,12 @@ slug: 'collecting-gihub-actions-workflow-metrics-with-swift'
 excerpt: 'Creating a command line tool using Swift and async/await to collect metrics on Github Action workflows.'
 pubDate: '2022-11-30'
 readtime: '4'
-tags: [{ name: 'CI/CD', slug: 'ci-cd' }, { name: 'Tools', slug: 'tools' }, { name: 'Swift', slug: 'swift' }]
+tags:
+  [
+    { name: 'CI/CD', slug: 'ci-cd' },
+    { name: 'Tools', slug: 'tools' },
+    { name: 'Swift', slug: 'swift' },
+  ]
 author:
   name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
@@ -17,6 +22,7 @@ To achieve this, I created a command line application which queries [Github's AP
 The command line application is built using an executable target in a Swift Package with the help of [Apple's swift-argument-parser library](https://github.com/apple/swift-argument-parser). Specifically, the application makes use of the [AsyncParsableCommand](https://github.com/apple/swift-argument-parser/blob/main/Sources/ArgumentParser/Parsable%20Types/AsyncParsableCommand.swift) to run asynchronous code within an `async/await` context.
 
 ## Creating a Swift Package
+
 The first step to create a command line tool with Swift is to create a Swift Package:
 
 ```bash:Terminal
@@ -48,9 +54,10 @@ let package = Package(
 )
 ```
 
-> [swift-argument-parser](https://github.com/apple/swift-argument-parser) only introduced `async/await` support in [version 1.1.0](https://github.com/apple/swift-argument-parser/releases/tag/1.1.0). If you want to take advantage of these APIs, you will need to use a version higher or equal to 1.1.0.  
+> [swift-argument-parser](https://github.com/apple/swift-argument-parser) only introduced `async/await` support in [version 1.1.0](https://github.com/apple/swift-argument-parser/releases/tag/1.1.0). If you want to take advantage of these APIs, you will need to use a version higher or equal to 1.1.0.
 
 ## Creating the entry point
+
 The executable target needs to know what actions to perform when it runs. The entry point for the application is defined under `Sources/GithubWorkflowMetrics/GithubWorkflowMetrics.swift`:
 
 ```swift:GithubWorkflowMetrics.swift
@@ -61,10 +68,10 @@ import Foundation
 struct GithubWorkflowMetrics: AsyncParsableCommand {
     @Argument(help: "The repository data should be parsed from in `user/repo` format")
     var repository: String
-    
+
     @Option(help: "The bearer token to perform the request")
     var token: String?
-    
+
     func run() async throws {
     }
 }
@@ -76,6 +83,7 @@ The code above declares a `struct` conforming to `AsyncParsableCommand` decorate
 2. A token string to authorise the request to [Github's api](https://docs.github.com/en/rest). This property is optional and should only be passed as an option when trying to access private repositories. The property is decorated with the `@Option` property wrapper from [swift-argument-parser](https://github.com/apple/swift-argument-parser) for this reason.
 
 ## Calling Github's API
+
 Github's API provides an [endpoint to retrieve all workflow runs for a repository](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). The app can make use of [URLSession's await-friendly APIs](https://wwdcbysundell.com/2021/using-async-await-with-urlsession/) to call the workflow runs endpoint and decode the response data from the API into a `Decodable` type:
 
 ```swift:GithubWorkflowMetrics.swift
@@ -110,18 +118,19 @@ func run() async throws {
                 forHTTPHeaderField: "Authorization"
             )
     }
-            
+
     let (data, _) = try await URLSession.shared.data(for: urlRequest)
     let decodedData = try JSONDecoder
         .snakeCaseDecoder
         .decode(WorkflowsResponse.self, from: data)
 }
-``` 
+```
 
 > [The workflow runs endpoint in Github's API](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository) returns JSON data with [snake case](https://en.wikipedia.org/wiki/Snake_case) formatted keys. The `snakeCaseDecoder` in the code snippet above uses `convertFromSnakeCase` as its `keyDecodingStrategy` to convert the [snake case](https://en.wikipedia.org/wiki/Snake_case) formatted keys from Github's response back into the `Decodable` type's [camel case](https://en.wikipedia.org/wiki/Camel_case) formatted properties. The `snakeCaseDecoder` also specifies `iso8601` as its `dateDecodingStrategy` to decode [ISO8601 compliant](https://www.iso.org/iso-8601-date-and-time-format.html) dates from Github's API's response into `Date` types.
 
 ## Generating the output
-The application needs to output the metrics collected from [Github's API](https://docs.github.com/en/rest) in a suitable format. 
+
+The application needs to output the metrics collected from [Github's API](https://docs.github.com/en/rest) in a suitable format.
 
 I decided to output a `JSON` object with the following format:
 
@@ -172,7 +181,7 @@ func run() async throws {
                     .updatedAt
                     .timeIntervalSince(workflow.runStartedAt)
                 let dataPoint = WorkflowDataPoint(
-                    duration: duration, 
+                    duration: duration,
                     date: workflow.runStartedAt
                 )
                 if var timeIntervals = partialOutput[workflow.name] {
@@ -182,12 +191,12 @@ func run() async throws {
                     partialOutput[workflow.name] = [dataPoint]
                 }
             }
-    
-    // 2    
+
+    // 2
     let encodedOutput = try JSONEncoder
         .snakeCaseEncoder
         .encode(output)
-    
+
     // 3
     if let prettyPrintedString = String(data: encodedOutput, encoding: .utf8) {
         print(prettyPrintedString)
@@ -196,12 +205,15 @@ func run() async throws {
 ```
 
 Let's break down the code:
-1. The decoded data from Github's API's response is modified and [reduced into](https://developer.apple.com/documentation/swift/array/reduce(into:_:)) a more suitable format. The output type is an `Encodable` `struct` with two properties: **the name of the workflow** and a **set of data points** representing each of the runs associated with that workflow. In turn, each of the data points has the duration in seconds and the date when it was run.
+
+1. The decoded data from Github's API's response is modified and [reduced into](<https://developer.apple.com/documentation/swift/array/reduce(into:_:)>) a more suitable format. The output type is an `Encodable` `struct` with two properties: **the name of the workflow** and a **set of data points** representing each of the runs associated with that workflow. In turn, each of the data points has the duration in seconds and the date when it was run.
 2. The `Output` type is encoded into `Data` using a custom `JSONEncoder`. This encoder sets an output formatting type of `.prettyPrinted` to ensure data is easily readable by the application's users.
 3. The data is converted into a `String` which can be printed to the console.
 
 ## Let's test it!
+
 The application takes in a repository name and, if such repository is private, a bearer token with the necessary permissions:
+
 ```bash:Terminal
 swift run GithubWorkflowMetrics pol-piella/reading-time
 ```

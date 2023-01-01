@@ -27,7 +27,9 @@ export default function InfoPane({
           )}
           <Social size={24} />
         </div>
-        <p className="m-0 mt-4 text-gray-500 dark:text-gray-400">{description}</p>
+        <p className="m-0 mt-4 text-gray-500 dark:text-gray-400">
+          {description}
+        </p>
       </div>
       <img
         className={`m-0 aspect-square h-40 w-40 ${
