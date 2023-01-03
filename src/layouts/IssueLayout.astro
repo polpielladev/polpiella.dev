@@ -1,0 +1,94 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import InfoPane from '@components/InfoPane'
+import Subscribe from '@components/Subscribe'
+import Paginator from '@components/Paginator'
+
+const posts = await Astro.glob('../pages/newsletter/*.md')
+const sortedPosts = posts.sort(
+  (a, b) =>
+    new Date(b.frontmatter.date).valueOf() -
+    new Date(a.frontmatter.date).valueOf()
+)
+
+const { number, date } = Astro.props.content
+
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  dateStyle: 'full',
+})
+
+const prevURL = number - 1 <= 0 ? undefined : `/newsletter/${number - 1}`
+const nextURL =
+  number >= sortedPosts.length ? undefined : `/newsletter/${number + 1}`
+---
+
+<BaseLayout
+  title="iOS CI Newsletter"
+  description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
+  image="https://polpiella.dev/assets/newsletter.jpg"
+  activeNav="newsletter">
+  <div class="flex my-0 gap-1 prose dark:prose-invert h-full">
+    <div class="my-0 flex flex-col gap-5">
+      <header class="w-full">
+        <InfoPane
+          title="iOS CI Newsletter"
+          description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
+          alt="/assets/profile.jpg"
+          image="/assets/ci-newsletter.svg"
+          circleImage={false}
+        />
+      </header>
+
+      <section class="mt-4 mb-4 w-full">
+        <Subscribe hideDescription client:load />
+      </section>
+
+      <section>
+        <header class="flex flex-col gap-1 justify-center items-center mb-4">
+          <h2
+            class="text-2xl sm:text-3xl font-sans m-0 font-semibold text-center">
+            Issue {number}
+          </h2>
+          <time
+            datetime={date}
+            class="block text-center text-zinc-400 mb-3 text-sm sm:text-base">
+            {formattedDate}
+          </time>
+        </header>
+        <slot />
+      </section>
+
+      <section class="flex gap-3">
+        {
+          prevURL && (
+            <a
+              href={prevURL}
+              class="m-0 flex flex-1 grow flex-col rounded-lg border border-gray-400 border-opacity-0 bg-gray-300/20 p-4 text-left text-sm no-underline transition-colors hover:border-opacity-100 dark:bg-gray-800/70">
+              <p class="m-0 mb-1 text-zinc-700 dark:text-zinc-400">
+                ← Previous issue
+              </p>
+              <p class="m-0 font-semibold text-zinc-500 dark:text-zinc-300">
+                Issue #{number - 1}
+              </p>
+            </a>
+          )
+        }
+
+        {
+          nextURL && (
+            <a
+              href={nextURL}
+              class="m-0 flex flex-1 grow flex-col rounded-lg border border-gray-400 border-opacity-0 bg-gray-300/20 p-4 text-right text-sm no-underline transition-colors hover:border-opacity-100 dark:bg-gray-800/70">
+              <p class="m-0 mb-1 text-zinc-700 dark:text-zinc-400">
+                Next issue →
+              </p>
+              <p class="m-0 font-semibold text-zinc-500 dark:text-zinc-300">
+                Issue #{number + 1}
+              </p>
+            </a>
+          )
+        }
+      </section>
+    </div>
+  </div>
+</BaseLayout>
