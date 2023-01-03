@@ -17,7 +17,7 @@ export default function SubscribeInput() {
       action="https://sendy.polpiella.dev/subscribe"
       method="POST"
       acceptCharset="utf-8">
-      <div className="mb-4 flex gap-3">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <input
           type="email"
           name="email"
