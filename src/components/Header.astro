@@ -39,6 +39,6 @@ const searchables = await Promise.all(
         Newsletter
       </a>
     </div>
-    <SearchBar client:load searchables={searchables} />
+    <SearchBar client:idle searchables={searchables} />
   </div>
 </header>
