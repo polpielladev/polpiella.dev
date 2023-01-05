@@ -12,9 +12,9 @@ setup: |
   import Video from '../components/Video.jsx'
 ---
 
-[Xcode Cloud](https://developer.apple.com/xcode-cloud/) is a CI/CD service made by Apple which is deeply integrated into Xcode. Since its introduction, there has been a lot of discussion amongst iOS developers on whether it is a good alternative to existing CI/CD providers and what migration to [Xcode Cloud](https://developer.apple.com/xcode-cloud/) would look like. 
+[Xcode Cloud](https://developer.apple.com/xcode-cloud/) is a CI/CD service made by Apple which is deeply integrated into Xcode. Since its introduction, there has been a lot of discussion amongst iOS developers on whether it is a good alternative to existing CI/CD providers and what migration to [Xcode Cloud](https://developer.apple.com/xcode-cloud/) would look like.
 
-Setting up this new service is rather straigh-forward for small or new apps but it can be daunting for big codebases which have been around for a long time. These big codebases tend to still rely to some extent on third-party dependency managers such as [CocoaPods](https://cocoapods.org) and on third-party CI/CD tools such as [Fastlane](http://fastlane.tools). 
+Setting up this new service is rather straigh-forward for small or new apps but it can be daunting for big codebases which have been around for a long time. These big codebases tend to still rely to some extent on third-party dependency managers such as [CocoaPods](https://cocoapods.org) and on third-party CI/CD tools such as [Fastlane](http://fastlane.tools).
 
 The use of such third-party frameworks tends to put people off switching over to [Xcode Cloud](https://developer.apple.com/xcode-cloud/) but, in this article, I will go through how [the use of custom CI scripts](https://developer.apple.com/documentation/xcode/writing-custom-build-scripts) can help you and your team progressively migrate to [Xcode Cloud](https://developer.apple.com/xcode-cloud/) without having to abandon the tools you have used for a long time. More specifically, this article explains how to build an app using [CocoaPods](https://cocoapods.org) and upload the resulting app archive to [AppCenter](https://appcenter.ms) using [Fastlane](http://fastlane.tools) from an [Xcode Cloud](https://developer.apple.com/xcode-cloud/) workflow.
 
@@ -24,9 +24,11 @@ The use of such third-party frameworks tends to put people off switching over to
 
 1. [Xcode Cloud](https://developer.apple.com/xcode-cloud/) looks for a directory called `ci_scripts` in the Xcode project to find scripts to run. These scripts are similar to [git hooks](https://git-scm.com/docs/githooks) in the way they work.
 2. [Xcode Cloud](https://developer.apple.com/xcode-cloud/) looks for `.sh` scripts with specific names inside the `ci_scripts` directory. It then runs any matched scripts at different stages of the workflow based their names:
-* `ci_post_clone.sh`: Runs after the remote repository is cloned.
-* `ci_pre_xcodebuild.sh`: Runs before the build process commences.
-* `ci_post_xcodebuild.sh`: Runs after the build process finishes.
+
+- `ci_post_clone.sh`: Runs after the remote repository is cloned.
+- `ci_pre_xcodebuild.sh`: Runs before the build process commences.
+- `ci_post_xcodebuild.sh`: Runs after the build process finishes.
+
 3. The scripts need to have executable permissions: `chmod +x <executable_name>.sh`.
 
 Now that we know how CI scripts work, let's see what we can do with them.

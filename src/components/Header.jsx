@@ -4,15 +4,19 @@ export default function Header({ activeNav }) {
       <div className="mx-auto flex max-w-screen-lg items-center justify-between gap-4 py-4">
         <div className="prose flex items-center gap-4 no-underline dark:prose-invert">
           <a
-            className={`no-underline text-xl ${
-              activeNav == 'index' ? 'dark:text-gray-100 text-gray-900' : 'dark:text-gray-400 text-gray-500'
+            className={`text-xl no-underline ${
+              activeNav == 'index'
+                ? 'text-gray-900 dark:text-gray-100'
+                : 'text-gray-500 dark:text-gray-400'
             }`}
             href="/">
             Home
           </a>
           <a
-            className={`no-underline text-xl ${
-              activeNav == 'newsletter' ? 'dark:text-gray-100 text-gray-900' : 'dark:text-gray-400 text-gray-500'
+            className={`text-xl no-underline ${
+              activeNav == 'newsletter'
+                ? 'text-gray-900 dark:text-gray-100'
+                : 'text-gray-500 dark:text-gray-400'
             }`}
             href="/newsletter">
             Newsletter
