@@ -1,0 +1,44 @@
+---
+const { activeNav } = Astro.props
+import SearchBar from '@components/SearchBar'
+
+const posts = await Astro.glob('../pages/*.md')
+
+const searchables = await Promise.all(
+  posts.map(async (post) => {
+    return {
+      title: post.frontmatter.title,
+      excerpt: post.frontmatter.excerpt,
+      headings: (await post.getHeadings()).map((heading) => heading.text),
+      slug: post.frontmatter.slug,
+    }
+  })
+)
+---
+
+<header class="mb-8 mt-4">
+  <div
+    class="mx-auto flex max-w-screen-lg items-center justify-between gap-4 py-4">
+    <div class="prose flex items-center gap-4 no-underline dark:prose-invert">
+      <a
+        class={`text-xl no-underline ${
+          activeNav == 'index'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 dark:text-gray-400'
+        }`}
+        href="/">
+        Home
+      </a>
+      <a
+        class={`text-xl no-underline ${
+          activeNav == 'newsletter'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 dark:text-gray-400'
+        }`}
+        href="/newsletter">
+        Newsletter
+      </a>
+    </div>
+    <SearchBar client:load searchables={searchables} />
+  </div>
+</header>
