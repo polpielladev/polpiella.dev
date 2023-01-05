@@ -30,7 +30,6 @@ export default function SearchBar({ searchables }) {
         className="w-full rounded-md bg-gray-100 px-4 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
         onChange={handleChange}
         autoComplete="off"
-        autoFocus
       />
       <div className="absolute z-30">
         {searchResults.map(({ item }) => (
