@@ -38,6 +38,16 @@ const searchables = await Promise.all(
         href="/newsletter">
         Newsletter
       </a>
+
+      <a
+        class={`text-xl no-underline ${
+          activeNav == 'speaking'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 dark:text-gray-400'
+        }`}
+        href="/speaking">
+        Speaking
+      </a>
     </div>
     <SearchBar client:idle searchables={searchables} />
   </div>
