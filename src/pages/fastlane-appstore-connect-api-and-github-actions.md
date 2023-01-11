@@ -16,7 +16,7 @@ For a robust authentication and hassle free interaction with [App Store Connect 
 
 I have created an App Store Connect API key and used it in [Fastlane](http://fastlane.tools) in the past but I recently found myself having to google a great part of this process again. 
 
-For this reason, I decided to put together an *all you need to need to know* guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store the key we'll create and **make it available to Github Actions workflows**.
+For this reason, I decided to put together an *all you need to know* guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store the key we'll create and **make it available to Github Actions workflows**.
 
 ## Creating an App Store Connect API key
 
