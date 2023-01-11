@@ -12,9 +12,11 @@ layout: ../layouts/BlogPostLayout.astro
 
 I have recently had to set up a Continuous Integration/Continuous Development (CI/CD) pipeline for one of my side projects to upload an app to Testflight using [Fastlane](http://fastlane.tools). I decided to use [Github Actions](https://github.com/features/actions) as it is the CI provider I am most familiar with.
 
-For a robust authentication and hassle free interaction with [App Store Connect (ASC)](https://appstoreconnect.apple.com), [Fastlane](http://fastlane.tools) recommends that you use an App Store API Key as the authentication method. In fact, using an API key solves one of the most common CI issues people tend to have when communicating with App Store Connect: **2 factor authentication (2FA)** requiring user input in an automated process.
+For a robust authentication and hassle free interaction with [App Store Connect (ASC)](https://appstoreconnect.apple.com), [Fastlane](http://fastlane.tools) recommends that you use an [App Store API Key](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api). In fact, using an API key solves one of the most common CI issues people tend to have when communicating with App Store Connect: **2 factor authentication (2FA)** requiring user input in an automated process.
 
-I have created an App Store Connect API key and used it in [Fastlane](http://fastlane.tools) in the past but I recently found myself having to google a great part of this process again. For this reason, I decided to put together an *all you need to need to know* guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store an App Store Connect API key and **make it available to Github Actions workflows**.
+I have created an App Store Connect API key and used it in [Fastlane](http://fastlane.tools) in the past but I recently found myself having to google a great part of this process again. 
+
+For this reason, I decided to put together an *all you need to need to know* guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store the key we'll create and **make it available to Github Actions workflows**.
 
 ## Creating an App Store Connect API key
 
@@ -34,7 +36,9 @@ Follow these steps to create an App Store Connect API key:
 ![App Store Connect's keys page with arrows pointing to the two fields that need to be copied: the key's id and the account's issuer id](/assets/posts/fastlane-appstore-connect-api-and-github-actions/values.webp)
 
 ## Storing the ASC API key
-I find that the best place to store the new App Store Connect API key is in the CI provider's secrets section. In this article, I'll show you how to store and use this key in Github Actions but this approach should be very similar across different providers.
+I find that the best place to store the new App Store Connect API key is in the CI provider's secrets section.
+
+While I'll be using Github Actions in this article, the approach to save secrets will be very similar across most CI providers. 
 
 ### Creating an action secret
 First, let's see how we can create a secret and make it available to a Github Actions workflow:
