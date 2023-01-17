@@ -1,4 +1,10 @@
 {
   "git.ignoreLimitWarning": true,
-  "cSpell.words": ["Piella", "readtime"]
+  "cSpell.words": [
+    "astro",
+    "Fastly",
+    "Piella",
+    "readtime",
+    "Upstash"
+  ]
 }
