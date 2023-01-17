@@ -8,7 +8,10 @@ export default function Subscribe({ hideDescription = false }) {
       }`}>
       <header className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <img src="/assets/mail-icon.svg" className="m-0 aspect-square w-6" />
+          <img
+            src="/assets/mail-icon.svg"
+            className="m-0 aspect-square w-6 dark:invert"
+          />
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             iOS CI Newsletter
           </p>
