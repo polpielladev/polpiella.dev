@@ -279,7 +279,7 @@ I won't go into too much detail on how to deploy the edge function as [Andrew Ba
 1. Using [Swift Cloud](). This is by far the easiest way of deploying the edge function. It allows you to connect a Github repo and handles all the building and deploying for you on every push to a specific branch. You must proceed with caution as it is still on beta and some functionalities, such as setting custom domains, are not yet available.
 2. Using [Fastly](). You can deploy directly to [Fastly](), but it requires some extra work. [Andrew Barba's blog post shows you an example of a Github action which deploys the function on every push to main]().
 
-## I made a template repo!
+## I made a template!
 
 I decided to put together a [template repository](https://github.com/pol-piella/swift-fastly-edge-function) to make it easier to start developing a new Fastly edge function with Swift.
 
