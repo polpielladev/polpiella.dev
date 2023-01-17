@@ -23,14 +23,31 @@ export default function SearchBar({ searchables }) {
 
   return (
     <div className="relative ml-4 hidden flex-grow sm:block">
-      <input
-        aria-label="Search articles"
-        type="text"
-        placeholder="Search articles"
-        className="w-full rounded-md bg-gray-100 px-4 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
-        onChange={handleChange}
-        autoComplete="off"
-      />
+      <div className="relative">
+        <input
+          aria-label="Search articles"
+          type="text"
+          placeholder="Search articles"
+          className="w-full rounded-md bg-gray-100 px-4 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+          onChange={handleChange}
+          autoComplete="off"
+        />
+        <svg
+          width="24px"
+          height="24px"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="absolute top-1/2 right-1 translate-y-[-50%] stroke-gray-400 text-white">
+          <path
+            d="M15.5 15.5L19 19M5 11a6 6 0 1012 0 6 6 0 00-12 0z"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"></path>
+        </svg>
+      </div>
+
       <div className="absolute z-30">
         {searchResults.map(({ item }) => (
           <a href={`/${item.slug}`}>
