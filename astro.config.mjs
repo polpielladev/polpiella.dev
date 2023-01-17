@@ -14,7 +14,7 @@ export default defineConfig({
         {
           behavior: 'wrap',
         },
-      ]
+      ],
     ],
     shikiConfig: {
       theme: 'css-variables',

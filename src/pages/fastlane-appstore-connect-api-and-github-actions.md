@@ -14,9 +14,9 @@ I have recently had to set up a Continuous Integration/Continuous Development (C
 
 For a robust authentication and hassle free interaction with [App Store Connect (ASC)](https://appstoreconnect.apple.com), [Fastlane](http://fastlane.tools) recommends that you use an [App Store API Key](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api). In fact, using an API key solves one of the most common CI issues people tend to have when communicating with App Store Connect: **2 factor authentication (2FA)** requiring user input in an automated process.
 
-I have created an App Store Connect API key and used it in [Fastlane](http://fastlane.tools) in the past but I recently found myself having to google a great part of this process again. 
+I have created an App Store Connect API key and used it in [Fastlane](http://fastlane.tools) in the past but I recently found myself having to google a great part of this process again.
 
-For this reason, I decided to put together an *all you need to know* guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store the key we'll create and **make it available to Github Actions workflows**.
+For this reason, I decided to put together an _all you need to know_ guide on authentication with App Store Connect API keys in [Fastlane](http://fastlane.tools). This article will also show you how to **safely** store the key we'll create and **make it available to Github Actions workflows**.
 
 ## Creating an App Store Connect API key
 
@@ -24,34 +24,37 @@ Follow these steps to create an App Store Connect API key:
 
 1. Go to [App Store Connect](https://appstoreconnect.apple.com) and sign in.
 2. Go to the 'Users & Access' section.
-![The App Store Connect dashboard page with an arrow pointing to the Users and Access section.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/users-and-access.webp)
-3. Select the Keys (1) menu and click the '+' button (2) to create a new key. 
-![The Users and Access section in App Store Connect with numbers focusing on the two items to click. Number 1 is the Keys menu and number two is the plus button to create a new key.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/keys-and-plus.webp)
+   ![The App Store Connect dashboard page with an arrow pointing to the Users and Access section.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/users-and-access.webp)
+3. Select the Keys (1) menu and click the '+' button (2) to create a new key.
+   ![The Users and Access section in App Store Connect with numbers focusing on the two items to click. Number 1 is the Keys menu and number two is the plus button to create a new key.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/keys-and-plus.webp)
 4. Give it a name and a role and click the 'Generate' button. Make sure [you give the key a role with just enough permissions for the tasks it is going to perform](https://developer.apple.com/support/roles/).
-![The popup in App Store Connect where a key with a given name and role can be created.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/generate.webp)
+   ![The popup in App Store Connect where a key with a given name and role can be created.](/assets/posts/fastlane-appstore-connect-api-and-github-actions/generate.webp)
 5. The new key will now appear in the list. Click the 'Download API Key' button and hold on to it until the next section.
-![A list entry showing the new key with an arrow pointing to the 'Download API Key' button which needs to be pressed to download the key file](/assets/posts/fastlane-appstore-connect-api-and-github-actions/download.webp)
-> It is important to be aware that an API key can **only be downloaded once**.
+   ![A list entry showing the new key with an arrow pointing to the 'Download API Key' button which needs to be pressed to download the key file](/assets/posts/fastlane-appstore-connect-api-and-github-actions/download.webp)
+   > It is important to be aware that an API key can **only be downloaded once**.
 6. Copy the key id and your account's issuer id. Fastlane needs to know both these values to validate the App Store Connect API key.
-![App Store Connect's keys page with arrows pointing to the two fields that need to be copied: the key's id and the account's issuer id](/assets/posts/fastlane-appstore-connect-api-and-github-actions/values.webp)
+   ![App Store Connect's keys page with arrows pointing to the two fields that need to be copied: the key's id and the account's issuer id](/assets/posts/fastlane-appstore-connect-api-and-github-actions/values.webp)
 
 ## Storing the ASC API key
+
 I find that the best place to store the new App Store Connect API key is in the CI provider's secrets section.
 
-While I'll be using Github Actions in this article, the approach to save secrets will be very similar across most CI providers. 
+While I'll be using Github Actions in this article, the approach to save secrets will be very similar across most CI providers.
 
 ### Creating an action secret
+
 First, let's see how we can create a secret and make it available to a Github Actions workflow:
 
 1. Open the 'Settings' page for your app's repository on Github (1) and expand the 'Secrets and Variables' section from the menu on the left (2).
-![The settings menu of a Github repository and where to find the Secrets and Variables section](/assets/posts/fastlane-appstore-connect-api-and-github-actions/github-settings.webp)
+   ![The settings menu of a Github repository and where to find the Secrets and Variables section](/assets/posts/fastlane-appstore-connect-api-and-github-actions/github-settings.webp)
 2. Select the 'Actions' row from the expanded 'Secrets and Variables' section.
-![Highlight of the actions section within the Secrets and Variables section in a Github repository's settings menu](/assets/posts/fastlane-appstore-connect-api-and-github-actions/actions.webp)
+   ![Highlight of the actions section within the Secrets and Variables section in a Github repository's settings menu](/assets/posts/fastlane-appstore-connect-api-and-github-actions/actions.webp)
 3. Click on the 'New Repository Secret' button.
 4. You'll be shown a page where you can create a secret and give it any name you want. The name you give it can later be used to retrieve the secret's value from within a workflow as we'll see in the following sections.
 
 ### Storing the key
-[Fastlane](http://fastlane.tools) provides multiple methods to authenticate with the App Store Connect API using an API key. 
+
+[Fastlane](http://fastlane.tools) provides multiple methods to authenticate with the App Store Connect API using an API key.
 
 The way I prefer to use this key and pass it to [Fastlane](http://fastlane.tools) is as a string, as it enables me to store it as a secret on the CI and saves me from having to securely maintain a key file or duplicate across all different runners.
 
@@ -67,27 +70,29 @@ app_store_connect_api_key(
 
 As you will have guessed, we will need to create three Github Action secrets using the information we obtained when creating the App Store Connect API key:
 
-* Key's content:
-	* **Name**: `APP_STORE_CONNECT_API_KEY_CONTENT`.
-	* **Value**: The content of the key file you downloaded from App Store Connect. To get the value for this secret, open the key file with a text editor and copy all of its contents to the clipboard.
-* Key's identifier:
-	* **Name**: `APP_STORE_CONNECT_API_KEY_ID`.
-	* **Value**: The id of the key that you copied earlier from App Store Connect.
-* Issuer identifier:
-	* **Name**: `APP_STORE_CONNECT_ISSUER_ID`.
-	* **Value**: The issuer id for your App Store Connect account that you copied earlier.
+- Key's content:
+  - **Name**: `APP_STORE_CONNECT_API_KEY_CONTENT`.
+  - **Value**: The content of the key file you downloaded from App Store Connect. To get the value for this secret, open the key file with a text editor and copy all of its contents to the clipboard.
+- Key's identifier:
+  - **Name**: `APP_STORE_CONNECT_API_KEY_ID`.
+  - **Value**: The id of the key that you copied earlier from App Store Connect.
+- Issuer identifier:
+  - **Name**: `APP_STORE_CONNECT_ISSUER_ID`.
+  - **Value**: The issuer id for your App Store Connect account that you copied earlier.
 
 Once you have created these three secrets you can delete the API key file you downloaded from App Store Connect.
 
 ## Retrieving the App Store Connect API key from Fastlane
 
-Now that the secrets are available to Github Actions workflows, we need to make them accessible to the lane that needs to communicate with App Store Connect. 
+Now that the secrets are available to Github Actions workflows, we need to make them accessible to the lane that needs to communicate with App Store Connect.
 
 This is a two-step process:
+
 1. Make the secrets available as environment variables on the step that executes our lane in the Github Actions workflow.
 2. Retrieve these environment variables from the lane in the `Fastfile`.
 
 ### Environment
+
 Action secrets for a repository can be accessed from workflows with the `${{ Secrets.<SECRET_NAME> }}` syntax. The retrieved values can be made available to the step which needs them through its `env` parameter:
 
 ```yml:release.yml
@@ -134,7 +139,7 @@ lane :build_and_upload_to_appstore do
   asc_key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
   asc_issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
   asc_key_id = ENV["APP_STORE_CONNECT_API_KEY_ID"]
-  
+
   app_store_connect_api_key(
 	  key_id: asc_key_id,
 	  issuer_id: asc_issuer_id,
@@ -143,9 +148,9 @@ lane :build_and_upload_to_appstore do
 end
 ```
 
-When the [app_store_connect_api_key](https://docs.fastlane.tools/actions/app_store_connect_api_key/) action is executed, it sets a value in the lane shared context which makes the API key available to any other actions or lanes, such as [deliver](https://docs.fastlane.tools/actions/deliver/). 
+When the [app_store_connect_api_key](https://docs.fastlane.tools/actions/app_store_connect_api_key/) action is executed, it sets a value in the lane shared context which makes the API key available to any other actions or lanes, such as [deliver](https://docs.fastlane.tools/actions/deliver/).
 
-This means that you don't need to hold on to the key yourself, [Fastlane](http://fastlane.tools) will do the heavy lifting for you. 
+This means that you don't need to hold on to the key yourself, [Fastlane](http://fastlane.tools) will do the heavy lifting for you.
 
 If you wanted to hold on to the key, [the app_store_connect_api_key action](https://docs.fastlane.tools/actions/app_store_connect_api_key/) also returns it.
 
