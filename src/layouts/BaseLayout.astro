@@ -9,6 +9,9 @@ const {
   center = false,
   activeNav = '',
 } = Astro.props
+
+const { pathname } = Astro.url
+const isNewsletter = pathname.includes('/newsletter')
 ---
 
 <html lang="en">
@@ -21,8 +24,10 @@ const {
     <link
       rel="alternate"
       type="application/rss+xml"
-      title="RSS Feed for polpiella.dev"
-      href="/rss.xml"
+      title={`RSS Feed for ${
+        isNewsletter ? 'the iOS CI Newsletter' : 'polpiella.dev'
+      }`}
+      href={`${isNewsletter ? '/newsletter/rss.xml' : '/rss.xml'}`}
     />
 
     <meta property="og:url" content="https://polpiella.dev" />
