@@ -3,7 +3,7 @@ import SubscribeInput from '@components/SubscribeInput'
 export default function Subscribe({ hideDescription = false }) {
   return (
     <div
-      className={`not-prose relative flex flex-col rounded-sm bg-gray-100 px-8 py-4 dark:bg-gray-800 ${
+      className={`not-prose relative flex flex-col rounded-lg bg-gray-100 px-5 py-4 dark:bg-gray-800 ${
         hideDescription ? 'gap-3' : 'gap-5'
       }`}>
       <header className="flex flex-col gap-1">
