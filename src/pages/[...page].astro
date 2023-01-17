@@ -31,16 +31,16 @@ const { page } = Astro.props
       image="/assets/profile.jpg"
     />
 
+    <section class="mt-12 w-full">
+      <Subscribe client:load />
+    </section>
+
     <section class="mt-10">
       <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
 
       <div class="mt-4 flex flex-col gap-8">
         {page.data.map((post) => <BlogPreview post={post} />)}
       </div>
-    </section>
-
-    <section class="mt-12 w-full">
-      <Subscribe client:load />
     </section>
   </div>
 </BaseLayout>
