@@ -54,7 +54,7 @@ let package = Package(
 )
 ```
 
-Now that `Compute` is available to the `URLShortener` target, its entry point (`main.swift`) can be modified to listen for events. The simplest compute handler consists of an awaited call to `onIncomingRequest`, a method form the [Compute](https://github.com/swift-cloud/Compute) library which takes in a closure with two parameters (a request and a response). This closure is an `async` context, which means that modern structured concurrency can be used within it. The response parameter is responsible for handling the edge function's return data and status codes.
+Now that `Compute` is available to the `URLShortener` target, we can modify its entry point (`main.swift`) to handle incoming requests. The simplest compute handler consists of an awaited call to `onIncomingRequest`, a method from the [Compute](https://github.com/swift-cloud/Compute) library which takes in a closure with two parameters (a request and a response). This closure is an `async` context, which means that structured concurrency can be used within it. The request parameter provides context on the incoming event and the response parameter is responsible for handling the edge function's return data and status codes.
 
 ```swift:main.swift
 import Compute
@@ -66,13 +66,13 @@ try await onIncomingRequest { request, response in
 
 ## Local development
 
-To run Swift code in [Fastly](https://www.fastly.com/products/edge-compute) we must first compile the `URLShortener` executable product into a WebAssembly (`.wasm`) file. To do this, we can use [SwiftWasm](https://swiftwasm.org)'s [fork of the Swift official toolchain](https://github.com/swiftwasm/swift), which can be installed using [swiftenv](https://github.com/kylef/swiftenv):
+To run Swift code in [Fastly's Compute@Edge service](https://www.fastly.com/products/edge-compute) we must first compile the `URLShortener` executable product to WebAssembly. To do so, we can use [SwiftWasm](https://swiftwasm.org)'s [fork of the Swift official toolchain](https://github.com/swiftwasm/swift), which can be installed using [swiftenv](https://github.com/kylef/swiftenv) as follows:
 
 ```bash:Terminal
 swiftenv install "https://github.com/swiftwasm/swift/releases/download/swift-wasm-5.7.1-RELEASE/swift-wasm-5.7.1-RELEASE-macos_$(uname -m).pkg"
 ```
 
-After the download completes, we can tell [swiftenv](https://github.com/kylef/swiftenv) to use the newly downloaded `wasm-5.7.1` toolchain only in the current directory:
+After the download completes, we can tell [swiftenv](https://github.com/kylef/swiftenv) to use the newly downloaded `wasm-5.7.1` toolchain in the current directory:
 
 ```bash:Terminal
 swiftenv local wasm-5.7.1
@@ -98,13 +98,13 @@ brew install fastly/tap/fastly
 fastly compute serve --skip-build --file ./.build/debug/URLShortener.wasm
 ```
 
-The [Fastly CLI](https://developer.fastly.com/reference/cli) should output the URL for the local server it has spun up (e.g. `http://127.0.0.1:7676`). If you now make a `GET` request to that URL, you should get a response of `"Hello World!"` with status code of `200`.
+The [Fastly CLI](https://developer.fastly.com/reference/cli) should output the URL for the local server it has spun up (e.g. `http://127.0.0.1:7676`). If we now make a `GET` request to that URL, we will be greeted with a response of `"Hello World!"` with status code `200`.
 
 > Note that whenever you make any changes to your application you will have to kill the server, re-build and start the server again to get the latest changes.
 
 ## Creating an Upstash redis database
 
-The way URL shorteners usually work is that they store a set of entries in a database as key/value pairs. Whenever a request is received with a path that matches one of these keys (the short name of the URL), then the service immediately redirects to the URL stored in the value for the matched entry. For example, for a database with an entry of key `newsletter` and value `https://polpiella.dev/newsletter`, any calls to `https://domain/newsletter` should redirect to `https://polpiella.dev/newsletter`.
+URL shorteners work by storing a set of entries in a database as key/value pairs. Whenever a request is received with a path that matches one of these keys (the shortened name of the URL), then the service immediately redirects to the URL stored in the value for the matched entry. For example, for a database with an entry of key `newsletter` and value `https://polpiella.dev/newsletter`, any calls to `https://domain/newsletter` should redirect to `https://polpiella.dev/newsletter`.
 
 A good option for a URL shortener edge function's database is [Upstash](https://upstash.com). [Upstash](https://upstash.com) is a serverless [redis](https://redis.io) data platform which, similarly to Fastly's Compute@Edge service, can be deployed globally so that data is always as close to the user as possible.
 
@@ -113,10 +113,10 @@ After signing up to [Upstash](https://upstash.com), creating a new redis databas
 1. Navigate to the console.
 2. Click on the 'Create Database' button.
    ![A screenshot showing where the Create Database button in the Upstash console is located](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/create.webp)
-3. Give the database a name and select 'Global' as the deployment region. This will deploy the database to multiple regions.
+3. Give the database a name and select 'Global' as the deployment region. This will deploy the database to multiple regions around the world.
    ![A screenshot showing the database creation page with a name of url-shortener and the deployment region set to global](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/global.webp)
 
-Now that the database is ready, we can add an entry of key `newsletter` and value `https://polpiella.dev/newsletter` through Upstash's CLI by making a redis `SET` command:
+Now that the database is ready, we can add an entry of key `newsletter` and value `https://polpiella.dev/newsletter` through Upstash's CLI by using a redis `SET` command:
 ![A screenshot showing how to add a new entry with a key-value pair through Upstash's CLI view](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/set.webp)
 
 ## Environment variables
@@ -147,7 +147,7 @@ manifest_version = 2
       format = "json"
 ```
 
-The configuration file above creates a dictionary called `secrets` for the local server with the contents of the `secrets.json` file.
+The configuration file above creates a dictionary called `secrets` on the local server with the contents of the `secrets.json` file.
 
 The [ConfigStore object from Compute](https://github.com/swift-cloud/Compute/blob/main/Sources/Compute/ConfigStore.swift) is responsible for retrieving data for any specific dictionaries it can find. In this case, it should retrieve the values for the `secrets` dictionary and return an internal error (status code `500`) if it can't.
 
@@ -172,9 +172,9 @@ Building the package and running the server again should still work in the same 
 
 ## Retrieving path parameters
 
-Before retrieving a URL for a given key, we need to find out which URL the user wants to retrieve. As I said earlier, we need to get the first path parameter from the request URL and use it to query [Upstash](https://upstash.com) for a destination to redirect to. Furthermore, we only want to listen for routes with single path parameter and return a `404` not found error in any other case.
+Before retrieving a URL for a given key, we need to find out which URL the user wants to retrieve by its shortened name. As I said earlier, we need to get the first path parameter from the request's URL and use it to query [Upstash](https://upstash.com) for a destination to redirect to. Furthermore, we only want to listen for routes with a single path parameter and return a `404` not found error in any other case.
 
-[Compute](https://github.com/swift-cloud/Compute) provides a routing mechanism very similar to [Vapor's routing-kit](https://github.com/vapor/routing-kit) which allows us to implement the logic I have just described. The app can define routes and provide specific handlers for each of these through a `Router` instance. If you come from a web development background, this is very similar to frameworks such as [hono](https://honojs.dev) or [express](https://expressjs.com).
+[Compute](https://github.com/swift-cloud/Compute) provides a routing mechanism very similar to [Vapor's routing-kit](https://github.com/vapor/routing-kit) which allows us to implement the logic we need for the URL shortener service. The app can define routes and provide specific handlers for each of these through a `Router` instance. If you come from a web development background, this is very similar to frameworks such as [hono](https://honojs.dev) or [express](https://expressjs.com).
 
 The URL shortener API will have a single route and will only listen for `'GET'` request on routes with a single path component:
 
@@ -274,7 +274,7 @@ router.get("/:key") { request, response in
 try await router.listen()
 ```
 
-Let's add a couple more values to the Upstash database (`blog: https://polpiella.dev`, `gh: https://github.com/pol-piella`) and test the implementation works:
+Let's add two more values to the Upstash database (`blog: https://polpiella.dev`, `gh: https://github.com/pol-piella`) and test the implementation works:
 
 <Video src='/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/url-shortener.mp4' controls={false} />
 
