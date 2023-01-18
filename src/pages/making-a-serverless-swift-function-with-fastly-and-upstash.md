@@ -1,0 +1,294 @@
+---
+title: 'Making a serverless Swift function with Fastly and Upstash'
+slug: 'making-a-serverless-swift-function-with-fastly-and-upstash'
+excerpt: 'Making a URL shortener serverless edge function using Fastly and Upstash.'
+pubDate: '2023-01-18'
+readtime: '11'
+tags:
+  [{ name: 'Serverless', slug: 'serverless' }, { name: 'Swift', slug: 'swift' }]
+author:
+  name: 'Pol Piella'
+layout: ../layouts/BlogPostLayout.astro
+setup: |
+  import Video from '../components/Video.jsx'
+---
+
+[Fastly's Compute@Edge](https://www.fastly.com/products/edge-compute) is a service which allows you to build and deploy serverless applications at the _edge_. These so called **edge functions** are applications which are deployed to a number of regions across the world so that they are as close to users as possible. On top of the benefits which serverless computing provides, such as not having to maintain the server infrastructure, edge functions are extremely quick and have very low latency.
+
+![An image showing the edge function locations worldwide for Fastly edge computing applications](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/fastly-edge.webp)
+
+I have been wanting to try this service out for a while as I believe edge functions are the future of server side applications. I recently came across the awesome work from [Andrew Barba](https://twitter.com/andrew_barba), who has made [a runtime which allows developers to write Fastly Compute@Edge functions in Swift](https://github.com/swift-cloud/Compute). In this article we'll go through how to use the runtime to make a URL shortener service.
+
+## Creating a Swift package
+
+Let's get started by creating an executable Swift package:
+
+```bash:Terminal
+swift package init --type executable --name URLShortener
+```
+
+The command above will create an empty Swift package with no dependencies and an executable target.
+
+Next, we need to define the [Compute](https://github.com/swift-cloud/Compute) package as a dependency to the `URLShortener` target and an executable product called `URLShortener`:
+
+```swift:Package.swift
+// swift-tools-version: 5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "URLShortener",
+    platforms: [.macOS(.v11)],
+    products: [
+        .executable(name: "URLShortener", targets: ["URLShortener"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/swift-cloud/Compute", from: "2.8.0")
+    ],
+    targets: [
+        .executableTarget(
+            name: "URLShortener",
+            dependencies: ["Compute"]
+        )
+    ]
+)
+```
+
+Now that `Compute` is available to the `URLShortener` target, we can modify its entry point (`main.swift`) to handle incoming requests. The simplest form of a Fastly Compute@Edge handler consists of an awaited call to `onIncomingRequest`, a method from the [Compute](https://github.com/swift-cloud/Compute) library which takes in a closure with two parameters (a request and a response).
+
+This closure provides an `async` context, which means that structured concurrency can be used within it. The request parameter provides context on the incoming event and the response parameter is responsible for handling the edge function's return data and status codes.
+
+```swift:main.swift
+import Compute
+
+try await onIncomingRequest { request, response in
+    try await response.status(200).send("Hello World!")
+}
+```
+
+## Local development
+
+To run Swift code in [Fastly's Compute@Edge service](https://www.fastly.com/products/edge-compute) we must first compile the `URLShortener` executable product to WebAssembly. To do so, we can use [SwiftWasm](https://swiftwasm.org)'s [fork of the Swift official toolchain](https://github.com/swiftwasm/swift), which can be installed using [swiftenv](https://github.com/kylef/swiftenv) as follows:
+
+```bash:Terminal
+swiftenv install "https://github.com/swiftwasm/swift/releases/download/swift-wasm-5.7.1-RELEASE/swift-wasm-5.7.1-RELEASE-macos_$(uname -m).pkg"
+```
+
+After the download completes, we can tell [swiftenv](https://github.com/kylef/swiftenv) to use the newly downloaded `wasm-5.7.1` toolchain in the current directory:
+
+```bash:Terminal
+swiftenv local wasm-5.7.1
+```
+
+> If you would like to learn more about installing and managing multiple Swift toolchains, [please refer to this article in my blog](https://www.polpiella.dev/managing-multiple-swift-versions-locally).
+
+We can now build the Swift package and generate a WebAssembly file from the `URLShortener` executable product using `swift build`:
+
+```bash:Terminal
+swift build -c debug --triple wasm32-unknown-wasi
+```
+
+If the build command succeeds, a new file called `URLShortener.wasm` should appear in the `/.build/debug` directory.
+
+To run the edge function locally we can now use the `compute serve` command from the [Fastly CLI](https://developer.fastly.com/reference/cli) and give it the generated `URLShortener.wasm` file:
+
+```bash:Terminal
+# Install the Fastly CLI if needed
+brew install fastly/tap/fastly
+
+# Run a development server
+fastly compute serve --skip-build --file ./.build/debug/URLShortener.wasm
+```
+
+The [Fastly CLI](https://developer.fastly.com/reference/cli) should output the URL for the local server it has spun up (e.g. `http://127.0.0.1:7676`). If we now make a `GET` request to that URL, we will be greeted with a response of `"Hello World!"` and status code of `200`.
+
+> Note that whenever you make any changes to your application you will have to kill the server, re-build and start the server again to get the latest changes.
+
+## Creating an Upstash redis database
+
+URL shorteners work by storing a set of entries in a database as key/value pairs. Whenever a request is received with a path that matches one of these keys (the shortened name of the URL), then the service immediately redirects to the URL stored in the value for the matched entry. For example, for a database with an entry of key `newsletter` and value `https://polpiella.dev/newsletter`, any calls to `https://domain/newsletter` should redirect to `https://polpiella.dev/newsletter`.
+
+A good option for a URL shortener edge function's database is [Upstash](https://upstash.com). [Upstash](https://upstash.com) is a serverless [redis](https://redis.io) data platform which, similarly to Fastly's Compute@Edge service, can be deployed globally so that data is always as close to the user as possible.
+
+After signing up to [Upstash](https://upstash.com), creating a new redis database is straightforward:
+
+1. Navigate to the console.
+2. Click on the 'Create Database' button.
+   ![A screenshot showing where the Create Database button in the Upstash console is located](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/create.webp)
+3. Give the database a name and select 'Global' as the deployment region. This will deploy the database to multiple regions around the world.
+   ![A screenshot showing the database creation page with a name of url-shortener and the deployment region set to global](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/global.webp)
+
+Now that the database is ready, we can add an entry of key `newsletter` and value `https://polpiella.dev/newsletter` through Upstash's CLI by using a redis `SET` command:
+![A screenshot showing how to add a new entry with a key-value pair through Upstash's CLI view](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/set.webp)
+
+## Environment variables
+
+To query the new [Upstash](https://upstash.com) database we've just created, we'll use [Swift Cloud's Upstash library](https://github.com/swift-cloud/Upstash), which interfaces with [Upstash](https://upstash.com)'s REST API under the hood. We will need to provide the library with a REST API token and the database's endpoint from [Upstash](https://upstash.com)'s console. We don't want to hardcode these values as strings in our code for security reasons and we should make them available to our edge function as environment variables.
+
+To do so, let's create a file called `secrets.json` and add the following content to it:
+
+```json:Secrets.json
+{
+    "REDIS_HOST_NAME": "your_database_host_name_here",
+    "REDIS_REST_TOKEN": "your_redis_rest_token_here"
+}
+```
+
+> The two values above can be copied from the database's view in [Upstash](https://upstash.com): ![A screenshot showing the database view in Upstash and the values to copy](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/copy.webp)
+
+We need to map this file to a [dictionary which Fastly can understand](https://docs.fastly.com/en/guides/about-dictionaries) through the edge function's configuration. Create a `fastly.toml` file and add the following contents to it:
+
+```toml:fastly.toml
+language = "swift"
+manifest_version = 2
+
+[local_server]
+  [local_server.dictionaries]
+    [local_server.dictionaries.secrets]
+      file = "secrets.json"
+      format = "json"
+```
+
+The configuration file above creates a dictionary called `secrets` on the local server with the contents of the `secrets.json` file.
+
+The [ConfigStore object from the Compute Swift package](https://github.com/swift-cloud/Compute/blob/main/Sources/Compute/ConfigStore.swift) is responsible for retrieving data for any specific dictionaries it can find. In this case, it should retrieve the values for the `secrets` dictionary and return an internal error (status code `500`) if it can't.
+
+```swift:main.swift
+import Compute
+
+try await onIncomingRequest { request, response in
+    let secrets = try ConfigStore(name: "secrets")
+    guard let upstashHostName = secrets.get("REDIS_HOST_NAME"),
+          let upstashToken = secrets.get("REDIS_REST_TOKEN") else {
+        try await res.status(500).write("Missing secrets...")
+        return
+    }
+
+    try await response.status(200).send("Hello World!")
+}
+```
+
+Building the package and running the server again should still work in the same way as it did before.
+
+> You should not commit the file with your secrets on it to source control as it will be used for local development only. Once you deploy the function, you will need to create a dictionary called `secrets` with the same key-value pairs as before in either [Fastly](https://www.fastly.com) or [Swift Cloud](https://www.swift.cloud) (see the Deploy section below for more information). I would highly recommend you add the `secrets.json` file to your `.gitignore` to prevent it from ever being committed.
+
+## Retrieving path parameters
+
+Before retrieving a URL for a given key, we need to find out which URL the user has asked for using the shortened name. As I said earlier, we need to get the first path parameter from the request's URL and use it to query [Upstash](https://upstash.com) for a destination to redirect to. Furthermore, we only want to listen for routes with a single path parameter on them and return a `404` not found error in any other case.
+
+[Compute](https://github.com/swift-cloud/Compute) provides a routing mechanism very similar to [Vapor's routing-kit](https://github.com/vapor/routing-kit) which allows us to implement the logic we need for the URL shortener service. The app can define routes and provide specific handlers for each of these through a `Router` instance. If you come from a web development background, this is very similar to how frameworks such as [hono](https://honojs.dev) or [express](https://expressjs.com) work.
+
+The URL shortener API will have a single route and will only listen for `'GET'` request on routes with a single path component:
+
+```swift:main.swift
+import Compute
+
+// 1
+let router = Router()
+
+// 2
+router.get("/:key") { request, response in
+    // 3
+    let secrets = try ConfigStore(name: "secrets")
+    guard let upstashHostName = secrets.get("REDIS_HOST_NAME"),
+          let upstashToken = secrets.get("REDIS_REST_TOKEN"),
+          let key = request.pathParams.get("key") else {
+        try await response.status(500).write("Missing secrets...")
+        return
+    }
+
+    // 4
+    do {
+        // Hardcoded for now...
+        let redirectPath = "https://polpiella.dev/newsletter"
+        try await response.redirect(redirectPath, permanent: true)
+    } catch {
+        try await response.status(404).write("Could not find link for a key with name: \(key)")
+    }
+}
+
+// 5
+try await router.listen()
+```
+
+The new routing mechanism requires a bit of a rewrite as it's no longer using the `onIncomingRequest` function and makes use of a `Router` instance instead. Let's take a closer look at the changes to `main.swift`:
+
+1. Create an instance of `Router` where the available paths will be defined.
+2. Define a route with `GET` method and a single path parameter called key. This key can be retrieved through the `request.pathParams` property.
+3. Retrieve all secrets and the `key` path parameter and return with a server error if any of these values are missing.
+4. If possible, redirect to a URL (which is hardcoded for now) or fail with a not found error if not. For SEO reasons, the API should do a permanent redirect, which will set the status code to `308`.
+5. Finally, make the router listen to incoming requests.
+
+## Retrieving a value from Upstash
+
+Now that all secrets are available and routing is set up, the retrieved key from the request's path can be used to get values from [Upstash](https://upstash.com) through [Swift Cloud's Upstash](https://github.com/swift-cloud/Upstash) library. Let's add it as a dependency to `URLShortener`:
+
+```swift:Package.swift
+// swift-tools-version: 5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "URLShortener",
+    platforms: [.macOS(.v11)],
+    products: [
+        .executable(name: "URLShortener", targets: ["URLShortener"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/swift-cloud/Compute", from: "2.8.0"),
+        .package(url: "https://github.com/swift-cloud/Upstash", branch: "main")
+    ],
+    targets: [
+        .executableTarget(
+            name: "URLShortener",
+            dependencies: ["Compute", "Upstash"]
+        )
+    ]
+)
+```
+
+The [Upstash](https://github.com/swift-cloud/Upstash) library can then be imported and used to retrieve the URL from a given key:
+
+```swift:main.swift
+import Compute
+
+let router = Router()
+
+router.get("/:key") { request, response in
+    // 3
+    let secrets = try ConfigStore(name: "secrets")
+    guard let upstashHostName = secrets.get("REDIS_HOST_NAME"),
+          let upstashToken = secrets.get("REDIS_REST_TOKEN"),
+          let key = request.pathParams.get("key") else {
+        try await response.status(500).write("Missing secrets...")
+        return
+    }
+
+    let client = RedisClient(hostname: upstashHostName, token: upstashToken)
+    do {
+        let redirectPath: String = try await client.get(key)
+        try await res.redirect(redirectPath, permanent: true)
+    } catch {
+        try await response.status(404).write("Could not find link for a key with name: \(key)")
+    }
+}
+
+try await router.listen()
+```
+
+Let's add two more values to the Upstash database (`blog: https://polpiella.dev`, `gh: https://github.com/pol-piella`) and test the implementation works:
+
+<Video src='/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/url-shortener.mp4' controls={false} />
+
+## Deploying
+
+I won't go into too much detail on how to deploy the edge function as [Andrew Barba](https://twitter.com/andrew_barba) has created a [delightful blog post explaining thoroughly how to do so](https://swift.cloud/blog/deploy-server-side-swift-to-fastly). In a nutshell, there are two ways to deploy a Swift Fastly Compute@Edge function:
+
+1. Using [Swift Cloud](https://swift.cloud). This is by far the easiest way of deploying the edge function. It allows you to connect a Github repo and handles all the building and deploying for you on every push to a specific branch. You must proceed with caution as it is still on beta and some functionalities, such as setting custom domains, are not yet available.
+2. Using [Fastly](https://www.fastly.com/products/edge-compute). You can deploy directly to [Fastly](https://www.fastly.com/products/edge-compute), but it requires some extra work. [Andrew Barba's blog post shows you an example of a Github action which deploys the function on every push to main](https://swift.cloud/blog/deploy-server-side-swift-to-fastly#deploy-to-your-own-fastly-account).
+
+## I made a template!
+
+I decided to put together a [template repository](https://github.com/pol-piella/swift-fastly-edge-function) to make it easier for me to start developing a new Fastly edge function with Swift.
+
+This was completely inspired by the [demo project Andrew Barba put together for the Serverside Swift Conference](https://github.com/swift-cloud/sss-conf), so all credit to him, I just collated a lot of the information and put together a template. If you'd like a template with more examples, the [Swift Cloud starter-kit template is also available](https://github.com/swift-cloud/starter-kit).
