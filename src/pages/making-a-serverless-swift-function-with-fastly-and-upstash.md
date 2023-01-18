@@ -13,7 +13,7 @@ setup: |
   import Video from '../components/Video.jsx'
 ---
 
-[Fastly's Compute@Edge](https://www.fastly.com/products/edge-compute) is a service which allows you to build and deploy serverless applications at the _edge_. These so called **edge functions** are serverless applications which are deployed to a number of regions across the world so that they are as close to users as possible. On top of the benefits which serverless computing provides, such as not having to maintain the server infrastructure, edge functions are extremely quick and have very low latency.
+[Fastly's Compute@Edge](https://www.fastly.com/products/edge-compute) is a service which allows you to build and deploy serverless applications at the _edge_. These so called **edge functions** are applications which are deployed to a number of regions across the world so that they are as close to users as possible. On top of the benefits which serverless computing provides, such as not having to maintain the server infrastructure, edge functions are extremely quick and have very low latency.
 
 ![An image showing the edge function locations worldwide for Fastly edge computing applications](/assets/posts/making-a-serverless-swift-function-with-fastly-and-upstash/fastly-edge.webp)
 
@@ -21,7 +21,7 @@ I have been wanting to try this service out for a while as I believe edge functi
 
 ## Creating a Swift package
 
-The first step is to create an executable Swift package:
+Let's get started by creating an executable Swift package:
 
 ```bash:Terminal
 swift package init --type executable --name URLShortener
@@ -54,7 +54,9 @@ let package = Package(
 )
 ```
 
-Now that `Compute` is available to the `URLShortener` target, we can modify its entry point (`main.swift`) to handle incoming requests. The simplest compute handler consists of an awaited call to `onIncomingRequest`, a method from the [Compute](https://github.com/swift-cloud/Compute) library which takes in a closure with two parameters (a request and a response). This closure is an `async` context, which means that structured concurrency can be used within it. The request parameter provides context on the incoming event and the response parameter is responsible for handling the edge function's return data and status codes.
+Now that `Compute` is available to the `URLShortener` target, we can modify its entry point (`main.swift`) to handle incoming requests. The simplest form of a Fastly Compute@Edge handler consists of an awaited call to `onIncomingRequest`, a method from the [Compute](https://github.com/swift-cloud/Compute) library which takes in a closure with two parameters (a request and a response).
+
+This closure provides an `async` context, which means that structured concurrency can be used within it. The request parameter provides context on the incoming event and the response parameter is responsible for handling the edge function's return data and status codes.
 
 ```swift:main.swift
 import Compute
@@ -98,7 +100,7 @@ brew install fastly/tap/fastly
 fastly compute serve --skip-build --file ./.build/debug/URLShortener.wasm
 ```
 
-The [Fastly CLI](https://developer.fastly.com/reference/cli) should output the URL for the local server it has spun up (e.g. `http://127.0.0.1:7676`). If we now make a `GET` request to that URL, we will be greeted with a response of `"Hello World!"` with status code `200`.
+The [Fastly CLI](https://developer.fastly.com/reference/cli) should output the URL for the local server it has spun up (e.g. `http://127.0.0.1:7676`). If we now make a `GET` request to that URL, we will be greeted with a response of `"Hello World!"` and status code of `200`.
 
 > Note that whenever you make any changes to your application you will have to kill the server, re-build and start the server again to get the latest changes.
 
@@ -121,7 +123,7 @@ Now that the database is ready, we can add an entry of key `newsletter` and valu
 
 ## Environment variables
 
-To query the new [Upstash](https://upstash.com) database we've just created, we'll use [Swift Cloud's Upstash library](https://github.com/swift-cloud/Upstash), which interfaces with [Upstash](https://upstash.com)'s REST API under the hood. We will need to provide the library with a rest API token and the database's endpoint from [Upstash](https://upstash.com)'s console. We don't want to hardcode these values as strings in our code for security reasons and we should make them available to our edge function as environment variables.
+To query the new [Upstash](https://upstash.com) database we've just created, we'll use [Swift Cloud's Upstash library](https://github.com/swift-cloud/Upstash), which interfaces with [Upstash](https://upstash.com)'s REST API under the hood. We will need to provide the library with a REST API token and the database's endpoint from [Upstash](https://upstash.com)'s console. We don't want to hardcode these values as strings in our code for security reasons and we should make them available to our edge function as environment variables.
 
 To do so, let's create a file called `secrets.json` and add the following content to it:
 
@@ -149,7 +151,7 @@ manifest_version = 2
 
 The configuration file above creates a dictionary called `secrets` on the local server with the contents of the `secrets.json` file.
 
-The [ConfigStore object from Compute](https://github.com/swift-cloud/Compute/blob/main/Sources/Compute/ConfigStore.swift) is responsible for retrieving data for any specific dictionaries it can find. In this case, it should retrieve the values for the `secrets` dictionary and return an internal error (status code `500`) if it can't.
+The [ConfigStore object from the Compute Swift package](https://github.com/swift-cloud/Compute/blob/main/Sources/Compute/ConfigStore.swift) is responsible for retrieving data for any specific dictionaries it can find. In this case, it should retrieve the values for the `secrets` dictionary and return an internal error (status code `500`) if it can't.
 
 ```swift:main.swift
 import Compute
@@ -168,13 +170,13 @@ try await onIncomingRequest { request, response in
 
 Building the package and running the server again should still work in the same way as it did before.
 
-> You should not commit the file with your secrets on it as this will be used only for local development. Once you deploy the function, you will need to create a dictionary called `secrets` with the same key-value pairs as before. I would highly recommend you to add `secrets.json` to your `.gitignore` to prevent it from ever being committed.
+> You should not commit the file with your secrets on it to source control as it will be used for local development only. Once you deploy the function, you will need to create a dictionary called `secrets` with the same key-value pairs as before in either [Fastly](https://www.fastly.com) or [Swift Cloud](https://www.swift.cloud) (see the Deploy section below for more information). I would highly recommend you add the `secrets.json` file to your `.gitignore` to prevent it from ever being committed.
 
 ## Retrieving path parameters
 
-Before retrieving a URL for a given key, we need to find out which URL the user wants to retrieve by its shortened name. As I said earlier, we need to get the first path parameter from the request's URL and use it to query [Upstash](https://upstash.com) for a destination to redirect to. Furthermore, we only want to listen for routes with a single path parameter and return a `404` not found error in any other case.
+Before retrieving a URL for a given key, we need to find out which URL the user has asked for using the shortened name. As I said earlier, we need to get the first path parameter from the request's URL and use it to query [Upstash](https://upstash.com) for a destination to redirect to. Furthermore, we only want to listen for routes with a single path parameter on them and return a `404` not found error in any other case.
 
-[Compute](https://github.com/swift-cloud/Compute) provides a routing mechanism very similar to [Vapor's routing-kit](https://github.com/vapor/routing-kit) which allows us to implement the logic we need for the URL shortener service. The app can define routes and provide specific handlers for each of these through a `Router` instance. If you come from a web development background, this is very similar to frameworks such as [hono](https://honojs.dev) or [express](https://expressjs.com).
+[Compute](https://github.com/swift-cloud/Compute) provides a routing mechanism very similar to [Vapor's routing-kit](https://github.com/vapor/routing-kit) which allows us to implement the logic we need for the URL shortener service. The app can define routes and provide specific handlers for each of these through a `Router` instance. If you come from a web development background, this is very similar to how frameworks such as [hono](https://honojs.dev) or [express](https://expressjs.com) work.
 
 The URL shortener API will have a single route and will only listen for `'GET'` request on routes with a single path component:
 
@@ -209,7 +211,7 @@ router.get("/:key") { request, response in
 try await router.listen()
 ```
 
-The new routing mechanism requires a bit of a rewrite as it's no longer using the `onIncomingRequest` function and makes use of a `Router` instance instead:
+The new routing mechanism requires a bit of a rewrite as it's no longer using the `onIncomingRequest` function and makes use of a `Router` instance instead. Let's take a closer look at the changes to `main.swift`:
 
 1. Create an instance of `Router` where the available paths will be defined.
 2. Define a route with `GET` method and a single path parameter called key. This key can be retrieved through the `request.pathParams` property.
