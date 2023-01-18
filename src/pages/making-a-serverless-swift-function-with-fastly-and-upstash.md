@@ -3,7 +3,7 @@ title: 'Making a serverless Swift function with Fastly and Upstash'
 slug: 'making-a-serverless-swift-function-with-fastly-and-upstash'
 excerpt: 'Making a URL shortener serverless edge function using Fastly and Upstash.'
 pubDate: '2023-01-18'
-readtime: '10'
+readtime: '11'
 tags:
   [{ name: 'Serverless', slug: 'serverless' }, { name: 'Swift', slug: 'swift' }]
 author:
