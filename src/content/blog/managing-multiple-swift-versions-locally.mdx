@@ -7,11 +7,10 @@ readtime: '3'
 tags: [{ name: 'Swift', slug: 'swift' }]
 author:
   name: 'Pol Piella'
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
 
 import Video from '../components/Video.jsx'
-
 
 The most common way of installing a version of Swift is by downloading [Xcode](https://developer.apple.com/xcode-cloud/).
 
@@ -71,7 +70,7 @@ Xcode has out of the box support for switching between different Swift toolchain
 
 Pick a toolchain from the list to start using it. Xcode shows an indicator next to the build status menu to denote the usage of a toolchain. To go back to Xcode's default Swift toolchain, tap on the icon and select the `Xcode`-named option from the list.
 
-<Video src='/assets/posts/managing-multiple-swift-versions-locally/deselect.mp4' />
+<Video src="/assets/posts/managing-multiple-swift-versions-locally/deselect.mp4" />
 
 ## Command line
 

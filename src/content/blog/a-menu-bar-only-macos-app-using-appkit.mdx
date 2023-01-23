@@ -7,8 +7,9 @@ readtime: '5'
 tags: [{ name: 'AppKit', slug: 'appkit' }, { name: 'Swift', slug: 'swift' }]
 author:
   name: 'Pol Piella'
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
+
 import Video from '../components/Video.jsx'
 
 This week I have started a journey to develop and (maybe 😅) release my first ever macOS application. It will be a menu bar app, called Shush 🤫, which will allow users to mute all their computer's input devices using [CoreAudio](https://developer.apple.com/documentation/coreaudio).
@@ -45,7 +46,10 @@ Let's go through the app startup code above step by step:
 
 Running the application at this point does nothing as the menu bar item has not yet been set up but it can be seen that the app icon does not appear in the dock despite it running! 🎉
 
-<Video src='/assets/posts/a-menu-bar-only-macos-app-using-appkit/no-dock.mp4' controls={false} />
+<Video
+  src="/assets/posts/a-menu-bar-only-macos-app-using-appkit/no-dock.mp4"
+  controls={false}
+/>
 
 ## Setting up a menu bar icon
 
@@ -126,7 +130,10 @@ Let's break down the code to understand what's going on:
 
 And finally, running the app again now shows a view when the menu bar item is pressed and the icon dynamically changes when the `NSMenuItem` within it is tapped on.
 
-<Video src='/assets/posts/a-menu-bar-only-macos-app-using-appkit/toggle-mute.mp4' controls={false} />
+<Video
+  src="/assets/posts/a-menu-bar-only-macos-app-using-appkit/toggle-mute.mp4"
+  controls={false}
+/>
 
 ## More to come...
 

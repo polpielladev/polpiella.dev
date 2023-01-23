@@ -7,7 +7,7 @@ readtime: "10"
 tags: [{ name: "Swift Package Manager", slug: "spm" }, { name: "Swift", slug: "swift" }]
 author:
 	name: "Pol Piella"
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
 
 Swift packages are becoming more and more important in **iOS** and **macOS** development. Apple has been pushing hard to bridge the gaps and fix the issues that were preventing developers from moving their libraries and dependencies over to SPM from other dependency managers such as [Carthage](https://github.com/Carthage/Carthage) or [CocoaPods](https://github.com/CocoaPods/CocoaPods), such as not being able to add build steps. This was a dealbreaker for any libraries that relied on some code generation, such as protoc or swiftgen.

@@ -7,8 +7,9 @@ readtime: '3'
 tags: [{ name: 'Swift', slug: 'swift' }, { name: 'Testing', slug: 'testing' }]
 author:
   name: 'Pol Piella'
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
+
 import Video from '../components/Video.jsx'
 
 Xcode provides out of the box support for UI testing apps through the `XCTest` framework. The anatomy of a unit test case consists of an instance of `XCUIApplication`, which launches the target under test, and a set of assertions against such target.
@@ -98,7 +99,11 @@ final class UITesting: XCTestCase {
 }
 ```
 
-<Video client:load src='/assets/posts/configuring-ui-tests-with-launch-arguments/localisation.mp4' controls={false} />
+<Video
+  client:load
+  src="/assets/posts/configuring-ui-tests-with-launch-arguments/localisation.mp4"
+  controls={false}
+/>
 
 ## Content size
 
@@ -124,4 +129,8 @@ final class UITesting: XCTestCase {
 
 The video below shows a set of UI tests running with different content size categories.
 
-<Video client:load src='/assets/posts/configuring-ui-tests-with-launch-arguments/dynamic-type.mp4' controls={false} />
+<Video
+  client:load
+  src="/assets/posts/configuring-ui-tests-with-launch-arguments/dynamic-type.mp4"
+  controls={false}
+/>

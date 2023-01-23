@@ -12,8 +12,9 @@ tags:
   ]
 author:
   name: 'Pol Piella'
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
+
 import Video from '../components/Video.jsx'
 
 It had been a while since I had to start a new side project from scratch which required support for multiple languages from the get-go. Certainly not from scratch in a codebase where the code was divided into different modules by making use of Swift Packages.
@@ -119,7 +120,7 @@ There are two different ways we can make localisation work in our features: **ma
 
 One way of enable new localisations in the 'Features' Swift Package would be to add them to the Xcode project importing the features. This can be achieved by heading over to the Xcode project and, in the `Info` tab of the project settings, adding the new localisation/s to support:
 
-<Video src='/assets/posts/modularised-app-localisation/adding-a-localisation.mp4' />
+<Video src="/assets/posts/modularised-app-localisation/adding-a-localisation.mp4" />
 
 > Note that for this to work, the localisation will need to have at least 1 localised file (e.g. an empty `Localizable.strings` file). In this case, because the app target is built using UIKit and the launch screen storyboard was chosen to be localised when adding the new localisation (see video above), there is already one localised file.
 
@@ -144,7 +145,7 @@ There are a couple of things to bear in mind with this approach though:
 1. There is no longer any need to add localisations to the app target, adding the `lproj` with the localised content to the package's resources is enough. When a user changes locale, the package will either show content for that locale if it exists as a resource or for the default provided in its `Package.swift`.
 2. There is as many supported regions as there are localisations resources. What this means is that there isn't a single source of truth to determine which localisations are supported across the app. This can lead to issues where, for example, a feature has localised content which has not yet been sourced for other features. In that case, there is no way to hide it other than removing the resource itself:
 
-<Video src='/assets/posts/modularised-app-localisation/mixed-localisations.mp4' />
+<Video src="/assets/posts/modularised-app-localisation/mixed-localisations.mp4" />
 
 Point number two is portrayed in the video above, where the user has its device language set to French. Mixed sources causes an inconsistency as there is no `fr.lproj` on the home screen - hence it falling back to the default localisation, which is english. On the other hand, there is localised content available in the detail screen, which is why the strings are properly trasnlated. For this reason, I like to keep the app target as the source of truth for all supported localisations.
 

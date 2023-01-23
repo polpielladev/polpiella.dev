@@ -12,7 +12,7 @@ tags:
   ]
 author:
   name: 'Pol Piella'
-layout: ../layouts/BlogPostLayout.astro
+layout: /src/layouts/BlogPostLayout.astro
 ---
 
 One of the most important things to keep in mind when building an app's UI is to make sure that it looks good **in all devices** and resizes accordingly for you **users' needs**.
@@ -27,7 +27,10 @@ Our UI is simple and it is an adaptation of a real-world feature that I have rec
 
 As it can be seen in the screenshot below, the button needs to be pinned to the bottom of the screen and the rest of the content should be centered in the rest of the screen, taking up as much space as possible:
 
-<img src="/assets/posts/building-layouts-with-accessibility-in-mind-part-1/design.png" width="250" />
+<img
+  src="/assets/posts/building-layouts-with-accessibility-in-mind-part-1/design.png"
+  width="250"
+/>
 
 In this first part, we'll look at the basic layout of the copy content view and making it resize accordingly and, in the second part, we'll look at leveraging the power of `UIScrollView`s to make content accessible when content size category changes.
 
@@ -169,7 +172,10 @@ Let's take a closer look at the code:
 
 The constraints above are all we need if we inspect iPhone devices, and lead us to the following layout. We can see that the `UIStackView` is always centered in its container and the labels take up as much space as they need to adapt to different text sizes.
 
-<img src="/assets/posts/building-layouts-with-accessibility-in-mind-part-1/iphone.gif" width="250" />
+<img
+  src="/assets/posts/building-layouts-with-accessibility-in-mind-part-1/iphone.gif"
+  width="250"
+/>
 
 But what happens when we look at the iPad? Does it look like we are making a good use of the screen's real estate? Note that we have made the message text a bit longer to see the behaviour of longer text in bigger screens.
 
