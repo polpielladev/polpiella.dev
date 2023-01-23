@@ -1,5 +1,5 @@
 ---
-const posts = await Astro.glob('./*.md')
+const posts = await Astro.glob('./*.mdx')
 const sortedPosts = posts.sort(
   (a, b) =>
     new Date(b.frontmatter.date).valueOf() -

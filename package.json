@@ -32,6 +32,7 @@
     "remark-code-titles": "^0.1.2"
   },
   "dependencies": {
+    "@astrojs/mdx": "^0.14.0",
     "@resvg/resvg-js": "^2.2.0",
     "fuse.js": "^6.6.2",
     "isomorphic-fetch": "^3.0.0",

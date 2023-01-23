@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview'
 import uniqBy from '@utils/uniqBy'
 
-const posts = await Astro.glob('./*.md')
+const posts = await Astro.glob('./*.mdx')
 const sortedPosts = posts.sort(
   (a, b) =>
     new Date(b.frontmatter.pubDate).valueOf() -

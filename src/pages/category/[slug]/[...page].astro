@@ -5,7 +5,7 @@ import Paginator from '@components/Paginator'
 import uniqBy from '@utils/uniqBy'
 
 export async function getStaticPaths({ paginate }) {
-  const posts = await Astro.glob('../../*.md')
+  const posts = await Astro.glob('../../*.mdx')
   const categories = uniqBy(
     posts.flatMap((post) => post.frontmatter.tags),
     'slug'

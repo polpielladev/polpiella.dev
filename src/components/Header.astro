@@ -2,7 +2,7 @@
 const { activeNav } = Astro.props
 import SearchBar from '@components/SearchBar'
 
-const posts = await Astro.glob('../pages/*.md')
+const posts = await Astro.glob('../pages/*.mdx')
 
 const searchables = await Promise.all(
   posts.map(async (post) => {

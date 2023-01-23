@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss'
 
-const issuesImportResult = import.meta.globEager('./*.md')
+const issuesImportResult = import.meta.globEager('./*.mdx')
 const issues = Object.values(issuesImportResult).sort(
   (a, b) =>
     new Date(b.frontmatter.date).valueOf() -
