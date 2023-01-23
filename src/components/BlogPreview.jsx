@@ -1,5 +1,5 @@
 export default function BlogPreview({ post }) {
-  const { slug, title, excerpt, pubDate } = post.frontmatter
+  const { slug, title, excerpt, pubDate } = post.data
   const formattedDate = new Date(pubDate).toDateString()
 
   return (
