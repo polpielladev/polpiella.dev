@@ -3,7 +3,6 @@ title: 'Localising a modularised application'
 slug: 'modularised-app-localisation'
 excerpt: 'A few tips that work for me when I need to localise a modular application.'
 pubDate: '2022-07-27'
-readtime: '7'
 tags:
   [
     { name: 'Swift Package Manager', slug: 'spm' },

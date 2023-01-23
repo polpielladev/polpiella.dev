@@ -3,7 +3,6 @@ title: 'Hiding implementation details using the adapter pattern in Swift'
 slug: 'hide-implementation-details-using-the-adapter-pattern'
 excerpt: 'How to hide implementation details using the adapter pattern and decoupling multiple layers of an application, making it easy to test and adapt.'
 pubDate: '2021-08-01'
-readtime: '6'
 tags:
   [
     { name: 'Architecture', slug: 'architecture' },

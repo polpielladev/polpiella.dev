@@ -3,7 +3,6 @@ title: 'Asserting errors from throwing functions'
 slug: 'asserting-errors-from-throwing-functions'
 excerpt: 'Looking at how to use expecations and XCTAssertThrowsError to assert specific errors are being thrown in Swift.'
 pubDate: '2022-01-16'
-readtime: '4'
 tags: [{ name: 'Testing', slug: 'testing' }, { name: 'Swift', slug: 'swift' }]
 author:
   name: 'Pol Piella'

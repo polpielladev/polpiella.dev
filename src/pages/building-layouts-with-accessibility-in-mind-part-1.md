@@ -3,7 +3,6 @@ title: 'Building layouts with accessibility in mind - Part 1'
 excerpt: 'Exploring the power of `UIStackView` and layout guides to lay out a view with accessibility in mind.'
 slug: 'building-layouts-with-accessibility-in-mind-part-1'
 pubDate: '2022-03-15'
-readtime: '8'
 tags:
   [
     { name: 'UIKit', slug: 'uikit' },

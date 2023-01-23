@@ -3,7 +3,6 @@ title: 'Configuring UI tests with launch arguments'
 slug: 'configuring-ui-tests-with-launch-arguments'
 excerpt: 'Launch arguments provide a way to configure the behaviour of an app before running UI tests'
 pubDate: '2022-12-14'
-readtime: '3'
 tags: [{ name: 'Swift', slug: 'swift' }, { name: 'Testing', slug: 'testing' }]
 author:
   name: 'Pol Piella'

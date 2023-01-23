@@ -3,7 +3,6 @@ title: 'Clean Architecture: A Feature Flag Manager'
 excerpt: 'Building a Feature Flag Manager system using clean architecture and SOLID design principles.'
 slug: 'clean-architecture-a-feature-flag-provider'
 pubDate: '2021-05-14'
-readtime: '7'
 tags:
   [
     { name: 'Architecture', slug: 'architecture' },

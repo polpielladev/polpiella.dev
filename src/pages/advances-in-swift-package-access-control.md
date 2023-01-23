@@ -3,7 +3,6 @@ title: "Advances in Swift Package Manager's dependency access control"
 slug: 'advances-in-swift-package-access-control'
 excerpt: 'Taking a look at the latest Swift 5.7 development snapshot to try the new explicit-target-dependency-import-check flag, which provides improvements to the dependency system within SPM.'
 pubDate: '2022-08-03'
-readtime: '5'
 tags:
   [
     { name: 'Swift Package Manager', slug: 'spm' },

@@ -3,7 +3,6 @@ title: 'Xcode Cloud scripts: Fastlane and Cocoapods'
 slug: 'xcode-cloud-scripts-fastlane-and-cocoapods'
 excerpt: 'Learning how to install and use third-party tools in Xcode Cloud through ci scripts.'
 pubDate: '2023-01-04'
-readtime: '3'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }, { name: 'Xcode', slug: 'xcode' }]
 author:
   name: 'Pol Piella'

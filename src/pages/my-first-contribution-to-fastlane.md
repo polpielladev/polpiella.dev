@@ -3,7 +3,6 @@ title: 'My first contribution to Fastlane'
 slug: 'my-first-contribution-to-fastlane'
 excerpt: "A short article on the recent contribution I made to Fastlane's open source project."
 pubDate: '2022-06-02'
-readtime: '5'
 tags:
   [
     { name: 'CI/CD', slug: 'ci-cd' },

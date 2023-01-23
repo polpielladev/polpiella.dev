@@ -3,7 +3,6 @@ title: 'Swift async/await in AWS lambdas'
 slug: 'swift-async-await-in-aws-lambdas'
 excerpt: 'Exploring the new Swift AWS lambda runtime API and how it enables the use of async/await.'
 pubDate: '2022-12-07'
-readtime: '5'
 tags:
   [
     { name: 'Server Side Swift', slug: 'server-side-swift' },
