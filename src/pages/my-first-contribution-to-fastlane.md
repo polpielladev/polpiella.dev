@@ -7,7 +7,6 @@ tags:
     { name: 'CI/CD', slug: 'ci-cd' },
     { name: 'Open Source', slug: 'open-source' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 I have recently contributed for the first time to one of the tools that I have used the most in my career as an iOS developer: [fastlane](https://github.com/fastlane/fastlane). [Fastlane](https://github.com/fastlane/fastlane) is a CI/CD tool which allows iOS and Android developers to automate processes such as uploading binaries to App Store Connect (or Play Store), screenshot generation or running tests and building projects, amongst many others.

@@ -8,7 +8,6 @@ tags:
     { name: 'Dependency Injection', slug: 'dependency-injection' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 When writing code, it is a common scenario to have to deal with dates and perform arithmetic operations with them. Some common use cases include cache invalidation, session tracking, showing live data and formatting dates for display among many others.

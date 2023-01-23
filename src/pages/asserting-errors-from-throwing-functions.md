@@ -3,7 +3,6 @@ title: 'Asserting errors from throwing functions'
 excerpt: 'Looking at how to use expecations and XCTAssertThrowsError to assert specific errors are being thrown in Swift.'
 pubDate: '2022-01-16'
 tags: [{ name: 'Testing', slug: 'testing' }, { name: 'Swift', slug: 'swift' }]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 A very common scenario when designing and testing APIs in Swift is to use `throw`ing functions and, in our test context asserting that, given some conditions, an error is thrown. Thankfully, while it might not be obvious how to do this at first, it is easy to achieve using the `XCTest` framework that we are all familiar with. In this article, I will give a brief overview of two techniques to approach this case case, how they work and why I think `XCTAssertThrowsError` is the simplest and most explicit way of testing these kind of situations. But before we dive right into writing some tests, let's first take a look at the system we'll be testing.

@@ -7,7 +7,6 @@ tags:
     { name: 'Swift Package Manager', slug: 'spm' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 A while ago I was working on a new service at work which consisted of a Swift Package which exposed a protocol similar to `Decodable` for the rest of our app to use. In fact, the protocol inherited from `Decodable` itself and looked like this:

@@ -7,7 +7,6 @@ tags:
     { name: 'Swift Package Manager', slug: 'spm' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 In this year's WWDC, Apple introduced a new way of dealing with Regular Expressions. Regular Expressions, usually referred to as 'Regex', are strings of characters which define a pattern to be targeted in a text search. Despite being a powerful tool to solve a very common problem, their syntax can be very daunting and difficult to understand at first glance. I often find myself making use of resources such as [regex101](https://regex101.com/), which provides a playground for Regular Expressions with detailed explanations on what each element does.

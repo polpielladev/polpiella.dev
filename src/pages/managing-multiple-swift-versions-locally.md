@@ -3,7 +3,6 @@ title: 'Managing multiple versions of Swift locally'
 excerpt: 'A guide on how to download, install and manage different versions of Swift.'
 pubDate: '2022-12-21'
 tags: [{ name: 'Swift', slug: 'swift' }]
-layout: ../layouts/BlogPostLayout.astro
 setup: |
   import Video from '../components/Video.jsx'
 ---

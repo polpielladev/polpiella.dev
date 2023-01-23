@@ -3,7 +3,6 @@ title: 'Handling multiple git SSH keys'
 excerpt: 'A whistle stop tour through my git configuration, showing how to effectively deal with two different git users and SSH keys.'
 pubDate: '2022-09-27'
 tags: [{ name: 'Git', slug: 'git' }]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 I have for a long time fought a silent battle with my SSH configuration when trying to handle two different accounts with different SSH keys: one for work and one for my open source and personal contributions.

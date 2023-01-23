@@ -8,7 +8,6 @@ tags:
     { name: 'Open Source', slug: 'open-source' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 As you will know if you follow me on Twitter, I have been on holiday for a week. While it’s given me time to relax and read, I have not had a lot of time to write articles, so this week’s one is a bit shorter!

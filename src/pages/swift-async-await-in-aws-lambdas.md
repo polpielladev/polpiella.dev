@@ -8,7 +8,6 @@ tags:
     { name: 'Async/Await', slug: 'async-await' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 The [swift-server](https://github.com/swift-server) team have been hard at work getting the first stable release of the [swift-aws-lambda-runtime project](https://github.com/swift-server/swift-aws-lambda-runtime) ready.

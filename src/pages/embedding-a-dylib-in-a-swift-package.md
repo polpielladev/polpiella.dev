@@ -7,7 +7,6 @@ tags:
     { name: 'Swift Package Manager', slug: 'spm' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 I have recently been working on building my own Markdown editor for both `macOS` and `iOS` so that I can use it to write the articles for this blog.

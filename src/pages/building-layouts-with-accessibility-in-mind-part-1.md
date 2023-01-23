@@ -8,7 +8,6 @@ tags:
     { name: 'Accessibility', slug: 'accessibility' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 One of the most important things to keep in mind when building an app's UI is to make sure that it looks good **in all devices** and resizes accordingly for you **users' needs**.

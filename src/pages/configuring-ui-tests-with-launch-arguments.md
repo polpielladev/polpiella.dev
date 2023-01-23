@@ -5,7 +5,6 @@ pubDate: '2022-12-14'
 tags: [{ name: 'Swift', slug: 'swift' }, { name: 'Testing', slug: 'testing' }]
 setup: |
   import Video from '../components/Video.jsx'
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 Xcode provides out of the box support for UI testing apps through the `XCTest` framework. The anatomy of a unit test case consists of an instance of `XCUIApplication`, which launches the target under test, and a set of assertions against such target.

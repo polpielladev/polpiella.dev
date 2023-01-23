@@ -7,7 +7,6 @@ tags:
     { name: 'Swift Package Manager', slug: 'spm' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 One of the issues I have been facing with Swift Packages for a while is its lack of private (or internal) targets and dependencies. I was under the impression that only targets declared explicitly in another target's dependency list would be available to be imported from the latter's code, even if they are all declared in the same `Package.swift` file.

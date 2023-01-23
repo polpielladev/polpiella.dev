@@ -8,7 +8,6 @@ tags:
     { name: 'Accessibility', slug: 'accessibility' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 In the [previous article](https://www.polpiella.dev/building-layouts-with-accessibility-in-mind-part-1) we made use of self-sizing `UIStackView`s to ensure that the layout we built respected all possible user's content size preferences and making all content and buttons accessible.

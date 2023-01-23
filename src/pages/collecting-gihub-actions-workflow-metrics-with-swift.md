@@ -8,7 +8,6 @@ tags:
     { name: 'Tools', slug: 'tools' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 This week at work I have been looking at collecting metrics from [Github Actions Workflow runs](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository). These metrics will help us monitor and plot the duration of our Github Action workflows over time.

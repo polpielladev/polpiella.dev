@@ -4,7 +4,6 @@ excerpt: 'Making a URL shortener serverless edge function using Fastly and Upsta
 pubDate: '2023-01-18'
 tags:
   [{ name: 'Serverless', slug: 'serverless' }, { name: 'Swift', slug: 'swift' }]
-layout: ../layouts/BlogPostLayout.astro
 setup: |
   import Video from '../components/Video.jsx'
 ---

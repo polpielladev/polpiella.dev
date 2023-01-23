@@ -8,7 +8,6 @@ tags:
     { name: 'Tools', slug: 'tools' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 setup: |
   import Video from '../components/Video.jsx'
 ---

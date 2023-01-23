@@ -3,7 +3,6 @@ title: 'Platform specific code in Swift Packages'
 excerpt: 'A set of examples showing how useful compiler directives can become when building cross-platform Swift programs.'
 pubDate: '2022-10-06'
 tags: [{ name: 'Swift', slug: 'swift' }]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 I have recently been trying to get a command line tool which uses my Swift Package [Reading Time](https://swiftpackageindex.com/pol-piella/reading-time) to run in different environments and platforms.

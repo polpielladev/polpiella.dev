@@ -5,7 +5,6 @@ pubDate: '2022-10-26'
 tags: [{ name: 'AppKit', slug: 'appkit' }, { name: 'Swift', slug: 'swift' }]
 setup: |
   import Video from '../components/Video.jsx'
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 This week I have started a journey to develop and (maybe 😅) release my first ever macOS application. It will be a menu bar app, called Shush 🤫, which will allow users to mute all their computer's input devices using [CoreAudio](https://developer.apple.com/documentation/coreaudio).

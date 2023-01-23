@@ -7,7 +7,6 @@ tags:
     { name: 'Architecture', slug: 'architecture' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 ---
 
 In this blog post we will be looking at how to build a Feature Flag Manager in a clean, scalable and reusable way using clean architecture and **SOLID** design principles.

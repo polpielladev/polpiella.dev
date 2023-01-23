@@ -8,7 +8,6 @@ tags:
     { name: 'Internationalisation', slug: 'internationalisation' },
     { name: 'Swift', slug: 'swift' },
   ]
-layout: ../layouts/BlogPostLayout.astro
 setup: |
   import Video from '../components/Video.jsx'
 ---
