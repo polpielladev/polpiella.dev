@@ -1,6 +1,5 @@
 ---
 title: 'Collecting Github Action workflow metrics using Swift'
-slug: 'collecting-gihub-actions-workflow-metrics-with-swift'
 excerpt: 'Creating a command line tool using Swift and async/await to collect metrics on Github Action workflows.'
 pubDate: '2022-11-30'
 tags:

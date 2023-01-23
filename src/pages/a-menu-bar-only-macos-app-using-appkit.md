@@ -1,6 +1,5 @@
 ---
 title: 'A menu bar only macOS app using AppKit'
-slug: 'a-menu-bar-only-macos-app-using-appkit'
 excerpt: 'How to setup a menu bar only macOS app using AppKit.'
 pubDate: '2022-10-26'
 tags: [{ name: 'AppKit', slug: 'appkit' }, { name: 'Swift', slug: 'swift' }]

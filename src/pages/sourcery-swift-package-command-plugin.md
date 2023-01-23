@@ -1,6 +1,5 @@
 ---
 title: 'Sourcery Swift Package command plugin'
-slug: 'sourcery-swift-package-command-plugin'
 excerpt: 'Building a command plugin to execute Sourcery from scratch and explaining the challenges faced while doing so.'
 pubDate: '2022-08-31'
 tags:

@@ -1,7 +1,6 @@
 ---
 title: 'Cancelling unnecessary Github actions automatically'
 excerpt: 'How to make use of the github actions concurrency feature to cancel unnecessary runs automatically. Talking about a real-world example and a tale of two approaches, and why I decided to implement it the way I did.'
-slug: 'cancelling-unnecessary-github-actions-automatically'
 pubDate: '2021-11-26'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }]
 layout: ../layouts/BlogPostLayout.astro

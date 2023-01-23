@@ -1,6 +1,5 @@
 ---
 title: 'From NSRegularExpression to SwiftRegex'
-slug: 'from-nsregular-expression-to-swift-regex'
 excerpt: 'An example of the new SwiftRegex API by refactoring code using NSRegularExpression using the new RegexBuilder framework.'
 pubDate: '2022-08-11'
 tags:

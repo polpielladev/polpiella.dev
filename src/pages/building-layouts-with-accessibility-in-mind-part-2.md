@@ -1,7 +1,6 @@
 ---
 title: 'Building layouts with accessibility in mind - Part 2'
 excerpt: 'Make use of `UIScrollView`s to make the layout built in part 1 even more accessible to all users.'
-slug: 'building-layouts-with-accessibility-in-mind-part-2'
 pubDate: '2022-03-31'
 tags:
   [

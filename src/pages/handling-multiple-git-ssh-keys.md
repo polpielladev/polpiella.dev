@@ -1,6 +1,5 @@
 ---
 title: 'Handling multiple git SSH keys'
-slug: 'handling-multiple-git-ssh-keys'
 excerpt: 'A whistle stop tour through my git configuration, showing how to effectively deal with two different git users and SSH keys.'
 pubDate: '2022-09-27'
 tags: [{ name: 'Git', slug: 'git' }]

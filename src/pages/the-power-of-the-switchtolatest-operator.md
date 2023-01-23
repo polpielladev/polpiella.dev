@@ -1,6 +1,5 @@
 ---
 title: 'Using .switchToLatest()'
-slug: 'the-power-of-the-switchtolatest-operator'
 excerpt: 'In this post, we are going to talk about an operator that I have been using quite a lot recently and, in my opinion, is one of the most powerful within the Combine API.'
 pubDate: '2021-04-28'
 tags: [{ name: 'Combine', slug: 'combine' }, { name: 'Swift', slug: 'swift' }]

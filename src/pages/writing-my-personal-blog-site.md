@@ -1,6 +1,5 @@
 ---
 title: 'Why I wrote my personal blog site'
-slug: 'writing-my-personal-blog-site'
 excerpt: 'A little note on why I decided to write and host all my blogs in my own personal blog website.'
 pubDate: '2021-12-22'
 tags: [{ name: 'Web', slug: 'web' }, { name: 'Career', slug: 'career' }]
