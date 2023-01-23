@@ -4,8 +4,6 @@ slug: "binary-targets-in-modern-swift-packages"
 excerpt: "All you need to know about adding binaries in Swift Packages in 2022."
 pubDate: "2022-05-07"
 tags: [{ name: "Swift Package Manager", slug: "spm" }, { name: "Swift", slug: "swift" }]
-author:
-	name: "Pol Piella"
 layout: ../layouts/BlogPostLayout.astro
 ---
 

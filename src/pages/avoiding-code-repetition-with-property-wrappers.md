@@ -4,8 +4,6 @@ excerpt: 'Exploring how Property Wrappers can come in handy to avoid code repeti
 slug: 'avoiding-code-repetition-with-property-wrappers'
 pubDate: '2021-08-25'
 tags: [{ name: 'Swift', slug: 'swift' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

@@ -4,8 +4,6 @@ slug: 'scripting-in-swift-git-hooks'
 excerpt: 'Using Swift as to write a commit-msg git hook so that adding ticket numbers to a commit message can be automated.'
 pubDate: '2022-05-14'
 tags: [{ name: 'Tools', slug: 'tools' }, { name: 'Swift', slug: 'swift' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

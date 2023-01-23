@@ -4,8 +4,6 @@ excerpt: 'How to take advantage of the custom key decoding strategies to avoid u
 slug: 'custom-key-decoding-strategies-in-swift'
 pubDate: '2021-11-03'
 tags: [{ name: 'Swift', slug: 'swift' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

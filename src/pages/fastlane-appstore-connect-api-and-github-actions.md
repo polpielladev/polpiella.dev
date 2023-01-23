@@ -4,8 +4,6 @@ slug: 'fastlane-appstore-connect-api-and-github-actions'
 excerpt: 'An up to date guide on how to use an App Store Connect API key with Fastlane and Github Actions.'
 pubDate: '2023-01-11'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }, { name: 'Fastlane', slug: 'fastlane' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

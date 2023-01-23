@@ -9,8 +9,6 @@ tags:
     { name: 'Accessibility', slug: 'accessibility' },
     { name: 'Swift', slug: 'swift' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

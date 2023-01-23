@@ -4,8 +4,6 @@ slug: 'looking-back-at-my-2022'
 excerpt: 'As 2022 comes to an end, I take a look at what I have done this year and set goals for 2023.'
 pubDate: '2022-12-28'
 tags: [{ name: 'Career', slug: 'career' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

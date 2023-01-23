@@ -4,8 +4,6 @@ slug: 'testing-your-release-pipeline-using-fastlane'
 excerpt: 'Some processes, such as a release pipeline, are very important but do not get run frequently. In this article, I go through how scheduled CI runs can help you spot failures early and gain confidence in your important and infrequent processes, such as release pipelines.'
 pubDate: '2022-11-19'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

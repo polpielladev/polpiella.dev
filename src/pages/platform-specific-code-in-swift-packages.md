@@ -4,8 +4,6 @@ slug: 'platform-specific-code-in-swift-packages'
 excerpt: 'A set of examples showing how useful compiler directives can become when building cross-platform Swift programs.'
 pubDate: '2022-10-06'
 tags: [{ name: 'Swift', slug: 'swift' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

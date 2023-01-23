@@ -9,8 +9,6 @@ tags:
     { name: 'Internationalisation', slug: 'internationalisation' },
     { name: 'Swift', slug: 'swift' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 setup: |
   import Video from '../components/Video.jsx'

@@ -8,8 +8,6 @@ tags:
     { name: 'CI/CD', slug: 'ci-cd' },
     { name: 'Open Source', slug: 'open-source' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

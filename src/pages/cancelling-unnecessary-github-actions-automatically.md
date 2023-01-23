@@ -4,8 +4,6 @@ excerpt: 'How to make use of the github actions concurrency feature to cancel un
 slug: 'cancelling-unnecessary-github-actions-automatically'
 pubDate: '2021-11-26'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

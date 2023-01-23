@@ -8,8 +8,6 @@ tags:
     { name: 'Swift Package Manager', slug: 'spm' },
     { name: 'Swift', slug: 'swift' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

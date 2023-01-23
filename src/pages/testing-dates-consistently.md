@@ -9,8 +9,6 @@ tags:
     { name: 'Dependency Injection', slug: 'dependency-injection' },
     { name: 'Swift', slug: 'swift' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

@@ -4,8 +4,6 @@ slug: 'updating-your-profile-readme-with-github-actions'
 excerpt: 'In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action.'
 pubDate: '2021-07-15'
 tags: [{ name: 'CI/CD', slug: 'ci-cd' }, { name: 'Swift', slug: 'swift' }]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 

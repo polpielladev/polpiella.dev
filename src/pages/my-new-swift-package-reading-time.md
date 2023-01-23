@@ -9,8 +9,6 @@ tags:
     { name: 'Open Source', slug: 'open-source' },
     { name: 'Swift', slug: 'swift' },
   ]
-author:
-  name: 'Pol Piella'
 layout: ../layouts/BlogPostLayout.astro
 ---
 
