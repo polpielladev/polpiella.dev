@@ -7,12 +7,10 @@ const parser = new MarkdownIt()
 
 export const get = async () => {
   const allBlogPosts = await getCollection('blog')
-  const sortedPosts = allBlogPosts
-    .sort(
-      (a, b) =>
-        new Date(b.frontmatter.pubDate).valueOf() -
-        new Date(a.frontmatter.pubDate).valueOf()
-    )
+  const sortedPosts = allBlogPosts.sort(
+    (a, b) =>
+      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+  )
 
   return rss({
     title: 'Pol Piella Blog',
