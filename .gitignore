@@ -38,3 +38,7 @@ dist/
 
 styles/*
 !styles/Vocab
+
+# Generated content collections
+.astro
+src/env.d.ts

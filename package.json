@@ -16,11 +16,12 @@
   },
   "devDependencies": {
     "@astrojs/react": "1.2.2",
-    "@astrojs/rss": "2.0.0",
-    "@astrojs/tailwind": "2.1.3",
+    "@astrojs/rss": "2.1.0-beta.0",
+    "@astrojs/tailwind": "3.0.0-beta.1",
     "@tailwindcss/typography": "0.5.8",
-    "astro": "1.8.0",
+    "astro": "2.0.0-beta.3",
     "autoprefixer": "10.4.8",
+    "markdown-it": "^13.0.1",
     "prettier": "2.7.1",
     "prettier-plugin-astro": "0.5.3",
     "prettier-plugin-tailwindcss": "0.1.13",
@@ -29,7 +30,8 @@
     "rehype-autolink-headings": "6.1.1",
     "rehype-slug": "5.0.1",
     "rehype-toc": "3.0.2",
-    "remark-code-titles": "^0.1.2"
+    "remark-code-titles": "^0.1.2",
+    "sanitize-html": "^2.8.1"
   },
   "dependencies": {
     "@astrojs/mdx": "^0.14.0",
