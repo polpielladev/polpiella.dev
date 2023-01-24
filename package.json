@@ -15,11 +15,11 @@
     "format:check": "prettier --check ./**/*.{js,jsx,md,css,astro}"
   },
   "devDependencies": {
-    "@astrojs/react": "1.2.2",
-    "@astrojs/rss": "2.1.0-beta.0",
-    "@astrojs/tailwind": "3.0.0-beta.1",
+    "@astrojs/react": "2.0.0",
+    "@astrojs/rss": "2.1.0",
+    "@astrojs/tailwind": "3.0.0",
     "@tailwindcss/typography": "0.5.8",
-    "astro": "2.0.0-beta.3",
+    "astro": "2.0.0",
     "autoprefixer": "10.4.8",
     "markdown-it": "^13.0.1",
     "prettier": "2.7.1",
