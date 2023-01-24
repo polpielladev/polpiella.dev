@@ -13,7 +13,7 @@ export const get = async () => {
   )
 
   return rss({
-    title: 'Pol Piella Blog',
+    title: "Pol Piella's Blog",
     description: 'A blog about iOS mobile app development and Swift.',
     site: 'https://polpiella.dev',
     items: sortedPosts.map((post) => ({
