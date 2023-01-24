@@ -1,0 +1,193 @@
+---
+title: 'From NSRegularExpression to SwiftRegex'
+slug: 'from-nsregular-expression-to-swift-regex'
+excerpt: 'An example of the new SwiftRegex API by refactoring code using NSRegularExpression using the new RegexBuilder framework.'
+pubDate: '2022-08-11'
+readtime: '9'
+layout: /src/layouts/BlogPostLayout.astro
+---
+
+In this year's WWDC, Apple introduced a new way of dealing with Regular Expressions. Regular Expressions, usually referred to as 'Regex', are strings of characters which define a pattern to be targeted in a text search. Despite being a powerful tool to solve a very common problem, their syntax can be very daunting and difficult to understand at first glance. I often find myself making use of resources such as [regex101](https://regex101.com/), which provides a playground for Regular Expressions with detailed explanations on what each element does.
+
+In Swift, up to the upcoming iOS 16 and macOS 13 versions, the way to deal with Regular Expressions was through `NSRegularExpression`.
+
+If you have ever worked with this API at some point, you will know that it can be cumbersome. It requires a regex pattern to be provided as a `String`, has a throwing initialiser and matches and capture groups have to be extracted from `NSTextCheckingResult`s through String indices and ranges.
+
+As you can imagine by now, this process provides very little compiler safety. If your Regex pattern is not valid, or you are accessing a capture group that's not present for a given match, you will only be made aware of it once the app is running. What this implies is that this code will usually be crash-prone and will require a fair amount of error handling – as you will see in the code snippet in the next section.
+
+> This article assumes some knowledge of the current `NSRegularExpression` API for the code examples below. If you're not familiar with it, there is a [great article on the topic](https://nshipster.com/swift-regular-expressions/) by NSHipster's [Matt](https://twitter.com/mattt). I frequently refer to it every single time I have to use `NSRegularExpression` in my projects, so I couldn't write an article on the topic without mentioning it! 🤩
+
+## Painting a picture
+
+A while ago, I was working on a project which required intricate code generation using [Sourcekit](https://github.com/apple/swift/blob/main/tools/SourceKit/docs/Protocol.md). I needed to perform an `index` request on a set of files, which required me to pass their target's compiler arguments. This is a tricky situation because, as far as I know, you can only find out what the exact arguments are for the swift compiler (`swiftc`) from `xcodebuild`'s logs. And, if you've ever had a look through them, they can be hard to decipher! 🧐
+
+To aid the process and save my future self some time, I wrote a command line tool which listed all modules and their compiler arguments from a given `.xcodeproj` or `.xcworkspace`'s build output. Specifically, I was interested in finding all calls to `swiftc` and pulling out the right information from the command. In a very simplified way, the format of the relevant text looks like this:
+
+![An image showing the simplified raw output of the xcodebuild command](/assets/posts/from-nsregular-expression-to-swift-regex/xcodebuild.png)
+
+To extract this specific information, I used a Regular Expression with two capture groups: one for the **module’s name**, which grabbed the word exactly after the `-module-name` flag and one for the compiler arguments, which will always follow the module's name. The following image shows the result of applying the Regular Expression pattern `swiftc.*-module-name\s(\w*\b)(\s(.*))?` to the project’s `xcodebuild` output:
+
+![An image showing the effect of the intended regex result on the raw xcodebuild output.](/assets/posts/from-nsregular-expression-to-swift-regex/xcodebuild-matches-and-captures.png)
+
+The parsing code at the time made use of `NSRegularExpression` to pull out the right information and convert it to a more desirable format (a tuple typealiased to `Module` for convenience):
+
+```swift:Parser.swift
+import Foundation
+
+typealias Module = (name: String, arguments: String?)
+enum Parser {
+    static func parse(string: String) -> [Module] {
+	    // 1
+        let regex = try? NSRegularExpression(
+		    pattern: #"swiftc.*-module-name\s(\w*\b)(\s(.*))?"#,
+			options: .caseInsensitive
+		)
+        // 2
+        let matches = regex?.matches(
+	        in: string,
+	        range: NSRange(location: .zero, length: string.count)
+        ) ?? []
+        // 3
+        return matches.compactMap { result in
+            guard result.numberOfRanges > 0,
+                let moduleName = extractCaptureGroupString(
+                    from: result,
+                    at: 1,
+                    in: string
+                ) else {
+                return nil
+            }
+
+            return (
+                moduleName,
+                extractCaptureGroupString(
+                    from: result,
+                    at: 2,
+                    in: string
+                )
+            )
+        }
+    }
+
+    private static func extractCaptureGroupString(
+	    from result: NSTextCheckingResult,
+	    at index: Int,
+	    in text: String
+    ) -> String? {
+        guard index < result.numberOfRanges,
+            let stringRange = Range(
+                result.range(at: index),
+                in: text
+            ) else {
+                return nil
+        }
+
+        return String(text[stringRange])
+    }
+}
+```
+
+Looking a bit closer at what the code above does, we can see that:
+
+1. A regular expression is created. This step can throw an error, so **error handling needs to be provided** and is not checked at compile time.
+2. Matches between the given string's start and end indices are **enumerated**.
+3. The matches are **checked to see if they contain capture groups**. For this specific example, there **will always at least be one capture group** containing the module’s name and, **in some cases**, a second one containing the compiler arguments, which will be made optional. This requires writing numerous checks to make sure no **out of bounds exceptions occur at runtime**, and the concept of optionality is introduced by the consumer of the API, rather than the API itself.
+
+You can probably start to see a pattern, the process is cumbersome, hard to read and, if not written carefully, it can easily cause runtime exceptions.
+
+## SwiftRegex to the rescue
+
+Thankfully, the Swift standard library team have done some outstanding work in this area and have created `SwiftRegex`, a Domain Specific Language (DSL) to handle all regex-related code.
+
+Aside from its simplicity and its compile-time safety, what I like the most is its use of Result Builders, which allows developers to create Regular Expressions in Swift effortlessly and verbosely, with very little need to be familiar with traditional Regex syntax.
+
+### Rewriting a Regex string using Result Builders
+
+Let's take a look at how the code above can be re-written using Result Builders. The code snippet below shows how each of the statements in the builder relates to the original Regex pattern string:
+
+```swift:Parser.swift
+import RegexBuilder
+	// swiftc.*-module-name\s(\w*\b)(\s(.*))?
+    static let regex = Regex {
+	    // swiftc
+        "swiftc"
+        // .*
+        ZeroOrMore(.any)
+        // -module-name
+        "-module-name"
+        // \s
+        One(.whitespace)
+        // (\w*\b)
+        Capture {
+            OneOrMore(.word)
+            Anchor.wordBoundary
+        }
+        // (\s(.*))?
+        Optionally {
+            One(.whitespace)
+            Capture {
+                OneOrMore(.any)
+            }
+        }
+    }.anchorsMatchLineEndings()
+```
+
+Let's again look at the code above step by step and compare to how each block relates to the string pattern we previously had:
+
+- First, the `RegexBuilder` module must be imported.
+- A `Regex` type is initialised using the `@RegexComponentBuilder` provided by the new API.
+- The `"swiftc"` string and `"-module-name"` have to be matched exactly, so they can be passed as raw strings.
+- Between those two strings, there must be zero or more characters of any kind.
+- There must be exactly one whitespace character after the `"-module-name"` string.
+- The first capture group is then introduced, matching at least one, if not more, words anchored by the word boundary. This will define the module's name. The return type in this case will ultimately be `Substring`.
+- The second group comes straight after, and it might or might not be present. This can be specified as `Optionally` being present, and the return type will reflect it! The group will be captured only if there is one whitespace before it and will match any character after it. The resulting type will ultimately be `Substring?`, reflecting the optional nature of the capture group.
+
+Beautiful right? 🤩 The code becomes so much readable than the string pattern we saw in the initial example. Every statement can be read and understood and, if I were to come back to this code in the future, I'd understand its functionality a lot quicker.
+
+It is also checked at compile time, so we can be sure that the regex is valid once the app is running and, one of my favourite features, the concept of optionality is provided by the API!
+
+> Apple has provided very comprehensive documentation for this new API, and all available operators, quantifiers and components can be found [on the RegexBuilder’s documentation page](https://developer.apple.com/documentation/RegexBuilder).
+
+Even better, [Kishikawa Katsumi](https://twitter.com/k_katsumi 'https://twitter.com/k_katsumi') has built an online playground and converter called [SwiftRegex](https://swiftregex.com/?s=H4sIAAAAAAAAA6VRwU6DQBD9lcnGxDYiLIu1SW/Y5bBRoSnbk+sBgXIQWAJLIql8jX/il7m0CVo8ePAlk5nJ5r15s3NAFVqh2XrrUcbfqXfH+FyI5momRHKwDdJbZ8VNP0cGkmj1hDJdFOjZQMrWCvfMp3AEdbkHI5gfcsZ3nAU+TOA+Bjufi/L6nxDlyf2giR0L2xbBhAzdJupqmeewr2UBaVHlskvr0/ALgrFJnCnXGblh21RprMCd2h64BsZ4CBNjUR4/DX4r8DS5bGCTKtjK+BXCqIxVG9XdXwqLUYHKNtMStM1kq3SXNd8eHMckyzPq7c/hwdte1gmsZVFEepeqyjt4UImpnz4/FkvT0avrA77o0+mkyJD7Lxfrlj8NAgAA). Aside from features such as a playground for testing the new builder DSL syntax from a browser, it allows you to convert Regex strings into the equivalent Swift code from `RegexBuilder` 🎉.
+
+![The result of converting a Regex string pattern into the new API using the  SwiftRegex website.](/assets/posts/from-nsregular-expression-to-swift-regex/swift-regex.png)
+
+### Finding matches in text
+
+Let's now take a look at how the matches and capture groups can be extracted:
+
+```swift:Parser.swift
+enum ArgumentParser {
+	// ...
+    static func parse(string: String) -> [Module] {
+        string
+	        // 1
+            .matches(of: regex)
+            // 2
+            .map { match in
+	            // 3
+                let (_, moduleName, compilerArguments) = match.output
+                var module: Module = (String(moduleName), nil)
+                if let compilerArguments {
+                    module.arguments = String(compilerArguments)
+                }
+                return module
+            }
+    }
+}
+```
+
+Looking a bit closer at what the code above does, the steps from extracting the right information from the given text are:
+
+1. Use the `String` method `.matches` and pass it the Regex pattern to obtain all matches in the text.
+2. Iterate through all matches and `map` them to the desired result type. In this case, this will be the same `Module` tuple used earlier in the article.
+3. Extract the properties from `match.output`. The first property is always the `wholeMatch`, which is the entirety of the matched string. The other two in this case are the capture groups defined in the `Regex` object: the module's name and the compiler arguments string.
+
+## Wrapping up…
+
+That's it! That is all it takes to extract content from some given text using Regular Expressions using the new `RegexBuilder` framework. I have to say I am a big fan of the use of Result Builders to create patterns and how easy it is to introduce optionality into the mix as well with the assurances provided by its great compiler safety.
+
+There are other features introduced in the new `SwiftRegex` framework, but this article only covers the result builders feature, which is my favourite from this year's WWDC! If you want to learn more about `SwiftRegex`, definitely check out this year's two sessions on it:
+
+1. [Meet Swift Regex](https://developer.apple.com/videos/play/wwdc2022/110357/).
+2. [Swift Regex: Beyond the basics](https://developer.apple.com/videos/play/wwdc2022/110358/).

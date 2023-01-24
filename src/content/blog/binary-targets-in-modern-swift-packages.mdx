@@ -1,0 +1,141 @@
+---
+title: 'Binary targets in modern Swift packages'
+slug: 'binary-targets-in-modern-swift-packages'
+excerpt: 'All you need to know about adding binaries in Swift Packages in 2022.'
+pubDate: '2022-05-07'
+readtime: '10'
+layout: /src/layouts/BlogPostLayout.astro
+---
+
+Swift packages are becoming more and more important in **iOS** and **macOS** development. Apple has been pushing hard to bridge the gaps and fix the issues that were preventing developers from moving their libraries and dependencies over to SPM from other dependency managers such as [Carthage](https://github.com/Carthage/Carthage) or [CocoaPods](https://github.com/CocoaPods/CocoaPods), such as not being able to add build steps. This was a dealbreaker for any libraries that relied on some code generation, such as protoc or swiftgen.
+
+## Understanding the binary evolution in Swift
+
+To fully understand some of the steps that the Swift team at Apple have taken with regard to binary targets and some of the new APIs that they have introduced, we need to understand where these come from. In the following sections, we'll investigate the evolution of the Apple architectures and why binary target APIs have had to evolve in the past couple of years, especially since the release of Apple's own silicon chips.
+
+### Fat Binaries and Frameworks
+
+If you've had to deal with binary dependencies, or you've created an executable of your own, you will be familiar with the term **fat binaries**. These are executables that have been expanded (or _fattened_) to contain multiple slices built natively for different architectures. This allows library owners to distribute a single binary that runs on all the intended target architectures.
+
+Precompiling libraries into executables makes sense when the sources themselves can not be exposed or when dealing with very large codebases, as precompiling them and distributing them as binaries would save the client having to build them on their app.
+
+[Pods](https://cocoapods.org) are a very good example of this, as developers find themselves unnecessarily building dependencies that very rarely change. It is such a common issue that it has inspired projects such as [cocoapods-binary](https://github.com/leavez/cocoapods-binary), which precompiles pod dependencies to reduce build times client-side.
+
+#### Frameworks
+
+Embedding a static binary might be just good enough for an application but, if certain resources such as assets or headers are required, these will need to be bundled together with the **fat binary** file containing all of the slices into a so-called `framework` file.
+
+This is what precompiled libraries such as [Google Cast](https://developers.google.com/cast/docs/ios_sender#manual_setup) were doing until before they transitioned to using an `xcframework` for distribution - more on the why of this transition in the following section.
+
+So far so good. If we are precompiling a library for distribution, a fat binary sounds ideal right? And if we need to bundle some other resources, we can just use a `framework`. **One binary to rule them all**!
+
+#### XCFrameworks
+
+Well, not quite... There is a big issue with fat binaries, which is that you can't have two slices with the same architecture but different commands/instructions on them. This used to be fine as architectures for device and simulators were always different, but, with the introduction of Apple Silicon computers (M1), simulators and devices share the same architecture (`arm64`), but have different loader commands. This, in combination with future-proofing binary targets, is exactly why Apple introduced [XCFrameworks](https://developer.apple.com/videos/play/wwdc2019/416/).
+
+> You can learn more about the differences between arm64 slices built for iOS devices and arm64 slices built for iOS simulators for M1 macs in [this brilliant article](https://bogo.wtf/arm64-to-sim.html) by [Bogo Giertler](https://twitter.com/giertler).
+
+[XCFrameworks](https://help.apple.com/xcode/mac/11.4/#/dev6f6ac218b) now allow multiple binaries to be bundled together, solving the device and simulator clashing architecture issue that M1 macs introduced, as we can now provide a binary containing the relevant slices for each use case. In fact, we could go even further if we needed to and, for example, do things such as bundle a binary containing `UIKit` interfaces for iOS targets and one containing `AppKit` interfaces for macOS ones in the same xcframework and just let Xcode decide which one to use based on the intended target.
+
+In Swift Packages, these can be included in as a [binaryTarget](https://developer.apple.com/documentation/swift_packages/distributing_binary_frameworks_as_swift_packages), which can then be imported into any other targets in the the package. The same thing applies for `framework` files.
+
+## What about Command Line Tools?
+
+Since the introduction of [Extensible Build Tools](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md) for Swift Package Manager as part of the release of Swift 5.6, commands can be executed at different times during the build process.
+
+This is something that has been heavily demanded by the iOS community for a very long time, to do such things as formatting source code, code generation or even collecting metrics on the codebase in hand. All of these so called [Plugins](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md#plugin-api) in Swift 5.6 will eventually need to call an executable to perform a specific task. This is where binaries get involved again in Swift Packages.
+
+In most cases, for us iOS developers, the tools will come in the form of fat binaries that support both macOS slices — arm64 for silicon macs and x86_86 for Intel macs. This is the case for developer tools such as [SwiftLint](https://github.com/realm/SwiftLint) or [SwiftGen](https://github.com/SwiftGen/SwiftGen). In this case, a new binary target can be created with a path to a `.zip` file containing the executable (either local or remote).
+
+> Note that the executable must be in the root directory of the `.zip` file, otherwise it will not be found.
+
+### Artifact Bundles
+
+The approach followed for command line tools so far works only for macOS architectures. We mustn't forget though, that Swift Packages are also supported on Linux machines. This means that the fat binary approach above would not work if both M1 macs (`arm64`) and Linux `arm64` machines are to be supported - remember that a binary cannot contain multiple slices with the same architecture. One might think at this stage, can we not just use `xcframeworks` for this? No, because they are not supported on Linux operating systems!
+
+Apple have thought about this though and, alongside the introduction of [Extensible Build Tools](https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md), [Artifact Bundles](https://github.com/apple/swift-evolution/blob/main/proposals/0305-swiftpm-binary-target-improvements.md) and other improvements to binary targets were also released as part of Swift 5.6.
+
+Artifact Bundles are directories which contain _artifacts_. These artifacts need to contain all different binaries for the supported architectures. The paths to the binaries and the supported architectures are specified using a _manifest_ file (`info.json`), which sits at the root of the Artifact Bundle directory. You can think of this manifest file as a map or guide to help Swift determine which executables can be used for which architecture and where they can be found.
+
+#### SwiftLint as an example
+
+[SwiftLint](https://github.com/realm/SwiftLint) is widely used across the community as a linter for Swift code. As a lot of people will be very eager to get this plugin working on their SwiftPM projects, I thought it would be a good example to show how we can turn the distributed executables from their release page into an artifact bundle that is compatible with both macOS architectures and Linux `arm64`.
+
+Let's start by downloading both executables ([macOS](https://github.com/realm/SwiftLint/releases/download/0.47.0/portable_swiftlint.zip) and [Linux](https://github.com/realm/SwiftLint/releases/download/0.47.0/swiftlint_linux.zip)).
+
+At this point, the structure of the bundle can be created. To do so, create a directory named `swiftlint.artifactbundle` and add an empty `info.json` at its root:
+
+```bash:Terminal
+mkdir swiftlint.artifactbundle
+touch swiftlint.artifactbundle/info.json
+```
+
+Now the manifest file can be populated with the `schemaVersion`, which might change in future releases of artifact bundles and an artifact with two variants, which will be defined shortly:
+
+```json:info.json
+{
+    "schemaVersion": "1.0",
+    "artifacts": {
+        "swiftlint": {
+            "version": "0.47.0", # The version of SwiftLint being used
+            "type": "executable",
+            "variants": [
+            ]
+        },
+    }
+}
+```
+
+The last thing that needs doing is to add the binaries to the bundle and then add them as variants in the `info.json` file. Let's start by creating the directories and putting the binaries in them (the macOS one in `swiftlint-macos/swiftlint` and the Linux one in `swiftlint-linux/swiftlint`).
+
+After adding these, the variants can be defined in the manifest file:
+
+```json:info.json
+{
+    "schemaVersion": "1.0",
+    "artifacts": {
+        "swiftlint": {
+            "version": "0.47.0", # The version of SwiftLint being used
+            "type": "executable",
+            "variants": [
+			          {
+                    "path": "swiftlint-macos/swiftlint",
+                    "supportedTriples": ["x86_64-apple-macosx", "arm64-apple-macosx"]
+                },
+	              {
+                    "path": "swiftlint-linux/swiftlint",
+                    "supportedTriples": ["x86_64-unknown-linux-gnu"]
+                },
+            ]
+        },
+    }
+}
+```
+
+To do so, for each variant both the relative path (from the root of the artifact bundle directory) to the binary and the supported triples need to be specified. If you're not familiar with [target triples](https://clang.llvm.org/docs/CrossCompilation.html#target-triples), they are a way of selecting which architecture a binary is being built for. Note that this is not the architecture of the **host** machine (the one that builds the executable) but rather the **target** machine (the one that is supposed to run said executable).
+
+These triples have the following format: `<architecture>-<subarchitecture>-<vendor>-<sys>-<abi>` where not all the fields are required and if, one of the fields is not known and defaults are to be used it can be left out or replaced with the `unknown` keyword.
+
+The architecture slices for the executables can be found by running `file <executable_path>`, which will print both the vendor, system and architecture of any slices bundled. In this cases running it for both commands reveals:
+
+```bash:swiftlint-macos/swiftlint
+swiftlint: Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit executable x86_64] [arm64]
+swiftlint (for architecture x86_64):	Mach-O 64-bit executable x86_64
+swiftlint (for architecture arm64):	Mach-O 64-bit executable arm64
+```
+
+```bash:swiftlint-linux/swiftlint
+-> file swiftlint
+swiftlint: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, with debug_info, not stripped
+```
+
+Which leads to the two supported triples for macOS (`x86_64-apple-macosx‌`, `arm64-apple-macosx`) and the one for Linux (`x86_64-unknown-linux-gnu`) shown above.
+
+Similarly to `XCFrameworks`, artifact bundles can also be included in Swift Packages by using a [binaryTarget](https://developer.apple.com/documentation/swift_packages/distributing_binary_frameworks_as_swift_packages).
+
+## Conclusion
+
+In short, we can sum up the best practices on how to use binaries in Swift Packages in 2022 like so:
+
+1. If you need to add a precompiled library or executable for your iOS/macOS project, you should use an `XCFramework`, and include separate binaries for each use case (iOS device, macOS device and iOS simulator).
+2. If you need to create a plugin and run an executable, you should embed this as an artifact bundle with binaries for different supported architectures.

@@ -1,27 +1,27 @@
 import react from '@astrojs/react'
 import tailwind from '@astrojs/tailwind'
 import { defineConfig } from 'astro/config'
+import mdx from '@astrojs/mdx'
+import remarkCodeTitles from 'remark-code-titles'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 
-// https://astro.build/config
+const rehypeAutolinkHeadingsOptions = {
+  behavior: 'wrap',
+}
+
 export default defineConfig({
   site: 'https://polpiella.dev',
   markdown: {
-    remarkPlugins: ['remark-code-titles'],
+    remarkPlugins: [remarkCodeTitles],
     rehypePlugins: [
-      'rehype-slug',
-      [
-        'rehype-autolink-headings',
-        {
-          behavior: 'wrap',
-        },
-      ],
+      rehypeSlug,
+      [rehypeAutolinkHeadings, rehypeAutolinkHeadingsOptions],
     ],
     shikiConfig: {
       theme: 'css-variables',
     },
   },
-  integrations: [tailwind(), react()],
-  legacy: {
-    astroFlavoredMarkdown: true,
-  },
+  output: 'static',
+  integrations: [tailwind(), react(), mdx()],
 })

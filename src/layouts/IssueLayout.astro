@@ -2,13 +2,11 @@
 import BaseLayout from '@layouts/BaseLayout.astro'
 import InfoPane from '@components/InfoPane'
 import Subscribe from '@components/Subscribe'
-import Paginator from '@components/Paginator'
+import { getCollection } from 'astro:content'
 
-const posts = await Astro.glob('../pages/newsletter/*.md')
+const posts = await getCollection('newsletter')
 const sortedPosts = posts.sort(
-  (a, b) =>
-    new Date(b.frontmatter.date).valueOf() -
-    new Date(a.frontmatter.date).valueOf()
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
 )
 
 const { number, date } = Astro.props.content

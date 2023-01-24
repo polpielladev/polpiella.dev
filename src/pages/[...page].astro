@@ -4,13 +4,13 @@ import BlogPreview from '@components/BlogPreview'
 import Paginator from '@components/Paginator'
 import Subscribe from '@components/Subscribe'
 import InfoPane from '@components/InfoPane'
+import { getCollection } from 'astro:content'
 
 export async function getStaticPaths({ paginate }) {
-  const posts = await Astro.glob('./*.md')
+  const posts = await getCollection('blog')
   const sortedPosts = posts.sort(
     (a, b) =>
-      new Date(b.frontmatter.pubDate).valueOf() -
-      new Date(a.frontmatter.pubDate).valueOf()
+      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
   )
 
   return paginate(sortedPosts, {

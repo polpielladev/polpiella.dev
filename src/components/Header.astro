@@ -1,16 +1,16 @@
 ---
 const { activeNav } = Astro.props
 import SearchBar from '@components/SearchBar'
+import { getCollection } from 'astro:content'
 
-const posts = await Astro.glob('../pages/*.md')
+const posts = await getCollection('blog')
 
 const searchables = await Promise.all(
-  posts.map(async (post) => {
+  posts.map(async ({ data }) => {
     return {
-      title: post.frontmatter.title,
-      excerpt: post.frontmatter.excerpt,
-      headings: (await post.getHeadings()).map((heading) => heading.text),
-      slug: post.frontmatter.slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      slug: data.slug,
     }
   })
 )

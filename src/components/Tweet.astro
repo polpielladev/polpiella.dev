@@ -1,6 +1,10 @@
 ---
 const { user, status } = Astro.props
-const { html } = await (await fetch(`https://publish.twitter.com/oembed?url=https://twitter.com/${user}/status/${status}&dnt=true&align=center`)).json()
+const { html } = await(
+  await fetch(
+    `https://publish.twitter.com/oembed?url=https://twitter.com/${user}/status/${status}&dnt=true&align=center`
+  )
+).json()
 ---
 
 <div class="not-prose">
