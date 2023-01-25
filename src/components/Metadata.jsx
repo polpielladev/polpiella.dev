@@ -1,6 +1,6 @@
 export default function Metadata({ filePath }) {
   return (
-    <div className="flex flex-wrap gap-3 align-middle text-sm">
+    <div className="not-prose flex flex-wrap align-middle text-sm">
       <a
         id="gh-link"
         className="relative flex content-center items-center gap-1 no-underline"
