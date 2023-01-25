@@ -1,4 +1,4 @@
-export default function Metadata({ readtime, slug }) {
+export default function Metadata({ slug }) {
   return (
     <div className="flex flex-wrap gap-3 align-middle text-xs">
       {slug && (
