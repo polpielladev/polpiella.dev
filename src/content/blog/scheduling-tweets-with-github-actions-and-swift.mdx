@@ -1,0 +1,238 @@
+---
+title: 'Scheduling tweets with Github Actions and Swift'
+slug: 'scheduling-tweets-with-github-actions-and-swift'
+excerpt: 'Using Swift as to write a commit-msg git hook so that adding ticket numbers to a commit message can be automated.'
+pubDate: 2023-01-25
+---
+
+import Tweet from '@components/Tweet.astro'
+
+I have recently started a new tradition on [Twitter](https://twitter.com/polpielladev) where I post the week's top three most read articles from my blog every Friday:
+
+<Tweet user="polpielladev" status="1616405269852065796" />
+
+I have been doing this manually by generating aggregate page view reports from [Fathom](https://usefathom.com), the tool I use to collect analytics from my site. As [Fathom](https://usefathom.com) has an API that allows you to generate such reports, I saw an opportunity to automate this workflow and save myself some time.
+
+I set myself a challenge for this week to write a cron job which runs every friday at 12:00 pm, finds the top 3 most-read articles form that week and then uses Twitter's API to post the results in a suitable format. If you have read any articles in my blog, you will have guessed by now that I will be making all the tooling required for this cron job using Swift 🚀.
+
+## Creating a command-line tool
+
+The first step to writing this cron job is to create a command-line tool which queries [Fathom](https://usefathom.com)'s API to find the most-read articles and then uses Twitter's API to share this report with my followers.
+
+To write this in Swift, I first created an executable Swift package with no dependencies:
+
+```bash:Terminal
+mkdir weekly-tweet-cron-job && cd weekly-tweet-cron-job
+swift package init --type executable --name WeeklyTweetCronJob
+```
+
+### Getting the most-read articles
+
+I then used `async/await` and `URLSession` to get a report of the unique visitors for the article paths in my blog between two given dates using [Fathom's API](https://usefathom.com).
+
+First, I retrieved all the necessary environment variables needed to authenticate with the API and created a request with both all necessary query parameters to filter the right data using the `URLComponents` API and an `Authorization` header with a bearer token I retrieved from Fathom's console.
+
+```swift:WeeklyTweetCronJob.swift
+@main
+public struct WeeklyTweetCronJob {
+    public static func main() async {
+        // 1
+        guard let fathomEntity = ProcessInfo.processInfo.environment["FATHOM_ENTITY_ID"],
+              let fathomToken = ProcessInfo.processInfo.environment["FATHOM_TOKEN"] else {
+            print("Missing environment variables...")
+            exit(1)
+        }
+
+        // 2
+        let currentDate = Date()
+        let aWeekAgoDate = Calendar(identifier: .iso8601).date(byAdding: .day, value: -7, to: currentDate)!
+
+        // 3
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.usefathom.com"
+        components.path = "/v1/aggregations"
+        components.queryItems = [
+            URLQueryItem(name: "entity", value: "pageview"),
+            URLQueryItem(name: "entity_id", value: fathomEntity),
+            URLQueryItem(name: "aggregates", value: "uniques"),
+            URLQueryItem(name: "field_grouping", value: "pathname"),
+            URLQueryItem(name: "sort_by", value: "uniques:desc"),
+            URLQueryItem(name: "timezone", value: "Europe/London"),
+            URLQueryItem(name: "date_from", value: aWeekAgoDate.ISO8601Format()),
+            URLQueryItem(name: "date_to", value: currentDate.ISO8601Format()),
+            URLQueryItem(name: "filters", value: "[{\"property\":\"pathname\", \"operator\":\"is like\", \"value\":\"/*-*\"}]")
+        ]
+
+        // 4
+        var request = URLRequest(url: components.url!)
+        request.setValue("Bearer \(fathomToken)", forHTTPHeaderField: "Authorization")
+    }
+}
+```
+
+> If you're a Fathom user and want to learn more about what each of the query parameters do, [you can find them all documented in their site](https://usefathom.com/api#aggregation).
+
+I then used `URLSession`'s `async/await` APIs to execute the request above and decode the response's data into a `Decodable` model containing just the information I needed:
+
+```swift:WeeklyTweetCronJob.swift
+struct PageView: Decodable {
+    var uniques: Int
+    let pathname: String
+
+    enum CodingKeys: CodingKey {
+        case uniques
+        case pathname
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let uniquesString = try container.decode(String.self, forKey: .uniques)
+        self.uniques = Int(uniquesString)!
+        self.pathname = try container.decode(String.self, forKey: .pathname)
+            .replacingOccurrences(of: "/", with: "")
+    }
+}
+
+public static func main() async {
+    // ...
+    do {
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let pageViews = try! JSONDecoder().decode([PageView].self, from: data)
+    } catch {
+        print("Something went wrong making the request: \(error.localizedDescription)")
+        exit(1)
+    }
+}
+```
+
+> Note that the `Decodable` model above implements custom decoding to convert the `uniques` proterty type from `String` to `Int`.
+
+Now that I had a number of aggregated page view events over the course of a week, I had to make sure that all variations of a single path were being accounted for. For example the `pathname` for a specific page view could either be `/my-blog-post` or `/my-blog-post/` and would therefore be counted as two separate articles. I made use of the `reduce` method in `Swift` to merge all variations of the same path into a single page view event with all the aggregated unique visitors:
+
+```swift:WeeklyTweetCronJob.swift
+public static func main() async {
+    // ...
+    do {
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let pageViews = try! JSONDecoder().decode([PageView].self, from: data)
+        let uniquedPageViews = pageViews.reduce(into: [PageView]()) { partialResult, pageView in
+            if let index = partialResult.firstIndex(where: { $0.pathname == pageView.pathname }) {
+                partialResult[index].uniques += pageView.uniques
+            } else {
+                partialResult.append(pageView)
+            }
+        }
+    } catch {
+        print("Something went wrong making the request: \(error.localizedDescription)")
+        exit(1)
+    }
+}
+```
+
+### Writing the tweet
+
+Once I had the data for how many unique visitors each of the articles in my blog had, I had to sort them in descending order and get the top 3:
+
+```swift:WeeklyTweetCronJob.swift
+public static func main() async {
+    // ...
+    let topArticles = uniquedPageViews
+        .sorted(by: { lhs, rhs in lhs.uniques > rhs.uniques })
+        .prefix(3)
+}
+```
+
+With the top articles available, I then had to write the tweet's content, which turned into an interesting challenge.
+
+I first had to generate a list of the top articles with their URLs prepended by their position in the rank in emoji form (1️⃣, 2️⃣ or 3️⃣). I could have done this in a number of easier ways but, since I wanted to learn more about unicode, I decided to make an emoji out of unicode characters based on the iteration's index.
+
+Finally, I used the `join` method with a new line as the separator to merge all article strings into a single one, which I then appended to the rest of the tweet's static content:
+
+```swift:WeeklyTweetCronJob.swift
+public static func main() async {
+    // ...
+    let topArticlesList = uniquedPageViews.enumerated().map { index, pageView in
+        let emoji = [
+            UnicodeScalar(0x0031 + index),
+            UnicodeScalar(UInt32(0xfe0f)),
+            UnicodeScalar(UInt32(0x20E3))
+        ]
+        .compactMap { $0 }
+        .map { String($0) }
+        .joined()
+
+        return "\(emoji) polpiella.dev/\(pageView.pathname)"
+    }
+    .joined(separator: "\n")
+
+    let tweet = """
+    Happy Friday everyone! 👋
+
+    Hope you've all had a great week. Here's a look back at the week's most read articles in my blog:
+
+    \(topArticlesList)
+
+    #iosdev #swiftlang
+    """
+}
+```
+
+### Posting the tweet
+
+To post the tweet using Twitter's API, I had to generate and adapt a `URLRequest` with [OAuth1 headers following Twitter's API documentation](https://developer.twitter.com/en/docs/authentication/oauth-1-0a) and send a `POST` request to the `https://api.twitter.com/2/tweets` endpoint with the tweet's text as its body:
+
+```swift:WeeklyTweetCronJob.swift
+public static func main() async {
+    // ...
+    // Create a URL request
+    let url = URL(string: "https://api.twitter.com/2/tweets")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.httpBody = try JSONEncoder().encode(Tweet(text: tweet))
+
+    // Add oAuth1 key-value pairs to `URLRequest` headers
+    let oAuth1 = OAuth1(key: twitterAPIKey, secret: twitterAPISecret, token: twitterAPIToken, tokenSecret: twitterAPITokenSecret)
+    let adaptedRequest = try oAuth1.adaptRequest(request)
+
+    // Make the request
+    _ = try await URLSession.shared.data(for: adaptedRequest)
+}
+```
+
+And that was it! I did a couple of test runs of the command-line tool and verified that it posted the right content to Twitter.
+
+## Making a cron job
+
+At this stage I had the command-line tool which generates a report and posts a tweet and all I was missing was a way to schedule it to run every Friday.
+
+One of my favourite Github features is that you get unlimited Github Actions minutes for public repositories. This, in combination with its ability to define cron jobs to schedule workflows, made it a perfect candidate for the task I had in hand.
+
+Creating a scheduled workflow is as simple as adding the `schedule` trigger to the `.yml` file with the desired frequency in the form of a cron expression:
+
+```yml:popular-posts.yml
+name: Tweet most read posts
+
+on:
+  schedule:
+    - cron: 0 12 * * 5
+  workflow_dispatch:
+jobs:
+  tweet:
+    runs-on: macos-12
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: swift run -c release WeeklyTweetCronJob
+        env:
+          FATHOM_ENTITY_ID: ${{Secrets.FATHOM_ENTITY_ID}}
+          FATHOM_TOKEN: ${{Secrets.FATHOM_TOKEN}}
+          TWITTER_API_KEY: ${{Secrets.TWITTER_API_KEY}}
+          TWITTER_API_SECRET: ${{Secrets.TWITTER_API_SECRET}}
+          TWITTER_API_TOKEN: ${{Secrets.TWITTER_API_TOKEN}}
+          TWITTER_API_TOKEN_SECRET: ${{Secrets.TWITTER_API_TOKEN_SECRET}}
+```
+
+> Note that I also added the ability of running the workflow manually using the [workflow-dispatch](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) trigger so that I could test it without having to wait for Friday at 12 pm.
+
+If you want to dig into the code and find out more about the implementation details, [I have made the repository public on Github](https://github.com/pol-piella/weekly-tweet-cron-job).
