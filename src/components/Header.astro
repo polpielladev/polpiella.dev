@@ -6,12 +6,12 @@ import { getCollection } from 'astro:content'
 const posts = await getCollection('blog')
 
 const searchables = posts.map(({ data, slug }) => {
-    return {
-      title: data.title,
-      excerpt: data.excerpt,
-      slug: slug,
-    }
-  })
+  return {
+    title: data.title,
+    excerpt: data.excerpt,
+    slug: slug,
+  }
+})
 ---
 
 <header class="mb-8 mt-4">
