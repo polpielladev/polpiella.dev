@@ -2,7 +2,9 @@
 import '@styles/blog-detail.css'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import Subscribe from '@components/Subscribe'
+import Metadata from '@components/Metadata'
 
+const { url } = Astro.props
 const { title, excerpt, pubDate } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
   dateStyle: 'full',
@@ -24,6 +26,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       <time datetime={pubDate} class="block text-zinc-400 text-sm sm:text-base">
         {formattedDate}
       </time>
+      <Metadata filePath={url} />
     </header>
     <slot />
     <div class="mt-14">
