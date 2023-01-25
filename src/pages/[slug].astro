@@ -1,15 +1,15 @@
 ---
 import { getEntryBySlug, getCollection } from 'astro:content'
-const { article } = Astro.params
-const entry = await getEntryBySlug('blog', article)
+const { slug } = Astro.params
+const entry = await getEntryBySlug('blog', slug)
 const { Content } = await entry.render()
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog')
 
-  return allPosts.map(({ data }) => {
+  return allPosts.map(({ slug }) => {
     return {
-      params: { article: data.slug },
+      params: { slug },
     }
   })
 }

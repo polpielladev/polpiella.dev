@@ -1,10 +1,6 @@
 export default function Metadata({ readtime, slug }) {
   return (
     <div className="flex flex-wrap gap-3 align-middle text-xs">
-      <p className="m-0 flex items-center">
-        <b>Read Time: </b>
-        {`📖 ${readtime} minutes`}
-      </p>
       {slug && (
         <a
           id="gh-link"
