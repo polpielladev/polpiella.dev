@@ -1,7 +1,7 @@
 ---
 title: 'Custom key decoding strategies in Swift'
 excerpt: 'How to take advantage of the custom key decoding strategies to avoid unnecessary CodingKeys implementations'
-pubDate: '2021-11-03'
+pubDate: 2021-11-03
 ---
 
 One of my favorite Swift features is the `Codable` protocol and how easy it makes the job of parsing files, responses and dictionaries into suitable data structures. One of the most common usages of it, which is engrained in my day-to-day activities as an iOS developer, is to decode JSON responses that come back from an API. Most APIs use a [snake case format](https://en.wikipedia.org/wiki/Snake_case) when declaring keys in an object and, if we try to decode our Swift structure (where the convention is to use [camel case format](https://en.wikipedia.org/wiki/Camel_case) when declaring variables), we will see that it will give us a decoding error, as the naming will mismatch. Let's look at a very simple API response:
