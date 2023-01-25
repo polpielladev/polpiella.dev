@@ -1,5 +1,4 @@
-export default function BlogPreview({ post }) {
-  const { slug, title, excerpt, pubDate } = post.data
+export default function BlogPreview({ slug, title, excerpt, pubDate }) {
   const formattedDate = new Date(pubDate).toDateString()
 
   return (

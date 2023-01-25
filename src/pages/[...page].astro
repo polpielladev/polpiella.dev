@@ -39,7 +39,16 @@ const { page } = Astro.props
       <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
 
       <div class="mt-4 flex flex-col gap-8">
-        {page.data.map((post) => <BlogPreview post={post} />)}
+        {
+          page.data.map((post) => (
+            <BlogPreview
+              title={post.data.title}
+              slug={post.slug}
+              excerpt={post.data.excerpt}
+              pubDate={post.data.pubDate}
+            />
+          ))
+        }
       </div>
     </section>
   </div>
