@@ -9,11 +9,7 @@ const sortedPosts = posts.sort(
   (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
 )
 
-const { number, date } = Astro.props.content
-
-const formattedDate = new Date(date).toLocaleDateString('en-US', {
-  dateStyle: 'full',
-})
+const { number } = Astro.props.content
 
 const prevURL = number - 1 <= 0 ? undefined : `/newsletter/${number - 1}`
 const nextURL =
@@ -43,17 +39,6 @@ const nextURL =
       </section>
 
       <section>
-        <header class="flex flex-col gap-1 justify-center items-center mb-4">
-          <h2
-            class="text-2xl sm:text-3xl font-sans m-0 font-semibold text-center">
-            Issue {number}
-          </h2>
-          <time
-            datetime={date}
-            class="block text-center text-zinc-400 mb-3 text-sm sm:text-base">
-            {formattedDate}
-          </time>
-        </header>
         <slot />
       </section>
 
