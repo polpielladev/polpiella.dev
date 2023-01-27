@@ -20,7 +20,8 @@ export default function NewsletterSponsorSlot({ title }) {
           No more cat-herding, spreadsheets, or steady drip of manual busywork.{' '}
           <a href="https://www.runway.team">Runway</a> helps your team level-up
           your release coordination and automation, from kickoff to release to
-          rollout. <a href="https://www.runway.team">Get started for free »</a>
+          rollout.{' '}
+          <a href="https://www.runway.team">Get started for free &rarr;</a>
         </p>
       </div>
     </section>
