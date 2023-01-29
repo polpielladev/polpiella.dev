@@ -41,6 +41,6 @@ If you or the company you work for have an app written in SwiftUI I would thorou
 
 ## [Swift package resolution and data usage](https://christiantietze.de/posts/2023/01/xcode-requires-data-connection-for-swift-package-resolution/?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%208%26utm_content%3Djan_29_23)
 
-I have definitely experienced the pain of the 'Resolve Packages' step in Xcode failing when using a weak internet connection. [Christian Tietze](https://christiantietze.de/posts/2023/01/xcode-requires-data-connection-for-swift-package-resolution/) came across this same issue recently and decided to monitor how much data was being requested by Xcode. He noticed that a single resolution step downloaded 45 MB of data! 😱
+I have definitely experienced the pain of the 'Resolve Packages' step in Xcode failing when using a weak internet connection. [Christian Tietze](https://twitter.com/ctietze) came across this same issue recently and decided to monitor how much data was being requested by Xcode. He noticed that a single resolution step downloaded 45 MB of data! 😱
 
 This highlights a potential improvement you could do to reduce your CI's run times and network usage by storing Swift Package caches on your runners or even [using binary targets instead to reduce dependency sizes](https://www.avanderlee.com/swift/binary-targets-swift-package-manager/), as [Antoine](https://twitter.com/twannl) explains in his blog.
