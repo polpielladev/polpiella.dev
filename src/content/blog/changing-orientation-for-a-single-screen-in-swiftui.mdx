@@ -14,7 +14,7 @@ In our legacy UIKit navigation system, we achieve this by supporting all orienta
 
 <Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mp4" />
 
-We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches with none of them worked in the way we wanted it to:
+We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches but none of them worked in the way we wanted it to:
 
 1. Wrapping the app's root SwiftUI view in a `UIViewController` with `potrait` as the only supported orientation and then doing the same for the player screen but with `landscape` as its only supported orientation.
 2. Using a combination of the above and [requestGeometryUpdate](https://developer.apple.com/documentation/uikit/uiwindowscene/3975944-requestgeometryupdate) to force updates on the video player view.
@@ -89,7 +89,7 @@ Last but not least, we needed to define the scene that we told the `AppDelegate`
 
 ## Subclassing `UIHostingController`
 
-Once all this setup was done, we needed to create the root view controller for the application. As [the thread in Apple's Developer forums states](https://developer.apple.com/forums/thread/125155), we needed to make this a subclass of `UIHostingController`. This subclassed `UIHostingController` would then override the `supportedInterfaceOrientations` property and update it dynamically based on the values passed up by SwiftUI views using a preference.
+Once all this setup was done, we needed to create the root view controller for the application. As [the thread in Apple's Developer forum states](https://developer.apple.com/forums/thread/125155), we needed to make this a subclass of `UIHostingController`. This subclassed `UIHostingController` would then override the `supportedInterfaceOrientations` property and update it dynamically based on the values passed up by SwiftUI views using a preference.
 
 The subclass would also need to define a `RootView` to hold the SwiftUI application and have a way of updating the supported orientations in the subclassed `UIHostingController` through a mediator object called `OrientationsHolder`.
 
@@ -159,7 +159,7 @@ Now that we had a way of locking the orientation of the whole application using 
 
 Making use of the [SwiftUI preferences API](https://developer.apple.com/documentation/swiftui/preferences?changes=_7) would allow us to update the supported orientations from any SwiftUI view in the app and listen to it from the `Root` view. The `Root` view would then update the `supportedInterfaceOrientations` property in the `OrientationLockedController` through the `OrientationsHolder` mediator class.
 
-Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, give it a default value and tell it how it should be updated by implementing the protocol's `reduce` method:
+Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, giving it a default value and telling it how it should be updated by implementing the protocol's `reduce` method:
 
 ```swift:PreferenceKey.swift
 struct SupportedOrientationsPreferenceKey: PreferenceKey {
@@ -281,6 +281,6 @@ struct ContentView: View {
 
 Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and changing a single screen from portrait to landscape orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only.
 
-For this reason, I would take what has been discussed in this article **with a big pinch of salt** and make sure you have **sufficient UI/manual tests around the screen you're locking orientation for to ensure no regressions occur**.
+For this reason, I would take what has been discussed in this article **with a big pinch of salt** and make sure you have **sufficient UI/manual tests around the screen you're locking orientation for**.
 
 Nonetheless, this has been a very interesting feature to work on as I have learnt a lot about SwiftUI's internals and how it lays out its views, as well as understanding how preferences work.
