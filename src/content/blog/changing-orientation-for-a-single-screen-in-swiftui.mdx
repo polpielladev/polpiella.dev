@@ -10,7 +10,7 @@ Last week, we started to migrate the playback feature in iPlayer to our brand ne
 
 In our legacy UIKit navigation system we achieve this by supporting all orientations at the app target level and then locking them down to portrait at the root of each `UINavigationController`. Then, when presenting the video player, we wrap this view in a `UIViewController` which overrides `supportedInterfaceOrientations` and sets this value to `.landscape`:
 
-<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mov" />
+<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mp4" />
 
 We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches: wrapping the app's root SwiftUI view in a `UIViewController` with `potrait` as the only supported orientation and then doing the same for the player screen but with `landscape` as its only supported orientation, using [requestGeometryUpdate](https://developer.apple.com/documentation/uikit/uiwindowscene/3975944-requestgeometryupdate) to force updates on the video player view and we even rotated the view manually using the [rotationEffect](<https://developer.apple.com/documentation/swiftui/view/rotationeffect(_:anchor:)>) modifier but nothing really worked as we expected.
 
@@ -275,7 +275,7 @@ struct ContentView: View {
 
 ## Take it with a pinch of salt 🧂
 
-Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and locking orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only. 
+Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and locking orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only.
 
 For this reason, I would take what has been discussed in this article with a big pinch of salt and make sure you have sufficient UI/manual tests around the screen you're locking orientation for to ensure no regressions occur.
 
