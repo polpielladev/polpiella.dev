@@ -155,7 +155,7 @@ Making use of this API would allow us to update the value of a preference many l
 
 Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, give it a default value and tell it how it update. In our case we wanted the default value to support all orientaitons on iPad devices and support only portrati on iPhone ones.
 
-In terms of updating the value through the `reduce` method, since the value is an OptionSet and as the thread outlines, we used the [formIntersection]() method by passing the new updated OptionSet as an argument. [formIntersection]() works by creating a new OptionSet with only the matching items from both sets and the items from the incoming set not present in the current set:
+In terms of updating the value through the `reduce` method, since the value is an OptionSet and as the thread outlines, we used the [formIntersection](<https://developer.apple.com/documentation/swift/set/formintersection(_:)>) method by passing the new updated OptionSet as an argument. [FormIntersection](<https://developer.apple.com/documentation/swift/set/formintersection(_:)>) works by creating a new OptionSet with only the matching items from both sets and the items from the incoming set not present in the current set:
 
 ```swift:PreferenceKey.swift
 struct SupportedOrientationsPreferenceKey: PreferenceKey {
