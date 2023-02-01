@@ -6,23 +6,29 @@ pubDate: 2023-02-01
 
 import Video from '@components/Video.jsx'
 
-Last week, we started to migrate the playback feature in iPlayer to our brand new SwiftUI navigation. Very quickly we ran into an issue with the way our app works on iPhone devices and the inability of easily achieving the same behaviour using SwiftUI. The iPlayer app only supports portrait orientation for all screens except for one: the video player, which only support landscape. This behaviour is very common across multiple streaming service apps on iPhone devices such as Amazon Prime or Netflix.
+Last week, we started to migrate the playback feature in iPlayer to our brand new SwiftUI navigation. Very quickly we ran into an issue with the way our app works on iPhone devices and the inability of easily achieving the same behaviour using SwiftUI.
 
-In our legacy UIKit navigation system we achieve this by supporting all orientations at the app target level and then locking them down to portrait at the root of each `UINavigationController`. Then, when presenting the video player, we wrap this view in a `UIViewController` which overrides `supportedInterfaceOrientations` and sets this value to `.landscape`:
+The iPlayer app only supports portrait orientation for all screens except for one: the video player, which only supports landscape. This behaviour is very common across multiple streaming service apps on iPhone devices such as Amazon Prime or Netflix.
+
+In our legacy UIKit navigation system we achieve this by supporting all orientations at the app target level and then locking them down to portrait at the root of each `UINavigationController`. Then, when presenting the video player, we wrap the view in a `UIViewController` which overrides `supportedInterfaceOrientations` and sets this value to `.landscape`:
 
 <Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mp4" />
 
-We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches: wrapping the app's root SwiftUI view in a `UIViewController` with `potrait` as the only supported orientation and then doing the same for the player screen but with `landscape` as its only supported orientation, using [requestGeometryUpdate](https://developer.apple.com/documentation/uikit/uiwindowscene/3975944-requestgeometryupdate) to force updates on the video player view and we even rotated the view manually using the [rotationEffect](<https://developer.apple.com/documentation/swiftui/view/rotationeffect(_:anchor:)>) modifier but nothing really worked as we expected.
+We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches with no luck:
 
-We thought we had lost all hope and that we would need to rewrite our whole navigation in UIKit when one of my colleagues came across [this thread in Apple's developer forums](https://developer.apple.com/forums/thread/125155). The solution described by [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) in the thread seemed to do exactly what we needed by subclassing [UIHostingController](https://developer.apple.com/documentation/swiftui/uihostingcontroller), setting it as the window's root view controller and dynamically updating its `supportedInterfaceOrientations` from a given SwiftUI view by making use of [SwiftUI preferences](https://developer.apple.com/documentation/swiftui/preferences?changes=_7).
+1. Wrapping the app's root SwiftUI view in a `UIViewController` with `potrait` as the only supported orientation and then doing the same for the player screen but with `landscape` as its only supported orientation.
+2. Using a combination of the above and [requestGeometryUpdate](https://developer.apple.com/documentation/uikit/uiwindowscene/3975944-requestgeometryupdate) to force updates on the video player view.
+3. Rotating the view manually on presentation using the [rotationEffect view modifier](<https://developer.apple.com/documentation/swiftui/view/rotationeffect(_:anchor:)>).
 
-> ⚠️ Disclaimer! All credit for this solution goes to the [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) who wrote the thread on Apple's Developer forums. In this article, I am trying to document it and show any extra work we had to do to make the solution work. Also, I want to give a huge shoutout to my colleagues Dan Ellis and Dave Burrows as it was a real team effort to get us over this hurdle.
+We thought all hope was lost and that we would need to rewrite our whole navigation in UIKit when one of my colleagues came across [a thread in Apple's developer forums](https://developer.apple.com/forums/thread/125155). The solution described by [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) in the thread seemed to do exactly what we needed by subclassing [UIHostingController](https://developer.apple.com/documentation/swiftui/uihostingcontroller), setting it as the window's root view controller and dynamically updating its `supportedInterfaceOrientations` from a given SwiftUI view by making use of [SwiftUI preferences](https://developer.apple.com/documentation/swiftui/preferences?changes=_7).
+
+> ⚠️ Disclaimer! All credit for this solution goes to [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) who wrote the thread on Apple's Developer forums. In this article, I am trying to document it and show any extra work we had to do to make the solution work. Also, I want to give a huge shoutout to my colleagues Dan Ellis and Dave Burrows as it was a real team effort to get us over this hurdle.
 
 ## Reverting to UIKit for the app root
 
 The first thing we did, as the [thread states](https://developer.apple.com/forums/thread/125155), was to go back to UIKit's way of bootstrapping an application. To do this, we removed the `@main` decorator from the app's root `View` and created an `AppDelegate` and a `SceneDelegate`.
 
-The `AppDelegate`'s only job, now decorated with `@main` to mark it as the app's entrypoint, is to define the configuration for connecting to a scene:
+The `AppDelegate`'s only job, now decorated with `@main` to mark it as the app's entrypoint, was to define the configuration for connecting to a scene:
 
 ```swift:AppDelegate.swift
 import UIKit
@@ -35,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
-The `SceneDelegate`, in turn, needs to create a `UIWindow` from the provided `UIWindowScene` and set a root view controller on it:
+The `SceneDelegate`, in turn, needed to create a `UIWindow` from the provided `UIWindowScene` and set a root view controller on it:
 
 ```swift:SceneDelegate.swift
 import UIKit
@@ -85,7 +91,7 @@ Last but not least, we needed to define the scene that we told the `AppDelegate`
 
 Once all the setup was done, we needed to create the root view controller for the application. As [the thread in Apple's Developer forums states](https://developer.apple.com/forums/thread/125155), we needed to make this a subclass of `UIHostingController`. This subclassed `UIHostingController` would then override the `supportedInterfaceOrientations` property and update it dynamically based on the values passed up by SwiftUI views using a preference.
 
-The subclass would also need to define a `RootView` to hold the SwiftUI application and all of our navigation and have a way of updating the supported orientations in the root view controller through a mediator object called `OrientationsHolder`.
+The subclass would also need to define a `RootView` to hold the SwiftUI application and have a way of updating the supported orientations in the root view controller through a mediator object called `OrientationsHolder`.
 
 ```swift:OrientationLockedController.swift
 // This code was taken and slightly modified from the original answer on Apple's Developer Forums
@@ -128,7 +134,7 @@ class OrientationLockedController<Content: View>: UIHostingController<Orientatio
 }
 ```
 
-The next step was to replace the window's `rootViewController` with the applications' root SwiftUI view, called `ContentView` in this case:
+The next step was to replace the window's `rootViewController` with the newly created `OrientationLockedController`, which would lock the orientation of every SwiftUI in the app to portrait:
 
 ```swift:SceneDelegate.swift
 import UIKit
@@ -149,13 +155,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 ## Updating the supported orientations from a View
 
-Now that we had a way of locking the orientation of the whole application using a subclass of `UIHostingViewController`, we needed a way of modifying it on a per view basis. This orientations update would need to happen from many layers down in the application and, as the thread states, we need to make use of a SwiftUI preference.
+Now that we had a way of locking the orientation of the whole application using a subclass of `UIHostingViewController`, we needed a way of modifying it on a per view basis. This modification would need to happen from many layers down in the application and bubble all the way up to the `OrientationLockedController`.
 
-Making use of this API would allow us to update the value of a preference many layers deep and listen to it from the `RootView`, which would in turn update the `supportedInterfaceOrientations` property in the root view controller through the `OrientationsHolder` mediator.
+Making use of the [SwiftUI preferences API](https://developer.apple.com/documentation/swiftui/preferences?changes=_7) would allow us to update the value of a preference many layers deep and listen to it from the `RootView`, which would in turn update the `supportedInterfaceOrientations` property in the `OrientationLockedController` through the `OrientationsHolder` mediator class.
 
-Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, give it a default value and tell it how it update. In our case we wanted the default value to support all orientaitons on iPad devices and support only portrati on iPhone ones.
-
-In terms of updating the value through the `reduce` method, since the value is an OptionSet and as the thread outlines, we used the [formIntersection](<https://developer.apple.com/documentation/swift/set/formintersection(_:)>) method by passing the new updated OptionSet as an argument. [FormIntersection](<https://developer.apple.com/documentation/swift/set/formintersection(_:)>) works by creating a new OptionSet with only the matching items from both sets and the items from the incoming set not present in the current set:
+Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, give it a default value and tell it how it should be updated by overriding the `reduce` method:
 
 ```swift:PreferenceKey.swift
 struct SupportedOrientationsPreferenceKey: PreferenceKey {
@@ -185,7 +189,7 @@ struct Root<Content: View>: View {
 }
 ```
 
-We then created a small extension to modify the preference key following what the thread suggested:
+We then created a small extension to modify the preference key following what the thread answer suggested:
 
 ```swift:View+SupportedOrientations.swift
 extension View {
@@ -216,11 +220,11 @@ struct ContentView: View {
 }
 ```
 
-But this is what happened instead... 😭
+But this is what happened instead when we ran the app... 😭
 
 <Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/portrait.mp4" />
 
-When inspecting the code further we realised that the `onPreferenceChange` method at the `RootView` was not firing when presenting the landscape view. While it didn't make sense at the time, it does now. The preference gets updated from a view modifier and it needs a re-render of the view to propagate the event upwards to the root view, which meant that we needed to do some extra work to get this working...
+After debugging the code we realised that the `onPreferenceChange` method at the `RootView` was not firing when presenting the landscape view. While this didn't make sense at the time, it does now. The preference gets updated from a view modifier and it needs a re-render of the view to propagate the event upwards to the root view, which meant that we needed to do some extra work to get this working...
 
 ## The `landscapeFullScreenModifier`
 
@@ -251,7 +255,7 @@ extension View {
 }
 ```
 
-We then used this modifier in the view that needed to be presented in landscape mode like so:
+We then used this modifier to present a view in landscape mode:
 
 ```swift:ContentView.swift
 struct ContentView: View {
@@ -275,8 +279,8 @@ struct ContentView: View {
 
 ## Take it with a pinch of salt 🧂
 
-Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and locking orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only.
+Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and changing a single screen from portrait to landscape orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only.
 
-For this reason, I would take what has been discussed in this article with a big pinch of salt and make sure you have sufficient UI/manual tests around the screen you're locking orientation for to ensure no regressions occur.
+For this reason, I would take what has been discussed in this article **with a big pinch of salt** and make sure you have **sufficient UI/manual tests around the screen you're locking orientation for to ensure no regressions occur**.
 
-Nonetheless, this has been a very interesting feature to work in as I have learnt a lot about SwiftUI's internals and it lays out its views, as well as understanding how preferences work.
+Nonetheless, this has been a very interesting feature to work on as I have learnt a lot about SwiftUI's internals and how it lays out its views, as well as understanding how preferences work.
