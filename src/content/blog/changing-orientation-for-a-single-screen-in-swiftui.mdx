@@ -1,0 +1,274 @@
+---
+title: 'Changing orientation for a single screen in SwiftUI'
+excerpt: ''
+pubDate: 2023-02-01
+---
+
+import Video from '@components/Video.jsx'
+
+Last week, we started to migrate the playback feature in iPlayer to our brand new SwiftUI navigation. Very quickly we ran into an issue with the way our app works on iPhone devices and the inability of easily achieving the same behaviour using SwiftUI. The iPlayer app only supports portrait orientation for all screens except for one: the video player, which only support landscape. This behaviour is very common across multiple streaming service iPhone apps such as Amazon Prime or Netflix.
+
+In our legacy UIKit navigation system we achieve this by supporting all orientations at the app target level and then locking them down to portrait at the root of each `UINavigationController`. Then, when it comes to presenting the video player, we wrap this view in a `UIViewController` which overrides `supportedInterfaceOrientations` and sets this value to `.landscape`:
+
+<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mov" />
+
+We set on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches: wrapping the app's root SwiftUI view in a `UIViewController` with `potrait` as the only supported orientation and then doing the same for the player screen but with `landscape` as its only supported orientation, using [requestGeometryUpdate](https://developer.apple.com/documentation/uikit/uiwindowscene/3975944-requestgeometryupdate) to force updates on the video player view and we even rotated the view manually using the [rotationEffect](<https://developer.apple.com/documentation/swiftui/view/rotationeffect(_:anchor:)>) modifier but nothing really worked as we expected.
+
+We thought we had lost all hope and that we would need to rewrite our whole navigation in UIKit when one of my colleagues came across [this thread in Apple's developer forums](https://developer.apple.com/forums/thread/125155). The solution described by [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) in the thread seemed to do exactly what we needed by subclassing [UIHostingController](https://developer.apple.com/documentation/swiftui/uihostingcontroller), setting it as the window's root view controller and dynamically updating its `supportedInterfaceOrientations` from a given SwiftUI view by making use of [SwiftUI preferences](https://developer.apple.com/documentation/swiftui/preferences?changes=_7).
+
+> ⚠️ Disclaimer! All credit for this solution goes to the [Jim Dovey](https://developer.apple.com/forums/profile/Jim+Dovey) who wrote the thread on Apple's Developer forums. In this article, I am trying to document it and show any extra work we had to do to make the solution work. Also, I want to give a huge shoutout to my colleagues Dan Ellis and Dave Burrows as it was a real team effort to get us over this hurdle.
+
+## Reverting to UIKit for the app root
+
+The first thing we did, as the [thread states](https://developer.apple.com/forums/thread/125155), was to go back to UIKit's way of bootstrapping an application. To do this, we removed the `@main` decorator from the app's root `View` and created an `AppDelegate` and a `SceneDelegate`.
+
+The `AppDelegate`'s only job, now decorated with `@main` to mark it as the app's entrypoint, is to define the configuration for connecting to a scene:
+
+```swift:AppDelegate.swift
+import UIKit
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+}
+```
+
+The `SceneDelegate`, in turn, needs to create a `UIWindow` from the provided `UIWindowScene` and set a root view controller on it:
+
+```swift:SceneDelegate.swift
+import UIKit
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        let window = UIWindow(windowScene: windowScene)
+        // We'll replace this in a second...
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        self.window = window
+    }
+}
+```
+
+Last but not least, we needed to define the scene that we told the `AppDelegate` to connect to (with configuration name: `"DefaultConfiguration"`) in the app's `Info.plist` file:
+
+```xml:Info.plist
+<!-- ... -->
+<dict>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+<!-- ... -->
+```
+
+## Subclassing `UIHostingController`
+
+Once all the setup was done, we needed to create the root view controller for the application. As [the thread in Apple's Developer forums states](https://developer.apple.com/forums/thread/125155), we needed to make this a subclass of `UIHostingController`. This subclassed `UIHostingController` would then override the `supportedInterfaceOrientations` property and update it dynamically based on the values passed up by SwiftUI views using a preference.
+
+The subclass would also need to define a `RootView` to hold the SwiftUI application and all of our navigation and have a way of updating the supported orientations in the root view controller through a mediator object called `OrientationsHolder`.
+
+```swift:OrientationLockedController.swift
+// This code was taken and slightly modified from the original answer on Apple's Developer Forums
+// https://developer.apple.com/forums/thread/125155
+class OrientationLockedController<Content: View>: UIHostingController<OrientationLockedController.Root<Content>> {
+    class OrientationsHolder {
+        var supportedOrientations: UIInterfaceOrientationMask
+
+        init() {
+            self.supportedOrientations = UIDevice.current.userInterfaceIdiom == .pad ? .all : .allButUpsideDown
+        }
+    }
+
+    var orientations: OrientationsHolder!
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        orientations.supportedOrientations
+    }
+
+    init(rootView: Content) {
+        let orientationsHolder = OrientationsHolder()
+        let orientationRoot = Root(contentView: rootView, orientationsHolder: orientationsHolder)
+        super.init(rootView: orientationRoot)
+        self.orientations = orientationsHolder
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+
+    struct Root<Content: View>: View {
+        let contentView: Content
+        let orientationsHolder: OrientationsHolder
+
+        var body: some View {
+            contentView
+        }
+    }
+}
+```
+
+The next step was to replace the window's `rootViewController` with the applications' root SwiftUI view, called `ContentView` in this case:
+
+```swift:SceneDelegate.swift
+import UIKit
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = OrientationLockedController(rootView: ContentView())
+        window.makeKeyAndVisible()
+        self.window = window
+    }
+}
+```
+
+## Updating the supported orientations from a View
+
+Now that we had a way of locking the orientation of the whole application using a subclass of `UIHostingViewController`, we needed a way of modifying it on a per view basis. This orientations update would need to happen from many layers down in the application and, as the thread states, we need to make use of a SwiftUI preference.
+
+Making use of this API would allow us to update the value of a preference many layers deep and listen to it from the `RootView`, which would in turn update the `supportedInterfaceOrientations` property in the root view controller through the `OrientationsHolder` mediator.
+
+Creating a preference is as easy as creating a struct which conforms to the `PreferenceKey` protocol, give it a default value and tell it how it update. In our case we wanted the default value to support all orientaitons on iPad devices and support only portrati on iPhone ones.
+
+In terms of updating the value through the `reduce` method, since the value is an OptionSet and as the thread outlines, we used the [formIntersection]() method by passing the new updated OptionSet as an argument. [formIntersection]() works by creating a new OptionSet with only the matching items from both sets and the items from the incoming set not present in the current set:
+
+```swift:PreferenceKey.swift
+struct SupportedOrientationsPreferenceKey: PreferenceKey {
+    static var defaultValue: UIInterfaceOrientationMask {
+        UIDevice.current.userInterfaceIdiom == .pad ? .all : .portrait
+    }
+
+    static func reduce(value: inout UIInterfaceOrientationMask, nextValue: () -> UIInterfaceOrientationMask) {
+        value.formIntersection(nextValue())
+    }
+}
+```
+
+The `RootView` could then listen for any changes to this preference key through the `onPreferenceChange` modifier:
+
+```swift:OrientationLockedController.swift
+struct Root<Content: View>: View {
+    let contentView: Content
+    let orientationsHolder: OrientationsHolder
+
+    var body: some View {
+        contentView
+            .onPreferenceChange(SupportedOrientationsPreferenceKey.self) {
+                orientationsHolder.supportedOrientations = $0
+            }
+    }
+}
+```
+
+We then created a small extension to modify the preference key following what the thread suggested:
+
+```swift:View+SupportedOrientations.swift
+extension View {
+    func supportedOrientations(_ supportedOrientations: UIInterfaceOrientationMask) -> some View {
+        preference(key: SupportedOrientationsPreferenceKey.self, value: supportedOrientations)
+    }
+}
+```
+
+We thought we were all done at this point and ready to see our landscape view by using the modifier like so...
+
+```swift:ContentView.swift
+struct ContentView: View {
+    @State private var isPresented: Bool = false
+
+    var body: some View {
+        Button("I am a portrait view...", action: { isPresented = true })
+            .fullScreenCover(isPresented: $isPresented) {
+                ZStack {
+                    Color.red
+                    Text("I am a landscape view yay!!")
+                        .background(Color.red)
+                }
+                .ignoresSafeArea()
+                .supportedOrientations(.landscape)
+            }
+    }
+}
+```
+
+But this is what happened instead... 😭
+
+<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/portrait.mp4" />
+
+When inspecting the code further we realised that the `onPreferenceChange` method at the `RootView` was not firing when presenting the landscape view. While it didn't make sense at the time, it does now. The preference gets updated from a view modifier and it needs a re-render of the view to propagate the event upwards to the root view, which meant that we needed to do some extra work to get this working...
+
+## The `landscapeFullScreenModifier`
+
+We decided to create a `ViewModifier` to wrap the view being presented and use a state variable to update the orientation preference key only when the view was on screen. This would allow us to present a view in landscape mode using a modifier similar to `fullScreenCover` while keeping the rest of the app in potrait mode:
+
+```swift:LandscapeFullScreenCover.swift
+import SwiftUI
+
+struct LandscapeFullScreenCover<CoverContent: View>: ViewModifier {
+    @Binding var isPresented: Bool
+    @ViewBuilder let coverContent: () -> CoverContent
+    @State private var supportedOrientations: UIInterfaceOrientationMask = .portrait
+
+    func body(content: Content) -> some View {
+        content
+            .fullScreenCover(isPresented: $isPresented) {
+                coverContent()
+            }
+            .onChange(of: isPresented, perform: { supportedOrientations = $0 ? .landscape : .portrait })
+            .supportedOrientations(supportedOrientations)
+    }
+}
+
+extension View {
+    func landscapeFullScreenCover(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> some View) -> some View {
+        modifier(LandscapeFullScreenCover(isPresented: isPresented, coverContent: content))
+    }
+}
+```
+
+We then used this modifier in the view that needed to be presented in landscape mode like so:
+
+```swift:ContentView.swift
+struct ContentView: View {
+    @State private var isPresented: Bool = false
+
+    var body: some View {
+        Button("I am a portrait view...", action: { isPresented = true })
+            .landscapeFullScreenCover(isPresented: $isPresented) {
+                ZStack {
+                    Color.red
+                    Text("I am a landscape view yay!!")
+                        .background(Color.red)
+                }
+                .ignoresSafeArea()
+            }
+    }
+}
+```
+
+<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/landscape.mp4" />
