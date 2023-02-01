@@ -272,3 +272,11 @@ struct ContentView: View {
 ```
 
 <Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/landscape.mp4" />
+
+## Take it with a pinch of salt 🧂
+
+Before you go, I want to stress that while this is the only workaround that we were able to find, it is by no means a robust and future-proof solution. We have found that navigation behaviour in SwiftUI tends to change in every iOS version and locking orientation works well on iOS 16 but not on iOS 15, where you'll probably want to set the orientation to allow `.allButUpsideDown` rather than constraining it to `.landscape` only. 
+
+For this reason, I would take what has been discussed in this article with a big pinch of salt and make sure you have sufficient UI/manual tests around the screen you're locking orientation for to ensure no regressions occur.
+
+Nonetheless, this has been a very interesting feature to work in as I have learnt a lot about SwiftUI's internals and it lays out its views, as well as understanding how preferences work.
