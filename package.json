@@ -19,7 +19,7 @@
     "@astrojs/rss": "2.1.0",
     "@astrojs/tailwind": "3.0.0",
     "@tailwindcss/typography": "0.5.8",
-    "astro": "2.0.0",
+    "astro": "^2.0.5",
     "autoprefixer": "10.4.8",
     "markdown-it": "^13.0.1",
     "picomatch": "^2.3.1",
@@ -36,11 +36,13 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^0.14.0",
+    "@astrojs/svelte": "^2.0.1",
     "@resvg/resvg-js": "^2.2.0",
     "fuse.js": "^6.6.2",
     "isomorphic-fetch": "^3.0.0",
     "rss-parser": "^3.12.0",
     "satori": "^0.0.44",
-    "satori-html": "^0.3.0"
+    "satori-html": "^0.3.0",
+    "svelte": "^3.55.1"
   }
 }
