@@ -4,6 +4,10 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import Subscribe from '@components/Subscribe.svelte'
 import Metadata from '@components/Metadata.svelte'
 
+interface Props {
+  url: string
+}
+
 const { url } = Astro.props
 const { title, excerpt, pubDate } = Astro.props.content
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {

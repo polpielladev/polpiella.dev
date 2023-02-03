@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview.svelte'
-import uniqBy from '@utils/uniqBy'
 import { getCollection } from 'astro:content'
 
 const posts = await getCollection('blog')

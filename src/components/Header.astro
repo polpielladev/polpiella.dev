@@ -1,4 +1,8 @@
 ---
+interface Props {
+  activeNav: string
+}
+
 const { activeNav } = Astro.props
 import SearchBar from '@components/SearchBar.svelte'
 import { getCollection } from 'astro:content'

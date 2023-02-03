@@ -1,6 +1,11 @@
 ---
+export interface Props {
+  user: string
+  status: string
+}
+
 const { user, status } = Astro.props
-const { html } = await(
+const { html } = await (
   await fetch(
     `https://publish.twitter.com/oembed?url=https://twitter.com/${user}/status/${status}&dnt=true&align=center`
   )

@@ -1,8 +1,8 @@
 ---
 import { getEntryBySlug, getCollection } from 'astro:content'
 const { issue } = Astro.params
-const entry = await getEntryBySlug('newsletter', issue)
-const { Content } = await entry.render()
+const entry = await getEntryBySlug('newsletter', issue!)
+const { Content } = await entry!.render()
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('newsletter')
