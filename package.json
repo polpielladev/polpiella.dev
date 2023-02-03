@@ -29,7 +29,8 @@
     "rehype-slug": "5.0.1",
     "rehype-toc": "3.0.2",
     "remark-code-titles": "^0.1.2",
-    "sanitize-html": "^2.8.1"
+    "sanitize-html": "^2.8.1",
+    "svelte-check": "^3.0.3"
   },
   "dependencies": {
     "@astrojs/mdx": "^0.14.0",

@@ -1,10 +1,22 @@
-<script>
+<script lang="ts">
   let email = ''
   let gdprConsent = false
 
-  function isEmailValid(email) {
-    return !!String(email)
-      .toLowerCase()
+  function onInput({ currentTarget }: { currentTarget: HTMLInputElement }) {
+    email = currentTarget.value
+  }
+
+  function onCheckboxInput({
+    currentTarget,
+  }: {
+    currentTarget: HTMLInputElement
+  }) {
+    gdprConsent = currentTarget.checked
+  }
+
+  function isEmailValid(email: string | null) {
+    return !!email
+      ?.toLowerCase()
       .match(
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       )
@@ -21,7 +33,7 @@
       name="email"
       id="email"
       class="flex-grow rounded-md bg-slate-200 p-2 dark:bg-slate-700 dark:text-gray-200"
-      on:input={(e) => (email = e.target.value)}
+      on:input={onInput}
       placeholder="Your email address..." />
     <div class="hidden">
       <label for="hp">HP</label>
@@ -45,7 +57,7 @@
         type="checkbox"
         name="gdpr"
         id="gdpr"
-        on:input={(e) => (gdprConsent = e.target.checked)}
+        on:input={onCheckboxInput}
         class="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
         required />
     </div>

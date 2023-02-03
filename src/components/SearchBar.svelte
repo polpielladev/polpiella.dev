@@ -1,9 +1,15 @@
-<script>
+<script lang="ts">
+  type Searchable = {
+    title: string
+    excerpt: string
+    slug: string
+  }
+
   import Fuse from 'fuse.js'
 
-  export let searchables
+  export let searchables: Searchable[]
   let searchTerm = ''
-  let searchResults = []
+  let searchResults: Searchable[] = []
 
   const fuse = new Fuse(searchables, {
     keys: ['title', 'excerpt', 'headings'],
@@ -12,11 +18,14 @@
     threshold: 0.5,
   })
 
-  function onInput(e) {
-    searchTerm = e.currentTarget.value
+  function onInput({ currentTarget }: { currentTarget: HTMLInputElement }) {
+    searchTerm = currentTarget.value
     searchResults =
-      e.currentTarget.value.length > 1
-        ? fuse.search(searchTerm).slice(0, 5)
+      currentTarget.value.length > 1
+        ? fuse
+            .search(searchTerm)
+            .slice(0, 5)
+            .map((result) => result.item)
         : []
   }
 </script>
@@ -33,31 +42,30 @@
     <svg
       width="24px"
       height="24px"
-      strokeWidth="1.5"
+      stroke-width="1.5"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       class="absolute top-1/2 right-1 translate-y-[-50%] stroke-gray-400 text-white">
       <path
         d="M15.5 15.5L19 19M5 11a6 6 0 1012 0 6 6 0 00-12 0z"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round" />
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round" />
     </svg>
   </div>
 
   <div class="absolute z-30">
-    {#each searchResults as result}
-      <a href={`/${result.item.slug}`}>
+    {#each searchResults as searchable}
+      <a href={`/${searchable.slug}`}>
         <div
           class="flex cursor-pointer flex-col gap-1 bg-gray-100 p-4 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">
           <header
-            key={result.item.slug}
             class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {result.item.title}
+            {searchable.title}
           </header>
           <p class="text-sm leading-snug text-gray-700 dark:text-gray-300">
-            {result.item.excerpt}
+            {searchable.excerpt}
           </p>
         </div>
       </a>

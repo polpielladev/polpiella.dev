@@ -1,11 +1,11 @@
-<script>
+<script lang="ts">
   import Social from '@components/Social.svelte'
 
-  export let title
-  export let subtitle = null
-  export let image
-  export let alt
-  export let description
+  export let title: string
+  export let subtitle: string | null = null
+  export let image: string
+  export let alt: string
+  export let description: string
   export let circleImage = false
 </script>
 

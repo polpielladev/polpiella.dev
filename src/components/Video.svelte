@@ -1,5 +1,5 @@
-<script>
-  export let src
+<script lang="ts">
+  export let src: string
   export let controls = true
 </script>
 

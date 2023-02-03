@@ -1,6 +1,6 @@
-<script>
-  export let previousURL
-  export let nextURL
+<script lang="ts">
+  export let previousURL: string
+  export let nextURL: string
 </script>
 
 <div class="flex justify-start gap-3 dark:text-gray-100">

@@ -1,10 +1,10 @@
-<script>
-  export let title
-  export let event
-  export let date
-  export let slides = null
-  export let code = null
-  export let video = null
+<script lang="ts">
+  export let title: string
+  export let event: string
+  export let date: string
+  export let slides: string | null = null
+  export let code: string | null = null
+  export let video: string | null = null
 </script>
 
 <div class="flex gap-1">

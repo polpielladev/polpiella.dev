@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import SubscribeInput from '@components/SubscribeInput.svelte'
 
   export let hideDescription = false

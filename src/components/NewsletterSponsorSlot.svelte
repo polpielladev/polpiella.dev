@@ -1,6 +1,6 @@
-<script>
-  export let title
-  export let promotionLink
+<script lang="ts">
+  export let title: string
+  export let promotionLink: string
 </script>
 
 <section

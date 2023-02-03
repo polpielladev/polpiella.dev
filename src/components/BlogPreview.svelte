@@ -1,8 +1,8 @@
-<script>
-  export let slug
-  export let title
-  export let excerpt
-  export let pubDate
+<script lang="ts">
+  export let slug: string
+  export let title: string
+  export let excerpt: string
+  export let pubDate: string
 
   const formattedDate = new Date(pubDate).toDateString()
 </script>

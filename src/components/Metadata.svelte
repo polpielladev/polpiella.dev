@@ -1,5 +1,5 @@
-<script>
-  export let filePath
+<script lang="ts">
+  export let filePath: string
 </script>
 
 <div class="not-prose flex flex-wrap align-middle text-sm">

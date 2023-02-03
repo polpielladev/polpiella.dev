@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   const SOCIAL_MEDIA = [
     {
       asset: '/assets/github.svg',
@@ -33,7 +33,6 @@
   {#each SOCIAL_MEDIA as social}
     <a
       class="transition-transform hover:scale-110 dark:invert"
-      key={social.url}
       target="_blank"
       rel={`noopener noreferrer ${social.rel}`}
       href={social.url}>
