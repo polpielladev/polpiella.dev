@@ -2,7 +2,7 @@
   export let slug: string
   export let title: string
   export let excerpt: string
-  export let pubDate: string
+  export let pubDate: Date
 
   const formattedDate = new Date(pubDate).toDateString()
 </script>
