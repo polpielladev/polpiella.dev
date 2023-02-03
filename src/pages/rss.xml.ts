@@ -19,7 +19,8 @@ export const get = async () => {
     items: sortedPosts.map((post) => ({
       link: `/${post.slug}`,
       content: sanitizeHtml(parser.render(post.body)),
-      ...post.data,
+      title: post.data.title,
+      pubDate: post.data.pubDate,
     })),
   })
 }
