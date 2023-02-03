@@ -1,4 +1,3 @@
-import react from '@astrojs/react'
 import tailwind from '@astrojs/tailwind'
 import { defineConfig } from 'astro/config'
 import mdx from '@astrojs/mdx'
@@ -29,5 +28,5 @@ export default defineConfig({
     },
   },
   output: 'static',
-  integrations: [tailwind(), react(), mdx(), svelte()],
+  integrations: [tailwind(), mdx(), svelte()],
 })
