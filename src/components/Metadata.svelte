@@ -8,7 +8,7 @@
     class="relative flex content-center items-center gap-1 no-underline hover:underline"
     target="_blank"
     rel="noopener noreferrer"
-    href={`https://github.com/pol-piella/polpiella.dev/edit/main/${filePath}`}>
+    href={`https://github.com/polpielladev/polpiella.dev/edit/main/${filePath}`}>
     <img
       class="m-0 aspect-square w-5 dark:invert"
       src="/assets/github.svg"

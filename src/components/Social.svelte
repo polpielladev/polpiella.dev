@@ -2,13 +2,13 @@
   const SOCIAL_MEDIA = [
     {
       asset: '/assets/github.svg',
-      url: 'https://github.com/pol-piella',
+      url: 'https://github.com/polpielladev',
       alt: 'Github Logo',
       rel: '',
     },
     {
       asset: '/assets/linkedin.svg',
-      url: 'https://www.linkedin.com/in/pol-piella-81b846115/',
+      url: 'https://www.linkedin.com/in/polpielladev-81b846115/',
       alt: 'Linkedin Logo',
       rel: '',
     },

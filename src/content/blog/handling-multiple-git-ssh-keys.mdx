@@ -83,13 +83,13 @@ That's it! Last thing I needed to do at this point was to actually use this conf
 In order to determine which key a given repository would use, I needed to make some changes to my local repositories' remote URLs (and any new ones I clone in the future). Since two new hosts have been defined, to use the right key, a repository must be cloned with one of those names defined in cofig (personal or work) as the host in its remote URL. For example, my new package `ReadingTime` would now be cloned to use a personal key as follows:
 
 ```bash:Terminal
-git clone git@personal:pol-piella/reading-time.git
+git clone git@personal:polpielladev/reading-time.git
 ```
 
 Or to use a work key, it can be cloned like so:
 
 ```bash:Terminal
-git clone git@work:pol-piella/reading-time.git
+git clone git@work:polpielladev/reading-time.git
 ```
 
 As I mentioned above, both these hosts will resolve to `github.com` but the cool thing is that they will now use differnet SSH keys. 🎉
