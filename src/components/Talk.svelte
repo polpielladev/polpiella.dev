@@ -1,4 +1,6 @@
 <script>
+  import { slide } from 'svelte/types/runtime/transition'
+
   export let title
   export let event
   export let date
@@ -7,15 +9,21 @@
   export let video = null
 </script>
 
-<div className="flex gap-1">
-  <div className="flex flex-col gap-1">
-    <h3 className="m-0">{title}</h3>
-    <p className="m-0">{`📍 ${event}`}</p>
-    <p className="m-0">{`🗓️ ${date}`}</p>
-    <div className="flex flex-wrap gap-2">
-      {slides && <a>Slides</a>}
-      {code && <a>Code</a>}
-      {video && <a>Watch</a>}
+<div class="flex gap-1">
+  <div class="flex flex-col gap-1">
+    <h3 class="m-0">{title}</h3>
+    <p class="m-0">{`📍 ${event}`}</p>
+    <p class="m-0">{`🗓️ ${date}`}</p>
+    <div class="flex flex-wrap gap-2">
+      {#if slides}
+        <a href="/">Slides</a>
+      {/if}
+      {#if code}
+        <a href="/">Code</a>
+      {/if}
+      {#if video}
+        <a href="/">Watch</a>
+      {/if}
     </div>
   </div>
 </div>
