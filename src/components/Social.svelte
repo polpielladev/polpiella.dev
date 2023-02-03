@@ -8,7 +8,7 @@
     },
     {
       asset: '/assets/linkedin.svg',
-      url: 'https://www.linkedin.com/in/polpielladev-81b846115/',
+      url: 'https://www.linkedin.com/in/polpielladev',
       alt: 'Linkedin Logo',
       rel: '',
     },
