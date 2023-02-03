@@ -1,6 +1,4 @@
 <script>
-  import { slide } from 'svelte/types/runtime/transition'
-
   export let title
   export let event
   export let date
