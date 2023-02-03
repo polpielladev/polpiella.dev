@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx'
 import remarkCodeTitles from 'remark-code-titles'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import { remarkAstroLayout } from './src/plugins/remarkPlugin'
+import astroLayouts from 'astro-layouts'
 import svelte from '@astrojs/svelte'
 const rehypeAutolinkHeadingsOptions = {
   behavior: 'wrap',
@@ -18,7 +18,7 @@ const astroLayoutOptions = {
 export default defineConfig({
   site: 'https://polpiella.dev',
   markdown: {
-    remarkPlugins: [remarkCodeTitles, [remarkAstroLayout, astroLayoutOptions]],
+    remarkPlugins: [remarkCodeTitles, [astroLayouts, astroLayoutOptions]],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, rehypeAutolinkHeadingsOptions],
