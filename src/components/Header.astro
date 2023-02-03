@@ -1,6 +1,6 @@
 ---
 const { activeNav } = Astro.props
-import SearchBar from '@components/SearchBar'
+import SearchBar from '@components/SearchBar.svelte'
 import { getCollection } from 'astro:content'
 
 const posts = await getCollection('blog')
