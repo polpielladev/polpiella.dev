@@ -1,3 +1,5 @@
+import type { Event } from '@components/Timeline/Event'
+
 const JOB_EVENTS = [
   {
     title: 'Senior iOS Developer',
@@ -41,6 +43,6 @@ const JOB_EVENTS = [
   },
 ]
 
-export default function getJobExperience() {
+export default function getJobExperience(): Event[] {
   return JOB_EVENTS
 }
