@@ -5,11 +5,13 @@ export interface Props {
 }
 
 const { user, status } = Astro.props
-const { html } = await (
-  await fetch(
-    `https://publish.twitter.com/oembed?url=https://twitter.com/${user}/status/${status}&dnt=true&align=center`
-  )
-).json()
+const url = new URL('https://publish.twitter.com/oembed')
+url.searchParams.set('url', 'https://twitter.com/' + user + '/status/' + status)
+url.searchParams.set('dnt', 'true')
+url.searchParams.set('align', 'center')
+const response = await fetch(url.toString())
+const json = await response.json()
+const { html } = json
 ---
 
 <div class="not-prose">
