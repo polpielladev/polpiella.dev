@@ -42,3 +42,5 @@ styles/*
 # Generated content collections
 .astro
 src/env.d.ts
+
+.idea
