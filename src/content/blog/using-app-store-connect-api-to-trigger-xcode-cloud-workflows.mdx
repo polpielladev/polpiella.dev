@@ -1,25 +1,26 @@
 ---
 title: 'Using App Store Connect API to trigger Xcode Cloud workflows'
-excerpt: ''
+excerpt: 'Learn how to trigger Xcode Cloud workflow runs using the App Store Connect API.'
 pubDate: 2023-02-08
 ---
 
-App Store Connect API allows developers to create, manage and start Xcode Cloud workflows. While this is a lesser known feature of the API, it can certainly prove incredibly useful to automate processes and extend the capabilities of Xcode Cloud by, for example, adding custom workflow triggers.
+App Store Connect API allows developers to create, manage and trigger Xcode Cloud workflows using network requests. While this is a lesser known feature of the API, it can certainly prove incredibly useful to automate processes and extend the capabilities of Xcode Cloud by, for example, adding custom workflow triggers.
 
 > I am planning on making a follow up article implementing a workflow trigger which is currently unavailable by default from Xcode Cloud using webhooks and App Store Connect API, so keep your eyes peeled for it! 👀
 
-This article shows how to interact with the App Store Connect API in Swift using [Antoine van der Lee](https://twitter.com/twannl)'s [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) Swift Package to:
+This article goes through how to interact with the App Store Connect API in Swift using [Antoine van der Lee](https://twitter.com/twannl)'s [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) Swift Package to:
 
 1. Get a list of all available **Xcode Cloud products**.
-2. **Select the desired Xcode Cloud product** based on its repository name regardless of which source control provider it uses.
-3. **Retrieve the information for a workflow** in the selected Xcode Cloud product.
-4. **Trigger** the selected workflow.
+2. **Select an Xcode Cloud product** based on its repository name.
+3. **Retrieve a list of workflows** for an Xcode Cloud product.
+4. **Retrieve information** for a workflow.
+5. **Trigger** a workflow run.
 
-> This article doesn't go through how to create an App Store Connect API key. If you would like to learn more about how to do so, please [refer to this article](/fastlane-appstore-connect-api-and-github-actions#creating-an-app-store-connect-api-key).
+> This article doesn't go through how to create an App Store Connect API key. If you would like to learn more about how to do so, please [refer to this article on my blog](/fastlane-appstore-connect-api-and-github-actions#creating-an-app-store-connect-api-key).
 
 ## Setting up the Swift SDK
 
-To start making requests to the App Store Connect API using the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) Swift Package, one must create an instance of `APIConfiguration` with the API key credentials and pass it to an `APIProvider` instance. The latter is in charge of making authenticated requests to App Store Connect.
+To start making requests to the App Store Connect API using the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) libary, one must first create an instance of `APIConfiguration` with the required credentials and pass this configuration to an `APIProvider` instance, which will make all authenticated requests.
 
 ```swift:XcodeCloudAPI.swift
 func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials) async throws {
@@ -32,13 +33,13 @@ func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials)
 }
 ```
 
-## Getting the Xcode Cloud product
+## Getting an Xcode Cloud product
 
 The next step is then to retrieve the information for the Xcode Cloud product containing the workflow we want to trigger by making a `GET` request to the [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) endpoint.
 
-We can use the `APIEndpoint` type to create the request to [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) route and filter by product type (in this case we only want to show app products).
+We can use the `APIEndpoint` type to create the request to the [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) route and filter by product type (in this case we only want to show app products).
 
-Furthermore, since we want to select the correct product from its repository name, we need to specify that we want to include the `primaryRepositories` data associated with each product to the response.
+Furthermore, since we want to select the correct product from its repository name, we need to specify that we want to include the `primaryRepositories` data associated with each product to response.
 
 ```swift:XcodeCloudAPI.swift
 func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials) async throws {
@@ -52,7 +53,7 @@ func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials)
 }
 ```
 
-Now that we have a list of app Xcode Cloud products and its repository names, we can select the product which matches the repository name we're looking for.
+Now that we have a list of Xcode Cloud products and their repository names, we can select the product which matches the repository name we're looking for.
 
 ```swift:XcodeCloudAPI.swift
 // ...
@@ -83,11 +84,11 @@ Let's step through the code above and explain what's going on in more detail:
 1. Retrieve the `included` data from the response. This is where the repository data for each product will be.
 2. Map the `included` items into repository ids and remove any where their name doesn't match the repo we're looking for.
 3. Retrieve the first repository id in the list.
-4. Retrieve the first product which contains a repository with the same id as `repositoryId`.
+4. Find the first product which contains a repository with the same id as `repositoryId`.
 
 ## Retrieving the workflow information
 
-Now that the we have found the Xcode Cloud product we're looking for, we can retrieve all available workflows via the same [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) endpoint but specifying an id and a subpath this time:
+Now that the we have found the Xcode Cloud product we're looking for, we can get all available workflows via the same [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) endpoint but specifying an id and querying the `/workflows` subpath this time:
 
 ```swift:XcodeCloudAPI.swift
 struct WorkflowsResponse: Decodable {
@@ -117,9 +118,9 @@ func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials)
 }
 ```
 
-> Note that while the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) Swift Package provides response models for most endpoints, I had to define my own decodable type to retrieve the list of workflows as no response model was available.
+> Note that while the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) Swift Package provides response models for most endpoints, you might sometimes have to define your own `Decodable` models, just like I did for retrieving all workflows for a product above.
 
-With the list of workflows, we can then retrieve the information for a specific one by making a `GET` request to the [ciWorkflows](https://developer.apple.com/documentation/appstoreconnectapi/read_xcode_cloud_workflow_information) endpoint:
+We can now retrieve the information for a specific workflow by making a `GET` request to the [ciWorkflows](https://developer.apple.com/documentation/appstoreconnectapi/read_xcode_cloud_workflow_information) endpoint with a workflow id:
 
 ```swift:XcodeCloudAPI.swift
 func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials) async throws {
@@ -138,13 +139,13 @@ func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials)
 }
 ```
 
-> In this case there is only one workflow so we didn't necessarily need to retrieve the workflow information. I decided to include this request for completion sake and to show you how to retrieve a specific workflow's information using Swift.
+> This product only has a single product, so we didn't really need to retrieve the workflow information (we could have retrieved the id from the workflows list instead). I decided to still include this request for completion sake.
 
 ## Starting a workflow
 
-App Store Connect API allows you then to start a new workflow by making a `POST` request to the [ciBuildRuns](https://developer.apple.com/documentation/appstoreconnectapi/start_a_build) and passing a [CiBuildRunCreateRequest](https://developer.apple.com/documentation/appstoreconnectapi/cibuildruncreaterequest) as its body.
+The App Store Connect API allows you to start a new workflow by making a `POST` request to the [ciBuildRuns](https://developer.apple.com/documentation/appstoreconnectapi/start_a_build) endpoint and passing a [CiBuildRunCreateRequest](https://developer.apple.com/documentation/appstoreconnectapi/cibuildruncreaterequest) as the request's body.
 
-The run [CiBuildRunCreateRequest](https://developer.apple.com/documentation/appstoreconnectapi/cibuildruncreaterequest) must include the type of create request (`.ciBuildRuns`) and it must include the workflow that we want to run as a relationship.
+The [CiBuildRunCreateRequest](https://developer.apple.com/documentation/appstoreconnectapi/cibuildruncreaterequest) body must include the type of request (`.ciBuildRuns`) and the id of the workflow that we want to run as a relationship.
 
 ```swift:XcodeCloudAPI.swift
 let requestRelationships = CiBuildRunCreateRequest
@@ -164,6 +165,6 @@ let workflowRun = APIEndpoint
 _ = try await provider.request(workflowRun)
 ```
 
-The preceding code snippet then triggers a run for the workflow we're targetting 🎉
+That's it! Running the `startWorflow` function will trigger a new workflow run! 🎉
 
 ![An image showing the resulting workflow run after making a call to App Store Connect](/assets/posts/using-app-store-connect-api-to-trigger-xcode-cloud-workflows/xcode-cloud.webp)
