@@ -39,7 +39,7 @@ The next step is then to retrieve the information for the Xcode Cloud product co
 
 We can use the `APIEndpoint` type to create the request to the [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) route and filter by product type (in this case we only want to show app products).
 
-Furthermore, since we want to select the correct product from its repository name, we need to specify that we want to include the `primaryRepositories` data associated with each product to response.
+Furthermore, since we want to select the correct product from its repository name, we need to specify that we want to include the `primaryRepositories` data associated with each product to the response.
 
 ```swift:XcodeCloudAPI.swift
 func startWorkflow(in repo: String, withCredentials credentials: ASCCredentials) async throws {
@@ -165,6 +165,6 @@ let workflowRun = APIEndpoint
 _ = try await provider.request(workflowRun)
 ```
 
-That's it! Running the `startWorflow` function will trigger a new workflow run! 🎉
+That's it! Running the `startWorkflow` function will trigger a new workflow run! 🎉
 
 ![An image showing the resulting workflow run after making a call to App Store Connect](/assets/posts/using-app-store-connect-api-to-trigger-xcode-cloud-workflows/xcode-cloud.webp)
