@@ -88,7 +88,7 @@ Let's step through the code above and explain what's going on in more detail:
 
 ## Retrieving the workflow information
 
-Now that the we have found the Xcode Cloud product we're looking for, we can get all available workflows via the same [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) endpoint but specifying an id and querying the `/workflows` subpath this time:
+Now that the we have found the Xcode Cloud product we're looking for, we can get all available workflows via the same [ciProducts](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) endpoint by specifying an id and querying the `/workflows` subpath this time:
 
 ```swift:XcodeCloudAPI.swift
 struct WorkflowsResponse: Decodable {
