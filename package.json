@@ -11,8 +11,8 @@
     "start": "astro dev",
     "build": "astro check && tsc --noEmit && astro build",
     "preview": "astro preview",
-    "format:fix": "prettier --write ./**/*.{js,jsx,md,css,astro}",
-    "format:check": "prettier --check ./**/*.{js,jsx,md,css,astro}"
+    "format:fix": "prettier --write ./**/*.{ts,js,svelte,mdx,css,astro}",
+    "format:check": "prettier --check ./**/*.{ts,js,svelte,mdx,css,astro}"
   },
   "devDependencies": {
     "@astrojs/rss": "2.1.0",
