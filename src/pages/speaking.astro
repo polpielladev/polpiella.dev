@@ -89,7 +89,7 @@ const events: Year[] = [
       {
         events.map((year) => (
           <>
-            <h2>{year.value}</h2>
+            <h2 class="mt-12 text-3xl font-black">{year.value}</h2>
             <div class="flex flex-col gap-6">
               {year.talks.map((talk) => (
                 <Talk {...talk} />
