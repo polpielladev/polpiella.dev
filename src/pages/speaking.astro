@@ -1,6 +1,66 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import Talk from '@components/Talk.svelte'
+
+interface Year {
+  value: number
+  talks: Talk[]
+}
+
+interface Talk {
+  title: string
+  date: string
+  event: string
+}
+
+const events: Year[] = [
+  {
+    value: 2023,
+    talks: [
+    { title: '👀 TBA', date: 'December 2023', event: '👀 TBA' },
+    {
+      title: 'Exploring the power of Swift beyond mobile app development',
+      date: '30th - 31st of May',
+      event: 'plSwift',
+    },
+    {
+      title: 'Getting Started With Xcode Cloud',
+      date: '18th - 19th of April',
+      event: 'NYSwifty',
+    },
+    {
+      title: 'Serverless Swift: A URL shortener',
+      date: '06th of February',
+      event: 'NSManchester',
+    },
+    ]
+  },
+  {
+    value: 2022,
+    talks: [
+      {           
+        title: "Exploring the power of Swift beyond app development",
+        date: "17th of November",
+        event: "Arc remote engineering job fair latam" 
+      },
+      {
+        title: "Getting ahead of the game: Avoid release day drama!",
+        date: "10th of November",
+        event: "Mobile Devops Summit 2022"
+      },
+      {
+        title: "Fantastic Swift tools and where to find them",
+        date: "9th of November",
+        event: "Do iOS Amsterdam"
+      },
+      {
+        title: "Code generation using Swift package plugins",
+        date: "4th of July",
+        event: "NSManchester"
+      },
+    ]
+  }
+]
 ---
 
 <BaseLayout
@@ -18,49 +78,12 @@ import Talk from '@components/Talk.svelte'
       </p>
     </section>
     <section class="flex flex-col">
-      <h2>2023</h2>
-      <div class="flex flex-col gap-6">
-        <Talk title="👀 TBA" date="December 2023" event="👀 TBA" />
-        <Talk
-          title="Exploring the power of Swift beyond mobile app development"
-          date="30th - 31st of May"
-          event="plSwift"
-        />
-        <Talk
-          title="Getting Started With Xcode Cloud"
-          date="18th - 19th of April"
-          event="NYSwifty"
-        />
-        <Talk
-          title="Serverless Swift: A URL shortener"
-          date="06th of February"
-          event="NSManchester"
-        />
-      </div>
-
-      <h2>2022</h2>
-      <div class="flex flex-col gap-6">
-        <Talk
-          title="Exploring the power of Swift beyond app development"
-          date="17th of November"
-          event="Arc remote engineering job fair latam"
-        />
-        <Talk
-          title="Getting ahead of the game: Avoid release day drama!"
-          date="10th of November"
-          event="Mobile Devops Summit 2022"
-        />
-        <Talk
-          title="Fantastic Swift tools and where to find them"
-          date="9th of November"
-          event="Do iOS Amsterdam"
-        />
-        <Talk
-          title="Code generation using Swift package plugins"
-          date="4th of July"
-          event="NSManchester"
-        />
-      </div>
+      {events.map(year => (
+        <h2>{year.value}</h2>
+        <div class="flex flex-col gap-6">
+          {year.talks.map(talk => <Talk {...talk} />)}
+        </div>
+      ))}
     </section>
     <section class="flex flex-col">
       <h2>👋 Say hi</h2>
