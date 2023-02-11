@@ -12,7 +12,7 @@
 
   <img
     class="relative m-0 hidden aspect-[434/347] w-36 px-2 sm:block"
-    src="/assets/sponsors/runway.png"
+    src="/assets/sponsors/runway-alt.png"
     alt="Runway logo" />
 
   <div class="flex flex-col gap-1">
