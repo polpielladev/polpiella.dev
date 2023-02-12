@@ -11,7 +11,7 @@
   </p>
 
   <img
-    class="relative m-0 hidden aspect-square w-36 px-2 sm:block"
+    class="relative m-0 hidden aspect-square w-36 object-contain px-2 sm:block"
     src="/assets/sponsors/runway-alt.png"
     alt="Runway logo" />
 
