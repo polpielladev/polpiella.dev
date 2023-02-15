@@ -1,10 +1,10 @@
 ---
 title: 'Safely pinning SPM depedendencies to exact versions'
-excerpt: 'Specifying an exact version rule to dependencies in your Package.swift file is sometimes not enough to ensure that you are always building the same code from your third-party dependencies. In this article, I will show you how code might change across different builds even when depending on an exact version of a Swift Package.' 
+excerpt: 'I will show you how code might change across different builds even when depending on an exact version of a Swift Package as well as how to mitigate the risks associated with this.' 
 pubDate: 2023-02-15
 ---
 
-This week at work we have been looking into migrating 3rd-party CocoaPods dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise. 
+This week at work we have been looking into migrating third-party [CocoaPods](https://cocoapods.org/) dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise. 
 
 We started off by trying to get as close to our current Cocoapods setup:
 
@@ -13,7 +13,7 @@ We started off by trying to get as close to our current Cocoapods setup:
 * We don't run `pod install` on CI.
 * Any changes to the `Podfile.lock` file are both checked by developer committing the changes and people reviewing the PR.
 
-This setup provides up with a number of benefits including highly reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can literally just clone the repo and build the app without installing cocoapods or any other third party tool).
+This setup provides up with a number of benefits including highly reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can literally just clone the repo and build the app without installing cocoapods or any other third-party tool).
 
 As package resolution is a step of the build process, there is no easy and automated way of installing all SPM dependencies into a *vendor* directory and committing it to source control. Hence, we decided to go for the next best option we had to ensure reproducible builds, which was **pinning dependencies to exact versions and committing the `Package.resolved` file to source control**.
 
@@ -23,7 +23,7 @@ Whenever you add a Swift Package Manager dependency to a single Xcode project or
 
 We initially thought that this would behave in the same way as lock files do in other dependency management system such as [CocoaPods](), where the `Podfile.lock` file only gets updated when you run a `pod install` and fails the build if there is a mismatch between the installed dependencies and the ones specified in such file. We quickly realised that `Package.resolved` works in a different way which required us to do some extra work. 
 
-The package resolution step is integrated into the project's build system and, if something changes in your Swift Package Manager dependencies, the `Package.resolved` will update to reflect so during the build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential vulnerability risk we wanted to mitigate before switching our third party dependencies over to Swift Package Manager: 
+The package resolution step is integrated into the project's build system and, if something changes in your Swift Package Manager dependencies, the `Package.resolved` will update to reflect so during the build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential vulnerability risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
 
 **Swift Package Manager relies on source control to resolve depedencies, which means that when you specify a version in your `Package.swift`, all you're really saying is that you want to check out a specific tag. Now, if someone decided to re-tag the version of a package we depend on to point to a different commit (with all the implications that could have), the build system would update the `Package.resolved` file to reflect this change the next time we build.**
 
@@ -123,7 +123,7 @@ run_tests(
 
 ## Future considerations
 
-It is important to note that Apple are currently working on a Package registry which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article. 
+It is important to note that Apple are currently working on a Package Registry Service which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article. 
 
 You can find out more about the Package Registry Service by reading proposal [SE-0292](https://github.com/apple/swift-evolution/blob/main/proposals/0292-package-registry-service.md).
 
