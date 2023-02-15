@@ -4,5 +4,7 @@ excerpt: ''
 pubDate: 2023-02-15
 ---
 
+This week at work we have been investigating what the best way to bring in 3rd party Swift Package Manager depedencies into our project is. 
 
+We set off trying to copy the way we bring in 3rd party dependencies using CocoaPods, where we specify all pods and their versions in the `Podfile`, and then commit the `Podfile.lock` file and the `Pods` directory to source control to ensure reproducible builds on CI. This means that we don't really have to run `pod install` on CI, making for faster and more secure CI runs.
 
