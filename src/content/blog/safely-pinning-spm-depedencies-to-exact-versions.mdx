@@ -1,33 +1,33 @@
 ---
-title: 'Safely pinning SPM depedendencies to exact versions'
+title: 'Safely pinning SPM dependencies to exact versions'
 excerpt: 'I will show you how code might change across different builds even when depending on an exact version of a Swift Package as well as how to mitigate the risks associated with this.' 
 pubDate: 2023-02-15
 ---
 
 This week at work we have been looking into migrating third-party [CocoaPods](https://cocoapods.org/) dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise. 
 
-We started off by trying to get as close to our current Cocoapods setup:
+We started off by reviewing our current [CocoaPods](https://cocoapods.org/) setup:
 
 * We have a `Podfile` at the root of the repo.
 * We commit both the `Podfile.lock` file and the `Pods` directory to source control.
 * We don't run `pod install` on CI.
 * Any changes to the `Podfile.lock` file are both checked by developer committing the changes and people reviewing the PR.
 
-This setup provides up with a number of benefits including highly reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can literally just clone the repo and build the app without installing cocoapods or any other third-party tool).
+This setup provides us with a number of benefits such as reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can clone the repo and build the app without installing [CocoaPods](https://cocoapods.org/) or any other third-party tools).
 
-As package resolution is a step of the build process, there is no easy and automated way of installing all SPM dependencies into a *vendor* directory and committing it to source control. Hence, we decided to go for the next best option we had to ensure reproducible builds, which was **pinning dependencies to exact versions and committing the `Package.resolved` file to source control**.
+As package resolution is a step of the build process, there is no easy and automated way of installing all Swift Package Manager dependencies into a *vendor* directory and committing it to source control like we do with [CocoaPods](https://cocoapods.org/). 
+
+For this reason, we decided to go for the next best option we had to ensure reproducible builds, which was **pinning dependencies to exact versions and committing the `Package.resolved` file to source control**.
 
 ## The problem
 
-Whenever you add a Swift Package Manager dependency to a single Xcode project or to a Swift package or Xcode project within an `.xcworkspace`, the swift build system will generate/update a `Package.resolved` file under `<workspace_name>.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+When you add a Swift Package Manager dependency to an Xcode project or to a Swift package or Xcode project within an `.xcworkspace`, the swift build system will generate/update a `Package.resolved` file under `<workspace_name>.xcworkspace/xcshareddata/swiftpm/Package.resolved`. This file will contain information about the version, revision and URL of all dependencies used by the project.
 
-We initially thought that this would behave in the same way as lock files do in other dependency management system such as [CocoaPods](), where the `Podfile.lock` file only gets updated when you run a `pod install` and fails the build if there is a mismatch between the installed dependencies and the ones specified in such file. We quickly realised that `Package.resolved` works in a different way which required us to do some extra work. 
+The way `Package.resolved` differs from more traditional lock file implementations is that when something changes in your Swift Package Manager dependencies, the `Package.resolved` file will automatically update to reflect so during a build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
 
-The package resolution step is integrated into the project's build system and, if something changes in your Swift Package Manager dependencies, the `Package.resolved` will update to reflect so during the build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential vulnerability risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
+**Swift Package Manager relies on source control to resolve dependencies, which means that when you specify a version in your `Package.swift`, all you're saying is that you want to check out a specific git tag. Now, if someone decided to re-tag the version of a package you depend on to point to a different commit (with all the implications that could have), the build system would update the `Package.resolved` file to reflect this change the next time you build your app.**
 
-**Swift Package Manager relies on source control to resolve depedencies, which means that when you specify a version in your `Package.swift`, all you're really saying is that you want to check out a specific tag. Now, if someone decided to re-tag the version of a package we depend on to point to a different commit (with all the implications that could have), the build system would update the `Package.resolved` file to reflect this change the next time we build.**
-
-While you would be able to tell that there's been a change locally if you commit `Package.resolved` to source control by running `git diff` after a build, this can be a big problem for CI builds, as you wouldn't be able to tell if there's been any changes. Imagine the scenario where one of your third-party dependencies has re-tagged a release to a different commit (completely untested and different from what you're expecting) and your release pipeline build picks that change up and gets it out to your users 😱.
+While you would be able to tell that there's been a change locally if you track the `Package.resolved` file under source control, this can be a big problem for CI builds, as you wouldn't be able to tell if there's been any changes. Imagine the scenario where one of your third-party dependencies has re-tagged a release to a different commit (which hasn't been tested and is different from what you're expecting) and your release pipeline picks it up in the build that's going out to your users 😱.
 
 ## An example
 
@@ -81,11 +81,11 @@ Let's now consider the scenario where someone decides to change the `v1.0.0` tag
 }
 ```
 
-While this is fine locally as the change shows up in our `git diff` and we still get the chance to confirm whether we are happy with this change of revision or we want to investigate the change further before proceeding, CI will still build fine and ship our app with the new revision without us noticing.
+Locally, the change would show up in our `git diff` and we would get the chance to confirm whether we are happy with this change of revision or we want to investigate the change further before proceeding. On the other hand, CI would still build fine and ship our app with the new revision without us even noticing.
 
 ## The solution
 
-Luckily, there is a flag built-in to `xcodebuild` which tells the build system to not update the `Package.resolved` file if anything changes and take it as an immutable source of truth: `-disableAutomaticPackageResolution`.
+Luckily, there is a flag built-in to `xcodebuild` which allows us to mitigate this risk. Passing `-disableAutomaticPackageResolution` to the `xcodebuild` command tells the build system to not update the `Package.resolved` file if any of the dependencies have changed and, if it can't resolve all packages with the information provided by `Package.resolved`, then fail the build.
 
 ```bash:Terminal
 xcodebuild 
@@ -101,9 +101,7 @@ xcodebuild
   build-for-testing
 ``` 
 
-This flag tells `xcodebuild` to only resolve the Swift Package dependencies to revisions specified in your `Package.resolved`. Hence, if a dependency version was to be re-tagged to a commit different to that specified in `Package.resolved`, the build would fail and you would be able to investigate further.
-
-Even better, if you are using [fastlane](https://fastlane.tools/), you can pass this as a parameter to both the [gym](https://docs.fastlane.tools/actions/gym/) and [scan](https://docs.fastlane.tools/actions/scan/) actions 🎉.
+Even better, if you are using [fastlane](https://fastlane.tools/), you can set this flag by passing true to the `disable_pacakge_automatic_updates`  parameter in both the [gym](https://docs.fastlane.tools/actions/gym/) and [scan](https://docs.fastlane.tools/actions/scan/) actions 🎉:
 
 ```ruby:Fastfile
 run_tests(
@@ -123,7 +121,7 @@ run_tests(
 
 ## Future considerations
 
-It is important to note that Apple are currently working on a Package Registry Service which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article. 
+It is important to note that Apple is currently working on a Package Registry Service which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article. 
 
 You can find out more about the Package Registry Service by reading proposal [SE-0292](https://github.com/apple/swift-evolution/blob/main/proposals/0292-package-registry-service.md).
 
