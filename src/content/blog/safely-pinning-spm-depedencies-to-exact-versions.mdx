@@ -11,7 +11,7 @@ We started off by reviewing our current [CocoaPods](https://cocoapods.org/) setu
 * We have a `Podfile` at the root of the repo.
 * We commit both the `Podfile.lock` file and the `Pods` directory to source control.
 * We don't run `pod install` on CI.
-* Any changes to the `Podfile.lock` file are both checked by developer committing the changes and people reviewing the PR.
+* Any changes to the `Podfile.lock` file are both checked by the developer committing the changes and the people reviewing the PR.
 
 This setup provides us with a number of benefits such as reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can clone the repo and build the app without installing [CocoaPods](https://cocoapods.org/) or any other third-party tools).
 
@@ -23,7 +23,7 @@ For this reason, we decided to go for the next best option we had to ensure repr
 
 When you add a Swift Package Manager dependency to an Xcode project or to a Swift package or Xcode project within an `.xcworkspace`, the swift build system will generate/update a `Package.resolved` file under `<workspace_name>.xcworkspace/xcshareddata/swiftpm/Package.resolved`. This file will contain information about the version, revision and URL of all dependencies used by the project.
 
-The way `Package.resolved` differs from more traditional lock file implementations is that when something changes in your Swift Package Manager dependencies, the `Package.resolved` file will automatically update to reflect so during a build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
+The way `Package.resolved` differs from more traditional lock file implementations is that when something changes in your Swift Package Manager dependencies, the `Package.resolved` file will automatically update to reflect this during a build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
 
 **Swift Package Manager relies on source control to resolve dependencies, which means that when you specify a version in your `Package.swift`, all you're saying is that you want to check out a specific git tag. Now, if someone decided to re-tag the version of a package you depend on to point to a different commit (with all the implications that could have), the build system would update the `Package.resolved` file to reflect this change the next time you build your app.**
 
