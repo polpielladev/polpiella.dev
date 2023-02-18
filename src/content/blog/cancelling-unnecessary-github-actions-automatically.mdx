@@ -1,10 +1,10 @@
 ---
-title: 'Cancelling unnecessary Github actions automatically'
+title: 'Cancelling unnecessary GitHub actions automatically'
 excerpt: 'How to make use of the github actions concurrency feature to cancel unnecessary runs automatically. Talking about a real-world example and a tale of two approaches, and why I decided to implement it the way I did.'
 pubDate: 2021-11-26
 ---
 
-If you use Github actions as your continuos integration solution and you work in a large enough project maintained by a **team of developers**, chances are that you will have dedicated workflows for pull requests, main/master pushes, uploading to the stores, etc. Most of these tend to be **expensive performance wise** and require dedicated CI runners for them to run on, so you want to trigger them only when it is **absolutely necessary** in order not to build a backlog and slow down development for the rest of your team.
+If you use GitHub actions as your continuos integration solution and you work in a large enough project maintained by a **team of developers**, chances are that you will have dedicated workflows for pull requests, main/master pushes, uploading to the stores, etc. Most of these tend to be **expensive performance wise** and require dedicated CI runners for them to run on, so you want to trigger them only when it is **absolutely necessary** in order not to build a backlog and slow down development for the rest of your team.
 
 One of these cases, which comes up quite often in our team, has to do with the workflows we run on Pull Requests. These ensure that **our tests are run and our code is linted**, and trigger whenever a pull request is open or a new commit is pushed to the source branch of said PR. While this is fine in most cases, people are likely to asynchronously review PRs or address review comments in **separate pushes** in a short space of time. These leads to an action per push being triggered and added to the queue ready to be picked up when the CI is next free, which is not ideal, as it means that the CI is not free for the rest of the team as it is busy running actions that **don't give us any benefit** (we really only care about the latest push in a PR).
 
@@ -22,9 +22,9 @@ Using a custom action inside your workflow **requires the job to run before it c
 
 **What if you want to reduce the burden on the CI because you only have one dedicated runner available?** This will mean that your cancel workflow action will always get run too late, as it will need to wait for any previous action to finish, hence having nothing to cancel when it is being run. This solution **unfortunately won't work for you**, and this is the reason why I wrote this blog, as I faced the same problem and had to dig through the actions documentation to find a solution for this. But fear not, there is a **very simple solution** that requires **no dependencies** and very little work on your part.
 
-## Github's concurrency run/job system
+## GitHub's concurrency run/job system
 
-Github actions have a feature called **[concurrency](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency)**, which allows you to create a concurrency group, in which **only one job or workflow** will run simultaneously at a single time. On top of this, you can also decide to **cancel any previous jobs in the group** by adding a single flag to it. This is how it would look on your `.yml` file:
+GitHub actions have a feature called **[concurrency](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency)**, which allows you to create a concurrency group, in which **only one job or workflow** will run simultaneously at a single time. On top of this, you can also decide to **cancel any previous jobs in the group** by adding a single flag to it. This is how it would look on your `.yml` file:
 
 ```yaml:CI.yml
 concurrency:
