@@ -12,7 +12,7 @@
     <img
       class="m-0 aspect-square w-5 dark:invert"
       src="/assets/github.svg"
-      alt="Github Logo" />
-    <b>Found a mistake? Edit on Github!</b>
+      alt="GitHub Logo" />
+    <b>Found a mistake? Edit on GitHub!</b>
   </a>
 </div>

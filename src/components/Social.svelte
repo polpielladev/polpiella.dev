@@ -3,7 +3,7 @@
     {
       asset: '/assets/github.svg',
       url: 'https://github.com/polpielladev',
-      alt: 'Github Logo',
+      alt: 'GitHub Logo',
       rel: '',
     },
     {
