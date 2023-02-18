@@ -1,5 +1,5 @@
 ---
-title: 'Scheduling tweets with Github Actions and Swift'
+title: 'Scheduling tweets with GitHub Actions and Swift'
 slug: 'scheduling-tweets-with-github-actions-and-swift'
 excerpt: 'Using Swift as to write a commit-msg git hook so that adding ticket numbers to a commit message can be automated.'
 pubDate: 2023-01-25
@@ -206,7 +206,7 @@ And that was it! I did a couple of test runs of the command-line tool and verifi
 
 At this stage I had the command-line tool which generates a report and posts a tweet and all I was missing was a way to schedule it to run every Friday.
 
-One of my favourite Github features is that you get unlimited Github Actions minutes for public repositories. This, in combination with its ability to define cron jobs to schedule workflows, made it a perfect candidate for the task I had in hand.
+One of my favourite GitHub features is that you get unlimited GitHub Actions minutes for public repositories. This, in combination with its ability to define cron jobs to schedule workflows, made it a perfect candidate for the task I had in hand.
 
 Creating a scheduled workflow is as simple as adding the `schedule` trigger to the `.yml` file with the desired frequency in the form of a cron expression:
 
@@ -235,4 +235,4 @@ jobs:
 
 > Note that I also added the ability of running the workflow manually using the [workflow-dispatch](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) trigger so that I could test it without having to wait for Friday at 12 pm.
 
-If you want to dig into the code and find out more about the implementation details, [I have made the repository public on Github](https://github.com/polpielladev/weekly-tweet-cron-job).
+If you want to dig into the code and find out more about the implementation details, [I have made the repository public on GitHub](https://github.com/polpielladev/weekly-tweet-cron-job).
