@@ -28,7 +28,7 @@ Don't get me wrong though, I am a big fan of Medium and I read a lot of tech art
 
 This got me thinking that, as a developer, with the means (and the time during a nation-wide lock-down in the UK) of getting a site online, I could get a blog up and running that gave me complete freedom on how I want to show my content online and how I can style and organise my website.
 
-I have written a couple of posts on Medium, and really only ever published [one](https://medium.com/student-beans/functional-programming-in-swift-758968a48cbc) but have always found that getting feedback before publishing was not very convenient. Even after publishing, while people did comment to either praise or criticize the content, I found the editing process to not be very interactive or engaging for the person who raised the issue. This is another thing I managed to improve by adding an `Edit on Github` button to the post where people who found any mistakes or had suggestions could edit the post on Github, giving full reward to the person that flagged it and fixed it through a PR on the blog's repo, which is also open-sourced.
+I have written a couple of posts on Medium, and really only ever published [one](https://medium.com/student-beans/functional-programming-in-swift-758968a48cbc) but have always found that getting feedback before publishing was not very convenient. Even after publishing, while people did comment to either praise or criticize the content, I found the editing process to not be very interactive or engaging for the person who raised the issue. This is another thing I managed to improve by adding an `Edit on GitHub` button to the post where people who found any mistakes or had suggestions could edit the post on GitHub, giving full reward to the person that flagged it and fixed it through a PR on the blog's repo, which is also open-sourced.
 
 ### It can be your online business card
 
@@ -50,7 +50,7 @@ Despite the fact that I knew this was my long-term goal for the site, I decided 
 
 ### The second iteration: Next.js
 
-With the launch of [Next.js](https://nextjs.org) in 2020 and after watching a significant amount of tutorials to make sense of it 😅, I decided to migrate my site to it. It seemed to be a no-brainer for me, I could get a bunch of benefits like server-side rendering, moving all of the posts to Github and serving them statically and even **generate an RSS feed** at build-time, which solved a lot of the frustrations I was facing on the initial implementation.
+With the launch of [Next.js](https://nextjs.org) in 2020 and after watching a significant amount of tutorials to make sense of it 😅, I decided to migrate my site to it. It seemed to be a no-brainer for me, I could get a bunch of benefits like server-side rendering, moving all of the posts to GitHub and serving them statically and even **generate an RSS feed** at build-time, which solved a lot of the frustrations I was facing on the initial implementation.
 
 This was a major improvement, **SSR** and **static files** made my site a lot faster and Next.js as a framework worked very well. There was still a problem though, that it being a fairly simple blog site, the amount of Javascript and files being loaded was pretty large, as it can be seen in the image below. As you can see, a fair amount of JS is loaded but simply due to the frameworks I was using, and not because of any user interaction or dynamic content or animations. This lead me to look into solutions that involved less JS, but still allowed me to use modern web technologies such as `React`.
 
