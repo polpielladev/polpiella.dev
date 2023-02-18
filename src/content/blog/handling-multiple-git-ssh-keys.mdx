@@ -10,9 +10,9 @@ I have finally decided to stop and learn more about ssh config in order to find 
 
 ## Creating SSH keys
 
-First thing I did was to start from scratch and remove all SSH keys I had. I then created two new ones: one for my work Github account and one for my personal one.
+First thing I did was to start from scratch and remove all SSH keys I had. I then created two new ones: one for my work GitHub account and one for my personal one.
 
-> Note that, while I use Github, this example will work for any code hosting service you choose to use as the SSH config is for git rather than the specific services themselves.
+> Note that, while I use GitHub, this example will work for any code hosting service you choose to use as the SSH config is for git rather than the specific services themselves.
 
 To create the new keys I used the `ssh-keygen` command from the terminal:
 
@@ -35,13 +35,13 @@ ssh-add <path_to_work_key>
 
 ## Adding the key to the code hosting provider
 
-Next step was to add the key to my account in my code hosting service (Github):
+Next step was to add the key to my account in my code hosting service (GitHub):
 
-![A screenshot showing the create SSH page in Github.](/assets/posts/handling-multiple-git-ssh-keys/new-ssh-key.png)
+![A screenshot showing the create SSH page in GitHub.](/assets/posts/handling-multiple-git-ssh-keys/new-ssh-key.png)
 
 > The SSH key settings can be found in the account's settings.
 
-To create the key in Github I needed to paste in its raw contents. I obtained these in string format by using `pbcopy` on each of the public keys:
+To create the key in GitHub I needed to paste in its raw contents. I obtained these in string format by using `pbcopy` on each of the public keys:
 
 ```bash:Terminal
 # This needs to be the public key (suffixed with `.pub`)
