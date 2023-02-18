@@ -1,0 +1,20 @@
+---
+const { href, displayUrl } = Astro.props
+---
+
+<a class="root" href={href} target="_blank" rel="noopener noreferrer"
+  >{displayUrl}
+</a>
+
+<style>
+  .root {
+    display: inline-block;
+    color: var(--tweet-color-blue-secondary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .root:hover {
+    text-decoration-thickness: 1px;
+    text-decoration-line: underline;
+  }
+</style>
