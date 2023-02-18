@@ -5,11 +5,11 @@ excerpt: 'Using Swift as to write a commit-msg git hook so that adding ticket nu
 pubDate: 2023-01-25
 ---
 
-import Tweet from '@components/Tweet.astro'
+import StaticTweet from '@components/static-tweet/StaticTweet.astro'
 
 I have recently started a new tradition on [Twitter](https://twitter.com/polpielladev) where I post the week's top three most read articles from my blog every Friday:
 
-<Tweet user="polpielladev" status="1616405269852065796" />
+<StaticTweet id="1616405269852065796" />
 
 I have been doing this manually by generating aggregate page view reports from [Fathom](https://usefathom.com), the tool I use to collect analytics from my site. As [Fathom](https://usefathom.com) has an API that allows you to generate such reports, I saw an opportunity to automate this workflow and save myself some time.
 
