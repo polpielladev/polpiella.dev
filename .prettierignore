@@ -2,3 +2,4 @@ dist
 .vscode
 public
 node_modules
+src/components/static-tweet/lib/TweetBody.astro
