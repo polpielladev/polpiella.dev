@@ -105,9 +105,9 @@ Even though the issues above did not require major code changes, they did certai
 
 It is important to note that this article does not show you how to prevent these issues from occurring but rather helps you spot them early, so you have time to fix them ahead of the next release. The issue with testing these kind of pipelines is that they can be quite cumbersome and lengthy and, to take up a lot of CI resources and time during the team's working hours would cause disruption. Here is where scheduled CI runs come in very handy.
 
-The idea behind them is that you can schedule your pipeline to be run at a specific date and time recurringly using [cron expressions](https://crontab.guru). In the following sections, I will build a Github Action which will archive the app, sign it for the App Store and then verify the binary with [App Store Connect](https://appstoreconnect.apple.com) using [fastlane](https://fastlane.tools).
+The idea behind them is that you can schedule your pipeline to be run at a specific date and time recurringly using [cron expressions](https://crontab.guru). In the following sections, I will build a GitHub Action which will archive the app, sign it for the App Store and then verify the binary with [App Store Connect](https://appstoreconnect.apple.com) using [fastlane](https://fastlane.tools).
 
-## Implementing a nightly Github action
+## Implementing a nightly GitHub action
 
 ### Creating a nightly lane
 
@@ -166,7 +166,7 @@ end
 
 ### Creating a nightly workflow
 
-Now that the nightly lane is implemented, it needs to be run at a given time every day. To achieve this, a new [Github Actions workflow](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) file called `nightly.yml`, which runs on a system with macos-latest as its operating system and just calls the nightly lane on the repo, is created under the `.github/workflows` directory. On top of this, the action below uses a `schedule` tag with a chron expression to tell Github this action needs to run every day at midnight:
+Now that the nightly lane is implemented, it needs to be run at a given time every day. To achieve this, a new [GitHub Actions workflow](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) file called `nightly.yml`, which runs on a system with macos-latest as its operating system and just calls the nightly lane on the repo, is created under the `.github/workflows` directory. On top of this, the action below uses a `schedule` tag with a chron expression to tell GitHub this action needs to run every day at midnight:
 
 ```yml:nightly.yml
 name: Nightly
@@ -192,4 +192,4 @@ Scheduled workflows come in very handy when you want to gain confidence in proce
 
 They are also great at performing time and resource consuming tasks (such as end to end tests) with minimal disruption and cost. For example, instead of running E2E tests on every push to main, they can be run once in the evening, testing all changes from the day.
 
-Last but not least, another great use case of scheduled CI runs is automating repetitive processes. As an example, at work we have a certificate which needs to be issued every month, so we created a Github action which runs at the beginning of each month and replaces the current certificate with a freshly issued one.
+Last but not least, another great use case of scheduled CI runs is automating repetitive processes. As an example, at work we have a certificate which needs to be issued every month, so we created a GitHub action which runs at the beginning of each month and replaces the current certificate with a freshly issued one.
