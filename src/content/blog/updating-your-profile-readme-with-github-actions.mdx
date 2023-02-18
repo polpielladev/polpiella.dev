@@ -1,10 +1,10 @@
 ---
-title: 'How I use Github Actions to update my Github profile'
-excerpt: 'In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a Github Action.'
+title: 'How I use GitHub Actions to update my GitHub profile'
+excerpt: 'In this post, I will talk through how you can add dynamic data to your profile README.md by scheduling jobs using a GitHub Action.'
 pubDate: 2021-07-15
 ---
 
-Github have recently introduced a way of personalising your Github profile to include relevant information and styles to be able to show off your skills and stats when people visit your profile.
+GitHub have recently introduced a way of personalising your GitHub profile to include relevant information and styles to be able to show off your skills and stats when people visit your profile.
 
 While for most cases showing static data might be enough, you might want to fetch data dynamically from an API and update your README accordingly. In my case, I wanted to be able to show the latest articles from my blog, but I was clueless on how I could do so. I started researching and came across [a list of examples](https://github.com/abhisheknaiidu/awesome-github-profile-readme#github-actions-) which inspired to write my own github action to dynamically update content in my profile.
 
@@ -12,7 +12,7 @@ While for most cases showing static data might be enough, you might want to fetc
 
 The first thing we need to do before we get started and write any code is to create the repo where your profile will live. In order to do this, you will need to create a repo which has your username as its name, just like I do in the image below:
 
-![Github README create repo](/assets/posts/updating-your-profile-readme-with-github-actions/profile-readme.png)
+![GitHub README create repo](/assets/posts/updating-your-profile-readme-with-github-actions/profile-readme.png)
 
 You will then be greeted with a nice little message telling that you have found a secret and by naming the repo in the same way as your username, this will then become your profile. Before clicking create, make sure that you select the `Add a README file` checkbox. Feel free at this point to stop reading and start writing your README and populating with the content you would like to showcase to others.
 
@@ -118,9 +118,9 @@ Readme.main()
 
 And just like that, I had all the building blocks of my project. The only thing missing now was to create a workflow to trigger these actions.
 
-### Creating a Github workflow
+### Creating a GitHub workflow
 
-I was very surprised to see how easy it is to set up Github Actions for any repo you have as the only thing you need to do is create a `.github/workflows` directory at the root of your repository and then add any workflows as `.yml` files in such location. You can learn more about these actions in the [docs](https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions) but they are essentially a form of CI/CD, where you provide a bunch of configuration to determine which agent to run your code in as well as specifying any commands you would like to run.
+I was very surprised to see how easy it is to set up GitHub Actions for any repo you have as the only thing you need to do is create a `.github/workflows` directory at the root of your repository and then add any workflows as `.yml` files in such location. You can learn more about these actions in the [docs](https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions) but they are essentially a form of CI/CD, where you provide a bunch of configuration to determine which agent to run your code in as well as specifying any commands you would like to run.
 
 #### Specifying our requirements
 
@@ -133,7 +133,7 @@ For my project, as I am using `Swift`, I need to use an agent capable of running
 
 #### Translating our requirements into .yml
 
-In order to translate our requirements to something that `Github` can understand, we need to first create a `.yml` file in the directory mentioned above. Once we have this, let's start by naming our action and giving it a few triggers:
+In order to translate our requirements to something that `GitHub` can understand, we need to first create a `.yml` file in the directory mentioned above. Once we have this, let's start by naming our action and giving it a few triggers:
 
 ```yaml:CI.yml
 name: Fetch latest blog posts and update README.md
