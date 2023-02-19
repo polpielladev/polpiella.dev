@@ -24,6 +24,7 @@
     "astro-layouts": "^1.0.0",
     "autoprefixer": "10.4.8",
     "clsx": "^1.2.1",
+    "date-fns": "^2.29.3",
     "markdown-it": "^13.0.1",
     "prettier": "2.7.1",
     "prettier-plugin-astro": "0.5.3",
