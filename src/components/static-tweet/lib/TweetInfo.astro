@@ -1,15 +1,16 @@
 ---
 import type { Tweet } from '../types'
+import TweetInfoCreatedAt from './TweetInfoCreatedAt.astro'
 
 export interface Props {
   tweet: Tweet
 }
 
-// const { tweet } = Astro.props
+const { tweet } = Astro.props
 ---
 
 <div class="info">
-  {/* <TweetInfoCreatedAt tweet={tweet} /> */}
+  <TweetInfoCreatedAt tweet={tweet} />
   <a
     href="https://help.twitter.com/en/twitter-for-websites-ads-info-and-privacy"
     target="_blank"
