@@ -1,8 +1,7 @@
 ---
 import type { Tweet } from '../types'
 import { getLikeUrl, getReplyUrl, formatNumber } from '../utils'
-// import { TweetActionsCopy } from './tweet-actions-copy'
-// import s from './tweet-actions.module.css'
+import CopyTweet from './CopyTweet.svelte'
 
 export interface Props {
   tweet: Tweet
@@ -49,7 +48,7 @@ const favoriteCount = formatNumber(tweet.favorite_count)
     </div>
     <span class="replyText"> Reply</span>
   </a>
-  {/* <TweetActionsCopy tweet={tweet} /> */}
+  <CopyTweet tweet={tweet} client:only />
 </div>
 
 <style>
