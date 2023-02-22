@@ -1,6 +1,6 @@
 ---
 title: 'Coming in Swift 5.9: Network requests in Swift package plugins'
-excerpt: 'A deep dive into a new feature coming to Swift Package Manager in Swift 5.9: the ability to make network requests in Swift package plugins.'
+excerpt: 'A deep dive into a new feature coming to Swift Package Manager in Swift 5.9: the ability to make network requests from Swift package plugins.'
 pubDate: 2023-02-22
 ---
 
@@ -14,7 +14,7 @@ As of the release of Swift 5.9, a new type of permission will be added to Swift 
 
 The initial PR also adds the option **to specify a list of ports within the scope** that the plugin is allowed to make requests to. At the time of writing this article though, there is **no way to provide a list of domains** that can be requested from the plugin's code when allowing remote network requests.
 
-When specifying that a plugin requires the `allowNetworkConnections` permission we must also specify a **scope**, which determines the requests that can or can not be made from the plugin's code.
+When specifying that a plugin requires the `allowNetworkConnections` permission we must also specify a **scope**, which determines the requests that can or cannot be made from the plugin's code.
 
 The available scopes at the moment are:
 
@@ -105,7 +105,7 @@ swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
 swift package compile-to-amazonlinux2 --allow-network-connections docker
 ```
 
-> If you want to learn more about how to download and install development snapshopts of Swift, [check out my article on the topic](https://www.polpiella.dev/managing-multiple-swift-versions-locally).
+> If you want to learn more about how to download and install development snapshots of Swift, [check out my article on the topic](https://www.polpiella.dev/managing-multiple-swift-versions-locally).
 
 Before the plugin executes, it will ask for permissions to make network requests to Docker. As shown in the bash code snippet above, you can also make the plugin command invocation not interactive by passing it the `--allow-network-connections` flag. This is very useful for running the plugin in a CI environment or when you have to call it repeatedly.
 
