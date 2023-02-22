@@ -10,16 +10,16 @@ The moment I found out that this feature had landed in the repository's main bra
 
 ## An overview
 
-As of the release of `Swift 5.9`, a new type of permission will be added to Swift package plugins: `allowNetworkConnections`. This permission will allow a plugin to make network requests to a Docker daemon, a local or remote server, a Unix domain socket or even to all of them. The initial PR also adds the option of specifying a list of ports which are allowed when making network requests.
+As of the release of `Swift 5.9`, a new type of permission will be added to Swift package command plugins: `allowNetworkConnections`. This permission will allow a plugin to make network requests to a Docker daemon, a local or remote server and to Unix domain sockets. The initial PR also adds the option of specifying a list of ports which are allowed when making network requests but does not allow for specifying a list of domains.
 
-The new `allowNetworkConnections` must be given a scope, which can be one of the following:
+The new `allowNetworkConnections` permission requires a **scope**, which determines which requests can or can't be made from the plugin's code. The available scopes at the moment are:
 
 - `docker` - allows the plugin to communicate with a Docker daemon.
-- `local` - allows the plugin to communicate with a server local to the system where the plugin is executing. This enum case has an associated value `ports`, which allows you to specify a list of ports that are allowed to be used when making network requests.
-- `all` - allows the plugin to make a request to any domain, both local and remote. This enum case has an associated value `ports`, which allows you to specify a list of ports that are allowed to be used when making network requests.
+- `local` - allows the plugin to communicate with a server local to the system where the plugin is executing. This enum case has an associated value `ports`, to only allow requests to local servers running on any of the ports specified.
+- `all` - allows the plugin to make a request to any domain, both local and remote. This enum case has an associated value `ports`, to only allow requests to servers (local or remote) running on any of the ports specified.
 - `unixDomainSocket` - allows the plugin to communicate with a Unix domain socket.
 
-If you have written a Swift package command plugin before which required modifying/creating files, you will already be familiar with how to add a permission to your plugin. The `allowNetworkConnections` permission is no different to its existing `writeToPackageDirectory` counterpart, and you can add it to your plugin in the same way (refer to the next sections for examples on how to do so).
+If you have written a Swift package command plugin before which required modifying/creating files, you will already be familiar with how to add a permission to your plugin. The `allowNetworkConnections` permission is no different to the existing `writeToPackageDirectory` permission. You will see how to do so in the following sections.
 
 ## Communicating with docker
 
