@@ -108,7 +108,7 @@ let package = Package(
     // ...
     targets: [
         .plugin(
-            name: "Local",
+            name: "FetchConfig",
             capability: .command (
                 intent: .custom(verb: "fetch-config", description: "Fetch a `config.json` resource and embed it in the package"),
                 permissions: [
@@ -192,7 +192,7 @@ let package = Package(
     // ...
     targets: [
         .plugin(
-            name: "Network",
+            name: "FetchConfig",
             capability: .command (
                 intent: .custom(verb: "fetch-config", description: "Fetch a `config.json` resource and embed it in the package"),
                 permissions: [
