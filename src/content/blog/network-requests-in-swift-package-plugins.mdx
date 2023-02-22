@@ -3,3 +3,210 @@ title: 'Network requests in Swift package plugins'
 excerpt: ''
 pubDate: 2022-02-22
 ---
+
+The merge [PR #6114](https://github.com/apple/swift-package-manager/pull/6114) in the Swift Package Manager repository confirms one of the features I have long been waiting for: the ability to make network requests in Swift package plugins.
+
+This article does a deep-dive into the new feature and explores all its different options.
+
+## An overview
+
+As of the release of `Swift 5.9`, a new type of permission will be added to Swift package plugins: `allowNetworkConnections`. This permission will allow a plugin to make network requests to a Docker daemon, a local or remote server, a Unix domain socket or even to all of them. The initial PR also adds the option of specifying a list of ports which are allowed when making network requests.
+
+The new `allowNetworkConnections` must be given a scope, which can be one of the following:
+
+- `docker` - allows the plugin to communicate with a Docker daemon.
+- `local` - allows the plugin to communicate with a server local to the system where the plugin is executing. This enum case has an associated value `ports`, which allows you to specify a list of ports that are allowed to be used when making network requests.
+- `all` - allows the plugin to make a request to any domain, both local and remote. This enum case has an associated value `ports`, which allows you to specify a list of ports that are allowed to be used when making network requests.
+- `unixDomainSocket` - allows the plugin to communicate with a Unix domain socket.
+
+If you have written a Swift package command plugin before which required modifying/creating files, you will already be familiar with how to add a permission to your plugin. The `allowNetworkConnections` permission is no different to its existing `writeToPackageDirectory` counterpart, and you can add it to your plugin in the same way (refer to the next sections for examples on how to do so).
+
+## Communicating with docker
+
+Let's consider an example of a Swift package plugin that communicates with Docker. The plugin will be able to start a docker container, execute a command in it, and, once the command has finished, stop the container. In this case, the plugin will make use of one of SwiftWasm's docker containers to compile a Swift executable target into a `.wasm` file.
+
+First, let's define a plugin target in the `Package.swift` manifest:
+
+```swift:Package.swift
+import PackageDescription
+
+let package = Package(
+    name: "PluginsPermissionsTest",
+    products: [
+        // Products define the executables and libraries a package produces, and make them visible to other packages.
+        .library(
+            name: "PluginsPermissionsTest",
+            targets: ["PluginsPermissionsTest"]),
+    ],
+    dependencies: [
+    ],
+    targets: [
+        .target(
+            name: "PluginsPermissionsTest",
+            dependencies: []
+        ),
+        .plugin(
+            name: "Docker",
+            capability: .command (
+                intent: .custom(verb: "compile-to-amazonlinux2", description: "Compile executable to amazon linux 2"),
+                permissions: [
+                    .allowNetworkConnections(
+                        scope: .docker,
+                        reason: "The plugin must connect to the docker daemon to compile Swift code to amazonlinux2"
+                    )
+                ]
+            )
+        )
+    ]
+)
+```
+
+```swift:Plugins/Docker/Docker.swift
+@main
+struct Docker: CommandPlugin {
+    func performCommand(context: PluginContext, arguments: [String]) throws {
+        // Path to the docker executable
+        let docker = try context.tool(named: "docker").path
+
+        try shell(command: docker, arguments: [
+            "run",
+            "--rm",
+            "--volume", "\(context.package.directory.string):/src",
+            "--workdir", "/src",
+            "swiftlang/swift:nightly-amazonlinux2",
+            "swift", "build", "-c", "release"
+        ])
+    }
+}
+```
+
+We can then run the plugin from the command line like so:
+
+```bash:Terminal
+# Set the version of Swift to a development snapshot with Swift 5.9
+swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
+
+# Run the plugin
+swift package compile-to-amazonlinux2 --allow-network-connections docker
+```
+
+Before the plugin executes, it will ask for permissions to make network requests to Docker. As shown in the code snippet above, you can also make this command not interactive by passing the `--allow-network-connections` flag to the plugin command. This is very useful for running the plugin in a CI environment or when you have to call it repeatedly.
+
+Once the plugin has all necessary permissions, it will interact with Docker's daemon to run swift build on an `amazonlinx2` docker instance and output a linux-compatible executable to the package's current working directory under: '.build/aarch64-unknown-linux-gnu/release/PluginsPermissionsTest'.
+
+![]()
+
+## Communicating with a local server
+
+Let's now see how a plugin can be used to communicate with a local server running at port `30`:
+
+```swift:Package.swift
+import PackageDescription
+
+let package = Package(
+    name: "PluginsPermissionsTest",
+    // ...
+    targets: [
+        .plugin(
+            name: "Local",
+            capability: .command (
+                intent: .custom(verb: "fetch-config", description: "Fetch a `config.json` resource and embed it in the package"),
+                permissions: [
+                    .allowNetworkConnections(
+                        scope: .local(ports: [30]),
+                        reason: "The plugin must connect to a local server running at port 30 to fetch a resource"
+                    )
+                ]
+            )
+        )
+    ]
+)
+```
+
+Let's now write the code for a plugin which fetches a configuration file (`.json`) from a local server and embeds it into the package's resources folder.
+
+```swift:Plugins/Local/Local.swift
+@main
+struct Local: CommandPlugin {
+    func performCommand(context: PluginContext, arguments: [String]) throws {
+        let curl = try context.tool(named: "curl").path
+
+        let response = try execute(executable: curl, arguments: [
+            "http://localhost:30/config.json",
+            "-o",
+            context.package.directory.appending(subpath: "config.json").string
+        ])
+    }
+}
+```
+
+That's it! We can now run the plugin from the command line like so:
+
+```bash:Terminal
+# Set the version of Swift to a development snapshot with Swift 5.9
+swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
+
+# Run the plugin
+swift package local-request
+```
+
+Once you do so, you will see a slightly different prompt for network permissions (only local requests on port 30) and a second prompt for file system permissions (to write to the package's resources folder):
+
+![]()
+
+## Communicating with a remote server
+
+Let's now modify the URL we used in the previous example and change the URL to point to a remote endpoint instead:
+
+```swift:ConfigFetcher.swift
+@main
+struct Local: CommandPlugin {
+    func performCommand(context: PluginContext, arguments: [String]) throws {
+        let curl = try context.tool(named: "curl").path
+
+        let response = try execute(executable: curl, arguments: [
+            "hhttps://httpbin.org/json",
+            "-o",
+            context.package.directory.appending(subpath: "config.json").string
+        ])
+    }
+}
+```
+
+> Note that for testing sake I am using [httpbin.org]() to get a JSON response which I can then write to a file. You can use any remote endpoint you want.
+
+If we run this plugin now, we will get the following error:
+
+![]()
+
+This is because the plugin is trying to make a network request to a remote server, and we have not yet granted it permission to do so. Let's fix that by adding the following permission to the plugin's manifest:
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "PluginsPermissionsTest",
+    // ...
+    targets: [
+        .plugin(
+            name: "Network",
+            capability: .command (
+                intent: .custom(verb: "fetch-config", description: "Fetch a `config.json` resource and embed it in the package"),
+                permissions: [
+                    .allowNetworkConnections(
+                        scope: .all(ports: []),
+                        reason: "Allow remote connections to fetch a `config.json` file"
+                    )
+                ]
+            )
+        )
+    ]
+)
+```
+
+Let's now re-run the plugin and grant it the permissions it needs:
+
+> Note that all examples above would work with the `.all` scope as well, as it allows the plugin to execute all network requests, regardless of their domain, port or whether they are local or remote.
