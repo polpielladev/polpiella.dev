@@ -125,9 +125,9 @@ let package = Package(
 
 Let's now write the code for a plugin which fetches a configuration file (`.json`) from a local server and embeds it into the package's resources folder.
 
-```swift:Plugins/Local/Local.swift
+```swift:Plugins/FetchConfig/FetchConfig.swift
 @main
-struct Local: CommandPlugin {
+struct FetchConfig: CommandPlugin {
     func performCommand(context: PluginContext, arguments: [String]) throws {
         let curl = try context.tool(named: "curl").path
 
@@ -158,9 +158,9 @@ Once you do so, you will see a slightly different prompt for network permissions
 
 Let's now modify the URL we used in the previous example and change the URL to point to a remote endpoint instead:
 
-```swift:ConfigFetcher.swift
+```swift:Plugins/FetchConfig/FetchConfig.swift
 @main
-struct Local: CommandPlugin {
+struct FetchConfig: CommandPlugin {
     func performCommand(context: PluginContext, arguments: [String]) throws {
         let curl = try context.tool(named: "curl").path
 
