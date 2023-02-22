@@ -190,7 +190,7 @@ Once you do so, you should see `curl`'s output in the terminal and a new file (`
 
 ## Communicating with a remote server
 
-Let's now modify the URL we used in the previous example and change the URL to point to a remote endpoint instead:
+Let's now modify the URL we used in the previous example and change it to a remote endpoint instead:
 
 ```swift:Plugins/FetchConfig/FetchConfig.swift
 @main
@@ -198,27 +198,27 @@ struct FetchConfig: CommandPlugin {
     func performCommand(context: PluginContext, arguments: [String]) throws {
         let curl = try context.tool(named: "curl").path
 
-        let response = try execute(executable: curl, arguments: [
-            "hhttps://httpbin.org/json",
+        let response = try shell(executable: curl, arguments: [
+            "https://httpbin.org/json",
+            "-s",
             "-o",
             context.package.directory.appending(subpath: "config.json").string
         ])
+
+        print(response)
     }
 }
 ```
 
-> Note that for testing sake I am using [httpbin.org]() to get a JSON response which I can then write to a file. You can use any remote endpoint you want.
+> Note that for testing sake I am using [httpbin.org](http://httpbin.org/) to get a JSON response which I can then write to a file. You can use any remote endpoint you want.
 
 If we run this plugin now, we will get the following error:
 
 ![]()
 
-This is because the plugin is trying to make a network request to a remote server, and we have not yet granted it permission to do so. Let's fix that by adding the following permission to the plugin's manifest:
+This is because the plugin is trying to make a network request to a remote endpoint, and we have not yet granted it permission to do so. Let's fix that by changing the scope of the `allowNetworkConnections` permission from `local` to `all` in the `Package.swift` file:
 
 ```swift:Package.swift
-// swift-tools-version: 5.9
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
 import PackageDescription
 
 let package = Package(
@@ -232,8 +232,9 @@ let package = Package(
                 permissions: [
                     .allowNetworkConnections(
                         scope: .all(ports: []),
-                        reason: "Allow remote connections to fetch a `config.json` file"
-                    )
+                        reason: "The plugin must connect to a remote server to fetch a resource"
+                    ),
+                    .writeToPackageDirectory(reason: "Write the fetched `config.json` to the package's root directory")
                 ]
             )
         )
@@ -243,4 +244,16 @@ let package = Package(
 
 Let's now re-run the plugin and grant it the permissions it needs:
 
-> Note that all examples above would work with the `.all` scope as well, as it allows the plugin to execute all network requests, regardless of their domain, port or whether they are local or remote.
+```bash:Terminal
+# Set the version of Swift to a development snapshot with Swift 5.9
+swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
+
+# Run the plugin
+swift package fetch-config                  \
+    --allow-writing-to-package-directory    \
+    --allow-network-connections all
+```
+
+After the plugin has finished executing correctly, there should be a new file in the package's root directory called `config.json` with the contents of the reponse from `https://httpbin.org/json`:
+
+![]()
