@@ -108,7 +108,7 @@ Once the plugin has all necessary permissions, it will interact with Docker's da
 
 ## Communicating with a local server
 
-Let's now see how a plugin can be used to communicate with a local server running at port `30`:
+Let's now see how a plugin can be used to communicate with a local server running at port `30`. Again, the first thing to do is to define a plugin target and this time give it an `allowNetworkConnections` permission with `local` scope so that it can fetch the contents of `config.json` from a local server and a `writeToPackageDirectory` permission so it can write such contents to a file:
 
 ```swift:Package.swift
 import PackageDescription
@@ -125,7 +125,8 @@ let package = Package(
                     .allowNetworkConnections(
                         scope: .local(ports: [30]),
                         reason: "The plugin must connect to a local server running at port 30 to fetch a resource"
-                    )
+                    ),
+                    .writeToPackageDirectory(reason: "Write the fetched `config.json` to the package's root directory")
                 ]
             )
         )
@@ -133,36 +134,59 @@ let package = Package(
 )
 ```
 
-Let's now write the code for a plugin which fetches a configuration file (`.json`) from a local server and embeds it into the package's resources folder.
+Let's now write the code for a plugin which fetches a configuration file (`.json`) from a local server and drops it in the package's root directory.
 
 ```swift:Plugins/FetchConfig/FetchConfig.swift
 @main
 struct FetchConfig: CommandPlugin {
     func performCommand(context: PluginContext, arguments: [String]) throws {
+        // 1
         let curl = try context.tool(named: "curl").path
 
-        let response = try execute(executable: curl, arguments: [
+        // 2
+        let response = try shell(executable: curl, arguments: [
             "http://localhost:30/config.json",
             "-o",
             context.package.directory.appending(subpath: "config.json").string
         ])
+
+        // 3
+        print(response)
     }
 }
 ```
 
-That's it! We can now run the plugin from the command line like so:
+Let's go through the code above in more detail:
+
+1. Retrieve the path to the `curl` executable from the context. In this case, the context will know to use the system's `curl` executable.
+2. Run a command using a helper method `shell`, which wraps a call to `Process`, executes the command with the given arguments and returns a `String`. The command executes a network request to `http://localhost:30/config.json` and saves the response to the package's root directory under `config.json` using `curl`.
+3. Print the command's output to the terminal.
+
+To test this, I created a dummy `config.json` file on my desktop and then run a local server using `python3`:
+
+```bash:Terminal
+# Create a dummy config.json file
+echo '{"foo": "bar"}' > ~/Desktop/config.json
+
+# Run a local server on port 30
+python3 -m http.server 30
+```
+
+Now that the local server is running, we can now run the plugin from the command line like so:
 
 ```bash:Terminal
 # Set the version of Swift to a development snapshot with Swift 5.9
 swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
 
 # Run the plugin
-swift package local-request
+swift package fetch-config                  \
+    --allow-writing-to-package-directory    \
+    --allow-network-connections local
 ```
 
-Once you do so, you will see a slightly different prompt for network permissions (only local requests on port 30) and a second prompt for file system permissions (to write to the package's resources folder):
+Once you do so, you should see `curl`'s output in the terminal and a new file (`config.json`) at the root of the package's directory:
 
-![]()
+![The terminal output for the fetch-config command plugin with a local server configuration](/assets/posts/network-requests-in-swift-package-plugins/local-server.webp)
 
 ## Communicating with a remote server
 
