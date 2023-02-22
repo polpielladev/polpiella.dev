@@ -198,7 +198,7 @@ We should now see `curl`'s output in the terminal and a new file (`config.json`)
 
 ## Communicating with a remote server
 
-Let's now modify the URL we used in the previous example and change it to a remote endpoint instead:
+Let's now modify the `FetchConfig` plugin we have just created to query a remote endpoint instead:
 
 ```swift:Plugins/FetchConfig/FetchConfig.swift
 @main
@@ -220,11 +220,11 @@ struct FetchConfig: CommandPlugin {
 
 > Note that for testing sake I am using [httpbin.org](http://httpbin.org/) to get a JSON response which I can then write to a file. You can use any remote endpoint you want.
 
-If we run this plugin now, we will get the following error:
+If we run the plugin again now, we will get the following error:
 
 ![The terminal output for the fetch-config command plugin with local permissions but making a request to a remote server](/assets/posts/network-requests-in-swift-package-plugins/error.webp)
 
-This is because the plugin is trying to make a network request to a remote endpoint, and we have not yet granted it permission to do so. Let's fix that by changing the scope of the `allowNetworkConnections` permission from `local` to `all` in the `Package.swift` file:
+This error occurs because the plugin is trying to make a network request to a remote endpoint, and we have not yet granted it permission to do so. Let's fix that by changing the scope of the `allowNetworkConnections` permission from `local` to `all` in the `Package.swift` file:
 
 ```swift:Package.swift
 // swift-tools-version: 5.9
@@ -266,3 +266,9 @@ swift package fetch-config                  \
 After the plugin has finished executing correctly, there should be a new file in the package's root directory called `config.json` with the contents of the reponse from `https://httpbin.org/json`:
 
 ![The terminal output for the fetch-config command plugin with a remote server configuration](/assets/posts/network-requests-in-swift-package-plugins/remote-config.webp)
+
+## Conclusion
+
+Despite that it is still early days in the development of this new permission and it won't be available until Swift 5.9, I am very excited about the amount of possibilities it brings to Swift package plugins and the ability to write more complex plugins without having to disable the sandboxed environment they run on.
+
+And having to disable the sandbox to make network requests is [the issue that sparked the interest](https://github.com/apple/swift-package-manager/issues/5489) for this feature in Swift Package Manager. The [swift-aws-lambda-runtime](https://github.com/swift-server/swift-aws-lambda-runtime/pull/254) project has a plugin which needs to interact with Docker to package an executable target into a format suitable for upload to AWS. This plugin can only be executed by passing the `--disable-sandbox` flag to the `swift package` command, which is not ideal as it can have a number of undesired side effects.
