@@ -1,7 +1,7 @@
 ---
 title: 'Coming in Swift 5.9: Network requests in Swift package plugins'
-excerpt: ''
-pubDate: 2022-02-22
+excerpt: 'Blah di blah blah...'
+pubDate: 2023-02-22
 ---
 
 The merge of [PR #6114](https://github.com/apple/swift-package-manager/pull/6114) in the Swift Package Manager repository confirms one of the features I have long been waiting for: the ability to make network requests in Swift package plugins. This feature will be officially available from Swift 5.9 onwards, but it is already available on the [latest development snapshots of Swift](https://www.swift.org/download/#trunk-development-main) 🎉.
@@ -104,7 +104,7 @@ Before the plugin executes, it will ask for permissions to make network requests
 
 Once the plugin has all necessary permissions, it will interact with Docker's daemon to run swift build on an `amazonlinx2` docker instance and output a linux-compatible executable to the package's current working directory under: '.build/aarch64-unknown-linux-gnu/release/PluginsPermissionsTest'.
 
-![](/assets/posts/network-requests-in-swift-package-plugins/docker-command-output.webp)
+![The terminal output for the docker command plugin](/assets/posts/network-requests-in-swift-package-plugins/docker-command-output.webp)
 
 ## Communicating with a local server
 
