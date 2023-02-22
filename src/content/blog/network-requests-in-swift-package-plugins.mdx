@@ -10,16 +10,20 @@ The moment I found out that this feature had landed in the repository's main bra
 
 ## An overview
 
-As of the release of `Swift 5.9`, a new type of permission will be added to Swift package command plugins: `allowNetworkConnections`. This permission will allow a plugin to make network requests to a Docker daemon, a local or remote server and to Unix domain sockets. The initial PR also adds the option of specifying a list of ports which are allowed when making network requests but does not allow for specifying a list of domains.
+As of the release of Swift 5.9, a new type of permission will be added to Swift package command plugins: `allowNetworkConnections`. This permission will allow a plugin to make network requests to a Docker daemon, a local or remote server or to Unix domain sockets.
 
-The new `allowNetworkConnections` permission requires a **scope**, which determines which requests can or can't be made from the plugin's code. The available scopes at the moment are:
+The initial PR also adds the option **to specify a list of ports within the scope** that the plugin is allowed to make requests to. At the time of writing this article though, there is **no way to provide a list of domains** that can be requested from the plugin's code when allowing remote network requests.
+
+When specifying that a plugin requires the `allowNetworkConnections` permission we must also specify a **scope**, which determines the requests that can or can not be made from the plugin's code.
+
+The available scopes at the moment are:
 
 - `docker` - allows the plugin to communicate with a Docker daemon.
 - `local` - allows the plugin to communicate with a server local to the system where the plugin is executing. This enum case has an associated value `ports`, to only allow requests to local servers running on any of the ports specified.
 - `all` - allows the plugin to make a request to any domain, both local and remote. This enum case has an associated value `ports`, to only allow requests to servers (local or remote) running on any of the ports specified.
 - `unixDomainSocket` - allows the plugin to communicate with a Unix domain socket.
 
-If you have written a Swift package command plugin before which required modifying/creating files, you will already be familiar with how to add a permission to your plugin. The `allowNetworkConnections` permission is no different to the existing `writeToPackageDirectory` permission. You will see how to do so in the following sections.
+In the next few sections, I will go through a few examples of how the new permission can be set and what the implications of setting each scope are in practice.
 
 ## Communicating with docker
 
@@ -30,12 +34,12 @@ Let's consider an example of a Swift package plugin that communicates with Docke
 First, let's define a plugin target in the `Package.swift` file:
 
 ```swift:Package.swift
+// swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
     name: "PluginsPermissionsTest",
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "PluginsPermissionsTest",
             targets: ["PluginsPermissionsTest"]),
@@ -111,6 +115,7 @@ Once the plugin has all necessary permissions, it will interact with Docker's da
 Let's now see how a plugin can be used to communicate with a local server running at port `30`. Again, the first thing to do is to define a plugin target and this time give it an `allowNetworkConnections` permission with `local` scope so that it can fetch the contents of `config.json` from a local server and a `writeToPackageDirectory` permission so it can write such contents to a file:
 
 ```swift:Package.swift
+// swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
@@ -219,6 +224,7 @@ If we run this plugin now, we will get the following error:
 This is because the plugin is trying to make a network request to a remote endpoint, and we have not yet granted it permission to do so. Let's fix that by changing the scope of the `allowNetworkConnections` permission from `local` to `all` in the `Package.swift` file:
 
 ```swift:Package.swift
+// swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
