@@ -214,7 +214,7 @@ struct FetchConfig: CommandPlugin {
 
 If we run this plugin now, we will get the following error:
 
-![]()
+![The terminal output for the fetch-config command plugin with local permissions but making a request to a remote server](/assets/posts/network-requests-in-swift-package-plugins/error.webp)
 
 This is because the plugin is trying to make a network request to a remote endpoint, and we have not yet granted it permission to do so. Let's fix that by changing the scope of the `allowNetworkConnections` permission from `local` to `all` in the `Package.swift` file:
 
