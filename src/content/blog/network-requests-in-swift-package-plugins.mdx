@@ -27,11 +27,11 @@ In the next few sections, I will go through a few examples of how the new permis
 
 ## Communicating with docker
 
-Let's consider an example of a Swift package plugin that communicates with Docker to perform some build operations. The plugin will be able to start a docker container and execute `swift build` on it. In this case, the plugin will make use of one of Swift's official main nightly build containers to compile a Swift executable target into a `amazonlinux2` compatible binary.
+Let's consider an example of a Swift package plugin that communicates with Docker to build the package's product. The plugin will be able to start a docker container and execute `swift build` on it. In this case, it will make use of one of [Swift's official main nightly build containers](https://hub.docker.com/layers/swiftlang/swift/nightly-main-amazonlinux2/images/sha256-1e5a7aaa29c5a3af8899d8de1f68802858b8dd3bce3b8cf5132411be26b4912f) to compile a Swift executable target into a `amazonlinux2` compatible binary.
 
-> Note that the container I used for this example has version `5.9` of Swift package manager as it is a development snapshot built overnight from [Swift's main branch](https://github.com/apple/swift). This example wouldn't work with the latest stable docker image of Swift, as it wouldn't have the network permission feature available.
+> Note that the container I used for this example has version `5.9` of Swift package manager as it is a development snapshot built overnight from [Swift's main branch](https://github.com/apple/swift). This example wouldn't work with the latest stable docker image of Swift, as it wouldn't have the `allowNetworkConnections` permission available.
 
-First, let's define a plugin target in the `Package.swift` file:
+First, let's define a plugin target in the `Package.swift` file and specify the `swift-tools-version` to be `5.9`:
 
 ```swift:Package.swift
 // swift-tools-version: 5.9
@@ -40,9 +40,10 @@ import PackageDescription
 let package = Package(
     name: "PluginsPermissionsTest",
     products: [
-        .library(
+        .executable(
             name: "PluginsPermissionsTest",
-            targets: ["PluginsPermissionsTest"]),
+            targets: ["PluginsPermissionsTest"]
+        )
     ],
     dependencies: [
     ],
@@ -67,7 +68,7 @@ let package = Package(
 )
 ```
 
-Then, let's write the code for the plugin:
+Then, let's write the plugin's implementation:
 
 ```swift:Plugins/Docker/Docker.swift
 @main
@@ -89,10 +90,10 @@ struct Docker: CommandPlugin {
 }
 ```
 
-Let's go through the code above in more detail:
+Let's go through the plugin implementation above in more detail:
 
-1. Retrieve the path to the `docker` executable from the context. In this case, the context will know to use the system `docker` executable.
-2. Run a command using a helper method `shell`, which wraps a call to `Process`, executes the command with the given arguments and returns a `String`. I won't go into too much detail about what the command itself does, but all you need to know is that it will run `swift build` on a docker container running `swiftlang/swift:nightly-amazonlinux2`. The plugin command will produce a linux-compatible executable of the `PluginsPermissionsTest` target in the current working directory.
+1. Retrieve the path to the `docker` executable from the context. In this case, the context will know to use the system's `docker` executable.
+2. Run a command using a helper method `shell`, which wraps a call to the `Process` API, executes the command with the given arguments and returns a `String` with the command's output. I won't go into too much detail about what the command itself does, but all you need to know is that it will run `swift build` on a `swiftlang/swift:nightly-amazonlinux2` docker image. The output of this command will produce a linux-compatible executable of the `PluginsPermissionsTest` product in the current working directory.
 
 We can then run the plugin from the command line like so:
 
@@ -104,9 +105,11 @@ swiftenv local DEVELOPMENT-SNAPSHOT-2023-02-19-a
 swift package compile-to-amazonlinux2 --allow-network-connections docker
 ```
 
-Before the plugin executes, it will ask for permissions to make network requests to Docker. As shown in the code snippet above, you can also make this command not interactive by passing the `--allow-network-connections` flag to the plugin command. This is very useful for running the plugin in a CI environment or when you have to call it repeatedly.
+> If you want to learn more about how to download and install development snapshopts of Swift, [check out my article on the topic](https://www.polpiella.dev/managing-multiple-swift-versions-locally).
 
-Once the plugin has all necessary permissions, it will interact with Docker's daemon to run swift build on an `amazonlinx2` docker instance and output a linux-compatible executable to the package's current working directory under: '.build/aarch64-unknown-linux-gnu/release/PluginsPermissionsTest'.
+Before the plugin executes, it will ask for permissions to make network requests to Docker. As shown in the bash code snippet above, you can also make the plugin command invocation not interactive by passing it the `--allow-network-connections` flag. This is very useful for running the plugin in a CI environment or when you have to call it repeatedly.
+
+Once the plugin has all necessary permissions, it will interact with Docker's daemon and will output a file under: _'.build/aarch64-unknown-linux-gnu/release/PluginsPermissionsTest'_:
 
 ![The terminal output for the docker command plugin](/assets/posts/network-requests-in-swift-package-plugins/docker-command-output.webp)
 
