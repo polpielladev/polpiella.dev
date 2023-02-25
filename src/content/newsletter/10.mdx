@@ -12,39 +12,3 @@ import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
   title="Put your mobile releases on autopilot."
   promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%208%26utm_content%3Dfeb_26_23"
 />
-
-Before we get started, I wanted to say thanks for the awesome support everyone has been showing for the iOS CI Newsletter. I'm over the moon to say that we're now over **500** **subscribers!** 🎉🚀
-
-In other news, this coming week we're starting a two-week sprint at work to help us tackle tech debt and improve the state of our codebase. As part of this effort, I will be looking at replacing some **3rd party Cocoapods dependencies with their Swift Package Manager equivalents**.
-
-We also want to investigate if it's possible to commit the Swift Package Manager dependencies to source control just like we do with Cocoapods dependencies at the moment, which is going to be interesting. I will be reporting my findings both in my [blog](https://www.polpiella.dev?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) and in the next issue of the newsletter, wish me luck! 🤞
-
-## [Using App Store Connect API to trigger Xcode Cloud workflows](https://www.polpiella.dev/using-app-store-connect-api-to-trigger-xcode-cloud-workflows?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23)
-
-Did you know that the App Store Connect API has a set of endpoints to handle Xcode Cloud related tasks? In this article I show you how you can, with the help of the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) Swift package, get a list of Xcode Cloud products and their workflows, which you can then trigger! 🎉
-
-This can come in incredibly useful to extend Xcode Cloud's built in functionalities by building custom triggers and dashboards.
-
-## [GitHub merge queues are now on public beta](https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23)
-
-[GitHub](https://twitter.com/github?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) have announced that the pull request merge feature is now available in public beta 🎉  If you're not familiar with how merge queues work, they are a way of automating merges by creating temporary branches containing the latest changes from both the target branch and any other PRs waiting in the queue. Any CI/CD checks are then run against the new temporary branch and **only if they succeed, the branch will be merged into main**.
-
-You can learn more about how to enable and use this feature in [GitHub's documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23).
-
-## [Beautifying your CI's test results](https://testableapple.com/beautifying-xctest-results?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23)
-
-This week I'm sharing another great article by [Alexey](https://twitter.com/testableapple?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) on how to make the output of your CI's [XCTest](https://developer.apple.com/documentation/xctest?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) commands easier to read and parse.
-
-We have been using [xcpretty](https://github.com/xcpretty/xcpretty?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) for quite some time at work and I have to say it makes it a lot easier to find failures in otherwise hard-to-read logs ✨.
-
-## [Tips for creating good pull requests](https://www.danijelavrzan.com/posts/2023/02/create-pull-request?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23)
-
-I really enjoyed reading this article by [Danijela](https://twitter.com/dvrzan?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) where she shares 5 tips on how to create good pull requests. It made me think of another tip that I always keep in mind when I have to open a pull request:
-
-Make sure the CI passes before you share the pull request with your teammates so that you don't have to push fixes again and ask for a re-review ✅.
-
-## [How big open-source projects handle CI/CD](https://rudrank.blog/open-source-ios-projects?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23)
-
-Earlier this year, [Rudrank](https://twitter.com/rudrankriyam?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%209&utm_content=feb_12_23) wrote an article with a list of popular Open-Source iOS codebases. Since all their code is public, these projects provide an amazing learning resource on how apps with big codebases handle certain challenges.
-
-If you're interested in learning more about how big projects handle CI/CD, you can find some examples in the repositories listed in the article.
