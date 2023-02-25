@@ -12,3 +12,41 @@ import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
   title="Put your mobile releases on autopilot."
   promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%208%26utm_content%3Dfeb_26_23"
 />
+
+Hey everyone! 👋  Welcome to the tenth issue of the iOS CI Newsletter. Hope you’ve all had an amazing couple of weeks!
+
+As I mentioned in the previous issue of the newsletter, at work we've had a two-week sprint to look into how we can improve our codebase.
+
+I have primarily focused on migrated 3rd-party CocoaPods dependencies to Swift Package Manager and learning the ins and outs of how the build system resolves, installs and builds dependencies, which has been very interesting.
+
+This work inspired the article I wrote last week and that I am sharing in this issue of the newsletter 🎉
+
+## [Safely depending on exact versions of Swift Packages](https://www.polpiella.dev/safely-pinning-spm-depedencies-to-exact-versions?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23)
+
+At work, we have recently migrated most of our 3rd-Party CocoaPods dependencies over to Swift Package Manager. In this article, I explain why it might be a good idea to pin SPM dependencies to specific versions and how setting an xcodebuild flag on your CI builds might help mitigate security risks.
+
+## [🚨 You might need to update Fastlane 🚨](https://www.danijelavrzan.com/posts/2023/02/create-pull-request?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23)
+
+Fastlane has had an issue this week affecting accounts that authenticate with App Store Connect with Apple ID. This authentication method was causing forbidden access responses which could even result in Apple ID accounts being locked out 😱.
+
+Thankfully, [Josh Holtz](https://twitter.com/joshdholtz?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) came to the rescue and swiftly opened a PR to fix the issue, which was followed shortly after with [the release of version 2.212.1](https://github.com/fastlane/fastlane/releases/tag/2.212.1?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) 🎉.
+
+If this is causing big issues for you and your team, make sure you update to the latest version now and, as Fastlane themselves recommend in [this tweet](https://twitter.com/FastlaneTools/status/1629153901747265538?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23), consider [migrating to using an App Store Connect API key for authentication going forward](https://www.polpiella.dev/fastlane-appstore-connect-api-and-github-actions?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23).
+
+## [Quickstart CI/CD by Runway](https://www.runway.team/blog/introducing-quickstart-ci-cd-by-runway?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23)
+
+The team over at [Runway](https://twitter.com/RunwayTeam?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) have launched a new product: [Quickstart CI/CD](https://www.runway.team/blog/introducing-quickstart-ci-cd-by-runway?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23). As its name states, this new tool allows you to create new CI/CD pipelines for iOS and Android or replace existing flaky ones automatically with just a few clicks. 🎉
+
+As you will know by now, [Runway](http://twitter.com/RunwayTeam?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) sponsor this newsletter and when they shared the news of this new service and asked me whether I wanted to feature it, I immediately said yes as it looks very exciting! Hoping to try it out on a new side project soon 👀
+
+## [Fastlane iOS developer guide](https://tanaschita.com/20230213-fastlane-ios-developer-guide?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23)
+
+This article by [Natascha Fadeeva](https://twitter.com/tanaschita?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) is an amazing resource if you're getting started with fastlane. It shows you how you can install fastlane, create lanes, authenticate with App Store Connect, handle code signing and much more!
+
+## [Fastlane might be moving to Mobile Native Foundation!](https://twitter.com/joshdholtz/status/1628189536692981760?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23)
+
+There has been a big conversation on Twitter this week about fastlane and whether it should continue being owned by Google, who don't seem to be invested in helping to maintain the tool.
+
+[This thread](https://twitter.com/steipete/status/1627315332716150785?s=20?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23), created by Peter Steinberger, started a great conversation about how Fastlane would benefit from moving to the [Mobile Native Foundation](https://github.com/MobileNativeFoundation?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23) and it looks like there has already been conversations on making this happen along with companies wanting to sponsor the Open Source project if the migration happens. 🎉
+
+If you're interested in keeping an eye on the move, [the conversation is happening in this GitHub discussion](https://github.com/MobileNativeFoundation/discussions/discussions/194?utm_campaign=iOS%20CI%20Newsletter&utm_medium=web&utm_source=iOS%20CI%20Newsletter%20Issue%2010&utm_content=feb_26_23).
