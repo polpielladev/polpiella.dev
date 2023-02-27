@@ -3,8 +3,7 @@
   export let success: boolean = false
 </script>
 
-<div
-  class="prose m-auto flex w-full flex-col px-4 dark:prose-invert sm:max-w-xl">
+<div class="prose m-auto flex w-full flex-col px-4 dark:prose-invert">
   <h1 class="m-0 mx-auto">{title}</h1>
   <img
     src="/assets/ci-newsletter.svg"
