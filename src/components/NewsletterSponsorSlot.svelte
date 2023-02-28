@@ -21,7 +21,7 @@
       class="text-xl font-semibold no-underline hover:underline dark:text-white">
       {title}
     </a>
-    <p class=" m-0 text-sm leading-relaxed">
+    <p class="m-0 text-sm leading-relaxed">
       No more cat-herding, spreadsheets, or steady drip of manual busywork.{' '}
       <a href={promotionLink}>Runway</a> helps your team level-up your release
       coordination and automation, from kickoff to release to rollout.
