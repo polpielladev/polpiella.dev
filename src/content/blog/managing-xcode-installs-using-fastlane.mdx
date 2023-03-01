@@ -108,3 +108,33 @@ before_all do
     xcodes(update_list: false)
 end
 ```
+
+## Verifying the selected version of Xcode
+
+If you'd like to go the extra mile and add an extra check to verify that the correct version of Xcode is selected, you can do so by using the [ensure_xcode_version action]().
+
+The action requires a version string as a parameter and will fail the build if the selected version of Xcode does not match the version string.
+
+```ruby:fastlane/Fastfile
+before_all do
+    # Select the version of Xcode for this build only
+    xcodes(version: "14.1", select_for_current_build_only: true)
+
+    # Make sure that the correct version of Xcode is selected
+    ensure_xcode_version(version: "14.1")
+end
+```
+
+It is also worth mentioning that, similarly to the way the `xcodes` action works, `ensure_xcode_version` also looks for a `.xcode-version` file in the root of the repository and will use the version specified in that file if no version is passed as a parameter.
+
+```ruby:fastlane/Fastfile
+before_all do
+    # Select the version of Xcode for this build only
+    # Uses `.xcode-version` file
+    xcodes(select_for_current_build_only: true)
+
+    # Make sure that the correct version of Xcode is selected
+    # Uses `.xcode-version` file
+    ensure_xcode_version
+end
+```
