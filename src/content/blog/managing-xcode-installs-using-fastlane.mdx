@@ -37,9 +37,9 @@ A big downside of this approach is that, since it requires a full path to the Xc
 
 ### Using `xcodes`
 
-The alternative to using `xcode_select` now that both `xcode-install` and `xcversion` are depecrated is the `xcodes` action. This action is a wrapper around the [xcodes CLI](), an application I have used for a very long time to manage Xcode versions on my machine.
+The alternative to using `xcode_select` now that both `xcode-install` and `xcversion` are depecrated is the `xcodes` action. This action is a wrapper around the [xcodes CLI](https://github.com/RobotsAndPencils/xcodes), an application I have used for a very long time to manage Xcode versions on my machine.
 
-The downside to this new lane is that it no longer works out-of-the-box as it relies on the system having [xcodes]() installed.
+The downside to this new lane is that it no longer works out-of-the-box as it relies on the system having [xcodes](https://github.com/RobotsAndPencils/xcodes) installed.
 
 ## Installing `xcodes`
 
@@ -63,11 +63,11 @@ before_all do
 end
 ```
 
-> Note that the `xcodes` action expects a valid [RubyGems style requirements]() for the version parameter. For example, you would select a stable version of Xcode by passing `14.1`, and a pre-release version by passing `14.1.beta.3`.
+> Note that the `xcodes` action expects a valid [RubyGems style requirements](https://guides.rubygems.org/releasing-rubygems) for the version parameter. For example, you would select a stable version of Xcode by passing `14.1`, and a pre-release version by passing `14.1.beta.3`.
 
 ### Creating an `.xcode-version` file
 
-The `xcodes` action can also be used to select a version of Xcode based on the contents of a `.xcode-version` file. This is a very common pattern in other version managers such as [rbenv](), [nvm]() and [swiftenv]().
+The `xcodes` action can also be used to select a version of Xcode based on the contents of a `.xcode-version` file. This is a very common pattern in other version managers such as [rbenv](https://github.com/rbenv/rbenv), [nvm](https://github.com/nvm-sh/nvm) and [swiftenv](https://github.com/kylef/swiftenv).
 
 Let's consider the following `.xcode-version` file:
 
@@ -121,7 +121,7 @@ If you'd like to get some extra security in place and make sure that the selecte
 
 ### Ensuring the selected version of Xcode is correct
 
-If you'd like to go the extra mile and add an extra check to verify that the correct version of Xcode is selected, you can do so by using the [ensure_xcode_version action]().
+If you'd like to go the extra mile and add an extra check to verify that the correct version of Xcode is selected, you can do so by using the [ensure_xcode_version action](https://docs.fastlane.tools/actions/ensure_xcode_version).
 
 The action requires a version string as a parameter and will fail the build if the selected version of Xcode does not match the version string.
 
@@ -151,7 +151,7 @@ end
 
 ### Validate the newly installed version of Xcode
 
-If you are going to install a new version of Xcode using the new [xcodes action](), there is also a built-in action you can use to ensure that the newly installed version of Xcode is properly signed by Apple: [verify_xcode](http://docs.fastlane.tools/actions/verify_xcode).
+If you are going to install a new version of Xcode using the new [xcodes action](https://docs.fastlane.tools/actions/xcodes), there is also a built-in action you can use to ensure that the newly installed version of Xcode is properly signed by Apple: [verify_xcode](http://docs.fastlane.tools/actions/verify_xcode).
 
 The action can be passed a path to the Xcode application to verify, or it will use the currently selected version of Xcode if no path is passed.
 
