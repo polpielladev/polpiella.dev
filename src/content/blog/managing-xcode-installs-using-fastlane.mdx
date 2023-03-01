@@ -6,13 +6,19 @@ pubDate: 2023-03-01
 
 import StaticTweet from '@components/static-tweet/StaticTweet.astro'
 
-The [2.211.0 release of Fastlane]() introduces a new action to manage Xcode versions directly from fastlane. As well as introducing a new lane, this release also deprecates the existing [xcode-install]() and [xcversion]() actions.
+The [2.211.0 release of Fastlane](https://github.com/fastlane/fastlane/releases/tag/2.211.0) introduces a new action to manage Xcode versions directly from fastlane. As well as introducing a new lane, this release also deprecates the existing [xcode-install](http://docs.fastlane.tools/actions/xcode_install) and [xcversion](https://docs.fastlane.tools/actions/xcversion) actions.
 
 <StaticTweet id="1591561723794030592" />
 
 This post will explore the current state of Xcode version management on CI using Fastlane.
 
 ## Setting a version
+
+Setting an Xcode version at the beginning of Fastlane's execution can be a very useful way of making your actions as portable and reusable as possible for you and your team.
+
+Since Fastlane usually runs in a CI environment, you want to make sure that selecting an Xcode version does not meddle with the system's settings and does not require any manual intervention, such as asking for sudo permissions.
+
+Both `xcode_select` and `xcodes` are able to achieve this by setting the `DEVELOPER_DIR` environment variable to the path of the selected Xcode application's contents. Contrary to what running `xcode-select -s` does, setting the `DEVELOPER_DIR` environment variable does not require root permissions and only affects the current shell session.
 
 ### Using `xcode_select`
 
@@ -88,9 +94,9 @@ To make the `xcodes` action install a version of Xcode if it is not already inst
 You must be careful that this has a potentially undesirable side-effect: the action will select the newly installed version of Xcode system-wide, requiring sudo permissions.
 
 ```ruby:fastlane/Fastfile
-before_all do
+lane :install_xcode do |values|
     # Specifying the version directly
-    xcodes(version: "14.1")
+    xcodes(version: values[:version])
 
     # Or using a .xcode-version file
     xcodes
@@ -100,16 +106,20 @@ end
 The list of available Xcode versions is always updated before the new version is installed. If you don't want the list to be updated, you can pass set the `update_list` parameter to `false`:
 
 ```ruby:fastlane/Fastfile
-before_all do
+lane :install_xcode do |values|
     # Specifying the version directly
-    xcodes(version: "14.1", update_list: false)
+    xcodes(version: values[:version], update_list: false)
 
     # Or using a .xcode-version file
     xcodes(update_list: false)
 end
 ```
 
-## Verifying the selected version of Xcode
+## Going the extra mile 🏃‍♂️
+
+If you'd like to get some extra security in place and make sure that the selected version of Xcode is the one you expect and valid, there are some extra steps you can follow.
+
+### Ensuring the selected version of Xcode is correct
 
 If you'd like to go the extra mile and add an extra check to verify that the correct version of Xcode is selected, you can do so by using the [ensure_xcode_version action]().
 
@@ -136,5 +146,21 @@ before_all do
     # Make sure that the correct version of Xcode is selected
     # Uses `.xcode-version` file
     ensure_xcode_version
+end
+```
+
+### Validate the newly installed version of Xcode
+
+If you are going to install a new version of Xcode using the new [xcodes action](), there is also a built-in action you can use to ensure that the newly installed version of Xcode is properly signed by Apple: [verify_xcode](http://docs.fastlane.tools/actions/verify_xcode).
+
+The action can be passed a path to the Xcode application to verify, or it will use the currently selected version of Xcode if no path is passed.
+
+```ruby:fastlane/Fastfile
+lane :install_xcode do |values|
+    # Install and select an Xcode version
+    xcodes(version: values[:version])
+
+    # Verify the newly installed version of Xcode
+    verify_xcode
 end
 ```
