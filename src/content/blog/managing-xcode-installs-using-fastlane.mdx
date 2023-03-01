@@ -20,7 +20,7 @@ The `xcode_select` action is the simplest and less invasive way of selecting an 
 
 Setting the `DEVELOPER_DIR` environment variable only selects a version of Xcode for a given Fastlane execution and does not change the system's selection.
 
-```ruby
+```ruby:fastlane/Fastfile
 # Set the version before every lane...
 before_all do
     xcode_select("/Applications/Xcode-14.1.app")
@@ -39,7 +39,7 @@ The downside to this new lane is that it no longer works out-of-the-box as it re
 
 The `xcodes` command line tool is available on Homebrew, and can be installed it by running:
 
-```bash
+```bash:Terminal
 brew install robotsandpencils/made/xcodes
 ```
 
@@ -51,8 +51,7 @@ The `xcodes` action uses a version parameter instead of a path and finds the cor
 
 By default, the action will install the queried version of Xcode if it can't be found in the system and select it system-wide. This behaviour can be disabled by setting the `select_for_current_build_only` parameter to `true`, which I would thoroughly recommend:
 
-```ruby
-# Set the version before every lane...
+```ruby:fastlane/Fastfile
 before_all do
     xcodes(version: "14.1", select_for_current_build_only: true)
 end
@@ -60,14 +59,22 @@ end
 
 > Note that the `xcodes` action expects a valid [RubyGems style requirements]() for the version parameter. For example, you would select a stable version of Xcode by passing `14.1`, and a pre-release version by passing `14.1.beta.3`.
 
-### Creating a `.xcode-version` file
+### Creating an `.xcode-version` file
 
 The `xcodes` action can also be used to select a version of Xcode based on the contents of a `.xcode-version` file. This is a very common pattern in other version managers such as [rbenv](), [nvm]() and [swiftenv]().
 
 Let's consider the following `.xcode-version` file:
 
-```.xcode-version
+```text:.xcode-version
 14.1
+```
+
+You can then modify the code in the previous section to use the `.xcode-version` file instead of a hardcoded version:
+
+```ruby:fastlane/Fastfile
+before_all do
+    xcodes(select_for_current_build_only: true)
+end
 ```
 
 ### Install if needed
@@ -76,5 +83,28 @@ Now that we've seen how you can select a version of Xcode that is already instal
 
 > Note that running the action without `select_for_current_build_only` requires authentication with Apple's Developer Portal as well as `sudo` permissions to change the selected Xcode version system-wide.
 
-- version
-- `.xcode-version`
+To make the `xcodes` action install a version of Xcode if it is not already installed, simply do not pass the `select_for_current_build_only` parameter.
+
+You must be careful that this has a potentially undesirable side-effect: the action will select the newly installed version of Xcode system-wide, requiring sudo permissions.
+
+```ruby:fastlane/Fastfile
+before_all do
+    # Specifying the version directly
+    xcodes(version: "14.1")
+
+    # Or using a .xcode-version file
+    xcodes
+end
+```
+
+The list of available Xcode versions is always updated before the new version is installed. If you don't want the list to be updated, you can pass set the `update_list` parameter to `false`:
+
+```ruby:fastlane/Fastfile
+before_all do
+    # Specifying the version directly
+    xcodes(version: "14.1", update_list: false)
+
+    # Or using a .xcode-version file
+    xcodes(update_list: false)
+end
+```
