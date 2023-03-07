@@ -5,6 +5,7 @@ pubDate: 2023-03-08
 ---
 
 import StaticTweet from '@components/static-tweet/StaticTweet.astro'
+import Video from '@components/Video.svelte'
 
 I have been writing command-line tools with Swift for a while now and, while I find the developer experience to be great, I have always found the number of libraries to handle user input to be lacking compared to other languages such as Javascript.
 
@@ -69,9 +70,9 @@ let package = Package(
 
 ## Getting started
 
-Before we start writing some code, let's take a look at the final result:
+Before we start writing some code, let's take a look at what we'll be building in this article:
 
-{/* VIDEO HERE! */}
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
 
 The picker, which is highly inspired by [Nate Moore's]() [clack javascript library](), presents any number of options and allows the user to select one using the arrow keys and the enter key.
 
@@ -85,11 +86,15 @@ import ANSITerminal
 func picker(title: String, options: [String]) -> String {
     return "Hello World"
 }
+
+_ = picker(title: "Choose your favourite fruit", options: ["🍌 Banana", "🥝 Kiwi", "🍓 Strawberry"])
 ```
 
 ## Showing the picker's title
 
 > Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of the `Foundation` or [ANSITerminal]() libraries.
+
+### Code
 
 The first thing we need to do is to show the picker's title:
 
@@ -115,6 +120,10 @@ Let's take a closer look at the code above line by line:
 2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
 3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack]() uses for its prompts.
 4. Move the cursor one character to the right to add a white space and write the title.
+
+### Output
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222144/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/title-prompt.png)
 
 ## Handling state
 
@@ -173,6 +182,8 @@ Let's take a closer look at the code above line by line:
 
 ## Displaying all available options
 
+### Code
+
 Now that we have a state and the lines where our options need to be displayed, let's write them to the terminal:
 
 ```swift:Sources/Picker/main.swift
@@ -222,6 +233,10 @@ Let's take a closer look at the code above line by line:
 4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a gray circle, similarly to what [clack]() does.
 5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in gray.
 6. Move the cursor down one line and write the closing symbol of the sidebar in the same colour.
+
+### Output
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222426/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/list-all-options.png)
 
 ## Handling user input
 
@@ -316,6 +331,10 @@ Let's again look at the code above:
 3. If the current line is the active one, write a green circle, otherwise, write a gray circle.
 4. If the current line is the active one, write the option's title in white, otherwise, write it in gray.
 
+### Output
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678222684/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/rerender.mp4" />
+
 ## Option selected state
 
 Now that the user has selected an option, we want to update the picker's icon to a checkmark, change the colour of the sidebar to not be blue, remove the closing barcket from the bottom of the sidebar and turn the cursor back on:
@@ -344,6 +363,8 @@ func writeAt(_ row: Int, _ col: Int, _ text: String) {
 ```
 
 ### Output
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678222996/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/completion-state.mp4" />
 
 ## Returning the selected option
 
