@@ -1,0 +1,15 @@
+---
+title: 'How to make an interactive picker for a Swift command-line tool'
+excerpt: 'Learn how to make use of ANSI escape sequences to make delightful interactive pickers for your Swift command-line tools.'
+pubDate: 2023-03-08
+---
+
+I have been writing command-line tools with Swift for a while now and, while I find the developer experience to be great, I have always found the number of libraries to handle user input to be lacking compared to other languages such as Javascript.
+
+This sparked my interest in learning more about how such libraries work in other languages and how hard it would be to make something similar using Swift.
+
+In this post, I will show you how to make a simple interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favorite javascript libraries [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore). I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
+
+<StaticTweet id="1631686077399420928" />
+
+## What are ANSI escape sequences?
