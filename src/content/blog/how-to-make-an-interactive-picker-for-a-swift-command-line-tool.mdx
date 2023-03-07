@@ -10,8 +10,349 @@ I have been writing command-line tools with Swift for a while now and, while I f
 
 This sparked my interest in learning more about how such libraries work in other languages and how hard it would be to make something similar using Swift.
 
-In this post, I will show you how to make a simple interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favorite javascript libraries [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore). I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
+In this post, I will show you how to make a simple interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favourite javascript libraries [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore). I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
 
 <StaticTweet id="1631686077399420928" />
 
 ## What are ANSI escape sequences?
+
+ANSI escape sequences are a way to add special formatting to text in the terminal through a series of predefined characters. They are supported by terminals in Unix operating systems (like macOS) and Windows (only from Windows 10) and are used by many command-line tools to change the text colour, modify the cursor position, clear the screen, etc.
+
+Let's see an example of an escape sequence that changes the text colour to red:
+
+```swift
+print("\u{1B}[31mHello, world!")
+```
+
+The escape sequence starts with the character `\u{1B}` which is the escape character. This is followed by the character `[` and a number that represents the colour we want to use. In this case, `31` is the code for red. Finally, we end the sequence with the character `m` and then add the text we want to display.
+
+Let's now make our example a bit more complex by making the text bold. We can do this by adding the number `1` followed by a semicolon before the colour code:
+
+```swift
+print("\u{1B}[1;31mHello, world!")
+```
+
+As you can see, it is nothing more than a series of characters and string manipulation to achieve the formatting we want.
+
+## Creating an executable
+
+Before making our picker, we need to create an executable Swift package:
+
+```bash
+swift package init --type executable
+```
+
+## Importing ANSITerminal
+
+The reason why we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
+
+[ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by adding the following to our `Package.swift` file:
+
+```swift:Package.swift
+// swift-tools-version: 5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "Picker",
+    products: [
+        .executable(name: "Picker", targets: ["Picker"])
+    ],
+    dependencies: [
+         .package(url: "https://github.com/pakLebah/ANSITerminal.git", exact: "0.0.3"),
+    ],
+    targets: [
+        .executableTarget(name: "Picker", dependencies: ["ANSITerminal"])
+    ]
+)
+```
+
+## Getting started
+
+Before we start writing some code, let's take a look at the final result:
+
+{/* VIDEO HERE! */}
+
+The picker, which is highly inspired by [Nate Moore's]() [clack javascript library](), presents any number of options and allows the user to select one using the arrow keys and the enter key.
+
+Once the user has selected an option, the picker returns the selected string, the icon is updated to a checkmark and the program exits gracefully.
+
+Let's start by importing the [ANSITerminal]() library in the executable's entry point and creating a `picker` function where the logic will live:
+
+```swift:Sources/Picker/main.swift
+import ANSITerminal
+
+func picker(title: String, options: [String]) -> String {
+    return "Hello World"
+}
+```
+
+## Showing the picker's title
+
+> Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of the `Foundation` or [ANSITerminal]() libraries.
+
+The first thing we need to do is to show the picker's title:
+
+```swift:Sources/Picker/main.swift
+func picker(title: String, options: [String]) -> String {
+    // 1
+    cursorOff()
+    // 2
+    moveLineDown()
+    // 3
+    write("◆".foreColor(81).bold)
+    // 4
+    moveRight()
+    write(title)
+
+    return "Hello World"
+}
+```
+
+Let's take a closer look at the code above line by line:
+
+1. First, we turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
+2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
+3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack]() uses for its prompts.
+4. Move the cursor one character to the right to add a white space and write the title.
+
+## Handling state
+
+The next thing we need to do is to create a `State` class and an `Option` struct to handle the state of the picker:
+
+```swift:Sources/Picker/main.swift
+struct Option {
+    let title: String
+    let line: Int
+
+    init(title: String, line: Int) {
+        self.title = title
+        self.line = line
+    }
+}
+
+class OptionState {
+    let options: [Option]
+    let rangeOfLines: (minimum: Int, maximum: Int)
+    var activeLine: Int = .zero
+
+    init(options: [Option], activeLine: Int, rangeOfLines: (minimum: Int, maximum: Int)) {
+        self.activeLine = activeLine
+        self.rangeOfLines = rangeOfLines
+        self.options = options
+    }
+}
+```
+
+This state will hold the user's selected option and the range of lines where the options will be displayed.
+
+Let's see how we can set up the initial state for the picker:
+
+```swift:Sources/Picker/main.swift
+func picker(title: String, options: [String]) -> String {
+    // ...
+
+    // 1
+    let currentLine = readCursorPos().row + 1
+
+    // 2
+    let state = OptionState(
+        options: options.enumerated().map { Option(title: $1, line: currentLine + $0) },
+        activeLine: currentLine,
+        rangeOfLines: (currentLine, currentLine + options.count - 1)
+    )
+
+    return "Hello World"
+}
+```
+
+Let's take a closer look at the code above line by line:
+
+1. Read the cursor's current row. Then we add one to make sure that the picker's first option is displayed in a new line.
+2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
+
+## Displaying all available options
+
+Now that we have a state and the lines where our options need to be displayed, let's write them to the terminal:
+
+```swift:Sources/Picker/main.swift
+func picker(title: String, options: [String]) -> String {
+    // ...
+
+    // 1
+    options.forEach { optionTitle in
+        // 2
+        moveLineDown()
+
+        // 3
+        let isActive = readCursorPos().row == state.activeLine
+
+        // 4
+        write("│".foreColor(81))
+        moveRight()
+        if isActive {
+            write("●".lightGreen)
+        } else {
+            write("○".foreColor(250))
+        }
+
+        // 5
+        moveRight()
+        if isActive {
+            write(optionTitle)
+        } else {
+            write(optionTitle.foreColor(250))
+        }
+    }
+
+    // 6
+    moveLineDown()
+    let bottomLine = readCursorPos().row
+    write("└".foreColor(81))
+
+    return "Hello World"
+}
+```
+
+Let's take a closer look at the code above line by line:
+
+1. Iterate through the array of options.
+2. Move the cursor down so that text is written in a new line.
+3. Check if the current option is the active one.
+4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a gray circle, similarly to what [clack]() does.
+5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in gray.
+6. Move the cursor down one line and write the closing symbol of the sidebar in the same colour.
+
+## Handling user input
+
+Now that we have a picker that displays all the options, we need to handle user input to allow the user to select an option. To do so, we need to halt the program's execution, read the user's input and perform the appropriate action depending on the pressed key:
+
+- If the user presses the up arrow key, move the active option up. If the active option is already at the top, don't do anything.
+- If the user presses the down arrow key, move the active option down. If the active option is already at the bottom, don't do anything.
+- If the user presses the enter key, return the selected option and allow the program's execution to continue.
+
+Let's now write some code that fulfills the above requirements:
+
+```swift:Sources/Picker/main.swift
+func picker(title: String, options: [String]) -> String {
+    // ...
+
+    // 1
+    while true {
+        // 2
+        clearBuffer()
+
+        // 3
+        if keyPressed() {
+            // 4
+            let char = readChar()
+            if char == NonPrintableChar.enter.char() {
+                break
+            }
+
+            // 5
+            let key = readKey()
+            // 6
+            if key.code == .up {
+                if state.activeLine > state.rangeOfLines.minimum {
+                    state.activeLine -= 1
+
+                    reRender()
+                }
+            // 7
+            } else if key.code == .down {
+                if state.activeLine < state.rangeOfLines.maximum {
+                    state.activeLine += 1
+
+                    reRender()
+                }
+
+            }
+        }
+    }
+
+    return "Hello World"
+}
+```
+
+Let's take a closer look at the code above line by line:
+
+1. Start an infinite loop that will only be broken when the user presses the enter key.
+2. Clear the terminal's buffer.
+3. Check if the user has pressed a key.
+4. If the user has pressed the enter key, break the loop.
+5. Read the key that the user has pressed.
+6. If the user has pressed the up arrow key, move the active option up and re-render the options. If the active option is already at the top, don't do anything.
+7. If the user has pressed the down arrow key, move the active option down and re-render the options. If the active option is already at the bottom, don't do anything.
+
+## Re-rendering the options
+
+Let's now implement the `reRender()` function used in the previous section. This function will replace the circle icon and change the colour of the option's title. We will do this by rewriting the characters:
+
+```swift:Sources/Picker/main.swift
+func reRender(state: OptionState) {
+    // 1
+    (state.rangeOfLines.minimum...state.rangeOfLines.maximum).forEach { line in
+        // 2
+        let isActive = line == state.activeLine
+
+        // 3
+        let stateIndicator = isActive ? "●".lightGreen : "○".foreColor(250)
+        writeAt(line, 3, stateIndicator)
+
+        // 4
+        if let title = state.options.first(where: { $0.line == line })?.title {
+            let title = isActive ? title : title.foreColor(250)
+            writeAt(line, 5, title)
+        }
+    }
+}
+```
+
+Let's again look at the code above:
+
+1. Iterate through the range of lines where the options are displayed.
+2. Check if the current line is the active one.
+3. If the current line is the active one, write a green circle, otherwise, write a gray circle.
+4. If the current line is the active one, write the option's title in white, otherwise, write it in gray.
+
+## Option selected state
+
+Now that the user has selected an option, we want to update the picker's icon to a checkmark, change the colour of the sidebar to not be blue, remove the closing barcket from the bottom of the sidebar and turn the cursor back on:
+
+### Code
+
+```swift:Sources/Picker/main.Swift
+func picker(title: String, options: [String]) -> String {
+    // ...
+
+    let startLine = currentLine - 1
+    writeAt(startLine, 0, "✔".green)
+
+    (startLine + 1...bottomLine).forEach { writeAt($0, 0, "│".foreColor(252)) }
+
+    moveTo(bottomLine, 0)
+
+    return "Hello World"
+}
+
+// Helper method
+func writeAt(_ row: Int, _ col: Int, _ text: String) {
+    moveTo(row, col)
+    write(text)
+}
+```
+
+### Output
+
+## Returning the selected option
+
+Last but not least, the method needs to return the selected string after the user has pressed the enter key. To do so, we need to find the option that is currently active and return its title:
+
+```swift:Sources/Picker/main.swift
+func picker(title: String, options: [String]) -> String {
+    // ...
+
+    return state.options.first(where: { $0.line == line })!.title
+}
+```
