@@ -228,8 +228,8 @@ The code to render all options in the terminal can be summarised as follows:
 1. Iterate through the array of options.
 2. Move the cursor down so that text is written in a new line.
 3. Check if the current option is the active one.
-4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a gray circle, similarly to what [clack](https://github.com/natemoo-re/clack) does.
-5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in gray.
+4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a grey circle, similarly to what [clack](https://github.com/natemoo-re/clack) does.
+5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in grey.
 6. Move the cursor down one line and write the closing symbol of the sidebar in the same colour.
 
 ### Output
@@ -246,7 +246,7 @@ To do so, we need to halt the program's execution, read the user's input and per
 - If the user presses the down arrow key, move the active option down. If the active option is already at the bottom, don't do anything.
 - If the user presses the enter key, return the selected option and allow the program's execution to continue.
 
-Let's now write some code that fulfills the above requirements:
+Let's now write some code that fulfils the above requirements:
 
 ```swift:Sources/Picker/main.swift
 func picker(title: String, options: [String]) -> String {
@@ -328,8 +328,8 @@ Next time the programme is executed and the user presses the up or down arrow ke
 
 1. Iterate through the range of lines where the options are displayed.
 2. Check if the current line is the active one.
-3. If the current line is the active one, write a green circle, otherwise, write a gray circle.
-4. If the current line is the active one, write the option's title in white, otherwise, write it in gray.
+3. If the current line is the active one, write a green circle, otherwise, write a grey circle.
+4. If the current line is the active one, write the option's title in white, otherwise, write it in grey.
 
 ### Output
 
