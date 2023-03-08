@@ -39,7 +39,7 @@ As you can see, escape sequences are nothing more than the combination of charac
 
 ## Creating an executable
 
-The first step to creating an interactive command-line component is to create an executable Swift package:
+To make an interactive command-line component, we first need to create an executable Swift package using the following command:
 
 ```bash
 swift package init --type executable
@@ -47,7 +47,7 @@ swift package init --type executable
 
 ## Importing ANSITerminal
 
-The reason we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
+The reason why we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
 [ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by declaring it as a dependency to the executable target in our `Package.swift` file:
 
@@ -72,15 +72,15 @@ let package = Package(
 
 ## Getting started
 
-Before we start writing some code, let's take a look at what we'll be building in this article:
+Before we start writing some code, let's take a look at the picker component we'll be building in this article:
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
 
-The picker, which is highly inspired by the `select` component in [Nate Moore's](https://twitter.com/n_moore) [clack javascript library](https://github.com/natemoo-re/clack), presents a number of options and allows the user to select one using a combination of the arrow keys and the enter key.
+The picker, which is highly inspired by the `select` component in [Nate Moore's](https://twitter.com/n_moore) [clack library](https://github.com/natemoo-re/clack), presents a number of options and allows the user to select one using a combination of the arrow keys and the enter key.
 
 Once the user has selected an option, the picker returns the selected string, the icon is updated to a checkmark and the program exits gracefully.
 
-Let's start by importing the [ANSITerminal](https://github.com/pakLebah/ANSITerminal) library in the executable's entry point and creating a `picker` function where the logic will live:
+Let's start by importing the [ANSITerminal](https://github.com/pakLebah/ANSITerminal) library in the executable's entry point, creating a `picker` function which contains the component's code and invoke it immediately after with a title and a set of options:
 
 ```swift:Sources/Picker/main.swift
 import ANSITerminal
@@ -129,7 +129,7 @@ When the picker function is called, the code above will:
 
 ## Handling state
 
-The next thing we need to do is to create a `State` class and an `Option` struct to handle the state of the picker:
+The next step is to create a `State` class and an `Option` struct to handle the state of the picker:
 
 ```swift:Sources/Picker/main.swift
 struct Option {
@@ -157,7 +157,7 @@ class OptionState {
 
 This state will hold the line number for the selected option and the range of lines where the options will be displayed.
 
-Let's set up the initial state for the picker:
+Let's create an instance of the `OptionState` class and feed it an initial state derived from the set of options passed to the `picker` function:
 
 ```swift:Sources/Picker/main.swift
 func picker(title: String, options: [String]) -> String {
@@ -177,7 +177,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-The picker method now executes the following steps to set up the initial steps:
+Let's break down the code above into a number of steps:
 
 1. Read the cursor's current row. Then we add one to make sure that the picker's first option is displayed in a new line.
 2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
@@ -227,7 +227,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-The code displays all options to the user by executing the following steps:
+The logic to render all options in the terminal can be broken down into the following steps:
 
 1. Iterate through the array of options.
 2. Move the cursor down so that text is written in a new line.
@@ -292,7 +292,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-When called, the `picker` method can now listen for user input through the following steps:
+When called, the `picker` method listens for user input by doing the following:
 
 1. Start an infinite loop that will only be broken when the user presses the enter key.
 2. Clear the terminal's buffer.
@@ -326,7 +326,7 @@ func reRender(state: OptionState) {
 }
 ```
 
-The `reRender` method can be used to react to user input and:
+The `reRender` method can be called when the picker's state changes to:
 
 1. Iterate through the range of lines where the options are displayed.
 2. Check if the current line is the active one.
