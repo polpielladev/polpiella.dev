@@ -19,9 +19,9 @@ In fact, I like the library so much that I have started working on migrating it 
 
 ## What are ANSI escape sequences?
 
-ANSI escape sequences are a way to perform operations in the terminal UI through a series of predefined characters. These sequences are supported by terminals in Unix operating systems (like macOS) and Windows (only from Windows 10) and are used by many command-line tools to perform actions such as changing the text colour, modifying the cursor position, clearing the screen, etc.
+ANSI escape sequences are a way to perform operations in the terminal through a series of predefined characters. These sequences are supported by terminals in Unix operating systems (like macOS) and Windows (only from Windows 10) and are used by many command-line tools to perform actions such as changing the text colour, modifying the cursor position, clearing the screen, etc.
 
-Let's see an example of an escape sequence that changes the text colour to red:
+For example, the following escape sequence changes the text colour to red:
 
 ```swift
 print("\u{1B}[31mHello, world!")
@@ -35,11 +35,11 @@ Let's now make our example a bit more complex by making the text bold. We can do
 print("\u{1B}[1;31mHello, world!")
 ```
 
-As you can see, it is nothing more than the combination of a series of characters and string manipulation to achieve the formatting we want.
+As you can see, escape sequences are nothing more than the combination of characters and string manipulation to achieve the desired formatting.
 
 ## Creating an executable
 
-Before making our picker, we need to create an executable Swift package:
+The first step to creating an interactive command-line component is to create an executable Swift package:
 
 ```bash
 swift package init --type executable
@@ -72,7 +72,7 @@ let package = Package(
 
 ## Getting started
 
-Before we start writing some code, let's take a look at the output of the picker we'll be building in this article:
+Before we start writing some code, let's take a look at what we'll be building in this article:
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
 
