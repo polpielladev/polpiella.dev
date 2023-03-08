@@ -23,7 +23,7 @@ ANSI escape sequences are a way to perform operations in the terminal through a 
 
 For example, the following escape sequence changes the text colour to red:
 
-```swift
+```swift:ANSI.swift
 print("\u{1B}[31mHello, world!")
 ```
 
@@ -31,7 +31,7 @@ The sequence above starts with the escape character: `\u{1B}`. This is followed 
 
 Let's now make our example a bit more complex by making the text bold. We can do this by adding the number `1` followed by a semicolon before the colour code:
 
-```swift
+```swift:ANSI.swift
 print("\u{1B}[1;31mHello, world!")
 ```
 
@@ -41,7 +41,7 @@ As you can see, escape sequences are nothing more than the combination of charac
 
 To make an interactive command-line component, we first need to create an executable Swift package using the following command:
 
-```bash
+```bash:Terminal
 swift package init --type executable
 ```
 
@@ -80,7 +80,7 @@ The picker, which is highly inspired by the `select` component in [Nate Moore's]
 
 Once the user has selected an option, the picker returns the selected string, the icon is updated to a checkmark and the program exits gracefully.
 
-Let's start by importing the [ANSITerminal](https://github.com/pakLebah/ANSITerminal) library in the executable's entry point, creating a `picker` function which contains the component's code and invoke it immediately after with a title and a set of options:
+Let's start by importing the [ANSITerminal](https://github.com/pakLebah/ANSITerminal) library in the executable's entry point, creating a `picker` function which contains the component's code and invoking it with a title and a set of options:
 
 ```swift:Sources/Picker/main.swift
 import ANSITerminal
@@ -92,11 +92,9 @@ func picker(title: String, options: [String]) -> String {
 _ = picker(title: "Choose your favourite fruit", options: ["🍌 Banana", "🥝 Kiwi", "🍓 Strawberry"])
 ```
 
-## Showing the picker's title
-
 > Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of `Foundation` or [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
-### Code
+## Showing the picker's title
 
 The first thing we need to do is to write the picker's title on the terminal's screen:
 
@@ -155,7 +153,7 @@ class OptionState {
 }
 ```
 
-This state will hold the line number for the selected option and the range of lines where the options will be displayed.
+This state will hold the line number for the selected option and the range of lines where the options are displayed.
 
 Let's create an instance of the `OptionState` class and feed it an initial state derived from the set of options passed to the `picker` function:
 
@@ -183,8 +181,6 @@ Let's break down the code above into a number of steps:
 2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
 
 ## Displaying all available options
-
-### Code
 
 Now that we have a state and the lines where our options need to be displayed, let's write them to the terminal:
 
@@ -227,7 +223,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-The logic to render all options in the terminal can be broken down into the following steps:
+The code to render all options in the terminal can be summarised as follows:
 
 1. Iterate through the array of options.
 2. Move the cursor down so that text is written in a new line.
@@ -242,7 +238,9 @@ The logic to render all options in the terminal can be broken down into the foll
 
 ## Handling user input
 
-Now that we have a picker that displays all the options, we need to handle user input to allow the user to select an option. To do so, we need to halt the program's execution, read the user's input and perform the appropriate action depending on the pressed key:
+Now that we have a picker that displays a set of options, we need to allow the user to select one of them.
+
+To do so, we need to halt the program's execution, read the user's input and perform the appropriate action depending on the pressed key:
 
 - If the user presses the up arrow key, move the active option up. If the active option is already at the top, don't do anything.
 - If the user presses the down arrow key, move the active option down. If the active option is already at the bottom, don't do anything.
@@ -292,7 +290,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-When called, the `picker` method listens for user input by doing the following:
+When called, the `picker` method now listens for user input by doing the following:
 
 1. Start an infinite loop that will only be broken when the user presses the enter key.
 2. Clear the terminal's buffer.
@@ -304,7 +302,7 @@ When called, the `picker` method listens for user input by doing the following:
 
 ## Re-rendering the options
 
-Let's now implement the `reRender()` function used in the previous section. This function will replace the circle icon and change the colour of the option's title. We will do this by rewriting the characters:
+Let's now implement the `reRender()` function used in the previous section. This function changes the colour of each option's title and updates the circle icon next to it based on whether the option is selected or not:
 
 ```swift:Sources/Picker/main.swift
 func reRender(state: OptionState) {
@@ -326,7 +324,7 @@ func reRender(state: OptionState) {
 }
 ```
 
-The `reRender` method can be called when the picker's state changes to:
+Next time the programme is executed and the user presses the up or down arrow keys, the `reRender` method will:
 
 1. Iterate through the range of lines where the options are displayed.
 2. Check if the current line is the active one.
@@ -339,9 +337,7 @@ The `reRender` method can be called when the picker's state changes to:
 
 ## Option selected state
 
-Now that the user has selected an option, we want to update the picker's icon to a checkmark, change the colour of the sidebar to not be blue, remove the closing barcket from the bottom of the sidebar and turn the cursor back on:
-
-### Code
+Now that the user has selected an option, we want to update the picker's icon to a checkmark, change the colour of the sidebar to not be blue to denote that the component is no longer active, remove the closing bracket from the bottom of the sidebar and turn the cursor back on:
 
 ```swift:Sources/Picker/main.Swift
 func picker(title: String, options: [String]) -> String {
