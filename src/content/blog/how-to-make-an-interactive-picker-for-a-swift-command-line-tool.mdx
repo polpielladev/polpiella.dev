@@ -9,15 +9,17 @@ import Video from '@components/Video.svelte'
 
 I have been writing command-line tools with Swift for a while now and, while I find the developer experience to be great, I have always found the number of libraries to handle user input to be lacking compared to other languages such as Javascript.
 
-This sparked my interest in learning more about how such libraries work in other languages and how hard it would be to make something similar using Swift.
+This sparked my interest in learning more about how such libraries work and investigate how hard it would be to make something similar using Swift.
 
-In this post, I will show you how to make a simple interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favourite javascript libraries [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore). I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
+In this post, I will show you how to make an interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favourite javascript libraries: [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore).
+
+In fact, I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
 
 <StaticTweet id="1631686077399420928" />
 
 ## What are ANSI escape sequences?
 
-ANSI escape sequences are a way to add special formatting to text in the terminal through a series of predefined characters. They are supported by terminals in Unix operating systems (like macOS) and Windows (only from Windows 10) and are used by many command-line tools to change the text colour, modify the cursor position, clear the screen, etc.
+ANSI escape sequences are a way to perform operations in the terminal UI through a series of predefined characters. These sequences are supported by terminals in Unix operating systems (like macOS) and Windows (only from Windows 10) and are used by many command-line tools to perform actions such as changing the text colour, modifying the cursor position, clearing the screen, etc.
 
 Let's see an example of an escape sequence that changes the text colour to red:
 
@@ -25,7 +27,7 @@ Let's see an example of an escape sequence that changes the text colour to red:
 print("\u{1B}[31mHello, world!")
 ```
 
-The escape sequence starts with the character `\u{1B}` which is the escape character. This is followed by the character `[` and a number that represents the colour we want to use. In this case, `31` is the code for red. Finally, we end the sequence with the character `m` and then add the text we want to display.
+The sequence above starts with the escape character: `\u{1B}`. This is followed by the character `[` and a number that represents the colour we want to use. In this case, `31` is the code for red. Finally, we end the sequence with the character `m` followed add the text we want to display.
 
 Let's now make our example a bit more complex by making the text bold. We can do this by adding the number `1` followed by a semicolon before the colour code:
 
@@ -33,7 +35,7 @@ Let's now make our example a bit more complex by making the text bold. We can do
 print("\u{1B}[1;31mHello, world!")
 ```
 
-As you can see, it is nothing more than a series of characters and string manipulation to achieve the formatting we want.
+As you can see, it is nothing more than the combination of a series of characters and string manipulation to achieve the formatting we want.
 
 ## Creating an executable
 
@@ -47,7 +49,7 @@ swift package init --type executable
 
 The reason why we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
-[ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by adding the following to our `Package.swift` file:
+[ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by declaring it as a dependency to the executable target in our `Package.swift` file:
 
 ```swift:Package.swift
 // swift-tools-version: 5.7
@@ -70,11 +72,11 @@ let package = Package(
 
 ## Getting started
 
-Before we start writing some code, let's take a look at what we'll be building in this article:
+Before we start writing some code, let's take a look at the output of the picker we'll be building in this article:
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
 
-The picker, which is highly inspired by [Nate Moore's](https://twitter.com/n_moore) [clack javascript library](https://github.com/natemoo-re/clack), presents any number of options and allows the user to select one using the arrow keys and the enter key.
+The picker, which is highly inspired by the `select` component in [Nate Moore's](https://twitter.com/n_moore) [clack javascript library](https://github.com/natemoo-re/clack), presents a number of options and allows the user to select one using a combination of the arrow keys and the enter key.
 
 Once the user has selected an option, the picker returns the selected string, the icon is updated to a checkmark and the program exits gracefully.
 
@@ -92,11 +94,11 @@ _ = picker(title: "Choose your favourite fruit", options: ["🍌 Banana", "🥝 
 
 ## Showing the picker's title
 
-> Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of the `Foundation` or [ANSITerminal](https://github.com/pakLebah/ANSITerminal) libraries.
+> Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of `Foundation` or [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
 ### Code
 
-The first thing we need to do is to show the picker's title:
+The first thing we need to do is to write the picker's title on the terminal's screen:
 
 ```swift:Sources/Picker/main.swift
 func picker(title: String, options: [String]) -> String {
@@ -116,7 +118,7 @@ func picker(title: String, options: [String]) -> String {
 
 Let's take a closer look at the code above line by line:
 
-1. First, we turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
+1. Turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
 2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
 3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack](https://github.com/natemoo-re/clack) uses for its prompts.
 4. Move the cursor one character to the right to add a white space and write the title.
@@ -153,9 +155,9 @@ class OptionState {
 }
 ```
 
-This state will hold the user's selected option and the range of lines where the options will be displayed.
+This state will hold the line number for the selected option and the range of lines where the options will be displayed.
 
-Let's see how we can set up the initial state for the picker:
+Let's set up the initial state for the picker:
 
 ```swift:Sources/Picker/main.swift
 func picker(title: String, options: [String]) -> String {
@@ -175,7 +177,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-Let's take a closer look at the code above line by line:
+Let's step through the code above line by line:
 
 1. Read the cursor's current row. Then we add one to make sure that the picker's first option is displayed in a new line.
 2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
