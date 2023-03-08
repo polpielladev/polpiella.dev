@@ -116,7 +116,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-Let's take a closer look at the code above line by line:
+When the picker function is called, the code above will:
 
 1. Turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
 2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
@@ -177,7 +177,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-Let's step through the code above line by line:
+The picker method now executes the following steps to set up the initial steps:
 
 1. Read the cursor's current row. Then we add one to make sure that the picker's first option is displayed in a new line.
 2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
@@ -227,7 +227,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-Let's take a closer look at the code above line by line:
+The code displays all options to the user by executing the following steps:
 
 1. Iterate through the array of options.
 2. Move the cursor down so that text is written in a new line.
@@ -292,7 +292,7 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-Let's take a closer look at the code above line by line:
+When called, the `picker` method can now listen for user input through the following steps:
 
 1. Start an infinite loop that will only be broken when the user presses the enter key.
 2. Clear the terminal's buffer.
@@ -326,7 +326,7 @@ func reRender(state: OptionState) {
 }
 ```
 
-Let's again look at the code above:
+The `reRender` method can be used to react to user input and:
 
 1. Iterate through the range of lines where the options are displayed.
 2. Check if the current line is the active one.
