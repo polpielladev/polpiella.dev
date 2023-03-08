@@ -9,7 +9,7 @@ import Video from '@components/Video.svelte'
 
 I have been writing command-line tools with Swift for a while now and, while I find the developer experience to be great, I have always found the number of libraries to handle user input to be lacking compared to other languages such as Javascript.
 
-This sparked my interest in learning more about how such libraries work and investigate how hard it would be to make something similar using Swift.
+This sparked my interest in learning more about how such libraries work and investigating how hard it would be to make something similar using Swift.
 
 In this post, I will show you how to make an interactive picker for a command-line tool using ANSI escape sequences inspired by one of my favourite javascript libraries: [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore).
 
@@ -27,7 +27,7 @@ For example, the following escape sequence changes the text colour to red:
 print("\u{1B}[31mHello, world!")
 ```
 
-The sequence above starts with the escape character: `\u{1B}`. This is followed by the character `[` and a number that represents the colour we want to use. In this case, `31` is the code for red. Finally, we end the sequence with the character `m` followed add the text we want to display.
+The sequence above starts with the escape character: `\u{1B}`. This is followed by the character `[` and a number that represents the colour we want to use. In this case, `31` is the code for red. Finally, we end the sequence with the character `m` followed by the text we want to display.
 
 Let's now make our example a bit more complex by making the text bold. We can do this by adding the number `1` followed by a semicolon before the colour code:
 
@@ -47,7 +47,7 @@ swift package init --type executable
 
 ## Importing ANSITerminal
 
-The reason why we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
+The reason we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
 [ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by declaring it as a dependency to the executable target in our `Package.swift` file:
 
@@ -117,7 +117,7 @@ func picker(title: String, options: [String]) -> String {
 When the picker function is called, the code above will:
 
 1. Turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
-2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
+2. Move one line down from the current position. This is needed because we want to start writing the title on a new line.
 3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack](https://github.com/natemoo-re/clack) uses for its prompts.
 4. Move the cursor one character to the right to add a white space and write the title.
 
@@ -177,8 +177,8 @@ func picker(title: String, options: [String]) -> String {
 
 Let's break down the code above into a number of steps:
 
-1. Read the cursor's current row. Then we add one to make sure that the picker's first option is displayed in a new line.
-2. Create the initial state for the picker. We use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
+1. Read the cursor's current row. Then add one to make sure that the picker's first option is displayed on a new line.
+2. Create the initial state for the picker. Use the `enumerated()` method to get the index of each option and add it to the current line to get the line where the option will be displayed.
 
 ## Displaying all available options
 
@@ -226,7 +226,7 @@ func picker(title: String, options: [String]) -> String {
 The code to render all options in the terminal can be summarised as follows:
 
 1. Iterate through the array of options.
-2. Move the cursor down so that text is written in a new line.
+2. Move the cursor down so that text is written on a new line.
 3. Check if the current option is the active one.
 4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a grey circle, similarly to what [clack](https://github.com/natemoo-re/clack) does.
 5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in grey.
@@ -376,4 +376,6 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-That's it! 🎉 We have written an interactive picker for the command-line in Swift. I am planning on writing more posts on this topic as a build up my Swift port of the [clack](https://github.com/natemoo-re/clack) library, so stay tuned 👀.
+That's it! 🎉 We have written an interactive picker for the command-line in Swift. 
+
+I am planning on writing more posts on this topic as I build up my Swift port of the [clack](https://github.com/natemoo-re/clack) library, so stay tuned 👀.
