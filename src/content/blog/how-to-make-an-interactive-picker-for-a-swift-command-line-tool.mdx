@@ -11,7 +11,7 @@ I have been writing command-line tools with Swift for a while now and, while I f
 
 This sparked my interest in learning more about how such libraries work and investigate how hard it would be to make something similar using Swift.
 
-In this post, I will show you how to make an interactive picker for a command-line tool using ANSI escape sequences inspired in one of my favourite javascript libraries: [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore).
+In this post, I will show you how to make an interactive picker for a command-line tool using ANSI escape sequences inspired by one of my favourite javascript libraries: [clack](https://github.com/natemoo-re/clack) by [Nate Moore](https://twitter.com/n_moore).
 
 In fact, I like the library so much that I have started working on migrating it to Swift and I am going to document my progress in a series of posts.
 
@@ -47,7 +47,7 @@ swift package init --type executable
 
 ## Importing ANSITerminal
 
-The reason why we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
+The reason we need to create a Swift package instead of a Swift script is that we will need to import a dependency to make working with ANSI escape sequences easier: [ANSITerminal](https://github.com/pakLebah/ANSITerminal).
 
 [ANSITerminal](https://github.com/pakLebah/ANSITerminal) is distributed as a Swift Package, so we can add it to our project by declaring it as a dependency to the executable target in our `Package.swift` file:
 
@@ -379,3 +379,5 @@ func picker(title: String, options: [String]) -> String {
     return state.options.first(where: { $0.line == line })!.title
 }
 ```
+
+That's it! 🎉 We have written an interactive picker for the command-line in Swift. I am planning on writing more posts on this topic as a build up my Swift port of the [clack](https://github.com/natemoo-re/clack) library, so stay tuned 👀.
