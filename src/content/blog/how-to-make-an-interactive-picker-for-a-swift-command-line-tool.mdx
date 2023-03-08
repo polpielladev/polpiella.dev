@@ -74,11 +74,11 @@ Before we start writing some code, let's take a look at what we'll be building i
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
 
-The picker, which is highly inspired by [Nate Moore's]() [clack javascript library](), presents any number of options and allows the user to select one using the arrow keys and the enter key.
+The picker, which is highly inspired by [Nate Moore's](https://twitter.com/n_moore) [clack javascript library](https://github.com/natemoo-re/clack), presents any number of options and allows the user to select one using the arrow keys and the enter key.
 
 Once the user has selected an option, the picker returns the selected string, the icon is updated to a checkmark and the program exits gracefully.
 
-Let's start by importing the [ANSITerminal]() library in the executable's entry point and creating a `picker` function where the logic will live:
+Let's start by importing the [ANSITerminal](https://github.com/pakLebah/ANSITerminal) library in the executable's entry point and creating a `picker` function where the logic will live:
 
 ```swift:Sources/Picker/main.swift
 import ANSITerminal
@@ -92,7 +92,7 @@ _ = picker(title: "Choose your favourite fruit", options: ["🍌 Banana", "🥝 
 
 ## Showing the picker's title
 
-> Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of the `Foundation` or [ANSITerminal]() libraries.
+> Note that in the following sections, unless I specifically say otherwise, all functions I will be calling in the `picker` method are either part of the `Foundation` or [ANSITerminal](https://github.com/pakLebah/ANSITerminal) libraries.
 
 ### Code
 
@@ -118,12 +118,12 @@ Let's take a closer look at the code above line by line:
 
 1. First, we turn the cursor off to avoid having it displayed in the terminal as there will be no need for it.
 2. Move one line down from the current position. This is needed because we want to start writing the title in a new line.
-3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack]() uses for its prompts.
+3. Write the icon for the picker. In this case, we are using the same Unicode character as [clack](https://github.com/natemoo-re/clack) uses for its prompts.
 4. Move the cursor one character to the right to add a white space and write the title.
 
 ### Output
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222144/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/title-prompt.png)
+![An image showing the title part of the picker](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222144/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/title-prompt.png)
 
 ## Handling state
 
@@ -230,13 +230,13 @@ Let's take a closer look at the code above line by line:
 1. Iterate through the array of options.
 2. Move the cursor down so that text is written in a new line.
 3. Check if the current option is the active one.
-4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a gray circle, similarly to what [clack]() does.
+4. Write the icon for the option. If the option is active, use a green circle, otherwise, use a gray circle, similarly to what [clack](https://github.com/natemoo-re/clack) does.
 5. Move right by one character to leave one whitespace between the icon and the text. If the option is active, write the title in white, otherwise, write it in gray.
 6. Move the cursor down one line and write the closing symbol of the sidebar in the same colour.
 
 ### Output
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222426/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/list-all-options.png)
+![An image showing the picker listing the full set of options](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222426/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/list-all-options.png)
 
 ## Handling user input
 
