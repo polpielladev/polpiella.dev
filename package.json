@@ -17,6 +17,7 @@
   "devDependencies": {
     "@astrojs/rss": "2.1.0",
     "@astrojs/tailwind": "3.0.1",
+    "@tailwindcss/line-clamp": "^0.4.2",
     "@tailwindcss/typography": "0.5.9",
     "@types/markdown-it": "^12.2.3",
     "@types/sanitize-html": "^2.8.0",

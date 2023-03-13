@@ -35,7 +35,7 @@
       class="text-theme-primary mb-2 text-2xl font-semibold hover:underline dark:text-gray-100">
       <a href={`/${slug}`} {title}>{title}</a>
     </h4>
-    <p class="line-clamp-2 hyphens-auto text-lg leading-6 dark:text-gray-400">
+    <p class="hyphens-auto text-lg leading-6 line-clamp-2 dark:text-gray-400">
       {excerpt}
     </p>
   </div>
