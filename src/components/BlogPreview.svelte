@@ -4,17 +4,39 @@
   export let excerpt: string
   export let pubDate: Date
 
-  const formattedDate = new Date(pubDate).toDateString()
+  const MONTHS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const getMonthName = (date: Date) => MONTHS[new Date(date).getMonth()]
 </script>
 
-<div class="prose flex w-full flex-col dark:prose-invert">
-  <p class=" m-0 text-sm font-semibold text-zinc-500 dark:text-zinc-300">
-    {formattedDate}
-  </p>
-  <div class="flex flex-col gap-2">
-    <a href={`/${slug}`} class="m-0 rounded no-underline">
-      <h2 class="m-0 max-w-md hover:underline">{title}</h2>
-    </a>
-    <p class="m-0">{excerpt}</p>
+<div class="flex gap-6">
+  <div>
+    <div class="flex w-full flex-col text-center">
+      <span class="text-6xl font-semibold text-gray-500 dark:text-gray-300"
+        >{new Date(pubDate).getDate()}</span>
+      <span class="text-gray-400"
+        >{`${getMonthName(pubDate)} ${new Date(pubDate).getFullYear()}`}</span>
+    </div>
+  </div>
+  <div class="flex-1">
+    <h4
+      class="text-theme-primary dark:text-theme-dark-primary mb-2 text-2xl font-semibold hover:underline">
+      <a href={`/blog/${slug}`} {title}>{title}</a>
+    </h4>
+    <p class="line-clamp-2 hyphens-auto text-lg leading-6 dark:text-white">
+      {excerpt}
+    </p>
   </div>
 </div>
