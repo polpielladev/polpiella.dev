@@ -19,7 +19,9 @@
   <div class="prose grid content-center dark:prose-invert">
     <div class="mb-4">
       <h1
-        class="text-text-heading m-0 overflow-hidden pt-4 pb-2 text-4xl font-bold md:text-5xl">
+        class={`m-0 ${
+          !subtitle ? 'mb-2' : ''
+        } overflow-hidden pt-4 pb-2 text-4xl font-bold md:text-5xl`}>
         <span
           class="
               bg-gradient-to-bl from-cyan-200 to-cyan-200 bg-[length:90%_40%]
