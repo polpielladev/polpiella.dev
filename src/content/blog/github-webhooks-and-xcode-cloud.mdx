@@ -12,6 +12,8 @@ GitHub has a set of web hooks you can subscribe to, such as the [issue_comment](
 
 In this article, you will learn how to write a serverless Swift function to listen to the [issue_comment]() web hook events and, if a pull request's comment's body matches the 'Upload to TestFlight' string, trigger an Xcode Cloud build which uploads the app for internal testing on TestFlight.
 
+## The Xcode Cloud workflow
+
 ## Setting up the Amazon Web Services lambda
 
 ### Creating a Swift package
@@ -211,19 +213,228 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 ## Importing appstoreconnect-swift-sdk
 
+To make it easier to interact with App Store Connect, the lambda uses [Antoine van der Lee's appstoreconnect-swift-sdk Swift package]():
+
+```swift:Package.swift
+// swift-tools-version: 5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "UploadToTestFlightWebhook",
+    platforms: [.macOS(.v12)],
+    dependencies: [
+        // Use the master revision as it implements Linux compatibility
+        .package(url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git", revision: "master"),
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", exact: "1.0.0-alpha.1"),
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-events.git", exact: "0.1.0")
+    ],
+    targets: [
+        .executableTarget(
+            name: "UploadToTestFlightWebhook",
+            dependencies: [
+                .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
+                .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-events")
+            ]
+        )
+    ]
+)
+```
+
+### Setting up the `APIProvider`
+
+The `APIProvider` provides a way to interact with App Store Connect's API. It requires an `APIConfiguration` with App Store Connect's credentials to make authenticated requests.
+
+> This article doesn't go into detail on how to retrieve the credentials from App Store Connect. For more information, refer to the [ article]().
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+// ...
+import AppStoreConnect_Swift_SDK
+
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        let config = try APIConfiguration(
+            issuerID: "🙈",
+            privateKeyID: "🙈",
+            privateKey: "🙈"
+        )
+
+        let provider = APIProvider(configuration: config)
+
+        // ...
+    }
+}
+```
+
 ## Triggering an Xcode Cloud build
+
+The lambda now has all the tools and information it needs to interact with the App Store Connect API and trigger a new build from the `TestFlight` workflow.
 
 ### Finding the correct product
 
+The lambda needs to find the product that matches the pull request's repository name by:
+
+1. Making a request to the `ciProducts` endpoint from the App Store Connect API to get all the products of type `app`.
+2. Find the product that matches the pull request's repository name by comparing the `repositoryName` property from the `scmRepository` included item with the pull request's repository name and get the repository entity's `id`.
+3. Find the product that matches the repository entity's `id` by comparing the `repositoryId` property from the `product`'s `relationships` with the repository entity's `id`. If the repository has no matching product, return a `404` response.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        let producstEndpoint = APIEndpoint
+                .v1
+                .ciProducts
+                .get(parameters: .init(filterProductType: [.app], include: [.primaryRepositories, .bundleID]))
+
+        let productResponse = try await provider.request(producstEndpoint)
+
+        guard let repositoryId: String = productResponse
+            .included?
+            .compactMap({ includedItem in
+                switch includedItem {
+                case .scmRepository(let scmData) where scmData.attributes?.repositoryName == request.repository.name:
+                    return scmData.id
+                default: return nil
+                }
+            })
+            .first,
+
+        let productId = productResponse.data.first(where: {
+            $0.relationships?.primaryRepositories?.data?.contains { $0.id == repositoryId } == true
+        })?.id else {
+            return .init(statusCode: .notFound, body: "Could not find a product for this repository")
+        }
+
+        // ...
+    }
+}
+```
+
 ### Getting the TestFlight workflow id
+
+The lambda can now try to find the id for the `TestFlight` workflow from the product id retrieved in the previous section by:
+
+1. Making a request to the `ciProducts/{productId}/workflows` endpoint from the App Store Connect API to get all the workflows for the product.
+2. Finding the `TestFlight` workflow by getting the first item in the workflows' array whose name matches `TestFlight`. If no `TestFlight` workflow exists, return a response with `404` status code.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        let allWorkflowsEndpoint = APIEndpoint
+            .v1
+            .ciProducts
+            .id(productId)
+            .workflows
+
+        let workflows = try await provider
+            .request(
+                Request<WorkflowsResponse>(
+                    method: "GET",
+                    path: allWorkflowsEndpoint.path,
+                    query: [("fields[ciWorkflows]", "name")]
+                )
+            )
+
+        guard let workflowId = workflows.data.first(where: { $0.attributes.name == "Testflight" })?.id else {
+            return .init(statusCode: .notFound, body: "Could not find a `TestFlight` workflow in product")
+        }
+
+        // ...
+    }
+}
+```
 
 ### Finding the correct git reference id
 
+To start a new workflow run from a specific branch, the App Store Connect API requires the id of the git reference for that branch.
+
+Contrary to what you might think, this id is Xcode Cloud specific and not the same as the ref from the GitHub branch.
+
+To get the correct id, the lambda now needs to:
+
+1. Retrieve the `TestFlight` workflow information from the App Store Connect API and specify that the response must include the `repository` information.
+2. Retrieve the git references for the repository from the `scmRepositories/gitReferences` endpoint.
+3. Filter the git references array to find the object whose name matches the pull request's head branch's name. If no matching git reference exists, return a response with `404` status code.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        let workflowEndpoint = APIEndpoint
+            .v1
+            .ciWorkflows
+            .id(workflowId)
+            .get(parameters: .init(include: [.repository]))
+
+        let workflow = try await provider.request(workflowEndpoint).data
+
+        let gitRefsEndpoint = APIEndpoint
+            .v1
+            .scmRepositories
+            .id(repositoryId)
+            .gitReferences
+            .get()
+
+        let gitRefs = try await provider.request(gitRefsEndpoint)
+
+        guard let ref = gitRefs.data.first(where: { $0.attributes?.name == headBranchName }) else {
+            return .init(statusCode: .notFound, body: "There is no branch named \(headBranchName) in the repository")
+        }
+
+        // ...
+    }
+}
+```
+
 ### Starting a new build
 
-````
+With all information available now, the lambda can start a new build by:
 
-```
+1. Creating a new `CiBuildRunCreateRequest` object with the workflow and the source branch as relationships for the request.
+2. Making a request to the `ciBuildRuns` endpoint from the App Store Connect API to start a new build run.
+3. Return a response with `200` status code.
 
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        let requestRelationships = CiBuildRunCreateRequest
+            .Data
+            .Relationships(
+                workflow: .init(data: .init(type: .ciWorkflows, id: workflow.id)),
+                sourceBranchOrTag: .init(data: .init(type: .scmGitReferences, id: ref.id))
+            )
+            let requestData = CiBuildRunCreateRequest.Data(
+                type: .ciBuildRuns,
+                relationships: requestRelationships
+            )
+
+        let buildRunCreateRequest = CiBuildRunCreateRequest(data: requestData)
+
+        let workflowRun = APIEndpoint
+            .v1
+            .ciBuildRuns
+            .post(buildRunCreateRequest)
+
+        _ = try await provider.request(workflowRun)
+
+        return .init(
+            statusCode: .ok,
+            body: "Job \(workflow.attributes?.name ?? "") triggered."
+        )
+    }
+}
 ```
-````
