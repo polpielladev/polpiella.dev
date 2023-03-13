@@ -1,7 +1,7 @@
 ---
 title: 'GitHub web hooks 🤝 Xcode Cloud'
 excerpt: 'How to use GitHub web hooks to trigger Xcode Cloud builds by writing a comment on a pull request.'
-pubDate: 2023-03-08
+pubDate: 2023-03-15
 ---
 
 Websites like GitHub provide ways of expanding their default behaviour through a set of automated messages which get sent when specific events happen called web hooks.
@@ -12,7 +12,84 @@ GitHub has a set of web hooks you can subscribe to, such as the [issue_comment](
 
 In this article, you will learn how to write a serverless Swift function to listen to the [issue_comment]() web hook events and, if a pull request's comment's body matches the 'Upload to TestFlight' string, trigger an Xcode Cloud build which uploads the app for internal testing on TestFlight.
 
-## Setting up the Amazon Web Services Lambda
+## Setting up the Amazon Web Services lambda
+
+### Creating a Swift package
+
+To create an Amazon Web Services lambda, you first need to create an executable Swift package:
+
+```bash
+# Create an empty directory
+mkdir upload-to-testflight-webhook
+# Move into the new directory
+cd upload-to-testflight-webhook
+# Create a new executable Swift package
+swift package init --type executable --name UploadToTestFlightWebhook
+```
+
+The preceding command generates an executable Swift package with the following structure:
+
+```bash
+.
+├── Package.swift
+├── README.md
+├── Sources
+│   └── UploadToTestFlightWebhook
+│       └── UploadToTestFlightWebhook.swift
+└── Tests
+    └── UploadToTestFlightWebhookTests
+        └── UploadToTestFlightWebhookTests.swift
+```
+
+### Adding the dependencies
+
+The [swift-server group]() provides a Swift package called [swift-aws-lambda-runtime]() to create Amazon Web Services lambdas using Swift.
+
+The lambda needs to listen to `POST` requests sent by GitHub and, for this reason, needs to have an Amazon API Gateway as its trigger. To read data from the gateway's body, you need to add the [swift-aws-lambda-events]() package as a dependency.
+
+```swift:Package.swift
+// swift-tools-version: 5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "UploadToTestFlightWebhook",
+    platforms: [.macOS(.v12)],
+    dependencies: [
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", exact: "1.0.0-alpha.1"),
+        .package(url: "https://github.com/swift-server/swift-aws-lambda-events.git", exact: "0.1.0")
+    ],
+    targets: [
+        .executableTarget(
+            name: "UploadToTestFlightWebhook",
+            dependencies: [
+                .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
+                .product(name: "AWSLambdaEvents", package: "swift-aws-lambda-events")
+            ]
+        )
+    ]
+)
+```
+
+### Creating an empty lambda
+
+To create an Amazon Web Services lambda which handles API Gateway events, you need to import both the `AWSLambdaRuntime` and `AWSLambdaEvents` packages and create a `@main` decorated `struct` which conforms to the `LambdaHandler` protocol.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+import AWSLambdaRuntime
+import AWSLambdaEvents
+
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        return .init(
+            statusCode: .ok,
+            body: "Hello World 👋"
+        )
+    }
+
+}
+```
 
 ## Parsing the web hook's payload
 
@@ -29,3 +106,10 @@ In this article, you will learn how to write a serverless Swift function to list
 ### Finding the correct git reference id
 
 ### Starting a new build
+
+````
+
+```
+
+```
+````
