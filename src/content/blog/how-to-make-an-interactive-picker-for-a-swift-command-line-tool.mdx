@@ -372,7 +372,7 @@ Last but not least, the method needs to return the selected string after the use
 func picker(title: String, options: [String]) -> String {
     // ...
 
-    return state.options.first(where: { $0.line == line })!.title
+    return state.options.first(where: { $0.line == state.activeLine })!.title
 }
 ```
 
