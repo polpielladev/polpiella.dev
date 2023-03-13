@@ -21,9 +21,9 @@
   const getMonthName = (date: Date) => MONTHS[new Date(date).getMonth()]
 </script>
 
-<div class="flex gap-6">
+<div class="flex sm:gap-6">
   <div>
-    <div class="flex w-full flex-col text-center">
+    <div class="hidden w-full flex-col text-center sm:flex">
       <span class="text-6xl font-semibold text-gray-500 dark:text-gray-300"
         >{new Date(pubDate).getDate()}</span>
       <span class="text-gray-400"
@@ -31,8 +31,7 @@
     </div>
   </div>
   <div class="flex-1">
-    <h4
-      class="text-theme-primary dark:text-theme-dark-primary mb-2 text-2xl font-semibold hover:underline">
+    <h4 class="text-theme-primary mb-2 text-2xl font-semibold hover:underline">
       <a href={`/blog/${slug}`} {title}>{title}</a>
     </h4>
     <p class="line-clamp-2 hyphens-auto text-lg leading-6 dark:text-white">

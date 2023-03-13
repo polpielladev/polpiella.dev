@@ -8,14 +8,14 @@
     <a
       class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
       href={previousURL == '' ? '/' : previousURL}>
-      &larr; Newer Articles
+      &larr; Newer articles
     </a>
   {/if}
   {#if nextURL}
     <a
       class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
       href={nextURL}>
-      Older Articles &rarr;
+      Older articles &rarr;
     </a>
   {/if}
 </div>
