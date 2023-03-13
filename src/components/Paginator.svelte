@@ -13,7 +13,7 @@
   {/if}
   {#if nextURL}
     <a
-      class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
+      class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:hover:bg-slate-800"
       href={nextURL}>
       Older articles &rarr;
     </a>

@@ -31,10 +31,11 @@
     </div>
   </div>
   <div class="flex-1">
-    <h4 class="text-theme-primary mb-2 text-2xl font-semibold hover:underline">
+    <h4
+      class="text-theme-primary mb-2 text-2xl font-semibold hover:underline dark:text-gray-100">
       <a href={`/blog/${slug}`} {title}>{title}</a>
     </h4>
-    <p class="line-clamp-2 hyphens-auto text-lg leading-6 dark:text-white">
+    <p class="line-clamp-2 hyphens-auto text-lg leading-6 dark:text-gray-400">
       {excerpt}
     </p>
   </div>
