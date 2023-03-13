@@ -322,6 +322,12 @@ func reRender(state: OptionState) {
         }
     }
 }
+
+// Helper method
+func writeAt(_ row: Int, _ col: Int, _ text: String) {
+    moveTo(row, col)
+    write(text)
+}
 ```
 
 Next time the programme is executed and the user presses the up or down arrow keys, the `reRender` method will:
@@ -352,12 +358,6 @@ func picker(title: String, options: [String]) -> String {
 
     return "Hello World"
 }
-
-// Helper method
-func writeAt(_ row: Int, _ col: Int, _ text: String) {
-    moveTo(row, col)
-    write(text)
-}
 ```
 
 ### Output
@@ -376,6 +376,6 @@ func picker(title: String, options: [String]) -> String {
 }
 ```
 
-That's it! 🎉 We have written an interactive picker for the command-line in Swift. 
+That's it! 🎉 We have written an interactive picker for the command-line in Swift.
 
 I am planning on writing more posts on this topic as I build up my Swift port of the [clack](https://github.com/natemoo-re/clack) library, so stay tuned 👀.
