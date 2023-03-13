@@ -170,9 +170,44 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 The lambda needs to handle just the `created` action to ensure it triggers builds for new comments and not for comment edits or deletions.
 
-As stated in the introduction, the lambda just trigger builds when the comment matches 'Upload to TestFlight'.
+As stated in the introduction, the lambda should just trigger builds when the comment matches 'Upload to TestFlight'.
 
 ## Retrieving the pull request's information
+
+While the GitHub [issue_comment]() webhook sends some pull request's information, it doesn't send enough to determine the pull request's head branch.
+
+To find the pull request's head branch's name, the lambda needs to make a `GET` request to the `pullRequest`'s `url` property from the webhook's event payload.
+
+This property is a URL pointing to the [pulls]() GitHub endpoint, which requires authentication for private repositories. The lambda can the access the `head.ref` property from GitHub's response to get the pull request's head's branch name.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+struct GithubPullRequest: Decodable {
+    let head: Head
+
+    struct Head: Decodable {
+        let ref: String
+    }
+}
+
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        // ...
+
+        var urlRequest = URLRequest(url: request.issue.pullRequest.url)
+        urlRequest.setValue("Bearer 🙈", forHTTPHeaderField: "Authorization")
+        // Small helper class to make async requests
+        let urlSession = URLSessionWrapper()
+        let data = try await urlSession.data(for: urlRequest)
+
+        let headBranchName = try snakeCaseDecoder.decode(GithubPullRequest.self, from: data)
+            .head
+            .ref
+
+        // ...
+    }
+}
+```
 
 ## Importing appstoreconnect-swift-sdk
 
