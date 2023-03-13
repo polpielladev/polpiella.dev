@@ -4,6 +4,14 @@ excerpt: 'How to use GitHub web hooks to trigger Xcode Cloud builds by writing a
 pubDate: 2023-03-08
 ---
 
+Websites like GitHub provide ways of expanding their default behaviour through a set of automated messages which get sent when specific events happen called web hooks.
+
+When you set up a webhook, you provide a URL to which GitHub sends a `POST` request with information on the subscribed to event as the body of the request.
+
+GitHub has a set of web hooks you can subscribe to, such as the [issue_comment]() event, which gets called when a user adds a comment to a pull request or an issue on a repository.
+
+In this article, you will learn how to write a serverless Swift function to listen to the [issue_comment]() web hook events and, if a pull request's comment's body matches the 'Upload to TestFlight' string, trigger an Xcode Cloud build which uploads the app for internal testing on TestFlight.
+
 ## Setting up the Amazon Web Services Lambda
 
 ## Parsing the web hook's payload
