@@ -21,10 +21,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
     class="prose prose-pre:bg-slate-700 hover:prose-a:underline focus:prose-a:underline prose-a:no-underline lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0 prose-h1:font-bold">
     <header class="flex flex-col gap-2 mb-8">
       <h1 class="m-0 mb-[0.25em]" style="margin: 0 0 !important;">
-        <span
-          class="pl-6 relative block after:absolute after:content-[''] after:w-2 after:h-full after:top-0 after:left-0 after:bg-cyan-400">
-          {title}
-        </span>
+        {title}
       </h1>
       <time datetime={pubDate} class="block text-zinc-400 text-sm sm:text-base">
         {formattedDate}
