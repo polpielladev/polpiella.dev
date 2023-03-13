@@ -87,11 +87,90 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
             body: "Hello World 👋"
         )
     }
-
 }
 ```
 
 ## Parsing the web hook's payload
+
+The GitHub [issue_comment]() webhook sends a payload with the relevant information for a pull request comment.
+
+From all the information in the payload, the web hook just needs the following information:
+
+```json:payload.json
+{
+  "action": "created",
+  "issue": {
+    "pull_request": {
+      "url": "https://api.github.com/repos/polpielladev/QRBuddy/pulls/1"
+    }
+  },
+  "repository": {
+    "name": "QRBuddy"
+  },
+  "comment": {
+    "body": "Upload to testflight"
+  }
+}
+```
+
+> The preceding payload represents a simplified version of the actual payload sent by GitHub.
+
+To parse the payload, the lambda needs to decode the `APIGatewayV2Request`'s `body` property into a `GithubWebhookData` struct.
+
+```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+struct GithubWebhookData: Decodable {
+    let action: String
+    let issue: Issue
+    let repository: Repository
+    let comment: Comment
+
+    struct Issue: Decodable {
+        let pullRequest: PullRequest
+
+        struct PullRequest: Decodable {
+            let url: URL
+        }
+    }
+
+    struct Repository: Decodable {
+        let name: String
+    }
+
+    struct Comment: Decodable {
+        let body: String
+    }
+}
+
+@main
+struct UploadToTestFlightWebhook: SimpleLambdaHandler {
+    let snakeCaseDecoder: JSONDecoder
+
+    init() {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        snakeCaseDecoder = decoder
+    }
+
+    func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
+        guard let body = request.body,
+              let bodyData = body.data(using: .utf8),
+              let request = try? snakeCaseDecoder.decode(GithubWebhookData.self, from: bodyData) else {
+            return .init(statusCode: .badRequest, body: "Could not parse the request content...")
+        }
+
+        guard request.action == "created",
+              request.comment.body.lowercased() == "upload to testflight" else {
+            return .init(statusCode: .ok, body: "Not handling the event...")
+        }
+
+        // ⬇️
+    }
+}
+```
+
+The lambda needs to handle just the `created` action to ensure it triggers builds for new comments and not for comment edits or deletions.
+
+As stated in the introduction, the lambda just trigger builds when the comment matches 'Upload to TestFlight'.
 
 ## Retrieving the pull request's information
 
