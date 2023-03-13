@@ -13,11 +13,11 @@
     class="not-prose m-0 mt-2 aspect-square w-12 rounded-sm object-contain"
     src={icon ?? '/assets/conferences/placeholder.webp'}
     alt="Conference icon" />
-  <div class="flex flex-col gap-1">
+  <div class="flex flex-col">
     <h3 class="m-0">{title}</h3>
     <p class="m-0">{`📍 ${event}`}</p>
     <p class="m-0">{`🗓️ ${date}`}</p>
-    <div class="flex flex-wrap gap-2">
+    <div class="flex flex-wrap">
       {#if slides}
         <a href="/">Slides</a>
       {/if}
