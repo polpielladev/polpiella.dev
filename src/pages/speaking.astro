@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import Talk from '@components/Talk.svelte'
+import InfoPane from '@components/InfoPane.svelte'
 
 interface Year {
   value: number
@@ -82,15 +83,13 @@ const events: Year[] = [
   description="Find out a bit more about me and what I do!"
   activeNav="speaking"
   image="">
-  <div class="px-3 my-0 flex flex-col mx-auto prose dark:prose-invert">
-    <section>
-      <h1 class="mb-0">🗣️ Speaking</h1>
-      <p class="mb-0">
-        Aside from blogging and writing content online, I also enjoy speaking
-        about mobile development at conferences and events. Here are some of the
-        past talks I have delivered and some upcoming ones too!
-      </p>
-    </section>
+  <div class="my-0 max-w-none flex flex-col w-full prose dark:prose-invert">
+    <InfoPane
+      description="Aside from blogging and writing content online, I also enjoy speaking about mobile development at conferences and events. Here are some of the past talks I have delivered and some upcoming ones too!"
+      title="Speaking"
+      image="/assets/speaking.jpeg"
+      circleImage
+    />
     <section class="flex flex-col">
       {
         events.map((year) => (
