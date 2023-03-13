@@ -6,14 +6,14 @@
 <div class="flex justify-start gap-3 dark:text-gray-100">
   {#if previousURL != undefined}
     <a
-      class="rounded bg-gray-300 p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
+      class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
       href={previousURL == '' ? '/' : previousURL}>
       &larr; Newer Articles
     </a>
   {/if}
   {#if nextURL}
     <a
-      class="rounded bg-gray-300 p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
+      class="rounded p-2 font-bold transition-colors hover:bg-slate-300 dark:bg-gray-700 dark:hover:bg-slate-800"
       href={nextURL}>
       Older Articles &rarr;
     </a>
