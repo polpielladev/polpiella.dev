@@ -16,15 +16,15 @@ In this article, you will learn how to write a serverless Swift function to list
 
 Before starting the automation process, you first need to set up an Xcode Cloud workflow which uploads the app to TestFlight from any branch.
 
-To create a new workflow, go to the `Report Navigator` menu, select the `Cloud` menu, right click on the target you want to create the new wokflow for and select `Manage Workflows...`.
+To create a new workflow, go to the `Report Navigator` menu, select the `Cloud` menu, right click the target you want to create the new workflow for and select `Manage Workflows...`.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
 
-In the workflow list screen, click on the `+` button to create a new workflow.
+In the workflow list screen, click the `+` button to create a new workflow.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
 
-Change the name of the workflow to 'Testflight' and disable the workflow so that the workflow only runs manually.
+Change the name of the workflow to 'TestFlight' and turn off the workflow so that the workflow just runs manually.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
 
@@ -40,7 +40,7 @@ Add a post action step to deliver the app to TestFlight for internal testing. Yo
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
 
-The Testflight workflow is now able to upload the app to TestFlight and distribute it to an internal test group. The workflow is also disabled so that it just runs when you manually trigger it rather than on any branch change.
+The TestFlight workflow can now upload the app to TestFlight and distribute it to an internal test group. The workflow is also off so that it just runs when you manually trigger it rather than on any branch change.
 
 ## Setting up the Amazon Web Services lambda
 
@@ -466,3 +466,19 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     }
 }
 ```
+
+## Setting up the webhook for a repository
+
+After deploying the lambda you have just built, the last thing to do is to set up the webhook on a GitHub's repository.
+
+To do so, go to the repository's settings, navigate to the 'Webhooks' section and click the 'Add Webhook' button.
+
+![]()
+
+Enter the URL for the deployed server in the 'Payload URL' field, select 'application/json' as the 'Content type', and choose the 'Let me select individual events option'. From the list of available events, select 'Issue Comments'.
+
+![]()
+
+Check the 'Active' box to ensure the webhook sends events and click the 'Add webhook' button to save the configuration.
+
+You should now be able to trigger a new build by writing a comment which says 'Upload to TestFlight' on any pull request in the repository.
