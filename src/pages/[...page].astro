@@ -48,10 +48,6 @@ const { page } = Astro.props
       circleImage
     />
 
-    <section class="w-full">
-      <Subscribe client:load />
-    </section>
-
     <section>
       <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
 
@@ -68,5 +64,7 @@ const { page } = Astro.props
         }
       </div>
     </section>
+
+    <Subscribe client:load />
   </div>
 </BaseLayout>
