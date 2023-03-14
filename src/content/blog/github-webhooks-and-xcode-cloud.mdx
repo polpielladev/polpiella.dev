@@ -14,6 +14,34 @@ In this article, you will learn how to write a serverless Swift function to list
 
 ## The Xcode Cloud workflow
 
+Before starting the automation process, you first need to set up an Xcode Cloud workflow which uploads the app to TestFlight from any branch.
+
+To create a new workflow, go to the `Report Navigator` menu, select the `Cloud` menu, right click on the target you want to create the new wokflow for and select `Manage Workflows...`.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
+
+In the workflow list screen, click on the `+` button to create a new workflow.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
+
+Change the name of the workflow to 'Testflight' and disable the workflow so that the workflow only runs manually.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
+
+Add a start condition to start the workflow on any branch change.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
+
+Add an archive action and select the `TestFlight (Internal Testing Only)` option.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
+
+Add a post action step to deliver the app to TestFlight for internal testing. You need to add a test group for this step to work.
+
+![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
+
+The Testflight workflow is now able to upload the app to TestFlight and distribute it to an internal test group. The workflow is also disabled so that it just runs when you manually trigger it rather than on any branch change.
+
 ## Setting up the Amazon Web Services lambda
 
 ### Creating a Swift package
@@ -245,8 +273,6 @@ let package = Package(
 
 The `APIProvider` provides a way to interact with App Store Connect's API. It requires an `APIConfiguration` with App Store Connect's credentials to make authenticated requests.
 
-> This article doesn't go into detail on how to retrieve the credentials from App Store Connect. For more information, refer to the [ article]().
-
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 // ...
 import AppStoreConnect_Swift_SDK
@@ -268,6 +294,8 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     }
 }
 ```
+
+> This article doesn't go into detail on how to retrieve the credentials from App Store Connect. For more information, refer to the [ article]().
 
 ## Triggering an Xcode Cloud build
 
