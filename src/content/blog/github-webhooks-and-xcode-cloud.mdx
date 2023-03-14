@@ -4,31 +4,37 @@ excerpt: 'How to use GitHub web hooks to trigger Xcode Cloud builds by writing a
 pubDate: 2023-03-15
 ---
 
-Websites like GitHub provide ways of expanding their default behaviour through a set of automated messages which get sent when specific events happen called web hooks.
+import Video from '@components/Video.svelte'
 
-When you set up a webhook, you provide a URL to which GitHub sends a `POST` request with information on the subscribed to event as the body of the request.
+Webhooks are messages that get sent when certain events occur on a website. These webhooks provide a way of building custom integrations based on the data they provide, hence allowing users to expand an app's capabilities through them.
 
-GitHub has a set of web hooks you can subscribe to, such as the [issue_comment]() event, which gets called when a user adds a comment to a pull request or an issue on a repository.
+Subscribing to webhook events is straightforward. You need to create a server which can handle `POST` requests and provide the server's URL to the website vending the webhook. Then, whenever the event occurs, the website sends a `POST` request to the provided URL.
 
-In this article, you will learn how to write a serverless Swift function to listen to the [issue_comment]() web hook events and, if a pull request's comment's body matches the 'Upload to TestFlight' string, trigger an Xcode Cloud build which uploads the app for internal testing on TestFlight.
+This article goes through how you can write a serverless Swift function to listen to GitHub's [issue_comment](https://docs.github.com/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment) webhook, which fires events every time a user adds a comment to a repository's issue or pull request, and:
+
+1. Checks if the comment is on a pull request.
+2. Verify that the comment's body matches the 'Upload to TestFlight' string.
+3. If it does, the function triggers an Xcode Cloud build which uploads the app for internal testing on TestFlight using the App Store Connect API.
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678828603/blog/posts/github-webhooks-and-xcode-cloud/demo.mp4" />
 
 ## The Xcode Cloud workflow
 
-Before starting the automation process, you first need to set up an Xcode Cloud workflow which uploads the app to TestFlight from any branch.
+Before starting the automation process, you first need to set up an Xcode Cloud workflow which uploads the app to TestFlight for internal testing which the webhook can trigger.
 
-To create a new workflow, go to the `Report Navigator` menu, select the `Cloud` menu, right click the target you want to create the new workflow for and select `Manage Workflows...`.
+To do so, open Xcode, go to the `Report Navigator` menu, select the `Cloud` tab, right-click the target you want to create the new workflow for and click the `Manage Workflows...` button from the context menu.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
 
-In the workflow list screen, click the `+` button to create a new workflow.
+In the workflow list screen, click the `+` button.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
 
-Change the name of the workflow to 'TestFlight' and turn off the workflow so that the workflow just runs manually.
+Change the default name of the workflow to 'TestFlight' and turn it off so that it does not get run every time a branch changes. This is the way to create a _manual_ workflow in Xcode Cloud.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
 
-Add a start condition to start the workflow on any branch change.
+Add a start condition to start the workflow on any branch change. Every Xcode Cloud workflow requires a start condition, but you can prevent this condition from triggering a new build by turning the workflow off.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
 
@@ -36,15 +42,19 @@ Add an archive action and select the `TestFlight (Internal Testing Only)` option
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
 
-Add a post action step to deliver the app to TestFlight for internal testing. You need to add a test group for this step to work.
+Add a post-action step to deliver the app to TestFlight for internal testing. You need to add a test group for this step to work.
 
 ![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
 
-The TestFlight workflow can now upload the app to TestFlight and distribute it to an internal test group. The workflow is also off so that it just runs when you manually trigger it rather than on any branch change.
+When triggered, the new workflow uploads the app to TestFlight and distributes it to an internal test group.
 
-## Setting up the Amazon Web Services lambda
+## Creating a serverless function
 
-### Creating a Swift package
+An easy way to create a service which listens to `POST` requests from GitHub is to use an Amazon Web Services lambda. Using this approach has the added benefit of not having to worry about a server's uptime and maintenance.
+
+Thanks to the great work from the [swif-server group](), you can create a lambda using Swift.
+
+### Getting started
 
 To create an Amazon Web Services lambda, you first need to create an executable Swift package:
 
@@ -124,7 +134,7 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 The GitHub [issue_comment]() webhook sends a payload with the relevant information for a pull request comment.
 
-From all the information in the payload, the web hook just needs the following information:
+From all the information in the payload, the webhook just needs the following information:
 
 ```json:payload.json
 {
@@ -204,11 +214,11 @@ As stated in the introduction, the lambda should just trigger builds when the co
 
 ## Retrieving the pull request's information
 
-While the GitHub [issue_comment]() webhook sends some pull request's information, it doesn't send enough to determine the pull request's head branch.
+While the GitHub [issue_comment]() webhook sends some of the pull request's information, it doesn't send enough to determine the pull request's head branch.
 
 To find the pull request's head branch's name, the lambda needs to make a `GET` request to the `pullRequest`'s `url` property from the webhook's event payload.
 
-This property is a URL pointing to the [pulls]() GitHub endpoint, which requires authentication for private repositories. The lambda can the access the `head.ref` property from GitHub's response to get the pull request's head's branch name.
+This property is a URL pointing to the [pulls]() GitHub endpoint, which requires authentication for private repositories. The lambda can then access the `head.ref` property from GitHub's response to get the pull request's head's branch name.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 struct GithubPullRequest: Decodable {
