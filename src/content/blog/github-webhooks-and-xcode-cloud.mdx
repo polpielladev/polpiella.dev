@@ -24,27 +24,27 @@ Before starting the automation process, you first need to set up an Xcode Cloud 
 
 To do so, open Xcode, go to the `Report Navigator` menu, select the `Cloud` tab, right-click the target you want to create the new workflow for and click the `Manage Workflows...` button from the context menu.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
+![The cloud section in the report navigatior menu of Xcode](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
 
 In the workflow list screen, click the `+` button.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
+![The workflow list screen with the plus button highlighted](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
 
 Change the default name of the workflow to 'TestFlight' and turn it off so that it does not get run every time a branch changes. This is the way to create a _manual_ workflow in Xcode Cloud.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
+![The default workflow configuration page with the name set to TestFlight and the toggle at the top switched off](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
 
 Add a start condition to start the workflow on any branch change. Every Xcode Cloud workflow requires a start condition, but you can prevent this condition from triggering a new build by turning the workflow off.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
+![The workflow configuration page showing a start condition of any branch](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
 
 Add an archive action and select the `TestFlight (Internal Testing Only)` option.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
+![The workflow configuration page showing an action which archives the app for internal testing](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
 
 Add a post-action step to deliver the app to TestFlight for internal testing. You need to add a test group for this step to work.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
+![A post-action step to deliver the app to TestFlight and all internal testers](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
 
 When triggered, the new workflow uploads the app to TestFlight and distributes it to an internal test group.
 
@@ -52,9 +52,9 @@ When triggered, the new workflow uploads the app to TestFlight and distributes i
 
 An easy way to create a service which listens to `POST` requests from GitHub is to use an Amazon Web Services lambda. Using this approach has the added benefit of not having to worry about a server's uptime and maintenance.
 
-Thanks to the great work from the [swif-server group](), you can create a lambda using Swift.
+Thanks to the great work from the [swif-server group](https://github.com/swift-server), you can create a lambda using Swift.
 
-> Please note that this article assumes knowledge of building and deploying Swift Amazon Web Services lambdas. If you are not familiar with this topic, please refer to the [swift-aws-lambda-runtime]() documentation.
+> Please note that this article assumes knowledge of building and deploying Swift Amazon Web Services lambdas. If you are not familiar with this topic, please refer to the [swift-aws-lambda-runtime](https://github.com/swift-server/swift-aws-lambda-runtime) documentation.
 
 ### Getting started
 
@@ -85,11 +85,11 @@ The preceding command generates an executable Swift package with the following f
 
 ### Adding the dependencies
 
-The first dependency you need to bring in is the [swift-aws-lambda-runtime]() by the [swift-server group]().
+The first dependency you need to bring in is the [swift-aws-lambda-runtime](https://github.com/swift-server/swift-aws-lambda-runtime) by the [swift-server group](https://github.com/swift-server).
 
 The lambda also needs to listen to `POST` requests sent by GitHub and, for this reason, it needs to have an Amazon API Gateway as its trigger.
 
-To read data from the gateway's body, you need to add the [swift-aws-lambda-events]() package from [swift-server]() as a dependency.
+To read data from the gateway's body, you need to add the [swift-aws-lambda-events](https://github.com/swift-server/swift-aws-lambda-events) package from [swift-server](https://github.com/swift-server) as a dependency.
 
 ```swift:Package.swift
 // swift-tools-version: 5.7
@@ -487,16 +487,16 @@ After deploying the lambda you have just built, the last thing to do is to set u
 
 To do so, go to the repository's settings, navigate to the 'Webhooks' section and click the 'Add Webhook' button.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/add-webhook.png)
+![A screenshot of the webhooks section in a GitHub repository](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/add-webhook.png)
 
 Enter the URL for the deployed server in the 'Payload URL' field, select 'application/json' as the 'Content type', and choose the 'Let me select individual events' option.
 
 From the list of available events, select 'Issue Comments'.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/create-webhook.png)
+![The new webook configuration page](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/create-webhook.png)
 
 Check the 'Active' box to ensure the webhook is on and click the 'Add webhook' button to save the configuration.
 
-![](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/active.png)
+![A page showing the active checkbox in the new webhook page](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/active.png)
 
 You should now be able to trigger a new build by writing a comment which says 'Upload to TestFlight' on any pull request in the repository 🎉.
