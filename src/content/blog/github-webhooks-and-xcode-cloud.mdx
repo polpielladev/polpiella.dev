@@ -6,9 +6,11 @@ pubDate: 2023-03-15
 
 import Video from '@components/Video.svelte'
 
-Webhooks are messages that get sent when certain events occur on a website. These webhooks provide a way of building custom integrations based on the data they provide, hence allowing users to expand an app's capabilities through them.
+Webhooks are messages that get sent when certain events occur on a website. Webhooks are a fantastic way of building custom integrations based on the data they provide, hence allowing users to expand an app's capabilities through them.
 
-Subscribing to webhook events is straightforward. You need to create a server which can handle `POST` requests and provide the server's URL to the website vending the webhook. Then, whenever the event occurs, the website sends a `POST` request to the provided URL.
+Subscribing to webhook events is straightforward. You need to create a server which can handle `POST` requests and provide the server's URL to the website vending the webhook.
+
+Then, whenever the event occurs, the website sends a `POST` request to the provided URL with the relevant data in the request's body.
 
 This article goes through how you can write a serverless Swift function to listen to GitHub's [issue_comment](https://docs.github.com/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment) webhook, which fires events every time a user adds a comment to a repository's issue or pull request, and:
 
@@ -24,7 +26,7 @@ Before starting the automation process, you first need to set up an Xcode Cloud 
 
 To do so, open Xcode, go to the `Report Navigator` menu, select the `Cloud` tab, right-click the target you want to create the new workflow for and click the `Manage Workflows...` button from the context menu.
 
-![The cloud section in the report navigatior menu of Xcode](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
+![The Cloud section in the report navigator menu of Xcode](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
 
 In the workflow list screen, click the `+` button.
 
