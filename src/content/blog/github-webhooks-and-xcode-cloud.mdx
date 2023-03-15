@@ -121,7 +121,7 @@ let package = Package(
 
 To create an Amazon Web Services lambda which handles API Gateway events, you need to import both the `AWSLambdaRuntime` and `AWSLambdaEvents` packages you imported in the previous section and create a `@main` decorated `struct` which conforms to the `LambdaHandler` protocol.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 import AWSLambdaRuntime
 import AWSLambdaEvents
 
@@ -161,7 +161,7 @@ From all the information in the payload, the webhook just needs the following fi
 
 To parse the payload, the lambda needs to decode the `APIGatewayV2Request`'s `body` property into a `GithubWebhookData` struct using a `JSONDecoder` with a `convertFromSnakeCase` key decoding strategy.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 struct GithubWebhookData: Decodable {
     let action: String
     let issue: Issue
@@ -224,7 +224,7 @@ To find this information, the lambda needs to make a `GET` request to the `pullR
 
 This property is a URL pointing to the [pulls](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request) GitHub endpoint, which requires authentication when working with private repositories. GitHub API's response contains a `head` object with the branch's `ref`, which is the name that the lambda needs.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 struct GithubPullRequest: Decodable {
     let head: Head
 
@@ -287,7 +287,7 @@ let package = Package(
 
 The `APIProvider` from the [appstoreconnect-swift-sdk Swift package](https://github.com/AvdLee/appstoreconnect-swift-sdk) gives you a way to interact with App Store Connect's API. It requires an `APIConfiguration` with your App Store Connect's credentials to be able to make authenticated requests.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 // ...
 import AppStoreConnect_Swift_SDK
 
@@ -323,7 +323,7 @@ To trigger a new workflow run, you first need to find the product associated wit
 2. Finding the product that matches the pull request's repository name by comparing the `repositoryName` property from the `scmRepository` included item with the pull request's repository name. If there are any matches, the lambda retrieves the repository entity's `id`.
 3. Finding the product that matches the repository entity's `id` by comparing the `repositoryId` property from the `product`'s `relationships` with the repository entity's `id`. If the repository has no matching product, the lambda returns a `404` response.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 @main
 struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
@@ -365,7 +365,7 @@ You now need to verify that the product you found in the previous section has a 
 1. Making a network request to the [App Store Connect API's ciProducts/productId/workflows endpoint](https://developer.apple.com/documentation/appstoreconnectapi/list_all_workflows_for_an_xcode_cloud_product) to list all the workflows for the product.
 2. Finding the `TestFlight` workflow by getting the first item in the workflows' array whose name matches `TestFlight`. If there are no matches, the lambda returns a response with `404` status code.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 @main
 struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
@@ -407,7 +407,7 @@ You can retrieve this id by following these steps:
 2. Retrieve the git references for the repository from the [scmRepositories/gitReferences endpoint](https://developer.apple.com/documentation/appstoreconnectapi/read_git_repository_information).
 3. Filter the git references array to find the object whose name matches the pull request's head branch's name. If no matching git reference exists, the lambda returns a response with `404` status code.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 @main
 struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
@@ -447,7 +447,7 @@ Now that you have all the information available, you are ready to trigger a new 
 2. Making a network request to the [ciBuildRuns endpoint from the App Store Connect API](https://developer.apple.com/documentation/appstoreconnectapi/start_a_build) to start a new workflow run.
 3. Return a response with `200` status code.
 
-```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
+```swift:UploadToTestFlightWebhook.swift
 @main
 struct UploadToTestFlightWebhook: SimpleLambdaHandler {
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
