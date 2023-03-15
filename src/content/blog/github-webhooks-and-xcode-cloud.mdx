@@ -32,7 +32,7 @@ In the workflow list screen, click the `+` button.
 
 ![The workflow list screen with the plus button highlighted](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
 
-Change the default name of the workflow to 'TestFlight' and turn it off so that it does not get run every time a branch changes. This is the way to create a _manual_ workflow in Xcode Cloud.
+Change the default name of the workflow to 'TestFlight' and turn it off so that it does not get run automatically based on the start conditions you'll set up next. This is the way to create a _manual_ workflow in Xcode Cloud.
 
 ![The default workflow configuration page with the name set to TestFlight and the toggle at the top switched off](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
 
@@ -40,7 +40,7 @@ Add a start condition to start the workflow on any branch change. Every Xcode Cl
 
 ![The workflow configuration page showing a start condition of any branch](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
 
-Add an archive action and select the `TestFlight (Internal Testing Only)` option.
+Add an archive action and select the `TestFlight (Internal Testing Only)` deployment preparation.
 
 ![The workflow configuration page showing an action which archives the app for internal testing](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
 
@@ -89,7 +89,7 @@ The preceding command generates an executable Swift package with the following f
 
 The first dependency you need to bring in is the [swift-aws-lambda-runtime](https://github.com/swift-server/swift-aws-lambda-runtime) by the [swift-server group](https://github.com/swift-server).
 
-The lambda also needs to listen to `POST` requests sent by GitHub and, for this reason, it needs to have an Amazon API Gateway as its trigger.
+The lambda also needs to listen to the `POST` requests sent by GitHub and, for this reason, it needs to have an Amazon API Gateway that can handle these as its trigger.
 
 To read data from the gateway's body, you need to add the [swift-aws-lambda-events](https://github.com/swift-server/swift-aws-lambda-events) package from [swift-server](https://github.com/swift-server) as a dependency.
 
@@ -140,7 +140,7 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 The GitHub [issue_comment](https://docs.github.com/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment) webhook sends a payload with the relevant information every time a user adds a comment to a repository's issue or pull request.
 
-From all the information in the payload, the webhook just needs the following information:
+From all the information in the payload, the webhook just needs the following fields:
 
 ```json:payload.json
 {
@@ -158,8 +158,6 @@ From all the information in the payload, the webhook just needs the following in
   }
 }
 ```
-
-> The preceding payload is a simplified version with just the data that the function needs from GitHub's event data. You can use this example JSON to test the lambda locally.
 
 To parse the payload, the lambda needs to decode the `APIGatewayV2Request`'s `body` property into a `GithubWebhookData` struct using a `JSONDecoder` with a `convertFromSnakeCase` key decoding strategy.
 
@@ -224,7 +222,7 @@ While the GitHub [issue_comment](https://docs.github.com/webhooks-and-events/web
 
 To find this information, the lambda needs to make a `GET` request to the `pullRequest`'s `url` property from the webhook's event payload.
 
-This property is a URL pointing to the [pulls](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request) GitHub endpoint, which requires authentication when working with private repositories. GitHub API's response contains a `head` object with the branch's `ref` which is the name that the lambda needs.
+This property is a URL pointing to the [pulls](https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request) GitHub endpoint, which requires authentication when working with private repositories. GitHub API's response contains a `head` object with the branch's `ref`, which is the name that the lambda needs.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 struct GithubPullRequest: Decodable {
@@ -287,7 +285,7 @@ let package = Package(
 
 ### Setting up the `APIProvider`
 
-The `APIProvider` gives you a way to interact with App Store Connect's API. It requires an `APIConfiguration` with your App Store Connect's credentials to make authenticated requests.
+The `APIProvider` from the [appstoreconnect-swift-sdk Swift package](https://github.com/AvdLee/appstoreconnect-swift-sdk) gives you a way to interact with App Store Connect's API. It requires an `APIConfiguration` with your App Store Connect's credentials to be able to make authenticated requests.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 // ...
@@ -315,15 +313,15 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 ## Triggering an Xcode Cloud build
 
-The lambda now has all the tools and information it needs to interact with the App Store Connect API and trigger a new `TestFlight` workflow run.
+The lambda now has all the tools and information it needs from the webhook to interact with the App Store Connect API and trigger a new `TestFlight` workflow run.
 
 ### Finding the correct product
 
 To trigger a new workflow run, you first need to find the product associated with the pull request's repository name by:
 
-1. Making a network request to the [App Store Connect API's ciProducts endpoint](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) to retrieve all the products of type `app`.
-2. Finding the product that matches the pull request's repository name by comparing the `repositoryName` property from the `scmRepository` included item with the pull request's repository name. If there are any matches, get the repository entity's `id`.
-3. Finding the product that matches the repository entity's `id` by comparing the `repositoryId` property from the `product`'s `relationships` with the repository entity's `id`. If the repository has no matching product, return a `404` response.
+1. Making a network request to the [App Store Connect API's ciProducts endpoint](https://developer.apple.com/documentation/appstoreconnectapi/list_all_xcode_cloud_products) to retrieve all the Xcode Cloud products of type `app`.
+2. Finding the product that matches the pull request's repository name by comparing the `repositoryName` property from the `scmRepository` included item with the pull request's repository name. If there are any matches, the lambda retrieves the repository entity's `id`.
+3. Finding the product that matches the repository entity's `id` by comparing the `repositoryId` property from the `product`'s `relationships` with the repository entity's `id`. If the repository has no matching product, the lambda returns a `404` response.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 @main
@@ -365,7 +363,7 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 You now need to verify that the product you found in the previous section has a workflow called `TestFlight` by:
 
 1. Making a network request to the [App Store Connect API's ciProducts/productId/workflows endpoint](https://developer.apple.com/documentation/appstoreconnectapi/list_all_workflows_for_an_xcode_cloud_product) to list all the workflows for the product.
-2. Finding the `TestFlight` workflow by getting the first item in the workflows' array whose name matches `TestFlight`. If there are no matches, return a response with `404` status code.
+2. Finding the `TestFlight` workflow by getting the first item in the workflows' array whose name matches `TestFlight`. If there are no matches, the lambda returns a response with `404` status code.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 @main
@@ -407,7 +405,7 @@ You can retrieve this id by following these steps:
 
 1. Retrieve the `TestFlight` workflow information from the [App Store Connect API's ciWorkflows/id endpoint](https://developer.apple.com/documentation/appstoreconnectapi/read_xcode_cloud_workflow_information) and specify that the response must include the `repository` information.
 2. Retrieve the git references for the repository from the [scmRepositories/gitReferences endpoint](https://developer.apple.com/documentation/appstoreconnectapi/read_git_repository_information).
-3. Filter the git references array to find the object whose name matches the pull request's head branch's name. If no matching git reference exists, return a response with `404` status code.
+3. Filter the git references array to find the object whose name matches the pull request's head branch's name. If no matching git reference exists, the lambda returns a response with `404` status code.
 
 ```swift:Sources/UploadToTestFlightWebhook/UploadToTestFlightWebhook.swift
 @main
@@ -485,7 +483,7 @@ struct UploadToTestFlightWebhook: SimpleLambdaHandler {
 
 ## Setting up the webhook
 
-After deploying the lambda you have just built, the last thing to do is to set up the webhook on the GitHub repository.
+After deploying the lambda you have just built, the last thing to do is to set up the webhook on a GitHub repository.
 
 To do so, go to the repository's settings, navigate to the 'Webhooks' section and click the 'Add Webhook' button.
 
