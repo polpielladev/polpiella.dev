@@ -3,3 +3,53 @@ title: 'Editable text items in a macOS SwiftUI list'
 excerpt: 'How to build a macOS SwiftUI list with editable text items.'
 pubDate: 2023-03-22
 ---
+
+Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this pattern in apps such as the macOS finder or SF Symbols.
+
+## TL;DR
+
+If you don't want to wait until the end of the article, here's the code for the `EditableText` component:
+
+```swift
+struct EditableText: View {
+    @Binding var text: String
+    let isSelected: Bool
+
+    @State private var temporaryText: String
+    @FocusState private var isFocused: Bool
+
+    init(text: Binding<String>, isSelected: Bool) {
+        self.isSelected = isSelected
+        self._text = text
+        self.temporaryText = text.wrappedValue
+    }
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            if isSelected {
+                Text(temporaryText)
+                    .padding(.leading, 8)
+                    .onTapGesture { isFocused = true }
+                    .opacity(isFocused ? 0 : 1)
+            } else {
+                Text(temporaryText)
+                    .padding(.leading, 8)
+                    .opacity(isFocused ? 0 : 1)
+            }
+
+            TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+                .focused($isFocused, equals: true)
+                .opacity(isFocused ? 1 : 0)
+        }
+        .contextMenu {
+            Button(action: { isFocused = true }, label: { Text("Rename") })
+        }
+    }
+}
+```
+
+## Creating a list
+
+## Selecting an item
+
+## Making an editable text component
