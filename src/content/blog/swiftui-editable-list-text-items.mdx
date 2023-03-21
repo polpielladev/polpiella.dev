@@ -4,15 +4,31 @@ excerpt: 'How to build a macOS SwiftUI list with editable text items.'
 pubDate: 2023-03-22
 ---
 
-Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this pattern in apps such as the macOS finder or SF Symbols.
+Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this pattern in apps such as the macOS finder or SF Symbols. I used this pattern in an app I have been working on. The user can create QR codes which are stored in a Core Data layer, customise them, and save them with a custom name.
 
-This common macOS list pattern makes text items editable by clicking on them.
+The app persists all QR codes in a list and the user can rename them by clicking on their title. This article shows how to build editable text items in a macOS SwiftUI list.
 
-## TL;DR
+## Creating a selectable list
 
-If you don't want to wait until the end of the article, here's the code for the `EditableText` component:
+To create the component you first need to create a list with a set of text items on it. You can also make the list selectable by adding a `selection` binding which holds and update the value of the selected item's id.
 
-```swift
+```swift:ContentView.swift
+struct ContentView: View {
+    @ObservedObject var viewModel = ViewModel()
+
+    var body: some View {
+        List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
+            Text(item)
+        }
+    }
+}
+```
+
+## Making an editable text component
+
+You can now make the list items editable by creating a custom `EditableText` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
+
+```swift:EditableText.swift
 struct EditableText: View {
     @Binding var text: String
     let isSelected: Bool
@@ -50,8 +66,18 @@ struct EditableText: View {
 }
 ```
 
-## Creating a list
+You can now replace the `Text` view in the list with the new `EditableText` view:
 
-## Selecting an item
+```swift:ContentView.swift
+struct ContentView: View {
+    @ObservedObject var viewModel = ViewModel()
 
-## Making an editable text component
+    var body: some View {
+        List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
+            EditableText(
+                text: .init(get: { item.name }, set: { viewModel.renamed(id: item.id, name: $0) }), isSelected: item.id == viewModel.selectedId
+            )
+        }
+    }
+}
+```
