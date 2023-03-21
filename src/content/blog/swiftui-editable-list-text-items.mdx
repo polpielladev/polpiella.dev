@@ -30,6 +30,12 @@ struct ContentView: View {
 
 You can now make the list items editable by creating a custom `EditableListItem` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
 
+The `EditableListItem` component takes in a text binding and a boolean value to indicate whether the item is selected or not. The view then creates a `temporaryText` internal state variable which is initialised with the binding's current value and is used to store the user's edits to the initial text until the user commits the changes by pressing the return key, at which point the binding's value is updated with the modified text.
+
+The component listens to single click events only when the item is selected and, when these clicks occur, the value of the `isFocused` property is toggled. This property is a `@FocusState` `boolean` property that shows the texfield and sets it as the current focused item when the property is true and hides the `TextField` and shows the text view otherwise.
+
+The `EditableListItem` component also adds a context menu to the `ZStack` which allows the user to rename the item by clicking on the "Rename" menu item to make the feature more discoverable.
+
 ```swift:EditableListItem.swift
 struct EditableListItem: View {
     @Binding var text: String
