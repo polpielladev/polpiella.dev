@@ -68,6 +68,8 @@ struct EditableListItem: View {
 }
 ```
 
+> The `TextField` view seems to have 8 pixels of leading padding by default. To make the `Text` and `TextField` views line up, I had to add 8 pixels of leading padding to the `Text` view.
+
 You can now replace the `Text` view in the list with the new `EditableListItem` view:
 
 ```swift:ContentView.swift
