@@ -8,6 +8,8 @@ Lists with editable text inputs are a common UI pattern in macOS apps. Apple use
 
 The app persists all QR codes in a list and the user can rename them by clicking on their title. This article shows how to build editable text items in a macOS SwiftUI list.
 
+> Full credit to [this Stack Overflow answer](https://stackoverflow.com/a/67864507/17421764) for giving me the idea and inspiration for making my own version of an editable text view which works well with SwiftUI lists.
+
 ## Creating a selectable list
 
 To create the component you first need to create a list with a set of text items on it. You can also make the list selectable by adding a `selection` binding which holds and update the value of the selected item's id.
@@ -26,10 +28,10 @@ struct ContentView: View {
 
 ## Making an editable text component
 
-You can now make the list items editable by creating a custom `EditableText` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
+You can now make the list items editable by creating a custom `EditableListItem` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
 
-```swift:EditableText.swift
-struct EditableText: View {
+```swift:EditableListItem.swift
+struct EditableListItem: View {
     @Binding var text: String
     let isSelected: Bool
 
@@ -66,7 +68,7 @@ struct EditableText: View {
 }
 ```
 
-You can now replace the `Text` view in the list with the new `EditableText` view:
+You can now replace the `Text` view in the list with the new `EditableListItem` view:
 
 ```swift:ContentView.swift
 struct ContentView: View {
@@ -74,7 +76,7 @@ struct ContentView: View {
 
     var body: some View {
         List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
-            EditableText(
+            EditableListItem(
                 text: .init(get: { item.name }, set: { viewModel.renamed(id: item.id, name: $0) }), isSelected: item.id == viewModel.selectedId
             )
         }
