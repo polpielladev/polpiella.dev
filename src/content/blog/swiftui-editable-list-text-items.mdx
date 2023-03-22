@@ -4,37 +4,23 @@ excerpt: 'How to build a macOS SwiftUI list with editable text items.'
 pubDate: 2023-03-22
 ---
 
-Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this pattern in apps such as the macOS finder or SF Symbols. I used this pattern in an app I have been working on. The user can create QR codes which are stored in a Core Data layer, customise them, and save them with a custom name.
+import Video from '@components/Video.svelte'
 
-The app persists all QR codes in a list and the user can rename them by clicking on their title. This article shows how to build editable text items in a macOS SwiftUI list.
+Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this UI pattern in apps such as the macOS finder or SF Symbols and it is used so widely across the ecosystem that it has become a standard known by macOS users.
 
-> Full credit to [this Stack Overflow answer](https://stackoverflow.com/a/67864507/17421764) for giving me the idea and inspiration for making my own version of an editable text view which works well with SwiftUI lists.
+Despite it being so common, there is no out-of-the-box solution in the standard SwiftUI library to create components like this. I have recently built a macOS app which allows users to create and save QR codes and implements this pattern to allow users to rename their saved items.
 
-## Creating a selectable list
+<Video />
 
-To create the component you first need to create a list with a set of text items on it. You can also make the list selectable by adding a `selection` binding which holds and update the value of the selected item's id.
+> I want to credit to [this Stack Overflow answer](https://stackoverflow.com/a/67864507/17421764) for giving me the idea and inspiration for making my own version of a macOS editable text view.
 
-```swift:ContentView.swift
-struct ContentView: View {
-    @ObservedObject var viewModel = ViewModel()
+## The editable text component
 
-    var body: some View {
-        List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
-            Text(item)
-        }
-    }
-}
-```
+The `EditableText` components is a built on top the native `TextField` component and, to prevent layout shifts and frame changes, does not show and hide any extra views.
 
-## Making an editable text component
+### TL;DR
 
-You can now make the list items editable by creating a custom `EditableText` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
-
-The `EditableText` component takes in a text binding and a boolean value to indicate whether the item is selected or not. The view then creates a `temporaryText` internal state variable which is initialised with the binding's current value and is used to store the user's edits to the initial text until the user commits the changes by pressing the return key, at which point the binding's value is updated with the modified text.
-
-The component listens to single click events only when the item is selected and, when these clicks occur, the value of the `isFocused` property is toggled. This property is a `@FocusState` `boolean` property that shows the texfield and sets it as the current focused item when the property is true and hides the `TextField` and shows the text view otherwise.
-
-The `EditableText` component also adds a context menu to the `ZStack` which allows the user to rename the item by clicking on the "Rename" menu item to make the feature more discoverable.
+If you want to skip the explanation and just see the code, you can find the full source code for the `EditableText` view here:
 
 ```swift:EditableText.swift
 struct EditableText: View {
@@ -43,7 +29,7 @@ struct EditableText: View {
     @State private var temporaryText: String
     @FocusState private var isFocused: Bool
 
-    init(text: Binding<String>, isSelected: Bool) {
+    init(text: Binding<String>) {
         self._text = text
         self.temporaryText = text.wrappedValue
     }
@@ -60,20 +46,109 @@ struct EditableText: View {
 }
 ```
 
-> The `TextField` view seems to have 8 pixels of leading padding by default. To make the `Text` and `TextField` views line up, I had to add 8 pixels of leading padding to the `Text` view.
+### Keeping an internal state
 
-You can now replace the `Text` view in the list with the new `EditableText` view:
+The component takes in a text binding and immediately creates a `temporaryText` internal state variable initialisewd with the binding's current value. This internal state is necessary to keep hold of the user's edits to the initial text and not update the binding's value until the text's `onCommit` closure is fired.
 
-```swift:ContentView.swift
-struct ContentView: View {
-    @ObservedObject var viewModel = ViewModel()
+The `temporaryText` property also allows the component to revert the text to its initial value if the user cancels the edit by pressing the escape key.
+
+```swift:EditableText.swift
+struct EditableText: View {
+    @Binding var text: String
+
+    @State private var temporaryText: String
+
+    init(text: Binding<String>) {
+        self._text = text
+        self.temporaryText = text.wrappedValue
+    }
 
     var body: some View {
-        List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
-            EditableText(
-                text: .init(get: { item.name }, set: { viewModel.renamed(id: item.id, name: $0) }), isSelected: item.id == viewModel.selectedId
-            )
-        }
+        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+            .onExitCommand { temporaryText = text }
+    }
+}
+```
+
+With this set up, the call site for the `EditableText` looks very similar to a standard `TextField`.
+
+### Making the text editable
+
+At the moment, the `EditableText` from the previous section is always editable and focused. You want to change this to only happen whenever the user taps on the text field and, by default the component should be in a non-editable state.
+
+You can achieve this by creating a `@FocusState` property that defaults to `false` and then using passing it as a binding to the `TextField`'s `focused` view modifier. Then, you can use the `onTapGesture` view modifier to set `isFocused` property to true.
+
+```swift:EditableText.swift
+struct EditableText: View {
+    @Binding var text: String
+
+    @State private var temporaryText: String
+    @FocusState private var isFocused: Bool = false
+
+    init(text: Binding<String>) {
+        self._text = text
+        self.temporaryText = text.wrappedValue
+    }
+
+    var body: some View {
+        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+            .focused($isFocused, equals: true)
+            .onTapGesture { isFocused = true }
+    }
+}
+```
+
+## Roll back changes when user presses the escape key
+
+The great thing about keeping an internal state and not automatically updating the text binding on every change is that you can easily roll back the changes when the user presses the escape key and cancels the editing action.
+
+To achieve this, add an `onExitCommand` view modifier to the `TextField`, change the `temporaryText` to the text binding's current value to update the internal state and remove the focus from the `TextField`.
+
+```swift:EditableText.swift
+struct EditableText: View {
+    @Binding var text: String
+
+    @State private var temporaryText: String
+    @FocusState private var isFocused: Bool = false
+
+    init(text: Binding<String>) {
+        self._text = text
+        self.temporaryText = text.wrappedValue
+    }
+
+    var body: some View {
+        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+            .focused($isFocused, equals: true)
+            .onTapGesture { isFocused = true }
+            .onExitCommand { temporaryText = text; isFocused = false }
+    }
+}
+```
+
+## Improving the editable functionality's discoverability
+
+If you rely on this UI pattern as the sole meaning of editing a text item, you can improve this feature's discoverability by adding a context menu action to the view. This menu has a single action called 'Rename' which, when tapped, focuses the `TextField` and makes it editable.
+
+```swift:EditableText.swift
+struct EditableText: View {
+    @Binding var text: String
+
+    @State private var temporaryText: String
+    @FocusState private var isFocused: Bool
+
+    init(text: Binding<String>) {
+        self._text = text
+        self.temporaryText = text.wrappedValue
+    }
+
+    var body: some View {
+        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+            .focused($isFocused, equals: true)
+            .onTapGesture { isFocused = true }
+            .onExitCommand { temporaryText = text; isFocused = false }
+            .contextMenu {
+                Button(action: { isFocused = true }, label: { Text("Rename") })
+            }
     }
 }
 ```
