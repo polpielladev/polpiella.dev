@@ -6,6 +6,7 @@ import Subscribe from '@components/Subscribe.svelte'
 import InfoPane from '@components/InfoPane.svelte'
 import { getCollection } from 'astro:content'
 import type { GetStaticPathsOptions } from 'astro'
+import Media from '@components/Media.svelte'
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const posts = await getCollection('blog')
@@ -15,7 +16,7 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   )
 
   return paginate(sortedPosts, {
-    pageSize: 5,
+    pageSize: 10,
   })
 }
 
@@ -38,33 +39,62 @@ const { page } = Astro.props
   description="Blog posts about iOS mobile app development and Swift by Pol Piella."
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
-  <div class="my-0 flex flex-col gap-8">
-    <InfoPane
-      title="Pol Piella Abadia"
-      subtitle="Senior software engineer at the BBC"
-      description="Hi, welcome to my blog! I am Pol, a senior iOS developer working in the iPlayer app by the BBC. I love sharing content and writing about all things mobile development and Swift."
-      alt="/assets/profile.jpg"
-      image="/assets/profile.jpg"
-      circleImage
-    />
+  <div class="my-0 flex gap-12">
+    <div class="flex-col flex flex-grow flex-shrink basis-[0%] gap-8">
+      <InfoPane
+        title="Pol Piella Abadia"
+        subtitle="Senior software engineer at the BBC"
+        description="Hi, welcome to my blog! I am Pol, a senior iOS developer working in the iPlayer app by the BBC. I love sharing content and writing about all things mobile development and Swift."
+        alt="/assets/profile.jpg"
+        image="/assets/profile.jpg"
+        circleImage
+      />
 
-    <section>
-      <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+      <section>
+        <div class="mb-4 flex flex-col gap-8">
+          {
+            page.data.map((post: PageItem) => (
+              <BlogPreview
+                title={post.data.title}
+                slug={post.slug}
+                excerpt={post.data.excerpt}
+                pubDate={post.data.pubDate}
+              />
+            ))
+          }
+        </div>
 
-      <div class="mt-4 flex flex-col gap-8">
-        {
-          page.data.map((post: PageItem) => (
-            <BlogPreview
-              title={post.data.title}
-              slug={post.slug}
-              excerpt={post.data.excerpt}
-              pubDate={post.data.pubDate}
-            />
-          ))
-        }
-      </div>
-    </section>
+        <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+      </section>
+    </div>
 
-    <Subscribe client:load />
+    <aside
+      class="flex-grow-0 flex-shrink-0 basis-[320px] hidden md:flex flex-col prose dark:prose-invert gap-8">
+      <section class="flex flex-col gap-2">
+        <p class="text-lg font-semibold m-0 pl-2">🎥 Videos</p>
+        <Media
+          href="https://www.youtube.com/watch?v=yyOXynCoagE"
+          thumbnail="/assets/thumbnails/do-ios.webp"
+          title="Fantastic Swift tools and where to find them - Pol Piella Abadia - Do iOS 2022 (English)"
+        />
+
+        <Media
+          href="https://www.youtube.com/watch?v=l7nN7QdiGyY"
+          thumbnail="/assets/thumbnails/live-coding.webp"
+          title="Building a CLI app in Swift with Pol Piella"
+        />
+      </section>
+
+      <section class="flex flex-col gap-2">
+        <p class="text-lg font-semibold m-0 pl-2">🎙️ Podcasts</p>
+        <Media
+          href="https://www.buzzsprout.com/1414396/11876905-pol-piella-abadia-senior-software-engineer-at-the-bbc"
+          thumbnail="/assets/thumbnails/app-force-1.webp"
+          title="AppForce1 Podcast Interview"
+        />
+      </section>
+
+      <Subscribe client:load />
+    </aside>
   </div>
 </BaseLayout>

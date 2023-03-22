@@ -3,7 +3,6 @@
 </script>
 
 <footer class="mt-16 mb-8 flex flex-col align-middle">
-  <hr class="w-full" />
   <div class="flex w-full justify-center p-5 align-middle">
     <Social />
   </div>

@@ -51,7 +51,9 @@ const searchables = posts.map(({ data, slug }) => {
         Speaking
       </a>
     </nav>
-    <Social />
+    <div class="lg:block hidden">
+      <Social />
+    </div>
     <SearchBar client:idle searchables={searchables} />
   </div>
 </header>

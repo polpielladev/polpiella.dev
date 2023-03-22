@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Social from './Social.svelte'
+
   export let title: string
   export let subtitle: string | null = null
   export let image: string
@@ -7,7 +9,7 @@
   export let circleImage = false
 </script>
 
-<div class="flex w-full flex-col text-left md:flex-row md:gap-8">
+<div class="flex w-full flex-col text-left md:gap-8 lg:flex-row">
   <img
     class={`m-0 h-28 w-28 ${
       circleImage ? 'rounded-full' : ''
@@ -28,6 +30,9 @@
           {title}
         </span>
       </h1>
+      <div class="block lg:hidden">
+        <Social />
+      </div>
       {#if subtitle}
         <h2
           class="m-0 mb-2 text-lg font-normal text-gray-600 dark:text-gray-200">

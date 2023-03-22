@@ -27,7 +27,7 @@
   action="https://sendy.polpiella.dev/subscribe"
   method="POST"
   acceptCharset="utf-8">
-  <div class="mb-4 flex flex-col gap-3 sm:flex-row">
+  <div class="mb-4 flex flex-col gap-3">
     <input
       type="email"
       name="email"
