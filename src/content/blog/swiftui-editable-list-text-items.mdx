@@ -6,13 +6,15 @@ pubDate: 2023-03-22
 
 import Video from '@components/Video.svelte'
 
-Apple uses texts with editable text items in a number of apps such as the macOS finder or SF Symbols. These views are so widely used across the ecosystem that being able to edit text items on a list has become somewhat of an expected behaviour for most apps.
+Apple uses lists with editable text items in a number of apps such as the macOS finder or SF Symbols. These views are so widely used across the ecosystem that being able to edit text items on a list has become somewhat of an expected behaviour for most apps.
 
-Despite this pattern being so widely used, there is no out-of-the-box solution in the standard SwiftUI library to create views like this. This article goes through how you can create a custom view built on top of the standard `TextField` component to unlock this behaviour:
+Despite this pattern being so widely used, there is **no out-of-the-box solution** in the standard SwiftUI library to create views like this.
+
+This article goes through how you can create a custom view like the one shown in the video below built on top of the standard `TextField` component to unlock this behaviour:
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swiftui-macos-editable-text-views/demo.mp4" />
 
-As shown in the preceding video, the component behaves in the following way:
+The view in the preceding video behaves in the following way:
 
 1. The view is **not editable by default**.
 2. When the user **clicks on the view**, it becomes editable and focused.
@@ -23,7 +25,7 @@ As shown in the preceding video, the component behaves in the following way:
 
 ## The editable text component
 
-The `EditableText` view wraps a standard SwiftUI `TextField` to provide extra capabilities while keeping the call site as close as possible.
+The `EditableText` view wraps a standard SwiftUI `TextField` to provide extra capabilities while keeping the call site as similar as possible.
 
 ### TL;DR
 
@@ -137,9 +139,9 @@ struct EditableText: View {
 
 ## Improving the editable capability's discoverability
 
-If you rely on this UI pattern as the sole means of editing a text item in your app, you can **make it easier for users to find out about this feature** by adding a **context menu** action to the view which provides an alternative way of making the view editable.
+If you rely on this UI pattern as the sole means of editing a text item in your app (for example renaming items in a list), you can **make it easier for users to discover this feature** by adding a **context menu** action to the view.
 
-The menu has a single action called 'Rename' which, when clicked on, focuses the `TextField` and makes it editable.
+The menu, which can become visible by right-clicking on the view, has a single button called 'Rename' which, when clicked on, focuses the `TextField` and makes it editable.
 
 ```swift:EditableText.swift
 struct EditableText: View {
