@@ -28,55 +28,41 @@ struct ContentView: View {
 
 ## Making an editable text component
 
-You can now make the list items editable by creating a custom `EditableListItem` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
+You can now make the list items editable by creating a custom `EditableText` which renders both a `Text` and a `TextField` views and hides and shows them based on user interaction.
 
-The `EditableListItem` component takes in a text binding and a boolean value to indicate whether the item is selected or not. The view then creates a `temporaryText` internal state variable which is initialised with the binding's current value and is used to store the user's edits to the initial text until the user commits the changes by pressing the return key, at which point the binding's value is updated with the modified text.
+The `EditableText` component takes in a text binding and a boolean value to indicate whether the item is selected or not. The view then creates a `temporaryText` internal state variable which is initialised with the binding's current value and is used to store the user's edits to the initial text until the user commits the changes by pressing the return key, at which point the binding's value is updated with the modified text.
 
 The component listens to single click events only when the item is selected and, when these clicks occur, the value of the `isFocused` property is toggled. This property is a `@FocusState` `boolean` property that shows the texfield and sets it as the current focused item when the property is true and hides the `TextField` and shows the text view otherwise.
 
-The `EditableListItem` component also adds a context menu to the `ZStack` which allows the user to rename the item by clicking on the "Rename" menu item to make the feature more discoverable.
+The `EditableText` component also adds a context menu to the `ZStack` which allows the user to rename the item by clicking on the "Rename" menu item to make the feature more discoverable.
 
-```swift:EditableListItem.swift
-struct EditableListItem: View {
+```swift:EditableText.swift
+struct EditableText: View {
     @Binding var text: String
-    let isSelected: Bool
 
     @State private var temporaryText: String
     @FocusState private var isFocused: Bool
 
     init(text: Binding<String>, isSelected: Bool) {
-        self.isSelected = isSelected
         self._text = text
         self.temporaryText = text.wrappedValue
     }
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            if isSelected {
-                Text(temporaryText)
-                    .padding(.leading, 8)
-                    .onTapGesture { isFocused = true }
-                    .opacity(isFocused ? 0 : 1)
-            } else {
-                Text(temporaryText)
-                    .padding(.leading, 8)
-                    .opacity(isFocused ? 0 : 1)
+        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
+            .focused($isFocused, equals: true)
+            .onTapGesture { isFocused = true }
+            .onExitCommand { temporaryText = text; isFocused = false }
+            .contextMenu {
+                Button(action: { isFocused = true }, label: { Text("Rename") })
             }
-
-            TextField("", text: $temporaryText, onCommit: { text = temporaryText })
-                .focused($isFocused, equals: true)
-                .opacity(isFocused ? 1 : 0)
-        }
-        .contextMenu {
-            Button(action: { isFocused = true }, label: { Text("Rename") })
-        }
     }
 }
 ```
 
 > The `TextField` view seems to have 8 pixels of leading padding by default. To make the `Text` and `TextField` views line up, I had to add 8 pixels of leading padding to the `Text` view.
 
-You can now replace the `Text` view in the list with the new `EditableListItem` view:
+You can now replace the `Text` view in the list with the new `EditableText` view:
 
 ```swift:ContentView.swift
 struct ContentView: View {
@@ -84,7 +70,7 @@ struct ContentView: View {
 
     var body: some View {
         List(viewModel.items, id: \.id, selection: $viewModel.selectedId) { item in
-            EditableListItem(
+            EditableText(
                 text: .init(get: { item.name }, set: { viewModel.renamed(id: item.id, name: $0) }), isSelected: item.id == viewModel.selectedId
             )
         }
