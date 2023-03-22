@@ -6,17 +6,17 @@ pubDate: 2023-03-22
 
 import Video from '@components/Video.svelte'
 
-Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this UI pattern in apps such as the macOS finder or SF Symbols and it is used so widely across the ecosystem that it has become a standard known by macOS users.
+Lists with editable text inputs are a common UI pattern in macOS apps. Apple uses this UI pattern in apps such as the macOS finder or SF Symbols and is so widely used across the ecosystem that it has become a standard known by macOS users.
 
-Despite it being so common, there is no out-of-the-box solution in the standard SwiftUI library to create components like this. I have recently built a macOS app which allows users to create and save QR codes and implements this pattern to allow users to rename their saved items.
+Despite it being so common, there is no out-of-the-box solution in the standard SwiftUI library to create components like this. I have been building a macOS app which allows users to create and save QR codes and implements this pattern to allow users to rename their saved items.
 
 <Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swiftui-macos-editable-text-views/demo.mp4" />
 
-> I want to credit to [this Stack Overflow answer](https://stackoverflow.com/a/67864507/17421764) for giving me the idea and inspiration for making my own version of a macOS editable text view.
+> I want to give credit to [this Stack Overflow answer](https://stackoverflow.com/a/67864507/17421764) for giving me the idea and inspiration for making my version of a macOS editable text view.
 
 ## The editable text component
 
-The `EditableText` components is a built on top the native `TextField` component and, to prevent layout shifts and frame changes, does not show and hide any extra views.
+The `EditableText` component wraps the native `TextField` component to provide extra capabilities while keeping the call site as similar as possible to the standard `TextField`.
 
 ### TL;DR
 
@@ -48,7 +48,7 @@ struct EditableText: View {
 
 ### Keeping an internal state
 
-The component takes in a text binding and immediately creates a `temporaryText` internal state variable initialisewd with the binding's current value. This internal state is necessary to keep hold of the user's edits to the initial text and not update the binding's value until the text's `onCommit` closure is fired.
+The component takes in a text binding and creates a `temporaryText` internal state variable initialised with the binding's current value. This internal state is necessary to keep hold of the user's edits to the initial text and not update the binding's value until the text's `onCommit` closure gets called.
 
 The `temporaryText` property also allows the component to revert the text to its initial value if the user cancels the edit by pressing the escape key.
 
@@ -70,11 +70,9 @@ struct EditableText: View {
 }
 ```
 
-With this set up, the call site for the `EditableText` looks very similar to a standard `TextField`.
-
 ### Making the text editable
 
-At the moment, the `EditableText` from the previous section is always editable and focused. You want to change this to only happen whenever the user taps on the text field and, by default the component should be in a non-editable state.
+At the moment, the `EditableText` from the previous section is always editable and focused. You want to change this to just happen whenever the user taps on the text field and, by default the component should be in a non-editable state.
 
 You can achieve this by creating a `@FocusState` property that defaults to `false` and then using passing it as a binding to the `TextField`'s `focused` view modifier. Then, you can use the `onTapGesture` view modifier to set `isFocused` property to true.
 
@@ -98,9 +96,9 @@ struct EditableText: View {
 }
 ```
 
-## Roll back changes when user presses the escape key
+## Roll changes back when the user presses the escape key
 
-The great thing about keeping an internal state and not automatically updating the text binding on every change is that you can easily roll back the changes when the user presses the escape key and cancels the editing action.
+The great thing about keeping an internal state and not automatically updating the text binding on every change is that you can roll back the changes when the user presses the escape key and cancels the editing action.
 
 To achieve this, add an `onExitCommand` view modifier to the `TextField`, change the `temporaryText` to the text binding's current value to update the internal state and remove the focus from the `TextField`.
 
@@ -125,7 +123,7 @@ struct EditableText: View {
 }
 ```
 
-## Improving the editable functionality's discoverability
+## Improving the editable capability's discoverability
 
 If you rely on this UI pattern as the sole meaning of editing a text item, you can improve this feature's discoverability by adding a context menu action to the view. This menu has a single action called 'Rename' which, when tapped, focuses the `TextField` and makes it editable.
 
