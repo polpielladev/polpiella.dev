@@ -17,21 +17,28 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
 ---
 
 <BaseLayout {title} description={excerpt} image={fullImageURL}>
-  <article
-    class="prose prose-pre:bg-slate-700 hover:prose-a:underline focus:prose-a:underline prose-a:no-underline lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none mx-auto my-0">
-    <header class="flex flex-col gap-2 mb-8">
-      <h1
-        class="m-0 mb-[0.25em] font-medium"
-        style="margin: 0 0 !important; line-height: 1.1;">
-        {title}
-      </h1>
-      <time datetime={pubDate} class="block text-zinc-400 text-sm sm:text-base">
-        {formattedDate}
-      </time>
-    </header>
-    <slot />
-    <div class="mt-14">
-      <Subscribe client:visible />
-    </div>
-  </article>
+  <div class="flex gap-12 flex-grow-0 flex-shrink-0 basis-80">
+    <article
+      class="prose max-w-[800px] prose-pre:bg-slate-700 hover:prose-a:underline focus:prose-a:underline prose-a:no-underline lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0">
+      <header class="flex flex-col gap-2 mb-8">
+        <h1
+          class="m-0 mb-[0.25em] font-medium"
+          style="margin: 0 0 !important; line-height: 1.1;">
+          {title}
+        </h1>
+        <time
+          datetime={pubDate}
+          class="block text-zinc-400 text-sm sm:text-base">
+          {formattedDate}
+        </time>
+      </header>
+      <slot />
+      <div class="mt-14">
+        <Subscribe client:visible />
+      </div>
+    </article>
+    <aside>
+      <p>Pol Piella Abadia</p>
+    </aside>
+  </div>
 </BaseLayout>

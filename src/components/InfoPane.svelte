@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Social from '@components/Social.svelte'
-
   export let title: string
   export let subtitle: string | null = null
   export let image: string
@@ -13,7 +11,7 @@
   <img
     class={`m-0 h-28 w-28 ${
       circleImage ? 'rounded-full' : ''
-    } block justify-start object-cover md:hidden`}
+    } block justify-start object-cover`}
     src={image}
     {alt} />
   <div class="prose grid content-center dark:prose-invert">
@@ -36,14 +34,7 @@
           {subtitle}
         </h2>
       {/if}
-      <Social size={24} />
     </div>
     <p class="m-0 text-gray-500 dark:text-gray-400">{description}</p>
   </div>
-  <img
-    class={`m-0 aspect-square h-40 w-40 ${
-      circleImage ? 'rounded-full' : ''
-    } hidden object-cover md:block`}
-    src={image}
-    {alt} />
 </div>

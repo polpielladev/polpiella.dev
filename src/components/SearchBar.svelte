@@ -30,7 +30,7 @@
   }
 </script>
 
-<div class="relative ml-4 hidden flex-grow sm:block">
+<div class="relative ml-4 hidden w-96 sm:block">
   <div class="relative">
     <input
       aria-label="Search articles"
