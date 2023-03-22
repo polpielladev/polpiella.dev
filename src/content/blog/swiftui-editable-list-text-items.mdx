@@ -48,9 +48,6 @@ struct EditableText: View {
             .focused($isFocused, equals: true)
             .onTapGesture { isFocused = true }
             .onExitCommand { temporaryText = text; isFocused = false }
-            .contextMenu {
-                Button(action: { isFocused = true }, label: { Text("Rename") })
-            }
     }
 }
 ```
@@ -133,36 +130,6 @@ struct EditableText: View {
             .focused($isFocused, equals: true)
             .onTapGesture { isFocused = true }
             .onExitCommand { temporaryText = text; isFocused = false }
-    }
-}
-```
-
-## Improving the editable capability's discoverability
-
-If you rely on this UI pattern as the sole means of editing a text item in your app (for example renaming items in a list), you can **make it easier for users to discover this feature** by adding a **context menu** action to the view.
-
-The menu, which can become visible by right-clicking on the view, has a single button called 'Rename' which, when clicked on, focuses the `TextField` and makes it editable.
-
-```swift:EditableText.swift
-struct EditableText: View {
-    @Binding var text: String
-
-    @State private var temporaryText: String
-    @FocusState private var isFocused: Bool
-
-    init(text: Binding<String>) {
-        self._text = text
-        self.temporaryText = text.wrappedValue
-    }
-
-    var body: some View {
-        TextField("", text: $temporaryText, onCommit: { text = temporaryText })
-            .focused($isFocused, equals: true)
-            .onTapGesture { isFocused = true }
-            .onExitCommand { temporaryText = text; isFocused = false }
-            .contextMenu {
-                Button(action: { isFocused = true }, label: { Text("Rename") })
-            }
     }
 }
 ```
