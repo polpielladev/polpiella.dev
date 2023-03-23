@@ -2,6 +2,9 @@
 import BaseLayout from '@layouts/BaseLayout.astro'
 import Talk from '@components/Talk.svelte'
 import InfoPane from '@components/InfoPane.svelte'
+import TwoColumns from '@components/TwoColumns.svelte'
+import Media from '@components/Media.svelte'
+import Subscribe from '@components/Subscribe.svelte'
 
 interface Year {
   value: number
@@ -89,35 +92,71 @@ const events: Year[] = [
   description="Find out a bit more about me and what I do!"
   activeNav="speaking"
   image="">
-  <div class="my-0 mx-auto flex flex-col w-full prose dark:prose-invert">
-    <InfoPane
-      description="Aside from blogging and writing content online, I also enjoy speaking about mobile development at conferences and events. Here are some of the past talks I have delivered and some upcoming ones too!"
-      title="Speaking"
-      image="/assets/speaking.jpeg"
-      alt="A photo of me speaking at a conference"
-      circleImage
-    />
-    <section class="flex flex-col">
-      {
-        events.map((year) => (
-          <>
-            <h2 class="mt-12 text-3xl font-black">{year.value}</h2>
-            <div class="flex flex-col gap-6">
-              {year.talks.map((talk) => (
-                <Talk {...talk} />
-              ))}
-            </div>
-          </>
-        ))
-      }
-    </section>
-    <section class="flex flex-col">
-      <h2>👋 Say hi</h2>
-      <p>
-        I am always looking for opportunities to do some public speaking or even
-        run a workshop! If you have an opportunity you think might suit me,
-        don't hesitate to contact me.
-      </p>
-    </section>
-  </div>
+  <TwoColumns>
+    <div class="my-0 flex flex-col w-full prose dark:prose-invert" slot="main">
+      <InfoPane
+        description="Aside from blogging and writing content online, I also enjoy speaking about mobile development at conferences and events. Here are some of the past talks I have delivered and some upcoming ones too!"
+        title="Speaking"
+        image="/assets/speaking.jpeg"
+        alt="A photo of me speaking at a conference"
+        circleImage
+      />
+      <section class="flex flex-col">
+        {
+          events.map((year) => (
+            <>
+              <h2 class="mt-12 text-3xl font-black">{year.value}</h2>
+              <div class="flex flex-col gap-6">
+                {year.talks.map((talk) => (
+                  <Talk {...talk} />
+                ))}
+              </div>
+            </>
+          ))
+        }
+      </section>
+      <section class="flex flex-col">
+        <h2>👋 Say hi</h2>
+        <p>
+          I am always looking for opportunities to do some public speaking or
+          even run a workshop! If you have an opportunity you think might suit
+          me, don't hesitate to contact me.
+        </p>
+      </section>
+    </div>
+
+    <div slot="aside" class="flex flex-col gap-8">
+      <section class="flex flex-col gap-2">
+        <p class="text-lg font-semibold m-0 pl-2">🗣️ Here's me speaking!</p>
+        <Media
+          href="https://www.youtube.com/watch?v=yyOXynCoagE"
+          thumbnail="/assets/thumbnails/do-ios.webp"
+          title="Fantastic Swift tools and where to find them - Pol Piella Abadia - Do iOS 2022 (English)"
+        />
+
+        <Media
+          href="https://www.youtube.com/watch?v=l7nN7QdiGyY"
+          thumbnail="/assets/thumbnails/live-coding.webp"
+          title="Building a CLI app in Swift with Pol Piella"
+        />
+
+        <Media
+          href="https://www.youtube.com/watch?v=sZj-8sDUYAs"
+          thumbnail="/assets/thumbnails/bitrise.webp"
+          title="Bitrise Mobile Devops Summit 2022 - Getting ahead of the game: Avoid release day drama!"
+        />
+      </section>
+
+      <section class="flex flex-col gap-2">
+        <p class="text-lg font-semibold m-0 pl-2">🎙️ Podcasts</p>
+        <Media
+          href="https://www.buzzsprout.com/1414396/11876905-pol-piella-abadia-senior-software-engineer-at-the-bbc"
+          thumbnail="/assets/thumbnails/app-force-1.webp"
+          title="AppForce1 Podcast Interview"
+        />
+      </section>
+
+      <Subscribe client:load />
+    </div>
+  </TwoColumns>
 </BaseLayout>
