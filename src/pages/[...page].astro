@@ -7,6 +7,7 @@ import InfoPane from '@components/InfoPane.svelte'
 import { getCollection } from 'astro:content'
 import type { GetStaticPathsOptions } from 'astro'
 import Media from '@components/Media.svelte'
+import TwoColumns from '@components/TwoColumns.svelte'
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const posts = await getCollection('blog')
@@ -39,8 +40,8 @@ const { page } = Astro.props
   description="Blog posts about iOS mobile app development and Swift by Pol Piella."
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
-  <div class="my-0 flex gap-12">
-    <div class="flex-col flex flex-grow flex-shrink basis-[0%] gap-8">
+  <TwoColumns>
+    <div slot="main">
       <InfoPane
         title="Pol Piella Abadia"
         subtitle="Senior software engineer at the BBC"
@@ -51,7 +52,7 @@ const { page } = Astro.props
       />
 
       <section>
-        <div class="mb-4 flex flex-col gap-8">
+        <div class="mb-4 mt-8 flex flex-col gap-8">
           {
             page.data.map((post: PageItem) => (
               <BlogPreview
@@ -68,8 +69,7 @@ const { page } = Astro.props
       </section>
     </div>
 
-    <aside
-      class="flex-grow-0 flex-shrink-0 basis-[320px] hidden md:flex flex-col prose dark:prose-invert gap-8">
+    <div slot="aside" class="flex flex-col gap-8">
       <section class="flex flex-col gap-2">
         <p class="text-lg font-semibold m-0 pl-2">🎥 Videos</p>
         <Media
@@ -95,6 +95,6 @@ const { page } = Astro.props
       </section>
 
       <Subscribe client:load />
-    </aside>
-  </div>
+    </div>
+  </TwoColumns>
 </BaseLayout>
