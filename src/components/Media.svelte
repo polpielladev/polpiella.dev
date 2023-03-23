@@ -6,7 +6,7 @@
 
 <a
   {href}
-  class="flex flex-col gap-4 rounded-lg p-2 no-underline hover:bg-gray-800">
+  class="flex flex-col gap-4 rounded-lg p-2 no-underline hover:bg-gray-200 dark:hover:bg-gray-800">
   <img
     width="304px"
     height="171px"

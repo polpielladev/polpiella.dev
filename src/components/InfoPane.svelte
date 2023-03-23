@@ -9,7 +9,7 @@
   export let circleImage = false
 </script>
 
-<div class="flex w-full flex-col text-left md:gap-8 lg:flex-row">
+<div class="flex w-full flex-col text-left md:gap-8 xl:flex-row">
   <img
     class={`m-0 h-28 w-28 ${
       circleImage ? 'rounded-full' : ''
