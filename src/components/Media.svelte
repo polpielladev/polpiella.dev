@@ -8,6 +8,7 @@
   {href}
   class="flex flex-col gap-4 rounded-lg p-2 no-underline hover:bg-gray-200 dark:hover:bg-gray-800">
   <img
+    alt={`Thumbnail for ${title} video`}
     width="304px"
     height="171px"
     class="m-0 aspect-video object-cover"
