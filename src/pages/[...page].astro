@@ -41,7 +41,7 @@ const { page } = Astro.props
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
   <TwoColumns>
-    <div slot="main">
+    <div class="flex flex-col gap-12" slot="main">
       <InfoPane
         title="Pol Piella Abadia"
         subtitle="Senior software engineer at the BBC"
@@ -51,19 +51,17 @@ const { page } = Astro.props
         circleImage
       />
 
-      <section>
-        <div class="mb-4 mt-8 flex flex-col gap-8">
-          {
-            page.data.map((post: PageItem) => (
-              <BlogPreview
-                title={post.data.title}
-                slug={post.slug}
-                excerpt={post.data.excerpt}
-                pubDate={post.data.pubDate}
-              />
-            ))
-          }
-        </div>
+      <section class="flex flex-col gap-8">
+        {
+          page.data.map((post: PageItem) => (
+            <BlogPreview
+              title={post.data.title}
+              slug={post.slug}
+              excerpt={post.data.excerpt}
+              pubDate={post.data.pubDate}
+            />
+          ))
+        }
 
         <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
       </section>

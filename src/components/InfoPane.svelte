@@ -17,11 +17,8 @@
     src={image}
     {alt} />
   <div class="prose grid content-center dark:prose-invert">
-    <div class="mb-4 flex flex-col gap-2">
-      <h1
-        class={`m-0 ${
-          !subtitle ? 'mb-2' : ''
-        } overflow-hidden text-4xl font-bold md:text-5xl`}>
+    <div class="flex flex-col gap-3">
+      <h1 class="m-0 overflow-hidden text-4xl font-bold md:text-5xl">
         <span
           class="
               bg-gradient-to-bl from-cyan-200 to-cyan-200 bg-[length:90%_40%]
@@ -34,12 +31,11 @@
         <Social />
       </div>
       {#if subtitle}
-        <h2
-          class="m-0 mb-2 text-lg font-normal text-gray-600 dark:text-gray-200">
+        <h2 class="m-0 text-lg font-normal text-gray-600 dark:text-gray-200">
           {subtitle}
         </h2>
       {/if}
+      <p class="m-0 text-gray-500 dark:text-gray-400">{description}</p>
     </div>
-    <p class="m-0 text-gray-500 dark:text-gray-400">{description}</p>
   </div>
 </div>
