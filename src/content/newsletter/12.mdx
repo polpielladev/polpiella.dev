@@ -1,0 +1,50 @@
+---
+number: 12
+date: 2023-03-26
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23"
+/>
+
+Hey everyone! 👋 Welcome to the **twelfth** issue of the iOS CI Newsletter. I hope you've all had a fantastic couple of weeks!
+
+I am very happy to announce that I will be speaking at [Swift Heroes](https://swiftheroes.com/2023?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) about making developer tooling with Swift. If you're in or around Turin on the 4th and 5th of May and want to learn about all things iOS and Swift from great speakers, [make sure you book your early bird tickets](https://swift-heroes.eventengage.app/register?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) while they're still available!
+
+## [🚨 New minimum Xcode version for App Store submissions](https://developer.apple.com/ios/submit?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23)
+
+Apple announced this week that, as of next month, all iOS and iPadOS apps submitted to the App Store **must be built with Xcode 14.1**.
+
+If you are still using a version of Xcode older than 14.1, make sure you upgrade it on your CI runners now to **avoid issues with your next release**.
+
+## [❗️ GitHub updated their RSA SSH host key](https://github.blog/2023-03-23-we-updated-our-rsa-ssh-host-key?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23)
+
+Earlier this week, [GitHub](https://twitter.com/github?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) had to update its RSA SSH host key due to a potential security threat.
+
+[Mike Hanley](https://twitter.com/_mph4?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23), their Chief Security Officer and SVP of Engineering, posted an in-depth update on GitHub's blog explaining why they needed to update this key and what the **implications for users would be**. I thoroughly recommend reading it if you're seeing any errors when communicating with GitHub through SSH.
+
+## [⬆️ Xcode 14.3 requires macOS Ventura](https://developer.apple.com/documentation/xcode-release-notes/xcode-14_3-release-notes?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23)
+
+The release candidate for Xcode 14.3 was released earlier this week and, as [Apple](https://twitter.com/Apple?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) stated in the release notes, **it will only run on macOS 13 (Ventura) or later**.
+
+This might be a good chance to upgrade your CI runners to macOS 13 if you haven't done so yet to ensure you are ready for new versions of Xcode going forward! 🎉
+
+## [⚡️ M1 macOS runners now available on CircleCI](https://circleci.com/blog/m1-mac-resource-class?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23)
+
+A couple of weeks ago I [tweeted about the public GitHub roadmap](https://twitter.com/polpielladev/status/1636004541870088193?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) and the fact that M1 GitHub-hosted macOS runners **will not be available until Q4 of 2023**.
+
+If you don't want to wait that long, [CircleCI](https://twitter.com/CircleCI?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) has announced that M1 runners are now available for their users! 🎉
+
+P.S. I would like to thank [Aisling Conroy](https://www.linkedin.com/in/aislingconroy?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) from [CircleCI](http://twitter.com/CircleCI?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) who shared the blog post with me. 🙏
+
+## [✨ Using GitHub Actions to create PRs automatically](https://github.com/SwiftPackageIndex/PackageList/blob/main/.github/workflows/issues.yml?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23)
+
+Last week I [had a conversation on Twitter](https://twitter.com/JamesSherlouk/status/1638481217942085635?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) with [James Sherlock](https://twitter.com/JamesSherlouk?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) about [GitHub webhooks](https://docs.github.com/en/webhooks-and-events/webhooks/about-webhooks?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) following my article where I used the [issue comment webhook to trigger an Xcode Cloud build](https://www.polpiella.dev/github-webhooks-and-xcode-cloud?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23).
+
+In that conversation with [James](https://twitter.com/JamesSherlouk?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23), he showed me that you could use pretty much any GitHub webhook as a workflow trigger. A good example of this is the workflow that [James](http://twitter.com/JamesSherlouk?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) made for the [Swift Package Index](https://twitter.com/SwiftPackages?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2012%26utm_content%3Dmar_26_23) project, which automatically creates pull requests from issues.
