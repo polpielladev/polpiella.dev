@@ -4,15 +4,13 @@ excerpt: 'Learn how to use webhooks to collect metrics from Xcode Cloud builds'
 pubDate: 2023-03-29
 ---
 
-## Xcode Cloud webhooks
-
-Xcode Cloud has three kinds of webhooks which allow its users perform custom actions at different stages of a workflow's lifecycle:
+Xcode Cloud has three kinds of webhooks which allow its users to perform custom actions at different stages of a workflow's lifecycle:
 
 - Whenever a workflow build is **created**.
 - Whenever a workflow build **starts**.
 - Whenever a workflow build **finishes**.
 
-In this article, I will go through how you can use Xcode Cloud webhooks to send workflow run metrics to a third-party service.
+These webhooks are great for building **custom integrations which extend Xcode Cloud's capabilities**. In this article, I will go through how you can use Xcode Cloud webhooks to send **workflow run metrics** to an external analytics service.
 
 ## The webhook's payload
 
@@ -20,7 +18,7 @@ The data for each webhook is similar and is always sent as the body of a POST re
 
 > You can find an example JSON with all the available data in [Xcode Cloud's documentation](https://developer.apple.com/documentation/xcode/configuring-webhooks-in-xcode-cloud).
 
-From the information above, we're only interested in a few fields, which can be condensed into the following `JSON` object:
+From all the information Xcode Cloud webhooks provide us with, we're only interested in a few fields, which can be condensed into the following `JSON` object:
 
 ```json:payload.json
 {
@@ -114,9 +112,9 @@ struct WebhookPayload: Decodable {
 }
 ```
 
-As there is no way to subscribe to specific events in webhooks, data might vary based on the event that triggered the webhook. For example, the `finishedDate` field in the `ciBuildRun` object is only present in the webhook triggered when a workflow run finishes.
+> As there is no way to subscribe to specific webhooks in Xcode Cloud, data might vary based on the event that triggered the webhook. For example, the `finishedDate` field in the `ciBuildRun` object is only present in the webhook triggered when a workflow run finishes.
 
-We can then use the `JSONDecoder` to turn the webhook's payload, which is in `Data` format, into the new `WebhookPayload` struct:
+We can now use a `JSONDecoder` with a custom `dateDecodingStrategy` to cope with Xcode Cloud's date formats to turn the request's body into a Swift struct:
 
 ```swift:Webhook.swift
 @main
@@ -142,13 +140,13 @@ struct XcodeCloudWebhookLambda: SimpleLambdaHandler {
 }
 ```
 
-> I have chosen to use an AWS lamdba for this example so that I could write my back-end service in Swift, but you can use any server that can receive POST requests. If you're interested in learning more about how to handle webhooks using Swift and AWS lambdas, please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud).
+> I have chosen to use an AWS lamdba for this example as it allowed me to write my back-end service in Swift, but you can use any technology or language you want. If you're interested in learning more about how to handle webhooks using Swift and AWS lambdas, please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud).
 
 ## Only listening to webhooks when the workflow finishes
 
-As we are only interested in logging workflow metrics when the finish, we can filter out the webhooks that are triggered when a workflow run is created or when it starts.
+As we are only interested in logging metrics for completed workflow runs, we need to make sure we filter out any other webhooks the server receives.
 
-While the optional `try` operator in the previous section's decoding code would have allowed us to ignore any payload missing fields we are interested in, it would also be good to have some extra validation in place and make the event filtering more explicit.
+While the optional `try` operator in the previous section's decoding code would have allowed us to ignore any payload missing any of the fields we are interested in (e.g. the run finished webhook is the only one that sends a `finishedDate` property in its body), it would also be good to have some extra validation in place and make the event filtering more explicit.
 
 We can do this by checking the `executionProgress` field in the `ciBuildRun` object. This field should be `COMPLETE` when the workflow run finishes:
 
@@ -174,9 +172,9 @@ struct XcodeCloudWebhookLambda: SimpleLambdaHandler {
 
 ## Sending the data to a third-party service
 
-Now that we have a server that can receive data from Xcode Cloud, we need to adapt it into a format that can be sent to a third-party service.
+Now that we have a server that can receive data from Xcode Cloud, we need to map this data into the format that our analytics service expects.
 
-I am not going to go into detail about this analytics system, but all you need to know is that it expects a POST request with the following payload and it aggregates data from multiple repositories and providers in a single database:
+I am not going to go into any detail about this analytics system, but all you need to know is that it expects a POST request with the following payload and it aggregates data from multiple repositories and providers in a single database to later display it on a dashboard:
 
 ```json:payload.json
 {
@@ -193,7 +191,11 @@ I am not going to go into detail about this analytics system, but all you need t
 
 ### Calculating the duration
 
-The first thing we need to do is calculate the duration. The hard work for this calculation is done by setting the `dateDecodingStrategy` to a custom format which matches the one used by Xcode Cloud in the `JSONDecoder`'s initializer. All that's left for us to do now is to get the time interval between the `startedDate` and `finishedDate` fields:
+The first thing we need to do is calculate the duration. The hard work for this calculation is done by setting the `dateDecodingStrategy` to a custom format which matches the one used by Xcode Cloud in the `JSONDecoder`.
+
+Doing this allows us to decode any date strings returned by Xcode Cloud into `Date` types automatically.
+
+All that's left for us to do now is to get the time interval between the `startedDate` and `finishedDate` fields:
 
 ```swift:Webhook.swift
 func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
@@ -207,15 +209,15 @@ func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws
 }
 ```
 
-The code above will return the duration in seconds, which is what we need to send to the analytics service.
+The code above will return the duration in seconds, which is what we need to send to the analytics service 🎉.
 
 ### Mapping the outcome
 
 The next thing we need to do is map Xcode Cloud's `completionStatus` field to what the analytics service expects. Our analytics service expects the outcome to be one of the following: `success`, `failure` or `cancelled`.
 
-On the other hand, [Xcode Cloud's CiCompletionStatus docs](https://developer.apple.com/documentation/appstoreconnectapi/cicompletionstatus?changes=latest_major&language=_5) state that the outcome of a workflow run can be: `SUCCEEDED`, `FAILED`, `ERRORED`, `CANCELED` and `SKIPPED`.
+On the other hand, [Xcode Cloud's CiCompletionStatus docs](https://developer.apple.com/documentation/appstoreconnectapi/cicompletionstatus?changes=latest_major&language=_5) state that the outcome of a workflow run can be: `SUCCEEDED`, `FAILED`, `ERRORED`, `CANCELED` or `SKIPPED`.
 
-We can start by modifying our `Decodable` model we defined earlier in the article to use an enum for the `completionStatus` field:
+We can start by modifying the `Decodable` model we defined earlier in the article to use an enum for the `completionStatus` field instead of a raw string:
 
 ```swift:Webhook.swift
 enum CompletionStatus: String, Decodable {
@@ -259,7 +261,9 @@ enum Outcome: String {
 
 func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
     // ...
-    let outcome = Self.adapt(xcodeCloudOutcome: payload.ciBuildRun.attributes.completionStatus)
+    guard let outcome = Self.adapt(xcodeCloudOutcome: payload.ciBuildRun.attributes.completionStatus) else {
+        return .init(statusCode: .ok, body: "Not handling skipped run")
+    }
 }
 
 private static func adapt(xcodeCloudOutcome: CompletionStatus) -> Outcome? {
@@ -297,9 +301,9 @@ func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws
 
 ## Registering the webhook
 
-Once we have our server ready to receive data from Xcode Cloud, we have to tell Xcode Cloud to send messages to the URL where we have deployed it.
+Once we have our server ready to receive data from Xcode Cloud and send it to our analytics service, we have to tell Xcode Cloud to send messages to the URL where we have deployed it.
 
-The only way to do this currently is by going to the app you want to add the webhook to in App Store Connect, navigating to the Xcode Cloud section and clicking on the 'Settings' button. In the 'Settings' page, select the 'Webhooks' tap and click on the '+' button to add a webhook:
+The only way to do this currently is by going to the app you want to add the webhook to in App Store Connect, navigating to the Xcode Cloud section and selecting the 'Settings' tab. In the 'Settings' page, select the 'Webhooks' tab and click on the '+' button to add a webhook:
 
 ![Xcode Cloud settings page](/assets/posts/xcode-cloud-webhooks/xcode-cloud-settings.webp)
 
@@ -309,6 +313,6 @@ Doing this will open a modal where you can give your webhook a name and provide 
 
 ## Want to learn more?
 
-The code I glance over in this article is part of a talk I am putting together for [Swift Heroes]() and [iOS Dev UK]() called 'Making developer tooling with Swift'.
+The code I have shared in this article is part of a talk I am putting together for [Swift Heroes](https://swiftheroes.com/2023/) and [iOS Dev UK](https://www.iosdevuk.com/) called 'Making developer tools with Swift'.
 
 I will be going into more detail about the code in these talks, so if you want to learn more about how to make complex developer tooling systems with Swift and are interested in attending one of the conferences, make sure to book a ticket and come along!
