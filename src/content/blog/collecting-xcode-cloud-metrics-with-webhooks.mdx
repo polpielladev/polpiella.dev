@@ -1,0 +1,143 @@
+---
+title: 'Collecting Xcode Cloud metrics with webhooks'
+excerpt: 'Learn how to use webhooks to collect metrics from Xcode Cloud builds'
+pubDate: 2023-03-29
+---
+
+## Xcode Cloud webhooks
+
+Xcode Cloud has three kinds of webhooks which allow its users perform custom actions at different stages of a workflow's lifecycle:
+
+-
+-
+-
+
+## The webhook's payload
+
+The data for each webhook is similar and is always sent as the body of a POST request in JSON format. The payload contains the following information:
+
+- app: Id and type of the app that triggered the workflow run. This field might vary based on the product type.
+- ciBuildActions: The actions that were performed during the workflow run.
+- ciBuildRun: Information about the specific workflow run including the completion status, date it was created at, execution progress, etc.
+- ciProduct: Information about the product that triggered the workflow run.
+- ciWorkflow: Information about the workflow.
+- scmGitReference: The kind of git reference that triggered the workflow run (e.g. a branch or a tag).
+- scmProvider: Information about the source control provider hosting the repository that triggered the workflow run (e.g. GitHub, Bitbucket, etc.).
+- scmRepository: Information about the git repository that triggered the workflow run. This includes the name of the repo and the name of the owner among other fields.
+
+From the information above, we're only interested in a few fields, which are condensed into the following `JSON` object:
+
+```json:payload.json
+{
+  "ciBuildRun": {
+    "attributes": {
+      "completionStatus": "SUCCEEDED",
+      "startedDate": 2023-03-27T18:07:37.233Z,
+      "executionProgress": "COMPLETE",
+      "finishedDate": "2023-03-27T18:14:10.194Z",
+      "sourceCommit": {
+        "author": {
+          "displayName": "Pol Piella Abadia"
+        }
+      }
+    }
+  },
+  "scmGitReference": {
+    "attributes": {
+      "name": "main",
+      "kind": "BRANCH"
+    }
+  },
+  "scmRepository": {
+    "attributes": {
+      "repositoryName": "QRBuddy"
+    }
+  }
+}
+```
+
+## Receiving data from Xcode Cloud
+
+In the server's code, the first thing we need to do is turn the payload above into a `Codable` struct:
+
+```swift:WebhookPayload.swift
+struct WebhookPayload: Decodable {
+  let ciBuildRun: CIBuildRun
+  let scmGitReference: SCMGitReference
+  let scmRepository: SCMRepository
+
+  struct CIBuildRun: Decodable {
+    let attributes: Attributes
+
+    struct Attributes: Decodable {
+      let completionStatus: String
+      let startedDate: Date
+      let executionProgress: String
+      let finishedDate: Date
+      let sourceCommit: SourceCommit
+
+      struct SourceCommit: Decodable {
+        let author: Author
+
+        struct Author: Decodable {
+          let displayName: String
+        }
+      }
+    }
+  }
+
+  struct SCMGitReference: Decodable {
+    let attributes: Attributes
+
+    struct Attributes: Decodable {
+      let name: String
+      let kind: String
+    }
+  }
+
+  struct SCMRepository: Decodable {
+    let attributes: Attributes
+
+    struct Attributes: Decodable {
+      let repositoryName: String
+    }
+  }
+}
+```
+
+We can then use the `JSONDecoder` to turn the webhook's payload, which is in `Data` format, into the new `WebhookPayload` struct:
+
+```swift:WebhookPayload.swift
+
+```
+
+> I have chosen to use an AWS lamdba for this example so that I could write my back-end service in Swift, but you can use any server that can receive POST requests. If you're interested in learning more about how to handle webhooks using Swift and AWS lambdas, please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud).
+
+## Listening to the build finished webhook only
+
+## Sending the data to a third-party service
+
+Now that we have a server that can receive data from Xcode Cloud, we need to adapt it into a format that can be sent to a third-party service. I am not going to go into detail about this analytics system, but all you need to know is that it expects a POST request with the following payload and it aggregates data from multiple repositories and providers in a single database:
+
+```json:payload.json
+{
+  "workflow": "unit-tests",
+  "duration": 10.5,
+  "date": "2023-03-20T21:03:15Z",
+  "provider": "Xcode Cloud"
+}
+```
+
+If you have paid close attention to the payload we received from Xcode Cloud, you will have noticed that we do not get the duration of the workflow or the start and end dates for its execution.
+
+Thankfully, we can query the specific Xcode Cloud in the blah blahalksdjlkas [App Store Connect API]() to get its duration.
+
+> Note that in the preceding code snippet, I am making use of the [appstoreconnect-swift-sdk]() to make the API call. This is a Swift wrapper around the [App Store Connect API]() by [Antoine van der Lee]() which provides type-safe endpoints, `async/await` networking code and easy authentication. If you want to learn more about how to use it please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud) where I made extensive use of it.
+
+## Registering the webhook
+
+## Want to learn more?
+
+The code I glance over in this article is part of a talk I am putting together for [Swift Heroes]() and [iOS Dev UK]() called 'Making developer tooling with Swift'.
+
+I will be going into more detail about the code in these talks, so if you want to learn more about how to make complex developer tooling systems with Swift and are interested in attending one of the conferences, make sure to book a ticket and come along!
