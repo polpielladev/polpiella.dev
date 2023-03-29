@@ -4,7 +4,7 @@ excerpt: 'Learn how to use webhooks to collect metrics from Xcode Cloud builds'
 pubDate: 2023-03-29
 ---
 
-Xcode Cloud has three kinds of webhooks which allow its users to perform custom actions at different stages of a workflow's lifecycle:
+Xcode Cloud has three kinds of webhooks which allow users to perform custom actions at different stages of a workflow's lifecycle:
 
 - Whenever a workflow build is **created**.
 - Whenever a workflow build **starts**.
@@ -14,7 +14,9 @@ These webhooks are great for building **custom integrations which extend Xcode C
 
 ## The webhook's payload
 
-The data for each webhook is similar and is always sent as the body of a POST request in JSON format. The payload contains abundant information about the workflow, the specific run that triggered it and even the product that it was triggered for!
+The data Xcode Cloud sends for each of the webhooks above is similar and is always sent as the body of a POST request in JSON format.
+
+The payload contains abundant information about the workflow, the specific run that triggered it and even the product that it was triggered for!
 
 > You can find an example JSON with all the available data in [Xcode Cloud's documentation](https://developer.apple.com/documentation/xcode/configuring-webhooks-in-xcode-cloud).
 
@@ -140,7 +142,7 @@ struct XcodeCloudWebhookLambda: SimpleLambdaHandler {
 }
 ```
 
-> I have chosen to use an AWS lamdba for this example as it allowed me to write my back-end service in Swift, but you can use any technology or language you want. If you're interested in learning more about how to handle webhooks using Swift and AWS lambdas, please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud).
+> I have chosen to use an AWS Lamdba for this example as it allowed me to write my back-end service in Swift, but you can use any technology or language you want. If you're interested in learning more about how to handle webhooks using Swift and AWS lambdas, please refer to my article on [GitHub webhooks and Xcode Cloud](https://www.polpiella.dev/github-webhooks-and-xcode-cloud).
 
 ## Only listening to webhooks when the workflow finishes
 
@@ -191,11 +193,11 @@ I am not going to go into any detail about this analytics system, but all you ne
 
 ### Calculating the duration
 
-The first thing we need to do is calculate the duration. The hard work for this calculation is done by setting the `dateDecodingStrategy` to a custom format which matches the one used by Xcode Cloud in the `JSONDecoder`.
+The first thing we need to do is calculate how long the workflow took to run. The hard work for this calculation is done by setting the `dateDecodingStrategy` to a custom format which matches the one used by Xcode Cloud in the `JSONDecoder`.
 
 Doing this allows us to decode any date strings returned by Xcode Cloud into `Date` types automatically.
 
-All that's left for us to do now is to get the time interval between the `startedDate` and `finishedDate` fields:
+All that's left for us to do then is to get the `TimeInterval` in seconds between the `startedDate` and `finishedDate` fields:
 
 ```swift:Webhook.swift
 func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
@@ -311,8 +313,10 @@ Doing this will open a modal where you can give your webhook a name and provide 
 
 ![Xcode Cloud webhook modal](/assets/posts/xcode-cloud-webhooks/xcode-cloud-modal.webp)
 
+That's it 🎉! Now, every time a workflow run finishes, Xcode Cloud will send a message to your server with the data you need to send to your analytics service.
+
 ## Want to learn more?
 
 The code I have shared in this article is part of a talk I am putting together for [Swift Heroes](https://swiftheroes.com/2023/) and [iOS Dev UK](https://www.iosdevuk.com/) called 'Making developer tools with Swift'.
 
-I will be going into more detail about the code in these talks, so if you want to learn more about how to make complex developer tooling systems with Swift and are interested in attending one of the conferences, make sure to book a ticket and come along!
+If you want to learn more about how to make complex developer tooling systems with Swift and are interested in attending one of the conferences, make sure to book a ticket and come along!
