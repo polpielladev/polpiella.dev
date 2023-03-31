@@ -158,14 +158,19 @@ struct XcodeCloudWebhookLambda: SimpleLambdaHandler {
     let decoder: JSONDecoder
 
     init() {
-        self.decoder = JSONDecoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        self.decoder = decoder
     }
 
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
         guard let body = request.body,
               let bodyData = body.data(using: .utf8),
-              let payload = try? snakeCaseDecoder.decode(WebhookPayload.self, from: bodyData),
-              request.ciBuildRun.attributes.completionStatus == "COMPLETE" else {
+              let payload = try? decoder.decode(WebhookPayload.self, from: bodyData),
+              request.ciBuildRun.attributes.executionProgress == "COMPLETE" else {
             return .init(statusCode: .badRequest, body: "Could not parse the request content...")
         }
     }
@@ -234,7 +239,7 @@ struct CIBuildRun: Decodable {
   let attributes: Attributes
 
   struct Attributes: Decodable {
-    let completionStatus: String
+    let completionStatus: CompletionStatus
     let startedDate: Date
     let executionProgress: String
     let finishedDate: Date
