@@ -1,0 +1,58 @@
+---
+title: 'Automating Swift Package releases with Github Actions'
+excerpt: 'How I use GitHub Actions to automate the release of my Swift Packages'
+pubDate: 2023-04-05
+---
+
+I have recently open-sourced a Swift command line tool that allows you to use Open AI's ChatGPT directly from the command line called [chatty]().
+
+I took this project as an opportunity to look into how I could automate the release process of my new command line tool, which is distributed as a Swift Package, using GitHub Actions.
+
+## Creating a release workflow
+
+The first step to setting up a GitHub actions workflow is to create a new file in the `.github/workflows` directory of your repository. This file can have any name you want, I decided to call mine `release.yml`.
+
+I want the workflow to be triggered whenever I push a new tag which has the format: `v*.*.*`. You can achieve this with a `push` event and filter to only trigger the workflow when a tag is pushed:
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+```
+
+## Creating a release job
+
+The next step is to create a job called `release` which will be responsible for producing an executable, creating a GitHub release and uploading the executable to the release.
+
+The release job performs the following steps:
+
+1. Select a macOS runner on the latest available version.
+2. Check out the GitHub repository using the [actions/checkout@v3 built-in action]().
+3. Build an executable built for Intel and Apple Silicon architectures by passing two `--arch` flags to the `swift build` command.
+4. Create a GitHub release using the [softprops/action-gh-release@v1 action](). Pass the path to the executable to the `files` input parameter and the automatically generated `GITHUB_TOKEN` secret to the `token` input parameter. It is important to note that if the action runs on a private repository, you might need to give the token enhanced permissions in the repository's settings.
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build executable for release
+        run: swift build -c release --arch arm64 --arch x86_64 --product chatty
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .build/apple/Products/Release/chatty
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
