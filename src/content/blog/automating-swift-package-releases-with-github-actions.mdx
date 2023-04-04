@@ -40,7 +40,9 @@ on:
 
 ### Building the executable for release
 
-To distribute the application, I first needed to build it for the platforms I wanted to support (macOS arm64 and x86_64). To do this, I needed to tell the workflow to run on the latest macOS version, check out the repository and build the executable product with two architecture slices using `swift build`:
+To distribute the application, I first needed to build it for the architectures I wanted to support (macOS arm64 and x86_64).
+
+To do this, I needed to tell the workflow to run on the latest macOS version, check out the repository and build the executable product with two architecture slices using `swift build`:
 
 ```yaml:release.yml
 name: Release
@@ -62,7 +64,7 @@ jobs:
 
 ### Creating a GitHub release
 
-I then needed to create a GitHub release with the tag name and upload a compressed archive of the previous step's artefact to the GitHub release:
+I then needed to create a GitHub release with the tag ref as its name and a compressed archive of the previous step's artefact attached:
 
 ```yaml
 name: Release
@@ -89,15 +91,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> The naming of the tarball archive is important as it is used to determine the URL of the Homebrew formula's executable.
+> The naming of the tarball archive is important as it is used to determine the URL of the Homebrew formula's executable in the next section.
 
 As shown in the workflow above, I found that using the [softprops' action-gh-release action](https://github.com/softprops/action-gh-release) was the easiest way to create and customise a GitHub release.
 
 ### Creating a new version of the Homebrew formula
 
-As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew as it is the most common way of installing command line tools on macOS.
+As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew as it is the most popular way of installing command line tools on macOS.
 
-To distribute my tool on [Homebrew](https://brew.sh), I had to publish a formula. I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a brand new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
+To distribute my tool on [Homebrew](https://brew.sh), I first had to publish a formula. I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a brand new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
 
 ```ruby:Formula/chatty-cli.rb
 class ChattyCli < Formula
@@ -116,7 +118,7 @@ end
 
 While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research to find a good way to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) by [Mislav Marohnić](https://twitter.com/mislav) which, among others, [is used by Fastlane to automatically update their Homebrew formula on every release](https://github.com/fastlane/fastlane/blob/master/.github/workflows/tags.yml).
 
-I then used it in a step directly after creating the GitHub release in the workflow:
+I then executed it directly after creating the GitHub release in the workflow:
 
 ```yaml:release.yml
 name: Release
@@ -150,7 +152,7 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.CHATTY_COMMITTER_TOKEN }}
 ```
 
-I had to give the homebrew action the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit to in the tap (`main`).
+I had to give the homebrew action the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit the new formula to in the tap repository (`main`).
 
 As the action needs to commit to a separate repository, I had to create a new personal access token with the `public_repo` scope (you might need to create it with the `repo` scope if your tap is hosted in a private repository), add it to the repository secrets as `CHATTY_COMMITTER_TOKEN` and give it to the action through an environment variable called `COMMITTER_TOKEN`.
 
