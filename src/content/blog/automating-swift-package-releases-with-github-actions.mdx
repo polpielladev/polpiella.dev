@@ -4,28 +4,30 @@ excerpt: 'How I use GitHub Actions to automate the release of my Swift command l
 pubDate: 2023-04-05
 ---
 
-I have recently open-sourced a Swift command line tool that allows you to use Open AI's ChatGPT directly from the command line: [chatty](https://github.com/polpielladev/chatty-cli).
+I have recently open-sourced a Swift command line tool called [chatty](https://github.com/polpielladev/chatty-cli) that allows you to use [Open AI's ChatGPT](https://openai.com/blog/chatgpt) directly from the terminal.
 
-Along with the opportunity to release an open source project, I took [chatty]() as an opportunity to look into how I could automate the release process of my new command line tool using GitHub Actions.
+Along with the opportunity to release an open-source project, I spent some time looking into how I could automate the release process of my new command line tool using GitHub Actions.
 
 ## The release process
 
-I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) easy both for me to release new versions and for users to install the latest version of the tool. I had a clear idea of the channels I wanted to use to distribute [chatty](https://github.com/polpielladev/chatty-cli):
+I wanted to make [chatty](https://github.com/polpielladev/chatty-cli)'s release process as simple and automated as possible while giving users an established and popular way of installing the executable. For this reason, I decided to distribute my command line tool via two different channels:
 
-1. [Homebrew](https://brew.sh).
-2. [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+1. [Homebrew](https://brew.sh), a popular macOS package manager widely used to install command line applications.
+2. [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository), where users can download artifacts directly. [Homebrew](https://brew.sh) uses this method to install executable tools.
 
-> Note that currently [chatty](https://github.com/polpielladev/chatty-cli) is only available on macOS (Intel and Apple Silicon) but I am planning on adding support for Linux and Windows in a future release.
+> Note that currently [chatty](https://github.com/polpielladev/chatty-cli) is only available on macOS (Intel and Apple Silicon) but I am planning on adding support for Linux and Windows in a future release 👀.
 
-As the project is open source and GitHub offers unlimited free minutes for public repositories, I decided to use it as my CI/CD provider.
+As the project is open-source and GitHub offers unlimited free minutes for public repositories, I decided to use GitHub Actions as my CI/CD provider, which in turn allowed me to make use of its wide ecosystem of community-driven actions to simplify the process.
+
+In this article, I will give a thorough explanation of how I used GitHub Actions to automate the release process of my Swift command line tool.
 
 ## Creating a release workflow
 
 The first step to setting up a GitHub actions workflow is to create a new file in the `.github/workflows` directory of your repository. This file can have any name you want, I decided to call mine `release.yml`.
 
-### Run on tag push
+### Trigger on every tag push
 
-I want the workflow to be triggered whenever I push a new tag which has the format: `v*.*.*`. You can achieve this with a `push` event and filter to only trigger the workflow when a tag is pushed:
+The release workflow should only be triggered whenever a new tag is pushed with the following format: `v*.*.*`. The workflow can be set up with a `push` event and a filter to only trigger the workflow when a tag is pushed:
 
 ```yaml
 name: Release
