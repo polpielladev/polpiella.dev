@@ -10,7 +10,9 @@ Along with the opportunity to release an open-source project, I spent some time 
 
 ## The release process
 
-I wanted to make [chatty](https://github.com/polpielladev/chatty-cli)'s release process as simple and automated as possible while giving users an established and popular way of installing the executable. For this reason, I decided to distribute my command line tool via two different channels:
+I wanted to make [chatty](https://github.com/polpielladev/chatty-cli)'s release process as simple and automated as possible while still giving users an established and popular way of installing the executable.
+
+For this reason, I decided to distribute my command line tool via two different channels:
 
 1. [Homebrew](https://brew.sh), a popular macOS package manager widely used to install command line applications.
 2. [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository), where users can download artifacts directly. [Homebrew](https://brew.sh) uses this method to install executable tools.
@@ -19,17 +21,15 @@ I wanted to make [chatty](https://github.com/polpielladev/chatty-cli)'s release 
 
 As the project is open-source and GitHub offers unlimited free minutes for public repositories, I decided to use GitHub Actions as my CI/CD provider, which in turn allowed me to make use of its wide ecosystem of community-driven actions to simplify the process.
 
-In this article, I will give a thorough explanation of how I used GitHub Actions to automate the release process of my Swift command line tool.
-
 ## Creating a release workflow
 
-The first step to setting up a GitHub actions workflow is to create a new file in the `.github/workflows` directory of your repository. This file can have any name you want, I decided to call mine `release.yml`.
+The first step to setting up a GitHub Actions workflow is to create a new file in the `.github/workflows` directory of your repository. This file can have any name you want, I decided to call mine `release.yml`.
 
 ### Trigger on every tag push
 
-The release workflow should only be triggered whenever a new tag is pushed with the following format: `v*.*.*`. The workflow can be set up with a `push` event and a filter to only trigger the workflow when a tag is pushed:
+Once I had the workflow file in the correct directory, I added a `push` event and a filter to only trigger the workflow when a release tag (`v*.*.*`) is pushed to the repository:
 
-```yaml
+```yaml:release.yml
 name: Release
 
 on:
@@ -40,9 +40,9 @@ on:
 
 ### Building the executable for release
 
-Now that the workflow has a trigger, it needs to perform some actions. The first step to releasing the application is to tell the workflow it needs to run on the latest macOS version, check out the repository and build the executable product:
+To distribute the application, I first needed to build it for the platforms I wanted to support (macOS arm64 and x86_64). To do this, I needed to tell the workflow to run on the latest macOS version, check out the repository and build the executable product with two architecture slices using `swift build`:
 
-```yaml
+```yaml:release.yml
 name: Release
 
 on:
@@ -62,7 +62,7 @@ jobs:
 
 ### Creating a GitHub release
 
-Now that the executable is built, we need to create a GitHub release with the tag name and upload a compressed archive of the executable to the new release:
+I then needed to create a GitHub release with the tag name and upload a compressed archive of the previous step's artefact to the GitHub release:
 
 ```yaml
 name: Release
@@ -89,13 +89,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The naming of the archive is important as it will be used to determine the new version and URL of the Homebrew formula.
+> The naming of the tarball archive is important as it is used to determine the URL of the Homebrew formula's executable.
 
-To create a new release in GitHub I made use of [softprops' action-gh-release action](https://github.com/softprops/action-gh-release), which allows you to easily create highly customisable GitHub releases.
+As shown in the workflow above, I found that using the [softprops' action-gh-release action](https://github.com/softprops/action-gh-release) was the easiest way to create and customise a GitHub release.
 
 ### Creating a new version of the Homebrew formula
 
-As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew. To do this, I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
+As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew as it is the most common way of installing command line tools on macOS.
+
+To distribute my tool on [Homebrew](https://brew.sh), I had to publish a formula. I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a brand new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
 
 ```ruby:Formula/chatty-cli.rb
 class ChattyCli < Formula
@@ -112,9 +114,9 @@ class ChattyCli < Formula
 end
 ```
 
-While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research as to how to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) which Fastlane uses to automatically update their Homebrew formula on every release.
+While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research to find a good way to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) by [Mislav Marohnić](https://twitter.com/mislav) which, among others, [is used by Fastlane to automatically update their Homebrew formula on every release](https://github.com/fastlane/fastlane/blob/master/.github/workflows/tags.yml).
 
-I used it in the `release` workflow like so:
+I then used it in a step directly after creating the GitHub release in the workflow:
 
 ```yaml:release.yml
 name: Release
@@ -148,12 +150,14 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.CHATTY_COMMITTER_TOKEN }}
 ```
 
-The last step of the full workflow above uses the [mislav/bump-homebrew-formula-action](https://github.com/mislav/bump-homebrew-formula-action) action to create and commit a new formula to my personal homebrew tap.
+I had to give the homebrew action the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit to in the tap (`main`).
 
-I had to give it the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit to in the tap (`main`).
+As the action needs to commit to a separate repository, I had to create a new personal access token with the `public_repo` scope (you might need to create it with the `repo` scope if your tap is hosted in a private repository), add it to the repository secrets as `CHATTY_COMMITTER_TOKEN` and give it to the action through an environment variable called `COMMITTER_TOKEN`.
 
-As the action needs to commit to a separate repository, I had to create a new personal access token with the `public_repo` scope (you might need to create a new token with the `repo` scope if you are using a private tap), add it to the repository secrets as `CHATTY_COMMITTER_TOKEN` and give it to the action through an environment variable called `COMMITTER_TOKEN`.
+Now, every time I push a new tag to the repository, the workflow will create a GitHub release, build the executable for macOS arm64 and x86_64, compress it into a tarball archive, upload it to the release and create a new version of the Homebrew formula.
 
 ## Where to go from here
 
-As I mentioned earlier, [chatty](https://github.com/polpielladev/chatty-cli) is completely open source, so you can check out [the full workflow in the GitHub repository](https://github.com/polpielladev/chatty-cli/blob/main/.github/workflows/release.yml). Likewise, if you have any suggestions on how to improve this release process, please feel free to open an issue or a pull request or reach out to me on [Twitter](https://twitter.com/polpielladev).
+As I mentioned earlier, [chatty](https://github.com/polpielladev/chatty-cli) is completely open source, so you can check out [the full workflow in the GitHub repository](https://github.com/polpielladev/chatty-cli/blob/main/.github/workflows/release.yml).
+
+Likewise, if you have any suggestions on how to improve this release process, please feel free to open an issue or a pull request or reach out to me on [Twitter](https://twitter.com/polpielladev).
