@@ -1,16 +1,29 @@
 ---
-title: 'Automating Swift Package releases with Github Actions'
-excerpt: 'How I use GitHub Actions to automate the release of my Swift Packages'
+title: 'Automating Swift command line tool releases with GitHub Actions'
+excerpt: 'How I use GitHub Actions to automate the release of my Swift command line tools.'
 pubDate: 2023-04-05
 ---
 
-I have recently open-sourced a Swift command line tool that allows you to use Open AI's ChatGPT directly from the command line called [chatty]().
+I have recently open-sourced a Swift command line tool that allows you to use Open AI's ChatGPT directly from the command line: [chatty](https://github.com/polpielladev/chatty-cli).
 
-I took this project as an opportunity to look into how I could automate the release process of my new command line tool, which is distributed as a Swift Package, using GitHub Actions.
+Along with the opportunity to release an open source project, I took [chatty]() as an opportunity to look into how I could automate the release process of my new command line tool using GitHub Actions.
+
+## The release process
+
+I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) easy both for me to release new versions and for users to install the latest version of the tool. I had a clear idea of the channels I wanted to use to distribute [chatty](https://github.com/polpielladev/chatty-cli):
+
+1. [Homebrew](https://brew.sh).
+2. [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+
+> Note that currently [chatty](https://github.com/polpielladev/chatty-cli) is only available on macOS (Intel and Apple Silicon) but I am planning on adding support for Linux and Windows in a future release.
+
+As the project is open source and GitHub offers unlimited free minutes for public repositories, I decided to use it as my CI/CD provider.
 
 ## Creating a release workflow
 
 The first step to setting up a GitHub actions workflow is to create a new file in the `.github/workflows` directory of your repository. This file can have any name you want, I decided to call mine `release.yml`.
+
+### Run on tag push
 
 I want the workflow to be triggered whenever I push a new tag which has the format: `v*.*.*`. You can achieve this with a `push` event and filter to only trigger the workflow when a tag is pushed:
 
@@ -23,16 +36,9 @@ on:
       - v*.*.*
 ```
 
-## Creating a release job
+### Building the executable for release
 
-The next step is to create a job called `release` which will be responsible for producing an executable, creating a GitHub release and uploading the executable to the release.
-
-The release job performs the following steps:
-
-1. Select a macOS runner on the latest available version.
-2. Check out the GitHub repository using the [actions/checkout@v3 built-in action]().
-3. Build an executable built for Intel and Apple Silicon architectures by passing two `--arch` flags to the `swift build` command.
-4. Create a GitHub release using the [softprops/action-gh-release@v1 action](). Pass the path to the executable to the `files` input parameter and the automatically generated `GITHUB_TOKEN` secret to the `token` input parameter. It is important to note that if the action runs on a private repository, you might need to give the token enhanced permissions in the repository's settings.
+Now that the workflow has a trigger, it needs to perform some actions. The first step to releasing the application is to tell the workflow it needs to run on the latest macOS version, check out the repository and build the executable product:
 
 ```yaml
 name: Release
@@ -50,9 +56,102 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build executable for release
         run: swift build -c release --arch arm64 --arch x86_64 --product chatty
+```
+
+### Creating a GitHub release
+
+Now that the executable is built, we need to create a GitHub release with the tag name and upload a compressed archive of the executable to the new release:
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build executable for release
+        run: swift build -c release --arch arm64 --arch x86_64 --product chatty
+      - name: Compress archive
+        run: tar -czf ${{ github.ref_name }}.tar.gz -C .build/apple/Products/Release chatty
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: .build/apple/Products/Release/chatty
+          files: ${{ github.ref_name }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+The naming of the archive is important as it will be used to determine the new version and URL of the Homebrew formula.
+
+To create a new release in GitHub I made use of [softprops' action-gh-release action](https://github.com/softprops/action-gh-release), which allows you to easily create highly customisable GitHub releases.
+
+### Creating a new version of the Homebrew formula
+
+As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew. To do this, I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
+
+```ruby:Formula/chatty-cli.rb
+class ChattyCli < Formula
+  desc "A command line application to interact with ChatGPT directly from the terminal"
+  homepage ""
+  url "https://github.com/polpielladev/chatty-cli/archive/v1.0.2.tar.gz"
+  sha256 "a258e0d6d96488bbcb01b51a97e2370185c0207aea7a31565f48716060eabf56"
+  license ""
+  version "1.0.2"
+
+  def install
+    bin.install "chatty"
+  end
+end
+```
+
+While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research as to how to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) which Fastlane uses to automatically update their Homebrew formula on every release.
+
+I used it in the `release` workflow like so:
+
+```yaml:release.yml
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build executable for release
+        run: swift build -c release --arch arm64 --arch x86_64 --product chatty
+      - name: Compress archive
+        run: tar -czf ${{ github.ref_name }}.tar.gz -C .build/apple/Products/Release chatty
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ github.ref_name }}.tar.gz
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: mislav/bump-homebrew-formula-action@v2
+        with:
+          formula-name: chatty-cli
+          homebrew-tap: polpielladev/homebrew-tap
+          base-branch: main
+        env:
+          COMMITTER_TOKEN: ${{ secrets.CHATTY_COMMITTER_TOKEN }}
+```
+
+The last step of the full workflow above uses the [mislav/bump-homebrew-formula-action](https://github.com/mislav/bump-homebrew-formula-action) action to create and commit a new formula to my personal homebrew tap.
+
+I had to give it the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit to in the tap (`main`).
+
+As the action needs to commit to a separate repository, I had to create a new personal access token with the `public_repo` scope (you might need to create a new token with the `repo` scope if you are using a private tap), add it to the repository secrets as `CHATTY_COMMITTER_TOKEN` and give it to the action through an environment variable called `COMMITTER_TOKEN`.
+
+## Where to go from here
+
+As I mentioned earlier, [chatty](https://github.com/polpielladev/chatty-cli) is completely open source, so you can check out [the full workflow in the GitHub repository](https://github.com/polpielladev/chatty-cli/blob/main/.github/workflows/release.yml). Likewise, if you have any suggestions on how to improve this release process, please feel free to open an issue or a pull request or reach out to me on [Twitter](https://twitter.com/polpielladev).
