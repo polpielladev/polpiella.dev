@@ -116,6 +116,8 @@ class ChattyCli < Formula
 end
 ```
 
+> The formula has a description and a URL to the release archive with the corresponding SHA256 checksum. It also has an `install` method which tells Homebrew to install an executable called 'chatty' (found at the root of the tarball) to the user's brew binaries directory.
+
 While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research to find a good way to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) by [Mislav Marohnić](https://twitter.com/mislav) which, among others, [is used by Fastlane to automatically update their Homebrew formula on every release](https://github.com/fastlane/fastlane/blob/master/.github/workflows/tags.yml).
 
 I then executed it directly after creating the GitHub release in the workflow:
@@ -148,11 +150,12 @@ jobs:
           formula-name: chatty-cli
           homebrew-tap: polpielladev/homebrew-tap
           base-branch: main
+          download-url: https://github.com/polpielladev/chatty-cli/releases/download/${{ github.ref_name }}/${{ github.ref_name }}.tar.gz
         env:
           COMMITTER_TOKEN: ${{ secrets.CHATTY_COMMITTER_TOKEN }}
 ```
 
-I had to give the homebrew action the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core` and the name of the branch to commit the new formula to in the tap repository (`main`).
+I had to give the homebrew action the name of the formula (`formula-name`), the name of my personal Homebrew tap (`polpielladev/homebrew-tap`) as it otherwise defaults to `Homebrew/homebrew-core`, the name of the branch to commit the new formula to in the tap repository (`main`) and the download URL for the executable archive.
 
 As the action needs to commit to a separate repository, I had to create a new personal access token with the `public_repo` scope (you might need to create it with the `repo` scope if your tap is hosted in a private repository), add it to the repository secrets as `CHATTY_COMMITTER_TOKEN` and give it to the action through an environment variable called `COMMITTER_TOKEN`.
 
