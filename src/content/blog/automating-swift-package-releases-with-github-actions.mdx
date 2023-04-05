@@ -17,7 +17,7 @@ For this reason, I decided to distribute my command line tool via two different 
 1. [Homebrew](https://brew.sh), a popular macOS package manager widely used to install command line applications.
 2. [GitHub releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository), where users can download artifacts directly. [Homebrew](https://brew.sh) uses this method to install executable tools.
 
-> Note that currently [chatty](https://github.com/polpielladev/chatty-cli) is only available on macOS (Intel and Apple Silicon) but I am planning on adding support for Linux and Windows in a future release 👀.
+> Note that [chatty](https://github.com/polpielladev/chatty-cli) is only available on macOS (Intel and Apple Silicon) but I am planning on adding support for Linux and Windows in a future release 👀.
 
 As the project is open-source and GitHub offers unlimited free minutes for public repositories, I decided to use GitHub Actions as my CI/CD provider, which in turn allowed me to make use of its wide ecosystem of community-driven actions to simplify the process.
 
@@ -27,7 +27,7 @@ The first step to setting up a GitHub Actions workflow is to create a new file i
 
 ### Trigger on every tag push
 
-Once I had the workflow file in the correct directory, I added a `push` event and a filter to only trigger the workflow when a release tag (`v*.*.*`) is pushed to the repository:
+Once I had the workflow file in the correct directory, I added a `push` event with a filter to only trigger the workflow when a release tag (`v*.*.*`) is pushed to the repository:
 
 ```yaml:release.yml
 name: Release
@@ -99,7 +99,7 @@ As shown in the workflow above, I found that using the [softprops' action-gh-rel
 
 As I mentioned earlier in the article, I wanted to make [chatty](https://github.com/polpielladev/chatty-cli) available on Homebrew as it is the most popular way of installing command line tools on macOS.
 
-To distribute my tool on [Homebrew](https://brew.sh), I first had to publish a formula. I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a brand new formula for an existing release of [chatty](https://github.com/polpielladev/chatty-cli):
+To distribute my tool on [Homebrew](https://brew.sh), I first had to publish a formula. I reused an existing [Homebrew tap that I had created for another project](https://github.com/polpielladev/homebrew-tap) and added a brand new formula pointing to an existing executable of [chatty](https://github.com/polpielladev/chatty-cli):
 
 ```ruby:Formula/chatty-cli.rb
 class ChattyCli < Formula
@@ -116,11 +116,11 @@ class ChattyCli < Formula
 end
 ```
 
-> The formula has a description and a URL to the release archive with the corresponding SHA256 checksum. It also has an `install` method which tells Homebrew to install an executable called 'chatty' (found at the root of the tarball) to the user's brew binaries directory.
+> The formula has a description and a URL to the release archive with the corresponding SHA256 checksum. It also has an `install` method which tells Homebrew to install an executable called 'chatty' (found at the root of the tarball) to the user's Homebrew binaries directory.
 
 While this worked fine, I wanted to automate this process and streamline it as much as possible. In my research to find a good way to do this, I came across [this great GitHub action](https://github.com/mislav/bump-homebrew-formula-action) by [Mislav Marohnić](https://twitter.com/mislav) which, among others, [is used by Fastlane to automatically update their Homebrew formula on every release](https://github.com/fastlane/fastlane/blob/master/.github/workflows/tags.yml).
 
-I then executed it directly after creating the GitHub release in the workflow:
+I then executed this action directly after creating the GitHub release in my workflow:
 
 ```yaml:release.yml
 name: Release
