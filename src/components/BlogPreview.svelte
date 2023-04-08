@@ -9,7 +9,7 @@
   })
 </script>
 
-<div class="flex flex-col gap-1">
+<div class="flex max-w-[650px] flex-col gap-1">
   <h4
     class="text-theme-primary m-0 text-2xl font-semibold hover:underline dark:text-gray-100">
     <a href={`/${slug}`} {title}>{title}</a>
