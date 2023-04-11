@@ -4,4 +4,42 @@ excerpt: 'How to use Xcode Cloud scheduled start conditions to frequently releas
 pubDate: 2023-04-19
 ---
 
+import StaticTweet from '@components/static-tweet/StaticTweet.astro'
+
 A while ago I came across a tweet from [Rudrank]() about how he uses a scheduled workflow in [Code Magic]() to keep himself accountable for shipping new app versions. I thought this was a great idea, and I wanted to see if I could achieve the same for a side project I have been working on using Xcode Cloud.
+
+<StaticTweet id="1628339227988721664" />
+
+## Creating a workflow
+
+The first thing to do is to create a new workflow in Xcode Cloud. To do this, open Xcode and show the report navigator in the sidebar. On the cloud tab, select your Xcode Cloud product, click on `Manage Workflows` and press the `+` button on the bottom left of the `Manage Workflows` screen.
+
+You will now be prompted with a modal containing general information on the workflow. Modify the name and description and make sure you select `Restrict editing` so that the workflow is only editable by users [with Admin or App Manager roles in App Store Connect](https://developer.apple.com/support/roles).
+
+This is **a requirement for external testing and App Store builds** and Xcode won't let you save the workflow if this option is not checked.
+
+![The general configuration of the workflow with a name, description and the restrict editing option checked.](/assets/posts/how-to-deploy-beta-versions-of-your-app-to-testflight-and-appcenter-with-xcode-cloud/general.webp)
+
+### Setting up the environment
+
+Next, you need to set up any environment variables your app needs. In this case, I am not adding any but you can set up as many as you want.
+
+You also need to select the clean build option so that Xcode Cloud always builds from scratch and ignores the existing derived data and build caches from previous builds. **This is a requirement for external testing and App Store builds**.
+
+![]()
+
+### Setting a schedule as the start condition
+
+Next, remove the default 'Branch changes' start condition and add a new one which triggers the workflow on a schedule.
+
+The scheduled start condition allows you to trigger the workflow automatically with a specific frequency. You can choose between daily, weekly or hourly. In this case, I am going to use a weekly schedule which triggers the workflow every Sunday at 7:00 PM British Time.
+
+![]()
+
+### Setting up an archive action
+
+Now that the start condition is set up, you need to add an archive action to the workflow and tell it to prepare the artefact for TestFlight and App Store.
+
+### Setting up the TestFlight deployment post-action
+
+Last but not least, you need to tell Xcode Cloud to upload the build to TestFlight. To do this, add a post-action to the workflow and select `TestFlight External Testing` from the list.
