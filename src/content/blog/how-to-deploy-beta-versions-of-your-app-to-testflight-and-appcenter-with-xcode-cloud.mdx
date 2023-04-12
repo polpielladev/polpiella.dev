@@ -8,11 +8,11 @@ In preparation for my talk at [NYSwifty](https://nyswifty.com) next week, I have
 
 One of the workflows that I will be showing how to build during my talk deploys beta versions of an iOS app for internal testing and distributes them both to TestFlight and [Microsoft's AppCenter](https://appcenter.ms).
 
-For some context, I work at a company where we use AppCenter to distribute all our internal builds to other developers, testers and stakeholders. For this reason, I was keen to find a way to upload builds to an external service using Xcode Cloud by making use of existing Fastlane logic. 🎉
+I work at a company where we use AppCenter to distribute all our internal builds to other developers, testers and stakeholders. For this reason, I was keen to find a way to upload builds to an external service using Xcode Cloud by making use of existing Fastlane logic. 🎉
 
 ## Creating a workflow
 
-The first thing to do is to create a new workflow in Xcode Cloud. To do this, open Xcode and show the report navigator in the sidebar. On the cloud tab, select your Xcode Cloud product, click on `Manage Workflows` and press the `+` button on the bottom left of the `Manage Workflows` screen.
+The first step is to create a new workflow in Xcode Cloud. To do this, open Xcode and show the report navigator in the sidebar. On the cloud tab, select your Xcode Cloud product, click on `Manage Workflows` and press the `+` button on the bottom left of the `Manage Workflows` screen.
 
 You will now be prompted with a modal containing general information on the workflow. Modify the name and description and select `Restrict editing` if you want the workflow to only be editable by users [with Admin or App Manager roles in App Store Connect](https://developer.apple.com/support/roles):
 
@@ -28,7 +28,7 @@ To upload to AppCenter, you will need an API key. [Once you have generated this 
 
 ### Setting up start conditions
 
-The next step is to set up the triggers and start conditions for the workflow. This workflow archives and distributes the application on every push to the `main` branch, but you can change this to run on `PR changes`, on `tag` pushes or even on a schedule.
+The next step is to set up the start conditions for the workflow. This workflow archives and distributes the application on every push to the `main` branch, but you can change this to run on `PR changes`, on `tag` pushes or even on a schedule.
 
 ![The start conditions for the new workflow. The workflow will run on every push to the main branch. The option to auto cancel builds is also selected.](/assets/posts/how-to-deploy-beta-versions-of-your-app-to-testflight-and-appcenter-with-xcode-cloud/start-conditions.webp)
 
@@ -38,7 +38,7 @@ The next step is to set up the triggers and start conditions for the workflow. T
 
 Now that you have set up the environment, you need to add an action to the workflow. Click on the `+` button next to the `Actions` section title on the left-hand side and select the `Archive` action from the list.
 
-In the action's settings, select the scheme you want to archive the app for and set the `Deployment Preparation` to `Internal Testing only`:
+In the action's settings, select the scheme you want to archive the app for and set the `Deployment Preparation` to `Internal Testing Only`:
 
 ![The configuration for the archive step](/assets/posts/how-to-deploy-beta-versions-of-your-app-to-testflight-and-appcenter-with-xcode-cloud/actions.webp)
 
@@ -54,13 +54,13 @@ In the post-action configuration, select the archive from the previous step as t
 
 So far, the workflow only archives the application and distributes the generated artefact to TestFlight. As it stands, there is no way to add a custom post-action to the workflow from Xcode's user interface.
 
-Despite this, Xcode Cloud provides a way of running custom actions at three different stages of a workflow's lifecycle by creating scripts with specific names in a directory called `ci_scripts`. If you want to learn more about this, [you can check out my blog post on the topic](/xcode-cloud-scripts-fastlane-and-cocoapods).
+Despite this, Xcode Cloud provides a way of running custom actions at three different stages of a workflow's lifecycle (after the repository is cloned and before and after the `xcodebuild` command runs) by creating scripts with specific names in a directory called `ci_scripts`. If you want to learn more about this, [you can check out my blog post on the topic](/xcode-cloud-scripts-fastlane-and-cocoapods).
 
 ### Installing Fastlane
 
-The easiest way to install Fastlane is with homebrew, but the way Fastlane recommends installing it is by using ruby's Bundler.
+The easiest way to install Fastlane is using Homebrew, but the way Fastlane recommends installing it is by using ruby's Bundler. I have personally also found this way to be faster and more reliable.
 
-To do this, you need to create a `Gemfile` at the root of the repository and add `Fastlane` as a dependency:
+To install Fastlane using ruby's Bundler, you need to create a `Gemfile` at the root of the repository and add `Fastlane` as a dependency:
 
 ```ruby:Gemfile
 source "https://rubygems.org"
@@ -114,7 +114,7 @@ In a nutshell, the lane above does the following:
 
 1. Retrieve the path to the archive generated by Xcode Cloud using the `CI_ARCHIVE_PATH` environment variable. This environment variable is set by Xcode Cloud automatically on every build with an archive step.
 2. Retrieve the paths to the binary file and the dSYM file from the archive.
-3. Call [Microsoft's open source appcenter_upload fastlane action](https://github.com/microsoft/fastlane-plugin-appcenter) to upload the build to AppCenter. The action takes several arguments but I want to focus only on the `api_token` argument which gets its value from the `APP_CENTER_API_KEY` environment variable that you set up in the workflow's environment earlier on.
+3. Call [Microsoft's open source appcenter_upload fastlane action](https://github.com/microsoft/fastlane-plugin-appcenter) to upload the build to AppCenter. The action takes several arguments but I want to focus only on `api_token`, which gets its value from the `APP_CENTER_API_KEY` environment variable that you set up in the workflow's environment earlier on.
 
 ### Running Fastlane from Xcode Cloud
 
