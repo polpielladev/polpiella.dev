@@ -1,0 +1,62 @@
+---
+number: 14
+date: 2023-04-23
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23"
+/>
+
+Hey everyone! 👋 Welcome to the **fourteenth** issue of the iOS CI Newsletter. I hope you've all had a fantastic couple of weeks!
+
+By the time this issue of the newsletter goes out, I will be back in the UK after an amazing week in New York. I had an amazing time speaking about Xcode Cloud at [NYSwifty](https://twitter.com/nyswifty) and spent the rest of the week exploring the city and catching up with people.
+
+If you weren't able to attend the conference in person or online, make sure you keep an eye on [NYSwifty](https://twitter.com/nyswifty)'s Twitter as they will publish recordings of all talks at some point. In the meantime, [you can download my slides](https://pol.link/nyswifty?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23) and send me a message if you have any questions or want to discuss Xcode Cloud! ☁️
+
+## [☁️ Deploying beta versions using Xcode Cloud](https://www.polpiella.dev/how-to-deploy-beta-versions-of-your-app-to-testflight-and-appcenter-with-xcode-cloud?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+Xcode Cloud makes it very easy to **automate an app's deployment process** and can help you start uploading builds to TestFlight with **just a few clicks**.
+
+Things start getting a bit more complex though if you have extra requirements such as distributing your app's beta versions to an external service such as [Microsoft's AppCenter](https://appcenter.ms). Worry not though, after reading this article you will know all about deploying beta versions to both TestFlight and any external services 📦.
+
+## [🧰 Installing and managing Swift toolchains with Swiftly](https://github.com/swift-server/swiftly?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+I attended [Tim](https://twitter.com/0xTim)'s talk at [NYSwifty](https://twitter.com/nyswifty) this week on the current state of Swift on the server. During this talk, he mentioned a new project that the [Swift Server Work Group](https://swift.org/sswg) are currently working on: **Swiftly**.
+
+Swiftly allows you to **install and manage Swift toolchains across multiple architectures and operating systems**. While it is still early days in the development of the command line tool, it is now available for everyone to try and contribute to ✍️.
+
+## [🏉 A behind-the-scenes look into Rugby's latest update](https://swiftyfinch.github.io/en/2023-04-22-rugby-remastered?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+If you've ever worked on a project that uses CocoaPods as a dependency manager, you will know how **slow** it can be to install and build pods, which can really slow down your CI workflows.
+
+For this reason, [Vyacheslav Khorkov](https://twitter.com/swiftyfinch) came up with a command line tool called Rugby, which helps speed up the process by introducing smarter caching into the install/build process of pod dependencies. Even if you don't use CocoaPods I would thoroughly recommend reading this behind-the-scenes article on what went into making the latest Rugby update as it talks about how to solve some interesting challenges 🏉
+
+## [📑 Linting your documentation on CI](https://getstream.io/blog/linting-documentation-with-vale/#setting-vale-up-in-ci?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+At the end of last year, I was introduced to [vale.sh](https://vale.sh) by [Jeroen Leenarts](https://twitter.com/AppForce1) at the Do iOS conference in Amsterdam. Ever since I have been using the tool to make sure my documentation adheres to a set of styles and standards and I am even using it to lint for tutorial-style articles on my blog.
+
+In this article, [Jeroen](https://twitter.com/AppForce1) describes why and how you would use [vale.sh](https://vale.sh) and, amongst many other things, how you can set up a CI/CD workflow to lint your project's documentation.
+
+## [🍕 Should you use CI/CD as an indie dev?](https://blog.codemagic.io/deep-dish-swift-2023?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+One of the questions that I get very often is whether **it is worth setting up CI/CD workflows as an indie or solo developer**. [Rudrank Riyam](https://twitter.com/rudrankriyam) is giving a talk on exactly this at [Deep Dish Swift](https://twitter.com/DeepDishSwift) next week! 🍕
+
+If you're in or around Chicago, I would thoroughly recommend attending the conference and making sure you don't miss [Rudrank](http://twitter.com/rudrankriyam)'s talk, which sounds super exciting and interesting! Furthermore, [Rudrank](http://twitter.com/rudrankriyam) has written an article on [Codemagic](https://twitter.com/codemagicio)'s blog about what to expect from the conference 🤩.
+
+## [💡A technical guide to Mobile CI/CD](https://wolfia.com/blog/streamlining-mobile-app-development?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+In this article on [Wolfia](https://twitter.com/wolfia_app)'s blog, [Naren Manoharan](https://twitter.com/narenmano) gives an excellent overview of what mobile CI/CD is and what it can be used for.
+
+I would thoroughly recommend reading through this article if you're starting out with CI/CD and want to learn more about it or if you've got experience with it but want a refresher on some of the concepts 👏.
+
+## [🚀 Fastlane 2.212.2 is out!](https://github.com/fastlane/fastlane/releases/tag/2.212.2?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2014%26utm_content%3Dapr_23_23)
+
+A new release of [Fastlane](https://twitter.com/FastlaneTools) is now out with numerous improvements and bug fixes. Among some other great changes, this release includes [one of my contributions which makes deliver's verify_only option work out of the box again by using altool instead of the iTunes Transporter](https://github.com/fastlane/fastlane/pull/20738).
+
+I want to thank [Josh Holtz](https://twitter.com/joshdholtz) for getting the release out and [@giginet](https://twitter.com/giginet) for helping see the work through and reviewing my pull request 🎉.
