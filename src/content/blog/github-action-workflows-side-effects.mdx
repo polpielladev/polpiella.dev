@@ -1,0 +1,66 @@
+---
+title: 'GitHub Actions workflows side effects'
+excerpt: 'How to use webhook logic in GitHub Actions to trigger workflows based on other workflows completion'
+pubDate: 2023-04-26
+---
+
+import StaticTweet from '@components/static-tweet/StaticTweet.astro'
+
+One of the features that I like the most about GitHub actions is the number of triggers that are available for workflows.
+
+Triggers are defined using the [on rule](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on) in the workflow file and there is a wide range of options available such as pushes to all or specific branches or changes to a pull request.
+
+I recently learnt, thanks to this tweet from [James Sherlock](https://twitter.com/JamesSherlouk), that you can also use GitHub webhook events to trigger workflow runs. I have since used one of GitHub's available webhook events to trigger a workflow based on the completion of another workflow.
+
+<StaticTweet id="1638481217942085635" />
+
+The workflow [James](https://twitter.com/JamesSherlouk) refers to in his tweet is used in the [Swift Package Index project to generate PRs from issues using the `issues` event.](https://github.com/SwiftPackageIndex/PackageList/blob/main/.github/workflows/issues.yml)
+
+## What is a webhook?
+
+Webhooks are automated messages that a website sends to a URL based on the occurrence of specific events. For example, when a workflow finishes running, GitHub sends a `workflow_url` event to the webhook URL configured to receive such events.
+
+Webhooks are configurable on a per-repository basis and provide a great way to build custom integrations and extend a website's capabilities.
+
+## Triggering a workflow based on the `workflow_run` event
+
+While webhooks can be very powerful, they are not easy to set up. They are POST network requests with a payload containing context and information about the action which triggered the event and hence requires you to build, set up and maintain a back-end service to receive, parse and act on such network requests.
+
+The great news is that GitHub actions provide a way to define a webhook event as the trigger or start condition for a workflow directly from the definition file, which removes the need to build and maintain a back-end service 🎉.
+
+In this case, setting up a workflow that runs whenever another workflow completes is as simple as:
+
+1. Adding the `workflow_run` event to the `on` rule in the workflow file.
+2. Filtering the event based on the `workflow_run`'s activity types. Out of the three available types (`completed`, `requested` and `in_progress`), I am only interested in the `completed` activity type.
+3. Specifying the workflow name to trigger on. This is **required** and in my case, I am only interested in triggering the log workflow when the Lint workflow completes.
+
+```yaml:.github/workflows/log.yml
+name: Log workflow run metrics
+on:
+  workflow_run:
+    workflows: [Lint]
+    types:
+      - completed
+jobs:
+  log:
+    runs-on: macos-latest
+    env:
+      ANALYTICS_ENDPOINT: ${{ secrets.ANALYTICS_ENDPOINT }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: polpielladev/metrics
+      - run: |
+          swift run GithubActionsMetricsCLI \
+            "${{ github.event.workflow_run.name }}" \
+            "${{ github.event.workflow_run.updated_at }}" \
+            "${{ github.event.workflow_run.run_started_at }}" \
+            "${{ github.event.workflow_run.head_repository.name }}" \
+            "${{ github.event.workflow_run.conclusion }}" \
+            "${{ github.event.workflow_run.head_commit.author.name }}"
+
+```
+
+The workflow above will run only after the `Lint` workflow completes. As part of its execution, it will check out an external repository and will run a script to log some metrics.
+
+As shown in the code block above, the workflow can access the webhook payload data using the `github.event.workflow_run` context variable and pass the information that the script needs to log the metrics.
