@@ -21,7 +21,7 @@
     "@tailwindcss/typography": "0.5.9",
     "@types/markdown-it": "^12.2.3",
     "@types/sanitize-html": "^2.8.0",
-    "astro": "^2.0.5",
+    "astro": "2.3.0",
     "astro-layouts": "^1.0.0",
     "autoprefixer": "10.4.8",
     "clsx": "^1.2.1",
