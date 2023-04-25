@@ -11,8 +11,6 @@ export const get = async () => {
       new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
   )
 
-  console.log(removeJSX(parser.render(sortedIssues[13]!.body)))
-
   return rss({
     title: 'iOS CI Newsletter',
     description:
