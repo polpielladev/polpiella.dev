@@ -11,6 +11,8 @@ export const get = async () => {
       new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
   )
 
+  console.log(removeJSX(parser.render(sortedIssues[13]!.body)))
+
   return rss({
     title: 'iOS CI Newsletter',
     description:
@@ -28,6 +30,6 @@ export const get = async () => {
 
 const removeJSX = (html: string) => {
   return html
-    .replace(/<p>import\s(Title|NewsletterSponsorSlot)\sfrom\s'.*'<\/p>/gm, '')
-    .replace(/<p>&lt;(Title|NewsletterSponsorSlot).*\/&gt;<\/p>/gm, '')
+    .replace(/<p>import\s(Title|NewsletterSponsorSlot.*)(\n|.)*?<\/p>/gm, '')
+    .replace(/<p>&lt;(NewsletterSponsorSlot|Title)(\n|.)*?\/&gt;<\/p>/gm, '')
 }
