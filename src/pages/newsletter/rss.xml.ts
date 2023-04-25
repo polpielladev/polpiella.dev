@@ -7,8 +7,7 @@ const parser = new MarkdownIt()
 export const get = async () => {
   const allNewsletterIssues = await getCollection('newsletter')
   const sortedIssues = allNewsletterIssues.sort(
-    (a, b) =>
-      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+    (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
   )
 
   return rss({

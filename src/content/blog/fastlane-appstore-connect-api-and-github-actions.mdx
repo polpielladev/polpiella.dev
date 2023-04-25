@@ -89,7 +89,7 @@ This is a two-step process:
 
 Action secrets for a repository can be accessed from workflows with the `${{ Secrets.<SECRET_NAME> }}` syntax. The retrieved values can be made available to the step which needs them through its `env` parameter:
 
-```yml:release.yml
+```yaml:release.yml
 name: Release to the app store
 
 on:

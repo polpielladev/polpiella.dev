@@ -168,7 +168,7 @@ end
 
 Now that the nightly lane is implemented, it needs to be run at a given time every day. To achieve this, a new [GitHub Actions workflow](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) file called `nightly.yml`, which runs on a system with macos-latest as its operating system and just calls the nightly lane on the repo, is created under the `.github/workflows` directory. On top of this, the action below uses a `schedule` tag with a chron expression to tell GitHub this action needs to run every day at midnight:
 
-```yml:nightly.yml
+```yaml:nightly.yml
 name: Nightly
 
 on:
