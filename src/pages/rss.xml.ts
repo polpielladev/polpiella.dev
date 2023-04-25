@@ -18,9 +18,15 @@ export const get = async () => {
     site: 'https://polpiella.dev',
     items: sortedPosts.map((post) => ({
       link: `/${post.slug}`,
-      content: sanitizeHtml(parser.render(post.body)),
+      content: removeJSX(parser.render(post.body)),
       title: post.data.title,
       pubDate: post.data.pubDate,
     })),
   })
+}
+
+const removeJSX = (html: string) => {
+  return html
+    .replace(/<p>import\s(StaticTweet|Video)\sfrom\s'.*'<\/p>/gm, '')
+    .replace(/<p>&lt;(Video|StaticTweet).*\/&gt;<\/p>/gm, '')
 }
