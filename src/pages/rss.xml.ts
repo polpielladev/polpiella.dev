@@ -1,5 +1,4 @@
 import rss from '@astrojs/rss'
-import sanitizeHtml from 'sanitize-html'
 import MarkdownIt from 'markdown-it'
 import { getCollection } from 'astro:content'
 

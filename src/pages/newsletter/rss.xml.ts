@@ -1,5 +1,4 @@
 import rss from '@astrojs/rss'
-import sanitizeHtml from 'sanitize-html'
 import MarkdownIt from 'markdown-it'
 import { getCollection } from 'astro:content'
 
@@ -20,9 +19,15 @@ export const get = async () => {
     items: sortedIssues.map((issue) => ({
       title: `iOS CI Newsletter - Issue #${issue.data.number}`,
       link: `/newsletter/${issue.data.number}`,
-      content: sanitizeHtml(parser.render(issue.body)),
+      content: removeJSX(parser.render(issue.body)),
       pubDate: issue.data.date,
     })),
     customData: `<language>en-us</language>`,
   })
+}
+
+const removeJSX = (html: string) => {
+  return html
+    .replace(/<p>import\s(Title|NewsletterSponsorSlot)\sfrom\s'.*'<\/p>/gm, '')
+    .replace(/<p>&lt;(Title|NewsletterSponsorSlot).*\/&gt;<\/p>/gm, '')
 }
