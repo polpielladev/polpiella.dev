@@ -1,6 +1,6 @@
 ---
 title: 'How to save SwiftUI views as images in macOS'
-excerpt: 'How to use a combination of ImageRenderer and NSPanel to save SwiftUI views as images to the macOS file system.'
+excerpt: 'How to use a combination of ImageRenderer and NSSavePanel to save SwiftUI views as images to the macOS file system.'
 pubDate: 2023-05-03
 ---
 
@@ -14,11 +14,11 @@ The app also gives users the option to copy QR codes directly as images to the c
 
 <Video src="/assets/posts/how-to-save-swiftui-views-as-images-in-macos/export-image.mp4" />
 
-## Showing an NSPanel from SwiftUI
+## Showing an NSSavePanel from SwiftUI
 
-As it stands, SwiftUI does not have a native way to allow the user to save a file to disk from a macOS app using a panel.
+As it stands, SwiftUI does not have a native way to allow the user to save a file to disk from a macOS app using a save panel.
 
-However, you can still use `AppKit` to create an `NSPanel` and present it from a SwiftUI view.
+However, you can still use `AppKit` to create an `NSSavePanel` and present it from a SwiftUI view.
 
 The code to show a panel that allows the user to create a new file in the file system with a specific extension is as follows:
 
@@ -37,7 +37,7 @@ private func showSavePanel(for type: UTType) -> URL? {
 }
 ```
 
-The function above creates an `NSPanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid it then returns the URL where the new file will be created.
+The function above creates an `NSSavePanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid it then returns the URL where the new file will be created.
 
 You can then use this private function directly from a `SwiftUI` view. In my case, I have a `ToolbarItem` with a set of `MenuButton`s that allow the user to export the QR code as an image in different formats:
 
@@ -59,11 +59,13 @@ struct QRCodeEditor: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     MenuButton(image: "photo", title: "Save as PNG", action: {
+                        // Show panel with PNG as the allowed content type
                         if let url = showSavePanel(for: .png) {
                             viewModel.save(at: url, with: .png)
                         }
                     })
                     MenuButton(image: "photo", title: "Save as JPEG", action: {
+                        // Show panel with PNG as the allowed content type
                         if let url = showSavePanel(for: .jpeg) {
                             viewModel.save(at: url, with: .jpeg)
                         }
