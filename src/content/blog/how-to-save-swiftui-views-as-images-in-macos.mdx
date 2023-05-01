@@ -37,6 +37,8 @@ private func showSavePanel(for type: UTType) -> URL? {
 }
 ```
 
+> I want to give a shoutout to [this awesome article](https://swdevnotes.com/swift/2022/save-an-image-to-macos-file-system-with-swiftui) from [Eric Callanan](https://www.linkedin.com/in/calleric/) which helped me figure out how to create and show an `NSSavePanel` from a SwiftUI view.
+
 The function above creates an `NSSavePanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid it then returns the URL where the new file will be created.
 
 You can then use this private function directly from a `SwiftUI` view. In my case, I have a `ToolbarItem` with a set of `MenuButton`s that allow the user to export the QR code as an image in different formats:
@@ -79,6 +81,8 @@ struct QRCodeEditor: View {
     }
 }
 ```
+
+> It is important to note that you will need to set some read/write entitlements in your app's `Info.plist` file to be able to show the save panel and write to the file system. Please refer to [Eric's article to learn how to do so](https://swdevnotes.com/swift/2022/save-an-image-to-macos-file-system-with-swiftui).
 
 ## Rendering an image from a SwiftUI view
 
