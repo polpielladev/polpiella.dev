@@ -8,13 +8,19 @@ import Video from '@components/Video.svelte'
 
 I have recently been working on an app which allows users to create, edit and export QR codes as images.
 
-The app renders the QR code as a SwiftUI component and then uses SwiftUI's ImageRenderer to save the view as an image to the file system as either a PNG or JPEG. The app also gives you the option to save the image to the clipboard.
+The app renders QR codes as SwiftUI components and then uses SwiftUI's ImageRenderer to export them as PNG or JPEG images to the file system.
+
+The app also gives users the option to copy QR codes directly as images to the clipboard.
 
 <Video src="/assets/posts/how-to-save-swiftui-views-as-images-in-macos/export-image.mp4" />
 
 ## Showing an NSPanel from SwiftUI
 
-As it stands, SwiftUI does not have a native way to show an NSPanel from a macOS app. However, you can still use `AppKit` to create an `NSPanel` that allows the user to select the location where they want to save the image to:
+As it stands, SwiftUI does not have a native way to allow the user to save a file to disk from a macOS app using a panel.
+
+However, you can still use `AppKit` to create an `NSPanel` and present it from a SwiftUI view.
+
+The code to show a panel that allows the user to create a new file in the file system with a specific extension is as follows:
 
 ```swift:QRCodeEditor.swift
 private func showSavePanel(for type: UTType) -> URL? {
@@ -31,9 +37,9 @@ private func showSavePanel(for type: UTType) -> URL? {
 }
 ```
 
-The function above creates an `NSPanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid returns the URL the user has selected.
+The function above creates an `NSPanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid it then returns the URL where the new file will be created.
 
-You can then use this private function directly from a `SwiftUI` view. In my case, I have a `ToolbarItem` with a set of `MenuButton`s that allow the user to select the format they want to save the image as:
+You can then use this private function directly from a `SwiftUI` view. In my case, I have a `ToolbarItem` with a set of `MenuButton`s that allow the user to export the QR code as an image in different formats:
 
 ```swift:QRCodeEditor.swift
 struct QRCodeEditor: View {
@@ -53,10 +59,14 @@ struct QRCodeEditor: View {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     MenuButton(image: "photo", title: "Save as PNG", action: {
-                        if let url = showSavePanel(for: .png) { viewModel.save(at: url, with: .png) }
+                        if let url = showSavePanel(for: .png) {
+                            viewModel.save(at: url, with: .png)
+                        }
                     })
                     MenuButton(image: "photo", title: "Save as JPEG", action: {
-                        if let url = showSavePanel(for: .jpeg) { viewModel.save(at: url, with: .jpeg) }
+                        if let url = showSavePanel(for: .jpeg) {
+                            viewModel.save(at: url, with: .jpeg)
+                        }
                     })
                     MenuButton(image: "doc.on.clipboard", title: "Copy to clipboard", action: { viewModel.copyToClipboard() })
                 } label: {
@@ -70,7 +80,7 @@ struct QRCodeEditor: View {
 
 ## Rendering an image from a SwiftUI view
 
-Now that you have the location where the user wants to save the image in the file system, you can use SwiftUI's `ImageRenderer` to render an image from a SwiftUI view and then write it to the URL the user has selected:
+Now that you have the URL where the user wants to save the image in the file system, you can use SwiftUI's `ImageRenderer` to render an image from a SwiftUI view and then write it to said URL:
 
 ```swift
 enum ContentType {
@@ -98,7 +108,7 @@ enum ContentType {
 }
 ```
 
-Note that if you want to support multiple formats like in the snippet above, you will need to create an `NSBitmapImageRep` from the image's `tiffRepresentation` and then use the `representation(using:properties:)` method to convert the image to the desired format.
+Note that if you want to support multiple formats like in the snippet above, you will need to create an `NSBitmapImageRep` from the image's `tiffRepresentation` and then use the `representation(using:properties:)` method to convert the image to the desired format before writing it to a file URL.
 
 ## Bonus track: Saving an image to the clipboard
 
