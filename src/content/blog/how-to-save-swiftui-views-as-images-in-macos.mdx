@@ -1,0 +1,119 @@
+---
+title: 'How to save SwiftUI views as images in macOS'
+excerpt: 'How to use a combination of ImageRenderer and NSPanel to save SwiftUI views as images to the macOS file system.'
+pubDate: 2023-05-03
+---
+
+import Video from '@components/Video.svelte'
+
+I have recently been working on an app which allows users to create, edit and export QR codes as images.
+
+The app renders the QR code as a SwiftUI component and then uses SwiftUI's ImageRenderer to save the view as an image to the file system as either a PNG or JPEG. The app also gives you an option to save the image to the clipboard.
+
+<Video src="" />
+
+## Showing an NSPanel from SwiftUI
+
+As it stands, SwiftUI does not have a native way to show an NSPanel from a macOS app. However, you can can still use `AppKit` to create an `NSPanel` that allows the user to select the location where they want to save the image to:
+
+```swift:QRCodeEditor.swift
+private func showSavePanel(for type: UTType) -> URL? {
+    let savePanel = NSSavePanel()
+    savePanel.allowedContentTypes = [type]
+    savePanel.canCreateDirectories = true
+    savePanel.isExtensionHidden = false
+    savePanel.title = "Save the QR Code as an image"
+    savePanel.message = "Choose a folder and a name to store the image."
+    savePanel.nameFieldLabel = "Image file name:"
+
+    let response = savePanel.runModal()
+    return response == .OK ? savePanel.url : nil
+}
+```
+
+The function above creates an `NSPanel`, sets the allowed content types, shows the panel to the user using the `runModal` method and if the response is valid returns the URL the user has selected.
+
+You can then use this private function directly from a `SwiftUI` view. In my case, I have a `ToolbarItem` with a set of `MenuButton`s that allow the user to select the format they want to save the image as:
+
+```swift:QRCodeEditor.swift
+struct QRCodeEditor: View {
+    @ObservedObject var viewModel: QRCodeEditorViewModel
+
+    var body: some View {
+        HStack {
+            QRCodeCanvas(qrCode: viewModel.qrCode)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+
+            Divider()
+
+            Sidebar(qrCode: $viewModel.qrCode)
+                .frame(idealWidth: 250, maxWidth: 250, maxHeight: .infinity)
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    MenuButton(image: "photo", title: "Save as PNG", action: {
+                        if let url = showSavePanel(for: .png) { viewModel.save(at: url, with: .png) }
+                    })
+                    MenuButton(image: "photo", title: "Save as JPEG", action: {
+                        if let url = showSavePanel(for: .jpeg) { viewModel.save(at: url, with: .jpeg) }
+                    })
+                    MenuButton(image: "doc.on.clipboard", title: "Copy to clipboard", action: { viewModel.copyToClipboard() })
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
+    }
+}
+```
+
+## Rendering an image from a SwiftUI view
+
+Now that you have the location where the user wants to save the image to in the file system, you can use SwiftUI's `ImageRenderer` to render an image from a SwiftUI view and then write it to the URL the user has selected:
+
+```swift
+enum ContentType {
+    case jpeg
+    case png
+}
+
+@MainActor func save(_ qrCode: QRCodeModel, with contentType: ContentType, at url: URL) {
+    let qrCodeView = QRCodeCanvas(qrCode: qrCode).frame(width: 1024, height: 1024)
+    guard let cgImage = ImageRenderer(content: qrCodeView).cgImage else {
+        return
+    }
+
+    let image = NSImage(cgImage: cgImage, size: .init(width: 1024, height: 1024))
+    guard let representation = image?.tiffRepresentation else { return }
+    let imageRepresentation = NSBitmapImageRep(data: representation)
+
+    let imageData: Data?
+    switch contentType {
+    case .jpeg: imageData = imageRepresentation?.representation(using: .jpeg, properties: [:])
+    case .png: imageData = imageRepresentation?.representation(using: .png, properties: [:])
+    }
+
+    try? imageData?.write(to: url)
+}
+```
+
+Note that if you want to support multiple formats like in the snippet above, you will need to create an `NSBitmapImageRep` from the image's `tiffRepresentation` and then use the `representation(using:properties:)` method to convert the image to the desired format.
+
+## Bonus track: Saving an image to the clipboard
+
+As I mentioned in the introduction, the app also allows users to save the image directly to the clipboard by using a combination of `ImageRenderer` and `NSPaseteboard` calls:
+
+```swift
+@MainActor func copyToClipboard(qrCode: QRCodeModel) {
+    let qrCodeView = QRCodeCanvas(qrCode: qrCode).frame(width: 1024, height: 1024)
+    guard let cgImage = ImageRenderer(content: qrCodeView).cgImage else {
+        return
+    }
+
+    let image = NSImage(cgImage: cgImage, size: .init(width: 1024, height: 1024))
+    let pasteboard = NSPasteboard.general
+    pasteBoard.clearContents()
+    pasteBoard.writeObjects([image])
+}
+```
