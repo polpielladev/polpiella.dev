@@ -8,13 +8,13 @@ import Video from '@components/Video.svelte'
 
 I have recently been working on an app which allows users to create, edit and export QR codes as images.
 
-The app renders the QR code as a SwiftUI component and then uses SwiftUI's ImageRenderer to save the view as an image to the file system as either a PNG or JPEG. The app also gives you an option to save the image to the clipboard.
+The app renders the QR code as a SwiftUI component and then uses SwiftUI's ImageRenderer to save the view as an image to the file system as either a PNG or JPEG. The app also gives you the option to save the image to the clipboard.
 
-<Video src="" />
+<Video src="/assets/posts/how-to-save-swiftui-views-as-images-in-macos/export-image.mp4" />
 
 ## Showing an NSPanel from SwiftUI
 
-As it stands, SwiftUI does not have a native way to show an NSPanel from a macOS app. However, you can can still use `AppKit` to create an `NSPanel` that allows the user to select the location where they want to save the image to:
+As it stands, SwiftUI does not have a native way to show an NSPanel from a macOS app. However, you can still use `AppKit` to create an `NSPanel` that allows the user to select the location where they want to save the image to:
 
 ```swift:QRCodeEditor.swift
 private func showSavePanel(for type: UTType) -> URL? {
@@ -70,7 +70,7 @@ struct QRCodeEditor: View {
 
 ## Rendering an image from a SwiftUI view
 
-Now that you have the location where the user wants to save the image to in the file system, you can use SwiftUI's `ImageRenderer` to render an image from a SwiftUI view and then write it to the URL the user has selected:
+Now that you have the location where the user wants to save the image in the file system, you can use SwiftUI's `ImageRenderer` to render an image from a SwiftUI view and then write it to the URL the user has selected:
 
 ```swift
 enum ContentType {
