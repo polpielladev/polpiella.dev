@@ -1,0 +1,58 @@
+---
+number: 15
+date: 2023-05-07
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23"
+/>
+
+Hey everyone! 👋 Welcome to the **fifteenth** issue of the iOS CI Newsletter. I hope you've all had a fantastic couple of weeks!
+
+I just returned from an amazing trip to Turin where I spoke at [Swift Heroes](https://swiftheroes.com/2023/). I want to take this chance to thank the organisers and all hosts for having me and for putting on such an amazing event.
+
+My favourite thing about attending conferences is getting to know people who are passionate about app development and Swift just as much as I am (if not more) and learning from the other amazing speakers and the topics they covered in their talks.
+
+I now have a few days to get some rest and work on the next talks I am giving at [App Talks](https://www.meetup.com/app-talks-manchester/events/292702430?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23) in Manchester and [plSwift](https://plswift.com) in Warsaw. Hoping to meet some of you there! 👋
+
+## [🔁 GitHub Actions workflow side effects](https://www.polpiella.dev/github-action-workflows-side-effects?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+A couple of weeks ago I wrote an article on a **less common yet very powerful** way you can use GitHub Actions workflows. Specifically, I made use of the workflow_run trigger event to run a workflow based on the completion of another workflow.
+
+This event can come in very handy to send **real-time analytics** of your GitHub Actions workflow runs to an external service as I showcase in the article 📈.
+
+## [🔍 ETTrace: A new tool to profile iOS apps](https://www.emergetools.com/blog/posts/ettrace-reliable-ios-profiling-with-flamecharts?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+[Emerge Tools](https://twitter.com/emergetools) have recently announced the release of yet another amazing product (they are on fire recently 🔥❤️)! This time they have published an **Open Source CLI** written in Objective-C and Swift called [**ETTrace**](https://github.com/EmergeTools/ETTrace).
+
+The CLI allows you to profile your app locally directly from the command line and aims to be a **faster**, more **reliable** and **intuitive** alternative to Xcode's default time profiler instrument. I am yet to try it in one of my apps, but it certainly looks awesome!
+
+## [🆕 GitHub Actions: macOS 13 available!](https://github.blog/changelog/2023-04-24-github-actions-macos-13-is-now-available?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+[GitHub](https://twitter.com/github) has announced that the long-awaited **macOS 13 (Ventura) runners are now available**. This is great news for us iOS/macOS developers as the latest Xcode 14.3 **can only be installed on machines running macOS 13 or later**.
+
+Alongside this announcement, they have also made 12 core runners for macOS 12 and 13 available on a general public beta.
+
+## [📖 The ultimate guide to Jenkins for iOS](https://www.roger.ml/p/jenkins-ios-setup?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+Contrary to what most people think and despite its popularity not being at an all-time high, there are a lot of companies and developers out there using Jenkins as their main CI/CD provider in 2023, [including Apple themselves](https://www.swift.org/continuous-integration/)!
+
+The truth is that Jenkins is still a **very valid solution for businesses** and, if you're looking at learning more about it or setting up the CI/CD for your iOS app with Jenkins, [Roger Oba](https://twitter.com/rogerluan_) has written an all-you-need-to-know guide about it ✨.
+
+## [🔒 Try GitHub's new code-scanning support for Swift now!](https://forums.swift.org/t/beta-testers-wanted-get-a-sneak-peek-at-github-s-code-scanning-support-for-swift/64632?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+[GitHub](https://twitter.com/github) has recently announced that from the 1st of June, they will be adding Swift support for their code scanning solutions. This is very exciting news as it will allow developers to **get security alerts and warnings** on Swift repositories and will also **allow Dependabot to work on Swift projects** 🎉.
+
+✨ If you want to try the new changes out before June, you can **now apply for early access** following the instructions on the Swift forums post.
+
+## [📢 Codemagic now has M2 runners for existing customers](https://twitter.com/martinjeret/status/1651928758180274176?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2015%26utm_content%3Dmay_07_23)
+
+[Martin Jeret](https://twitter.com/martinjeret) announced on Twitter that [Codemagic](https://twitter.com/codemagicio) now has M2 runners available 🎉.
+
+They are **only available on request for existing customers**, so if you are a [Codemagic](http://twitter.com/codemagicio) user, make sure you request access to the new runners through the link in Martin's tweet.
