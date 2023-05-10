@@ -1,16 +1,16 @@
 ---
-title: 'How to launch an app from a Safari extension'
+title: 'How to launch a macOS SwiftUI app from a Safari extension'
 excerpt: ''
 pubDate: 2023-05-10
 ---
 
 import Video from '@components/Video.svelte'
 
-This week I have added a new feature to one of my side projects: QReate. This new feature allows you to create a new QR code in the app directly from the current tab's URL in Safari through an extension:
+This week I have added a new feature to one of my apps: QReate. This new feature allows users to create a new QR code in the app directly from the currently open URL in Safari through a extension:
 
 <Video src="/assets/posts/how-to-launch-an-app-from-a-safari-extension/demo.mp4" />
 
-In this article, I will explain how the extension retrieves the current tab's URL and how it launches the app with the URL as a parameter.
+In this article, I will explain how the extension retrieves the current tab's URL, how it launches the app with the URL as a query parameter and how the app handles this event.
 
 ## Creating a Safari extension
 
@@ -20,21 +20,20 @@ You can create a Safari extension for an existing macOS app in Xcode by going to
 
 ### Setting things up
 
-The template creates a new target in your project with most of the code we need but there are a few things we need to change and remove to make it work for our use case:
+The template creates a new target in your project that gets us most of the way there. There are still a few things we need to change and remove to make it work for our use case:
 
-- In this case, the extension does not show any UI to the user when clicked. For this reason, we can remove the default `ViewController` and storyboard file the template creates for us.
-
-- Additionally, we are not going to execute any Javascript code so we can also remove the `script.js` file from the Resources folder. We still need to keep the 'ToolbarItemIcon' file around (and replace it with a custom icon) as it is used to display the extension's icon in the toolbar.
-
-- We need to give the extension a meaningful description to be displayed in the Safari preferences. This can be done by editing the 'NSHumanReadableDescription' field under 'NSExtension' in the target's `Info.plist` file.
-
-- The extension needs to be able to access the current tab's URL and it hence requires a special set of permissions. We need to change the 'Level' field under 'SFSafariWebsiteAccess' to `All` so that we can read information about the current tab.
+- In this case, the extension does not show any UI to the user when interacted with. For this reason, we can remove the default `ViewController` and associated storyboard that the template has created for us.
+- Additionally, we are not going to execute any Javascript code so we can remove the `script.js` file from the Resources folder. We need to keep the 'ToolbarItemIcon' file around (and replace it with a custom icon) as it is used to display the extension's icon in the toolbar.
+- We need to give the extension a meaningful description to display to users in Safari's preferences by editing the 'NSHumanReadableDescription' field under 'NSExtension' in the target's `Info.plist` file.
+- The extension needs to be able to access the current tab's URL and it hence requires a special set of permissions. We need to change the 'Level' field under 'SFSafariWebsiteAccess' to `All`.
 
 ### A note on debugging
 
-You can debug the extension by either launching the app target or the extension target and selecting Safari as the host application.
+There are two separate ways to debug a Safari app extension:
+1. By launching the app target directly.
+2. By launching the extension target and selecting Safari as the host application.
 
-You must know that in both cases you will need to 'Allow Unsigned Extensions' in Safari's Develop menu.
+You must know that in both cases you will need to 'Allow Unsigned Extensions' in Safari's Develop menu:
 
 ![Allowing unsigned extensions for local debugging from Safari's Develop menu](/assets/posts/how-to-launch-an-app-from-a-safari-extension/allow-unsigned.webp)
 
@@ -44,7 +43,7 @@ Once you have done this, you can enable the extension in Safari's preferences an
 
 ### Launching the app
 
-We can listen for the user clicking on the extension's icon by overriding the `toolbarItemClicked(in:)` method in the `SafariExtensionHandler` class:
+The Safari App Extension target creates a subclass of `SFSafariExtensionHandler`. You can listen for the user clicking on the extension's icon by overriding the `toolbarItemClicked(in:)` method in said class:
 
 ```swift:SafariExtensionHandler.swift
 import SafariServices
@@ -66,11 +65,13 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
 
 In the method above, the extension retrieves the current tab in the Safari window, then the current page in the tab and finally the URL of said page.
 
-Once the URL is retrieved, the extension launches the app by opening a URL with a custom scheme and feeding it the URL as a query parameter.
+Once the URL is retrieved, the extension launches the app by opening a URL with a custom scheme and feeding it the tab's URL as a query parameter named 'content'.
 
 ### Turning extension off when no URL is available
 
-The extension should only be enabled when the user is on a page with a valid URL. We can turn off the extension by overriding the `validateToolbarItem(in:validationHandler:)` method in the `SafariExtensionHandler` class and only returning `true` when the current page has a valid URL:
+The extension should only be enabled when the user is on a page with a valid URL. 
+
+We can turn off the extension by overriding the `validateToolbarItem(in:validationHandler:)` method in the `SafariExtensionHandler` class and only returning `true` when the current page has a valid URL:
 
 ```swift:SafariExtensionHandler.swift
 import SafariServices
@@ -90,14 +91,14 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
 
 ## Handling the deep link in the app
 
-Now that the extension can launch the app through a deep link with the current tab's URL as a query parameter, we need to add some code to handle this deep link in the app with two simple steps:
+Now that the extension can launch the app through a deep link with the current tab's URL as a query parameter, we need to add some code to handle this deep link in the app by following two simple steps:
 
 1. **Registering** a URL type.
 2. **Listening** for deep links.
 
-### Adding a URL type
+### Registering a URL type
 
-The first step to handling a deep link in the app is to add a URL type with the same scheme launched from the Safari extension to the app's target in Xcode.
+The first step to handling a deep link in the app is to add a URL type to the app's target in Xcode with the same scheme launched from the Safari extension.
 
 This can be done by going to the 'Info' tab of the target's setting and adding a new entry in the 'URL Types' section:
 
@@ -105,7 +106,7 @@ This can be done by going to the 'Info' tab of the target's setting and adding a
 
 ### Listening for deep links
 
-If you're using SwiftUI, handling a deep link is as simple as adding a `.onOpenURL` modifier to the View that should listen for events:
+If you're using SwiftUI's app lifecycle, handling a deep link is as simple as adding a `.onOpenURL` modifier to the View that should listen for events:
 
 ```swift:QRCodeList.swift
 List(viewModel.qrCodes, id: \.id, selection: Binding<UUID?>(get: { viewModel.selectedQRCode }, set: viewModel.listItemTapped(_:))) { qrCode in
@@ -120,4 +121,4 @@ List(viewModel.qrCodes, id: \.id, selection: Binding<UUID?>(get: { viewModel.sel
 }
 ```
 
-The `onOpenURL` view modifier can then retrieve the URL components from the deep link, find the content query parameter and then create a new QR code with the URL in the content parameter.
+The `onOpenURL` view modifier above retrieves the URL components from the deep link, find the content query parameter and then create a new QR code with the URL in the content parameter.
