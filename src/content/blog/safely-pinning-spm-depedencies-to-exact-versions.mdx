@@ -1,21 +1,21 @@
 ---
 title: 'Safely pinning SPM dependencies to exact versions'
-excerpt: 'I will show you how code might change across different builds even when depending on an exact version of a Swift Package as well as how to mitigate the risks associated with this.' 
+excerpt: 'I will show you how code might change across different builds even when depending on an exact version of a Swift Package as well as how to mitigate the risks associated with this.'
 pubDate: 2023-02-15
 ---
 
-This week at work we have been looking into migrating third-party [CocoaPods](https://cocoapods.org/) dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise. 
+This week at work we have been looking into migrating third-party [CocoaPods](https://cocoapods.org/) dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise.
 
 We started off by reviewing our current [CocoaPods](https://cocoapods.org/) setup:
 
-* We have a `Podfile` at the root of the repo.
-* We commit both the `Podfile.lock` file and the `Pods` directory to source control.
-* We don't run `pod install` on CI.
-* Any changes to the `Podfile.lock` file are both checked by the developer committing the changes and the people reviewing the PR.
+- We have a `Podfile` at the root of the repo.
+- We commit both the `Podfile.lock` file and the `Pods` directory to source control.
+- We don't run `pod install` on CI.
+- Any changes to the `Podfile.lock` file are both checked by the developer committing the changes and the people reviewing the PR.
 
 This setup provides us with a number of benefits such as reproducible builds both locally and on CI and an easier bootstrapping process for new developers (you can clone the repo and build the app without installing [CocoaPods](https://cocoapods.org/) or any other third-party tools).
 
-As package resolution is a step of the build process, there is no easy and automated way of installing all Swift Package Manager dependencies into a *vendor* directory and committing it to source control like we do with [CocoaPods](https://cocoapods.org/). 
+As package resolution is a step of the build process, there is no easy and automated way of installing all Swift Package Manager dependencies into a _vendor_ directory and committing it to source control like we do with [CocoaPods](https://cocoapods.org/).
 
 For this reason, we decided to go for the next best option we had to ensure reproducible builds, which was **pinning dependencies to exact versions and committing the `Package.resolved` file to source control**.
 
@@ -23,7 +23,7 @@ For this reason, we decided to go for the next best option we had to ensure repr
 
 When you add a Swift Package Manager dependency to an Xcode project or to a Swift package or Xcode project within an `.xcworkspace`, the swift build system will generate/update a `Package.resolved` file under `<workspace_name>.xcworkspace/xcshareddata/swiftpm/Package.resolved`. This file will contain information about the version, revision and URL of all dependencies used by the project.
 
-The way `Package.resolved` differs from more traditional lock file implementations is that when something changes in your Swift Package Manager dependencies, the `Package.resolved` file will automatically update to reflect this during a build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager: 
+The way `Package.resolved` differs from more traditional lock file implementations is that when something changes in your Swift Package Manager dependencies, the `Package.resolved` file will automatically update to reflect this during a build. That being said, if you decide to depend on a specific version of a package, this `Package.resolved` file shouldn't really change during a build but, when we did some tests, we uncovered a potential risk we wanted to mitigate before switching our third-party dependencies over to Swift Package Manager:
 
 **Swift Package Manager relies on source control to resolve dependencies, which means that when you specify a version in your `Package.swift`, all you're saying is that you want to check out a specific git tag. Now, if someone decided to re-tag the version of a package you depend on to point to a different commit (with all the implications that could have), the build system would update the `Package.resolved` file to reflect this change the next time you build your app.**
 
@@ -35,7 +35,7 @@ Let's explain the problem further by creating an Xcode project which relies on a
 
 ![Xcode project with a single dependency](/assets/posts/safely-pinning-spm-dependencies-to-exact-versions/xcode.webp)
 
-TestSPMPackage has a single tag (v1.0.0), which points to a commit with sha `c959141bd7a39740f91e7e7431bb6d56ad84e4f6`. 
+TestSPMPackage has a single tag (v1.0.0), which points to a commit with sha `c959141bd7a39740f91e7e7431bb6d56ad84e4f6`.
 
 After adding the dependency to the project and specifying its version rule to be exactly `1.0.0`, the generated `Package.resolved` file looks like this:
 
@@ -58,7 +58,7 @@ After adding the dependency to the project and specifying its version rule to be
 }
 ```
 
-We commit this file to source control and push it to our remote repository. 
+We commit this file to source control and push it to our remote repository.
 
 Let's now consider the scenario where someone decides to change the `v1.0.0` tag's commit to a different one with sha `48c496db8ecd8e12277ad27db7c2a92fd5f93438`. Next time we build the app, there will be a change to the `Package.resolved` file:
 
@@ -88,10 +88,10 @@ Locally, the change would show up in our `git diff` and we would get the chance 
 Luckily, there is a flag built-in to `xcodebuild` which allows us to mitigate this risk. Passing `-disableAutomaticPackageResolution` to the `xcodebuild` command tells the build system to not update the `Package.resolved` file if any of the dependencies have changed and, if it can't resolve all packages with the information provided by `Package.resolved`, then fail the build.
 
 ```bash:Terminal
-xcodebuild 
+xcodebuild
   -workspace SomeWorkspace.xcworkspace                                          \
-  -scheme Debug                                                                 \         
-  -configuration Debug                                                          \          
+  -scheme Debug                                                                 \
+  -configuration Debug                                                          \
   -derivedDataPath ./derived_data/                                              \
   # 👇
   -disableAutomaticPackageResolution                                            \
@@ -99,9 +99,9 @@ xcodebuild
   -destination 'platform=iOS Simulator,id=6C6A5129-4D65-4A35-A439-67C894B4FF65' \
   -enableCodeCoverage YES                                                       \
   build-for-testing
-``` 
+```
 
-Even better, if you are using [fastlane](https://fastlane.tools/), you can set this flag by passing true to the `disable_pacakge_automatic_updates`  parameter in both the [gym](https://docs.fastlane.tools/actions/gym/) and [scan](https://docs.fastlane.tools/actions/scan/) actions 🎉:
+Even better, if you are using [fastlane](https://fastlane.tools/), you can set this flag by passing true to the `disable_package_automatic_updates` parameter in both the [gym](https://docs.fastlane.tools/actions/gym/) and [scan](https://docs.fastlane.tools/actions/scan/) actions 🎉:
 
 ```ruby:Fastfile
 run_tests(
@@ -121,7 +121,6 @@ run_tests(
 
 ## Future considerations
 
-It is important to note that Apple is currently working on a Package Registry Service which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article. 
+It is important to note that Apple is currently working on a Package Registry Service which would improve the Swift Package Manager ecosystem dramatically and potentially mitigate issues as the one described in this article.
 
 You can find out more about the Package Registry Service by reading proposal [SE-0292](https://github.com/apple/swift-evolution/blob/main/proposals/0292-package-registry-service.md).
-
