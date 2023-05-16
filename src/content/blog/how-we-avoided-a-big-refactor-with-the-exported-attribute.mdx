@@ -7,19 +7,111 @@ pubDate: 2023-05-17
 Let's consider your app is using a custom font and you have a `Font` enum which lazily loads the font resources and vends them to the rest of your app:
 
 ```swift:Font.swift
+import SwiftUI
+
 public enum Font {
-    public static let regular = FontFamily.MyAwesomeFont.regular
-    public static let medium = FontFamily.MyAwesomeFont.medium
-    public static let bold = FontFamily.MyAwesomeFont.bold
+    public static let regular: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.regular)
+    public static let medium: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.medium)
+    public static let bold: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.bold)
+}
+
+public struct FontProvider {
+    let baseFont: UIFont
+
+    public func font(size: CGFloat, relativeToStyle style: UIFont.TextStyle) -> UIFont {
+        let font = baseFont.font(size: size)
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
+    }
+
+    // Text styles...
+    var largeTitle: UIFont { font(size: 32, relativeToStyle: .largeTitle) }
+    var title: UIFont { font(size: 28, relativeToStyle: .title1) }
 }
 ```
 
 The rest of your app then uses this enum in a View modifier to apply the font to SwiftUI views:
 
+```swift:HomeViewController.swift
+class HomeViewController: UIViewController {
+    let label = UILabel()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        label.text = "Hello World"
+        label.font = Font.regular.largeTitle
+        // ...
+    }
+}
 ```
 
+## Reusing font loading code
+
+This code works well but let's now say you are starting a new app from scratch that uses the same code but needs to specify different text styles.
+
+You can move the `Font` enum and the `FontProvider` struct without any text style definitions into their own Swift Package and share it across both apps and leave the responsibility of defining the text styles to each of the clients consuming the new library.
+
+The resulting code in the Swift Package looks similar to the one you started with but without the text styles:
+
+```swift:Font.swift
+import SwiftUI
+
+public enum Font {
+    public static let regular: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.regular)
+    public static let medium: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.medium)
+    public static let bold: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.bold)
+}
+
+public struct FontProvider {
+    let baseFont: UIFont
+
+    public func font(size: CGFloat, relativeToStyle style: UIFont.TextStyle) -> UIFont {
+        let font = baseFont.font(size: size)
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: font)
+    }
+}
 ```
 
-This code works well but let's now say you are starting a new app from scratch that uses the same code but has different text styles.
+## Using the new Swift Package without refactoring
 
-You can move the `Font` enum into its own Swift Package and share it across both apps and leave the responsibility of defining the text styles to each of the clients consuming the new library.
+### Monolith approach
+
+Each of the client apps can now define text styles in their codebases by extending the `FontProvider` struct:
+
+```swift:FontProvider+TextStyles.swift
+// This is the new shared Swift Package
+import SharedFonts
+
+extension FontProvider {
+    public var largeTitle: UIFont { font(size: 32, relativeToStyle: .largeTitle) }
+    public var title: UIFont { font(size: 28, relativeToStyle: .title1) }
+}
+```
+
+Doing this in combination with adding imports to the new `SharedFont` package in each of the views consuming the `Font` enum will be enough to get your application building and running.
+
+### Modular approach
+
+However, if your code is modularised in an in-source Swift Package and you have a local `Font`s module, you can now import the new `SharedFont` Swift Package and use it in the module to define the extension in the same way as in the previous section:
+
+```swift:FontProvider+TextStyles.swift
+// This is the new shared Swift Package
+@_exported import SharedFonts
+
+extension FontProvider {
+    public var largeTitle: UIFont { font(size: 32, relativeToStyle: .largeTitle) }
+    public var title: UIFont { font(size: 28, relativeToStyle: .title1) }
+}
+```
+
+The difference now is that you can use Swift's `@_exported` underscored attribute which will re-export all the public interfaces of the `SharedFont` Swift Package.
+
+This means that whenever you import the local `Fonts` module, you will also be importing the public interfaces from the `SharedFont` Swift Package.
+
+The implications of this seemingly small change are great, as you no longer have to make any changes to the views consuming the `Font` enum 🎉.
+
+## Proceed with caution
+
+Although this approach works well for this specific use case, it is important to note that the use of the `@_exported` attribute is strongly discouraged outside of the Swift monorepo.
+
+The reason why I decided to do this is because I wanted to avoid having to make a lot of changes to the existing codebase and reduce the risk of introducing bugs across all screens of a big application.
