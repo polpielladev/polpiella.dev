@@ -15,7 +15,7 @@ Despite this, I am going to show an example of a use case where I deemed it appr
 Let's say you are working on a modular application that is using a custom font and you have a Swift Package containing a `Font` enum which lazily loads the custom font resources and vends them to the rest of your app:
 
 ```swift:Font.swift
-import SwiftUI
+import UIKit
 
 public enum Font {
     public static let regular: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.regular)
@@ -43,6 +43,7 @@ The views in your app then import the `Fonts` Swift Package and use the `Font` e
 
 ```swift:HomeViewController.swift
 import Fonts
+import UIKit
 
 class HomeViewController: UIViewController {
     let label = UILabel()
@@ -64,7 +65,7 @@ This code works well but let's now say you or another team in your company are w
 You can reuse the font-loading code by removing the text styles from the `FontProvider` struct, moving the `Fonts` Swift Package into its repository, renaming the target and package name (to something like `SharedFonts`) and importing it into both apps:
 
 ```swift:Font.swift
-import SwiftUI
+import UIKit
 
 public enum Font {
     public static let regular: FontProvider = FontProvider(baseFont: FontFamily.MyAwesomeFont.regular)
@@ -93,6 +94,7 @@ However, if you now build your application, you will get a compiler error becaus
 To address this, you can replace all files in `Fonts` with a single file that re-exports `SharedFonts` using the `@_exported` attribute and then extends the `FontProvider` struct to define the app-specific text styles:
 
 ```swift:FontProvider+TextStyles.swift
+import UIKit
 // This is the new shared Swift Package
 @_exported import SharedFonts
 
