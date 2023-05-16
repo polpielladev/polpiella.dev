@@ -3,3 +3,23 @@ title: 'How to avoid a big refactor with the @_exported attribute'
 excerpt: 'A practical use case of the @_exported underscore attribute to avoid a big refactor.'
 pubDate: 2023-05-17
 ---
+
+Let's consider your app is using a custom font and you have a `Font` enum which lazily loads the font resources and vends them to the rest of your app:
+
+```swift:Font.swift
+public enum Font {
+    public static let regular = FontFamily.MyAwesomeFont.regular
+    public static let medium = FontFamily.MyAwesomeFont.medium
+    public static let bold = FontFamily.MyAwesomeFont.bold
+}
+```
+
+The rest of your app then uses this enum in a View modifier to apply the font to SwiftUI views:
+
+```
+
+```
+
+This code works well but let's now say you are starting a new app from scratch that uses the same code but has different text styles.
+
+You can move the `Font` enum into its own Swift Package and share it across both apps and leave the responsibility of defining the text styles to each of the clients consuming the new library.
