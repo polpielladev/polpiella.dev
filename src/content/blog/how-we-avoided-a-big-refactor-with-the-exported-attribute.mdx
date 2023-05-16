@@ -4,15 +4,15 @@ excerpt: 'A practical use case of the @_exported underscore attribute to avoid a
 pubDate: 2023-05-17
 ---
 
-I have recently used Swift's `@_exported` underscored attribute in a real-world project to minimise the impact of the changes I was introducing and keep the risk of introducing bugs to a minimum.
+I have recently used Swift's `@_exported` underscored attribute in a real-world project to minimise the impact of the changes I was making and keep the risk of introducing bugs to a minimum.
 
-If you are not familiar with underscored attributes, they are part of the language but only intended to be used within the Swift monorepo as the documentation clearly states.
+If you are not familiar with [underscored attributes](https://github.com/apple/swift/blob/main/docs/ReferenceGuides/UnderscoredAttributes.md), you need to know that while they are part of the Swift language, they are not stable and are only intended to be used within the Swift monorepo as the documentation clearly states.
 
-Despite this, I am going to show an example of a use case where I deemed it appropriate to use the attribute and how it helped me reduce the number of files impacted by a refactor.
+Despite this, I am going to show a use case where the `@_exported` attribute came in handy to reduce the number of files impacted by a refactor. **I want to stress that this is not a recommended approach and should be used with caution**.
 
 ## The use case
 
-Let's say you are working on a modular application that is using a custom font and you have a Swift Package containing a `Font` enum which lazily loads the custom font resources and vends them to the rest of your app:
+Let's say you are working on a modular application that uses a custom font and you have a Swift Package containing a `Font` enum which lazily loads the custom font resources and vends them to the rest of your app:
 
 ```swift:Font.swift
 import UIKit
@@ -37,9 +37,9 @@ public struct FontProvider {
 }
 ```
 
-The different font sizes are accessed by the rest of your app through a series of text styles defined in the `FontProvider` struct.
+The different font sizes are accessed by the rest of the app through a series of text styles defined in the `FontProvider` struct.
 
-The views in your app then import the `Fonts` Swift Package and use the `Font` enum directly:
+The views in your app can then import the `Fonts` Swift Package and use the `Font` enum directly to access the different text styles:
 
 ```swift:HomeViewController.swift
 import Fonts
@@ -58,11 +58,16 @@ class HomeViewController: UIViewController {
 }
 ```
 
-## Reusing font loading code
+## Reusing the font loading code
 
 This code works well but let's now say you or another team in your company are working on a separate app that uses the same custom font but requires different text styles.
 
-You can reuse the font-loading code by removing the text styles from the `FontProvider` struct, moving the `Fonts` Swift Package into its repository, renaming the target and package name (to something like `SharedFonts`) and importing it into both apps:
+You can make the following changes to your existing Swift package to reuse the font-loading code:
+
+1. Remove all text styles from the `FontProvider` struct.
+2. Create a new shared Swift package with a different name (e.g. `SharedFonts`) and move the code in `Fonts` to the new package.
+3. Host the new Swift Package in a repository.
+4. Import the new package into any app that needs to use the custom font.
 
 ```swift:Font.swift
 import UIKit
@@ -83,15 +88,15 @@ public struct FontProvider {
 }
 ```
 
-The only responsibility that the `SharedFonts` package now has is to load and vend the custom fonts and the responsibility of defining the text styles is now on each of the clients consuming the library.
+The `SharedFonts` package is now only responsible for loading and vending the custom fonts and the responsibility of defining the text styles is now on each of the clients using the library.
 
 ## Using the new Swift Package without refactoring
 
-In the previous section, we made the conscious decision of renaming the `Fonts` Swift Package to `SharedFonts`. This now allows us to keep our in-source module with the same name to avoid having to make changes to the existing imports across the app.
+In the previous section, we made the conscious decision of renaming the `Fonts` Swift Package to `SharedFonts`. This now allows us to keep our in-source package with the same name to avoid having to make changes to the existing imports across the app.
 
-However, if you now build your application, you will get a compiler error because the `Font` and `FontProvider` symbols are now part of the `SharedFonts` module and there are no text styles defined in the `FontProvider` struct.
+However, if you now build your application, you will get a bunch of compiler errors as the `Font` and `FontProvider` symbols are now part of the `SharedFonts` module and there are no text styles defined in the `FontProvider` struct.
 
-To address this, you can replace all files in `Fonts` with a single file that re-exports `SharedFonts` using the `@_exported` attribute and then extends the `FontProvider` struct to define the app-specific text styles:
+To address this, you can replace all files in the in-source `Fonts` module with a single file that re-exports `SharedFonts` using the `@_exported` attribute and extends the `FontProvider` struct to define the app-specific text styles:
 
 ```swift:FontProvider+TextStyles.swift
 import UIKit
@@ -104,12 +109,12 @@ extension FontProvider {
 }
 ```
 
-What doing an `@_exported` import means is that whenever you import the local `Fonts` module, you will also be importing the public interfaces from the `SharedFont` Swift Package, which the views in your app are already using! 🎉
+Doing an `@_exported` import means that whenever you import the local `Fonts` module in your app, you will also be importing the public interfaces from the `SharedFonts` Swift Package, which the views in your app are already using! 🎉
 
-The implications of this seemingly small change are great, as you no longer have to make any changes to the views consuming the `Font` enum 🎉.
+The implications of this seemingly small change are great, as you don't have to make any changes to the views consuming the `Font` enum 🎉.
 
 ## Proceed with caution
 
 Although this approach works well for this specific use case, it is important to note that the use of the `@_exported` attribute is strongly discouraged outside of the Swift monorepo.
 
-I decided to go with this approach to avoid having to make numerous changes to the existing codebase, which would have made it hard to review, and reduce the risk of introducing bugs across all screens of a big application.
+I decided to go with this approach to avoid having to make numerous changes to the existing codebase, hence reducing the risk of introducing bugs across all screens of a big application.
