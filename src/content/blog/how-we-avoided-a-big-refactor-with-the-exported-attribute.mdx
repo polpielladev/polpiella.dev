@@ -4,7 +4,15 @@ excerpt: 'A practical use case of the @_exported underscore attribute to avoid a
 pubDate: 2023-05-17
 ---
 
-Let's consider your app is using a custom font and you have a `Font` enum which lazily loads the font resources and vends them to the rest of your app:
+I have recently used Swift's `@_exported` underscored attribute in a real-world project to minimise the impact of the changes I was introducing and keep the risk of introducing bugs to a minimum.
+
+If you are not familiar with underscored attributes, they are part of the language but only intended to be used within the Swift monorepo as the documentation clearly states.
+
+Despite this, I am going to show an example of a use case where I deemed it appropriate to use the attribute and how it helped me reduce the number of files impacted by a refactor.
+
+## The use case
+
+Let's say you are working on a modular application that is using a custom font and you have a Swift Package containing a `Font` enum which lazily loads the custom font resources and vends them to the rest of your app:
 
 ```swift:Font.swift
 import SwiftUI
@@ -29,9 +37,13 @@ public struct FontProvider {
 }
 ```
 
-The rest of your app then uses this enum in a View modifier to apply the font to SwiftUI views:
+The different font sizes are accessed by the rest of your app through a series of text styles defined in the `FontProvider` struct.
+
+The views in your app then import the `Fonts` Swift Package and use the `Font` enum directly:
 
 ```swift:HomeViewController.swift
+import Fonts
+
 class HomeViewController: UIViewController {
     let label = UILabel()
 
@@ -47,11 +59,9 @@ class HomeViewController: UIViewController {
 
 ## Reusing font loading code
 
-This code works well but let's now say you are starting a new app from scratch that uses the same code but needs to specify different text styles.
+This code works well but let's now say you or another team in your company are working on a separate app that uses the same custom font but requires different text styles.
 
-You can move the `Font` enum and the `FontProvider` struct without any text style definitions into their own Swift Package and share it across both apps and leave the responsibility of defining the text styles to each of the clients consuming the new library.
-
-The resulting code in the Swift Package looks similar to the one you started with but without the text styles:
+You can reuse the font-loading code by removing the text styles from the `FontProvider` struct, moving the `Fonts` Swift Package into its repository, renaming the target and package name (to something like `SharedFonts`) and importing it into both apps:
 
 ```swift:Font.swift
 import SwiftUI
@@ -72,27 +82,15 @@ public struct FontProvider {
 }
 ```
 
+The only responsibility that the `SharedFonts` package now has is to load and vend the custom fonts and the responsibility of defining the text styles is now on each of the clients consuming the library.
+
 ## Using the new Swift Package without refactoring
 
-### Monolith approach
+In the previous section, we made the conscious decision of renaming the `Fonts` Swift Package to `SharedFonts`. This now allows us to keep our in-source module with the same name to avoid having to make changes to the existing imports across the app.
 
-Each of the client apps can now define text styles in their codebases by extending the `FontProvider` struct:
+However, if you now build your application, you will get a compiler error because the `Font` and `FontProvider` symbols are now part of the `SharedFonts` module and there are no text styles defined in the `FontProvider` struct.
 
-```swift:FontProvider+TextStyles.swift
-// This is the new shared Swift Package
-import SharedFonts
-
-extension FontProvider {
-    public var largeTitle: UIFont { font(size: 32, relativeToStyle: .largeTitle) }
-    public var title: UIFont { font(size: 28, relativeToStyle: .title1) }
-}
-```
-
-Doing this in combination with adding imports to the new `SharedFont` package in each of the views consuming the `Font` enum will be enough to get your application building and running.
-
-### Modular approach
-
-However, if your code is modularised in an in-source Swift Package and you have a local `Font`s module, you can now import the new `SharedFont` Swift Package and use it in the module to define the extension in the same way as in the previous section:
+To address this, you can replace all files in `Fonts` with a single file that re-exports `SharedFonts` using the `@_exported` attribute and then extends the `FontProvider` struct to define the app-specific text styles:
 
 ```swift:FontProvider+TextStyles.swift
 // This is the new shared Swift Package
@@ -104,9 +102,7 @@ extension FontProvider {
 }
 ```
 
-The difference now is that you can use Swift's `@_exported` underscored attribute which will re-export all the public interfaces of the `SharedFont` Swift Package.
-
-This means that whenever you import the local `Fonts` module, you will also be importing the public interfaces from the `SharedFont` Swift Package.
+What doing an `@_exported` import means is that whenever you import the local `Fonts` module, you will also be importing the public interfaces from the `SharedFont` Swift Package, which the views in your app are already using! 🎉
 
 The implications of this seemingly small change are great, as you no longer have to make any changes to the views consuming the `Font` enum 🎉.
 
@@ -114,4 +110,4 @@ The implications of this seemingly small change are great, as you no longer have
 
 Although this approach works well for this specific use case, it is important to note that the use of the `@_exported` attribute is strongly discouraged outside of the Swift monorepo.
 
-The reason why I decided to do this is because I wanted to avoid having to make a lot of changes to the existing codebase and reduce the risk of introducing bugs across all screens of a big application.
+I decided to go with this approach to avoid having to make numerous changes to the existing codebase, which would have made it hard to review, and reduce the risk of introducing bugs across all screens of a big application.
