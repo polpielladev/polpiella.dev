@@ -1,0 +1,48 @@
+---
+number: 16
+date: 2023-05-21
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23"
+/>
+
+Hey everyone! 👋 Welcome to the **sixteenth** issue of the iOS CI Newsletter. I hope you've all had a fantastic couple of weeks!
+
+Over the past few weeks, I have been working on creating Swift Packages with code that is shared (and currently duplicated) across multiple products and teams in the organisation I work for.
+
+This is not something we have done before as we have only ever depended on either **local or public Swift Packages** and it has definitely been a formidable challenge to solve given our requirements on CI runners and how **little access we want to give them**.
+
+We have a neat solution which gives the runner enough access for the current workflow only using **token-based authentication** while still keeping **ssh-based auth for local development**. Keep an eye on my social media and my blog if you are interested as I will be writing an article about it.
+
+## [🔁 Airbnb's CI/CD migration to AWS](https://medium.com/airbnb-engineering/flexible-continuous-integration-for-ios-4ab33ea4072f?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23)
+
+In this great article, [Michael Bachand](https://twitter.com/michaelbachand) and [Xianwen Chen](https://www.linkedin.com/in/xianwen1014) take us through why and how [Airbnb](https://twitter.com/AirbnbEng) has moved their iOS CI/CD away from non-virtualised physical macOS runners to scalable EC2 macOS instances in AWS.
+
+## [🤯 Running GitHub Actions workflows locally](https://grantisom.com/2023/05/15/using-act-to.html?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23)
+
+This great article from [Grant Isom](https://www.linkedin.com/in/grantisom/) introduced me to [Act](https://github.com/nektos/act): a command-line tool made by [Casey Lee](https://twitter.com/nektos) that allows you to run GitHub Actions workflows locally.
+
+Act can help you test your GitHub Actions directly from your terminal to tighten the feedback loop and can even help you replace some of your current scripts with local GitHub Actions workflow runs! 🤯
+
+## [🏛️ Getting your app ready for Apple silicon](https://bitrise.io/blog/post/transitioning-your-mobile-apps-from-intel-to-apple-silicon?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23)
+
+[As of version 14.3, running Xcode under Rosetta is no longer supported on Apple Silicon machines](https://developer.apple.com/documentation/xcode-release-notes/xcode-14_3-release-notes#Deprecations). If you are still struggling to get your app to run on Apple Silicon simulators due to the new arm64 slice, this article from [Bitrise](https://twitter.com/bitrise) can help you out!
+
+If you are **blocked by a third-party dependency** to release an update with support for Apple Silicon and you don't want to wait anymore, I would suggest checking out [this amazing article](https://bogo.wtf/arm64-to-sim.html?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23) by [Bogo](https://twitter.com/giertler) on how you can convert arm64 device arch slices into Apple Silicon sim-compatible ones.
+
+## [📱 Edit GitHub Actions workflows from your phone](https://github.blog/changelog/2023-05-11-edit-workflow-files-on-github-mobile?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23)
+
+I recently came across this cool improvement to the [GitHub](https://twitter.com/github) mobile app. You can now edit your [GitHub](https://twitter.com/github) Actions workflow files on the go directly from your iOS or Android device! 🎉📱
+
+## [❗️ Node 12 will no longer be allowed in GitHub Actions](https://github.blog/changelog/2023-05-04-github-actions-all-actions-will-run-on-node16-instead-of-node12?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23)
+
+As of the 18th of May, [GitHub](https://twitter.com/github) no longer allows actions to run **Node 12.0**. When using Node in a workflow, it is now a requirement to use **version 16.0 or newer**.
+
+What's important to know is that the [@actions/checkout (v2)](https://github.com/actions/checkout) and [@actions/upload-artifact (v2)](https://github.com/actions/upload-artifact) actions use Node 12.0 and you now must update to their latest versions, which use Node 16.0. [If you want a fast and easy way of updating the version for these built-in actions on all your workflows, make sure you check out this article](https://blog.eidinger.info/why-and-how-to-adopt-actionscheckoutv3-in-your-github-action-workflow?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2016%26utm_content%3Dmay_21_23) [Marco Eidinger](https://twitter.com/MarcoEidinger) wrote a while back.
