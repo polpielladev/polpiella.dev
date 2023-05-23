@@ -52,10 +52,57 @@ let package = Package(
 
 ## Building the app on CI/CD
 
-### Using an 'elevated' access token
+Now that the app was building locally, we needed to make it work on CI/CD.
 
 ### Modifying the global git config
 
+By now you might be thinking that I have contradicted myself. I started the article by saying that we wanted to use personal access tokens to build our app on CI/CD, but then I went ahead and defined our dependencies using SSH URLs.
+
+The cool thing about git is that you can provide overrides for the way it clones repositories through the git config file. This way, we can tell git to use HTTPS URLs instead of SSH URLs when cloning repositories on CI/CD while keeping SSH keys locally:
+
+```yml:override-git-config
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+```
+
+This `override-git-config` file can be commited to the repository and then used to override the global git config on CI/CD for the current session only through environment variables:
+
+> Note that I am using a fastlane lane in this example, but you can use any other tool to achieve the same result.
+
+```ruby
+desc "Set up git credentials"
+private_lane :cache_git_crendetials do
+  ENV["GIT_CONFIG_GLOBAL"] = "#{ENV['PWD']}/override-git-config"
+end
+```
+
 ### Storing the access token in the cache
 
+By default, macOS runners have a system git config file which defaults to using the `keychain` as the git credential helper. This causes any access token used for authentication to be stored in the system forever, causing the runner to have access to clone repositories even after the workflow has finished.
+
+To override this behaviour, we had to override the system git config file we created earlier to use `cache` as the git credential helper instead:
+
+```yml:override-git-config
+[credential]
+	helper = cache --timeout 900
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+```
+
+The beauty of this approach is that, due to the way the cache credential helper works, the credentials will always be stored in an in-memory cache and never to a file. Furthermore, as we are setting a timeout of 900 seconds, the credentials will be removed from the cache 15 minutes after they are used (e.g. after cloning a repository).
+
+In macOS runners, we had to tell git to ignore the system git config file through an environment variable to stop using the keychain as the credential helper during the current session:
+
+```ruby
+desc "Set up git credentials"
+private_lane :cache_git_crendetials do
+  ENV["GIT_CONFIG_GLOBAL"] = "#{ENV['PWD']}/override-git-config"
+  ENV["GIT_CONFIG_NOSYSTEM"] = "true"
+end
+```
+
 ### Removing the access token from the cache
+
+```
+
+```
