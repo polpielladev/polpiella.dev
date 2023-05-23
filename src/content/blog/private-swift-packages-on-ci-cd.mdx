@@ -3,3 +3,26 @@ title: 'Private Swift packages on CI/CD'
 excerpt: 'How to build an app that depends on private Swift packages on CI/CD.'
 pubDate: 2023-05-24
 ---
+
+At work we have recently started to use Swift packages to share code between our iOS apps across different products and teams.
+Due to the nature of the code we are sharing, we needed the host the packages on internal GitHub repositories accessible only to our organisation.
+
+This caused a myriad of issues when trying to build our app on CI/CD using these new packages as we had previously only dependend on public packages in the past.
+
+In this article I will go through the solution we came up with and how we leveraged the use of GitHub personal access tokens to make it work on CI/CD.
+
+## The requirements
+
+We use GitHub actions as our CI/CD tool of choice and, by default, it clones the current repository using a short-lived token with a very narrow scope through the `@actions/checkout` action.
+
+## Building the app locally
+
+## Building the app on CI/CD
+
+### Using an 'elevated' access token
+
+### Modifying the global git config
+
+### Storing the access token in the cache
+
+### Removing the access token from the cache
