@@ -76,7 +76,7 @@ private_lane :cache_git_crendetials do
 end
 ```
 
-### Storing the access token in the cache
+### Setting the credential helper
 
 By default, macOS runners have a system git config file which defaults to using the `keychain` as the git credential helper. This causes any access token used for authentication to be stored in the system forever, causing the runner to have access to clone repositories even after the workflow has finished.
 
@@ -101,8 +101,67 @@ private_lane :cache_git_crendetials do
 end
 ```
 
-### Removing the access token from the cache
+### Storing the access token in the cache
 
+After we had the credential helper all set up and ready to go, we needed to store the access token in the cache so that `xcodebuild` could use it to clone the private Swift packages.
+
+To do this, we created a script that would retrieve the access token from the environemnt (we pass it through a secret in the repository) and store it in the cache using the `git credential-cache` command:
+
+```bash:store-access-token.sh
+<< eof tr -d ' ' | git credential-cache store
+  protocol=https
+  host=github.com
+  username=nonce
+  password=$GIT_TOKEN
+eof
 ```
 
+The beauty about this command, which we found in [this gist by Rober Citek](https://gist.github.com/rwcitek/da862e9e27cc28d3e96e62a2ca4b2b64), is that it will call `git credential-cache store` without having to create a file with the credentials in it first 🎉.
+
+We then used the script in the same fastlane lane we created earlier:
+
+```ruby:Fastfile
+desc "Set up git credentials"
+private_lane :cache_git_crendetials do
+  ENV["GIT_CONFIG_GLOBAL"] = "#{ENV['PWD']}/override-git-config"
+  ENV["GIT_CONFIG_NOSYSTEM"] = "true"
+  sh("./store-access-token.sh")
+end
+```
+
+### Removing the access token from the cache
+
+The last thing to do was to store the access token in the cache right before the application is built and remove it straight after, even if the build fails.
+
+First, we created a new lane to remove the access token from the in-memory cache. This is as simple as stopping the credential helper:
+
+```ruby:Fastfile
+desc "Remove git credentials"
+private_lane :remove_git_credentials do
+  ENV["GIT_CONFIG_GLOBAL"] = "#{ENV['PWD']}/override-git-config"
+  ENV["GIT_CONFIG_NOSYSTEM"] = "true"
+  sh("git credential-cache exit")
+end
+```
+
+Then, we wrapped our build commands in a `begin/ensure` block to make sure that the credentials are cached and removed at the right time:
+
+```ruby:Fastfile
+desc "Build the applicatiom"
+lane :build do
+    # ...
+    begin
+      cache_git_crendetials
+
+    gym(
+        clean: true,
+        configuration: 'Debug',
+        derived_data_path: './derived_data',
+        scheme: 'Debug',
+        workspace: 'HelloWorld.xcworkspace'
+    )
+    ensure
+      remove_git_credentials
+    end
+end
 ```
