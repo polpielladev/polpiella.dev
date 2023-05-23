@@ -15,7 +15,40 @@ In this article I will go through the solution we came up with and how we levera
 
 We use GitHub actions as our CI/CD tool of choice and, by default, it clones the current repository using a short-lived token with a very narrow scope through the `@actions/checkout` action.
 
+For this reason, our runners are not set up to use SSH keys and by default only have access to the repository that triggered the workflow. Access to any other repositories must be granted explicitly through the use of an elevated access token.
+
+We wanted to preserve this behaviour only grant access during the execution of a workflow, so we decided to use a personal access token with access to clone all repositories in our organisation.
+
 ## Building the app locally
+
+All developers in our team use SSH keys to authenticate with GitHub and have access to all repositories in our organisation.
+
+For this reason, we decided to define our private Swift package dependencies using SSH URLs in the `Package.swift` manifest:
+
+```swift:Package.swift
+// swift-tools-version:5.7
+
+import PackageDescription
+
+let package = Package(
+    name: "YourAwesomePackage",
+    products: [
+        .library(
+            name: "YourAwesomePackage",
+            targets: ["YourAwesomePackage"]
+        )
+    ],
+    dependencies: [
+        .package(url: "git@github.com:your-org/your-dependency.git", exact: "1.0.0")
+    ],
+    targets: [
+        .target(
+            name: "YourAwesomePackage",
+            dependencies: [.product(name: "YourDependency", package: "your-dependency")]
+        )
+    ]
+)
+```
 
 ## Building the app on CI/CD
 
