@@ -18,19 +18,67 @@ Up until recently, I was handling the deployment of the lambda manually. I was f
 
 This was a bit tedious and I wanted to automate the process. I also wanted to make sure that the lambda was always deployed with the latest version of the code.
 
+## How to archive the lambda
+
+### A quick note on the archive command plugin
+
+## Creating AWS credentials
+
 ## Creating a GitHub Actions workflow
 
-### Running in a Docker container
+For this project, I decided to use GitHub Actions as my CI/CD provider of choice. I have been using it for a while now and I like how easy it is to set up and use.
 
-### Installing all dependencies
+On top of that, you get unlimited minutes for free on public repositories and, as I was already planning on open-sourcing the code, this was a no-brainer.
 
-### Archiving the lambda
+I then created a new workflow file in the `.github/workflows` folder that runs on every push to the `main` branch, archives the lambda and deploys it to AWS:
 
-#### A quick note
+```yaml:deploy.yml
+name: Deploy the serverless lambda to AWS
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    # 1
+    runs-on: ubuntu-latest
+    container:
+      image: swift:5.7-amazonlinux2
+    steps:
+      # 2
+      - uses: actions/checkout@v3
+      # 3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+      # 4
+      - name: Install zip
+        run: |
+          yum install -y zip
+      - name: Install awscli
+        run: |
+          yum install -y awscli
+      # 5
+      - name: Archive the lambda
+        run: |
+          ./package.sh CampaignSentWebhook
+      # 6
+      - name: Deploy to AWS
+        run: |
+          aws lambda update-function-code --function-name CampaignSentWebhook --zip-file fileb://.build/lambda/CampaignSentWebhook/lambda.zip
+```
 
-### Authenticating with AWS
+Let's go through the file and break down what each step does:
 
-### Deploying the lambda
+1. The workflow uses a runner with the latest version of Ubuntu and runs every step in the `deploy` job inside a `swift:5.7-amazonlinux2` Docker container.
+2. Check out the code from the repository.
+3. Configure the AWS credentials using the secrets stored in the repository's settings that we created in the previous section. This step uses an official GitHub Action provided by AWS.
+4. Install all dependencies that the workflow needs: `zip` to compress all files into a single archive and `awscli` to deploy the lambda to AWS.
+5. Run the `package.sh` script we created earlier in the article to archive the lambda and produce a single `.zip` file.
+6. Deploy the artefact from the previous step using the AWS CLI.
 
 ## Open sourcing the code
 
