@@ -1,0 +1,35 @@
+---
+title: 'Automatic deployment of Swift AWS lambdas on CI/CD'
+excerpt: 'How to use GitHub Actions and the AWS CLI to automatically.'
+pubDate: 2023-05-31
+---
+
+import StaticTweet from '@components/static-tweet/StaticTweet.astro'
+
+I have been using a Swift AWS lambda for a while now to automatically send a tweet whenever a new issue of the iOS CI Newsletter is sent to all subscribers.
+
+The workflow is very simple: whenever the newsletter is sent to all subscribers, a webhook event is sent from the provider to the AWS lambda.
+
+The lambda then uses the event's payload to send a tweet with the newsletter's title, the featured authors, the sponsor and the number of subscribers the email was sent to.
+
+## Recent improvements
+
+Up until recently, I was handling the deployment of the lambda manually. I was first building the lambda using the Swift Package command plugin provided by the [Swift AWS Lambda Runtime]() and then uploading the resulting .zip file to the AWS console.
+
+This was a bit tedious and I wanted to automate the process. I also wanted to make sure that the lambda was always deployed with the latest version of the code.
+
+## Creating a GitHub Actions workflow
+
+### Running in a Docker container
+
+### Installing all dependencies
+
+### Archiving the lambda
+
+#### A quick note
+
+### Deploying the lambda
+
+## Open sourcing the code
+
+## I have made a template
