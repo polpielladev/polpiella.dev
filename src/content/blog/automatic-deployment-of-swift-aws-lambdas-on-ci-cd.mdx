@@ -6,31 +6,96 @@ pubDate: 2023-05-31
 
 import StaticTweet from '@components/static-tweet/StaticTweet.astro'
 
-I have been using a Swift AWS lambda for a while now to automatically send a tweet whenever a new issue of the iOS CI Newsletter is sent to all subscribers.
+I have been using a **Swift AWS lambda** to automatically post a tweet whenever a new issue of the [iOS CI Newsletter](https://www.polpiella.dev/newsletter) is sent to all subscribers.
 
-The workflow is very simple: whenever the newsletter is sent to all subscribers, a webhook event is sent from the provider to the AWS lambda.
-
-The lambda then uses the event's payload to send a tweet with the newsletter's title, the featured authors, the sponsor and the number of subscribers the email was sent to.
+I use the campaign sent webhook event from [Sendy](https://sendy.co) to trigger new lambda runs. The lambda then uses the event's payload to get the issue number, the number of subscribers the email was sent to and the featured authors' Twitter profiles to compose the tweet's body and uses Twitter's API to post it.
 
 ## Recent improvements
 
-Up until recently, I was handling the deployment of the lambda manually. I was first building the lambda using the Swift Package command plugin provided by the [Swift AWS Lambda Runtime]() and then uploading the resulting .zip file to the AWS console.
+Up until recently, I was deploying new versions of the lambda manually to AWS. I was building the code locally using the archive package command plugin provided by the [Swift AWS Lambda Runtime]() and then uploading the resulting .zip file to the AWS console.
 
-This was a bit tedious and I wanted to automate the process. I also wanted to make sure that the lambda was always deployed with the latest version of the code.
+While this solution worked fine, it required a fair amount of manual work and it made it hard for me to know what code the deployed version of the lambda was built with.
 
-## How to archive the lambda
+For these reasons (and partly for my love of tooling and CI/CD 😅), I decided to automate the deployment process so that the lambda's code would be updated every time I pushed a commit to the `main` branch of the repository.
+
+## Archiving the lambda
+
+The first step I took was to create a script that would build the lambda's executable product from the project and package it into a `.zip` file with the folder structure expected by AWS.
+
+> Note: The second part of the script which packages the resulting binary into a `.zip` file compatible with AWS's expected folder structure is taken from this amazing article from [Fabian Fett](https://twitter.com/fabianfett) on [Getting started with Swift AWS Lambda Runtime](https://fabianfett.dev/getting-started-with-swift-aws-lambda-runtime#step-6-packing-your-executable-for-deployment).
+
+```bash:package.sh
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -euo pipefail
+
+# Print commands before executing them
+set -x
+
+# Get the name of the product
+product=$1
+
+# Build the lambda
+swift build --product $product -c release -Xswiftc -static-stdlib
+
+# Package into a `.zip` file for upload
+# This script is available at:
+# https://fabianfett.dev/getting-started-with-swift-aws-lambda-runtime#step-6-packing-your-executable-for-deployment
+target=.build/lambda/$product
+rm -rf "$target"
+mkdir -p "$target"
+cp ".build/release/$product" "$target/"
+cd "$target"
+ln -s "$product" "bootstrap"
+zip --symlinks lambda.zip *
+```
+
+If you pay close attention to the script above, you will notice that even though AWS lambda binaries need to be compatible with amazonlinux2 operating systems, there are no specific references to any Docker images to run the `swift build` command on. What you need to know is that this script is designed to only be executed on machines that run on the same operating system as the one used by AWS lambdas (amazonlinux2).
+
+As you will later on in the article, the CI/CD pipeline that I set up uses a Docker image that runs on amazonlinux2 to build the lambda's code using the script.
 
 ### A quick note on the archive command plugin
 
+Before I continue, I wanted to quickly note that my initial plan was to use the [swift package archive]() command on CI/CD to build and package the lambda's code. Unfortunately, I ran into [an issue where the plugin execution was failing on CI/CD](https://github.com/polpielladev/sendy-webhooks/actions/runs/5113000554/jobs/9191696719) and I had to resort to using a bash script instead.
+
+If you have come across [this issue](https://github.com/polpielladev/sendy-webhooks/actions/runs/5113000554/jobs/9191696719) before and know to fix it or what exactly is causing it to fail, please drop me a message on Twitter or Linkedin. I would love to know what I am doing wrong.
+
 ## Creating AWS credentials
+
+The CI/CD pipeline I will set up later in the article will make use of the [AWS CLI](https://aws.amazon.com/cli/) to update the lambda's code. To do so, the CLI needs to be configured with a set of credentials with the right permissions.
+
+In this section I will show you **what worked for me** but I want to make it clear that I am not an AWS expert and there might be better ways to achieve the same result. If you notice any mistakes or have any suggestions to improve the process, please let me know.
+
+### Creating a new user
+
+The easiest way to give the CLI access to deploy code to a specific lambda is to create a new user with just the required permissions:
+
+1. Sign in to the AWS console and find the IAM service.
+2. Click on the "Users" tab in the sidebar and then click on the "Add users" button.
+3. Start by giving the user a name. You do not need to give the new user access to the AWS console (as it will only be used on CI/CD).
+4. On the next screen, select "Attach policies directly" and click on "Create policy".
+5. On the policy editor screen, select the "Lambda" service from the list.
+6. From the list of available allowed actions, check "UpdateFunctionCode" only. You can narrow down the scope of the "UpdateFunctionCode" action access by specifying the arn of the lambda you want to deploy to. Alternatively, you can grant access to all lambdas in your account by using the `*` wildcard.
+7. Review the policy and give it a name.
+8. Go back to the user creation screen and refresh the list of policies. You should now be able to see and attach the new policy you have just created.
+9. Review the details and finish creating the new user.
+
+### Retrieving the user's Access Key and Secret
+
+Now that the user has been created, you need to retrieve its access key and secret from the AWS console:
+
+1. Click on the user's name in the list of users.
+2. Click on the "Security credentials" tab and click on "Create access key".
+3. Select the "Command Line Interface (CLI)" option from the list and click "Next".
+4. Set a description tag for the key and click next.
+5. Copy the "Access Key" and "Secret access key" values and store them somewhere safe. **You mustn't lose them as you will not be able to retrieve them again from the AWS console**.
 
 ## Creating a GitHub Actions workflow
 
-For this project, I decided to use GitHub Actions as my CI/CD provider of choice. I have been using it for a while now and I like how easy it is to set up and use.
+For this project, I decided to use GitHub Actions as my CI/CD provider of choice. I have been using GitHub Actions for quite some time and I like how easy it is to set up and use. On top of that, you get unlimited minutes for free on public repositories and, as I was already planning on open-sourcing the code, it made sense to use it.
 
-On top of that, you get unlimited minutes for free on public repositories and, as I was already planning on open-sourcing the code, this was a no-brainer.
-
-I then created a new workflow file in the `.github/workflows` folder that runs on every push to the `main` branch, archives the lambda and deploys it to AWS:
+To set up the automatic AWS lambda deployment pipeline, I created a new workflow file in the `.github/workflows` folder of my repository. This workflow runs on every push to the `main` branch, archives the lambda and deploys it to AWS using the [AWS CLI](https://aws.amazon.com/cli/):
 
 ```yaml:deploy.yml
 name: Deploy the serverless lambda to AWS
@@ -73,13 +138,9 @@ jobs:
 
 Let's go through the file and break down what each step does:
 
-1. The workflow uses a runner with the latest version of Ubuntu and runs every step in the `deploy` job inside a `swift:5.7-amazonlinux2` Docker container.
+1. Use the latest version of Ubuntu and run every step in the `deploy` job inside a `swift:5.7-amazonlinux2` Docker container.
 2. Check out the code from the repository.
-3. Configure the AWS credentials using the secrets stored in the repository's settings that we created in the previous section. This step uses an official GitHub Action provided by AWS.
+3. Configure the AWS credentials using the secrets stored in the repository's settings that we created earlier in the article. This step uses [an official GitHub Action provided by AWS](https://github.com/aws-actions/configure-aws-credentials).
 4. Install all dependencies that the workflow needs: `zip` to compress all files into a single archive and `awscli` to deploy the lambda to AWS.
 5. Run the `package.sh` script we created earlier in the article to archive the lambda and produce a single `.zip` file.
-6. Deploy the artefact from the previous step using the AWS CLI.
-
-## Open sourcing the code
-
-## I have made a template
+6. Deploy the artefact from the previous step using the [AWS CLI](https://aws.amazon.com/cli/). This step uses the access key and secret from the previous step to authenticate with AWS. For security reasons, these values are stored as secrets in the repository's settings and can easily be retrieved directly from the GHA workflow using the `${{ secrets.SECRET_NAME }}` syntax.
