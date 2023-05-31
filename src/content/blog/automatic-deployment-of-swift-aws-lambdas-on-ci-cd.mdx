@@ -6,13 +6,13 @@ pubDate: 2023-05-31
 
 import StaticTweet from '@components/static-tweet/StaticTweet.astro'
 
-I have been using a **Swift AWS lambda** to automatically post a tweet whenever a new issue of the [iOS CI Newsletter](https://www.polpiella.dev/newsletter) is sent to all subscribers.
+I have been using a **Swift AWS lambda** for some time to automatically post a tweet whenever a new issue of the [iOS CI Newsletter](https://www.polpiella.dev/newsletter) is sent to all subscribers.
 
-I use the campaign sent webhook event from [Sendy](https://sendy.co) to trigger new lambda runs. The lambda then uses the event's payload to get the issue number, the number of subscribers the email was sent to and the featured authors' Twitter profiles to compose the tweet's body and uses Twitter's API to post it.
+To make this automation work, I use the `campaign_sent` webhook event from [Sendy](https://sendy.co) to trigger a new lambda run. The lambda then uses the event's payload to get the issue number, the number of subscribers the email was sent to and the featured authors' Twitter profiles to compose the tweet's body and uses Twitter's API to post it.
 
 ## Recent improvements
 
-Up until recently, I was deploying new versions of the lambda manually to AWS. I was building the code locally using the archive package command plugin provided by the [Swift AWS Lambda Runtime]() and then uploading the resulting .zip file to the AWS console.
+Up until recently, I was deploying new versions of the lambda manually to AWS. I was building the code locally using the archive package command plugin provided by the [Swift AWS Lambda Runtime](https://github.com/swift-server/swift-aws-lambda-runtime) and then uploading the resulting .zip file to the AWS console.
 
 While this solution worked fine, it required a fair amount of manual work and it made it hard for me to know what code the deployed version of the lambda was built with.
 
@@ -57,7 +57,7 @@ As you will later on in the article, the CI/CD pipeline that I set up uses a Doc
 
 ### A quick note on the archive command plugin
 
-Before I continue, I wanted to quickly note that my initial plan was to use the [swift package archive]() command on CI/CD to build and package the lambda's code. Unfortunately, I ran into [an issue where the plugin execution was failing on CI/CD](https://github.com/polpielladev/sendy-webhooks/actions/runs/5113000554/jobs/9191696719) and I had to resort to using a bash script instead.
+Before I continue, I wanted to quickly note that my initial plan was to use the [swift package archive](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Plugins/AWSLambdaPackager/Plugin.swift#L24) command on CI/CD to build and package the lambda's code. Unfortunately, I ran into [an issue where the plugin execution was failing on CI/CD](https://github.com/polpielladev/sendy-webhooks/actions/runs/5113000554/jobs/9191696719) and I had to resort to using a bash script instead.
 
 If you have come across [this issue](https://github.com/polpielladev/sendy-webhooks/actions/runs/5113000554/jobs/9191696719) before and know to fix it or what exactly is causing it to fail, please drop me a message on Twitter or Linkedin. I would love to know what I am doing wrong.
 
