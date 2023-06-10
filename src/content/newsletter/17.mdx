@@ -1,0 +1,58 @@
+---
+number: 17
+date: 2023-06-11
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23"
+/>
+
+Hey everyone! 👋 Welcome to the **WWDC special** issue of the iOS CI Newsletter. I hope you've all enjoyed Apple's Developer Conference and are looking forward to trying out all the **new features and APIs**.
+
+In this special edition of the newsletter, I will be sharing my favourite WWDC sessions on CI/CD and developer tooling along with some great content from the community.
+
+The main CI/CD highlight of this year's edition of Apple's Developer Conference for me is the fact that **Xcode Cloud** now allows you to automatically set **TestFlight test notes for beta builds**. This is a feature I have long been waiting for, and I got so excited when it was announced that I had to try it out and **write an article on the topic**!
+
+I am also very excited to dive into **Swift macros**, **visionOS**, the exciting **mergeable libraries** and all of the **UIKit** and **SwiftUI** improvements!
+
+❓What's your WWDC highlight? Reach out to me on Twitter or reply to this email with what you're most excited about.
+
+## [☁️ Xcode Cloud: Setting TestFlight test notes](https://www.polpiella.dev/setting-testflight-test-notes-for-xcode-cloud-builds?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+As I said in the introduction, the ability to set **test notes directly on Xcode Cloud builds** is a feature I have long been waiting for.
+
+I was so excited when Jason Wu and [Chris D'Angelo](https://twitter.com/myChrisDangelo?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) announced the feature in their session [Simplify distribution with Xcode and Xcode Cloud](https://developer.apple.com/wwdc23/10224?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) that I had to test it out and write an article about it right away. If you want to learn how to **automatically generate, translate and set test notes** on Xcode Cloud beta builds this is the article for you 💪.
+
+## [▶️ Session: Create practical workflows in Xcode Cloud](https://developer.apple.com/wwdc23/10278?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+This has to be my favourite ever Xcode Cloud resource 🔨!
+
+[Romain Pouclet](https://www.linkedin.com/in/romainpouclet?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) does a great job of showing several common **Xcode Cloud workflows** and use cases that apply to teams of all shapes and sizes. Whether you're a **solo developer** or part of a **large organisation**, this session is for you!
+
+## [▶️ Session: Fix failures faster with Xcode test reports](https://developer.apple.com/wwdc23/10175?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+This session by [Sonu Chinta](https://www.linkedin.com/in/sonali-chinta?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) shows us how test reports can give us **context and information** on our test failures to **help fix them quicker**.
+
+## [▶️ Session: What's new in App Store Connect](https://developer.apple.com/wwdc23/10117?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+In this session, [Laurel McAndrews](https://www.linkedin.com/in/laurelmcandrews?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) goes through **what's new in App Store Connect** and showcases some of the improvements that are **now available** in TestFlight and the App Store Connect API.
+
+💡If you are interested, [Morten Bjerg Gregersen](https://twitter.com/mortengregersen?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) has written some amazing notes for this session and made them [available for free on the WWDCNotes site](https://www.wwdcnotes.com/notes/wwdc23/10117?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23).
+
+## [▶️ Session: Meet mergeable libraries](https://developer.apple.com/wwdc23/10268?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+Understanding the pros and cons of **static** and **dynamic** libraries is important for making informed decisions on how to link libraries in your application. Choosing one or the other might have an impact on things such as your **app's size** or **launch time**.
+
+In this session, [Cyndy Ishida](https://twitter.com/CyndyIshida?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) introduces a new type of library that combines the best of both static and dynamic libraries called **mergeable libraries** 🎉.
+
+## [✍️ WWDC notes](https://www.wwdcnotes.com?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23)
+
+WWDC Notes is a community-driven and open-source project by [Federico Zanetello](https://twitter.com/zntfdr?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23) to collect and make notes for WWDC sessions publicly available.
+
+There are already a great number of notes for this year's sessions but if you see one that you've got notes for and isn't yet available, [make sure to add it to the site](https://www.wwdcnotes.com/what-s-missing?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2017%26utm_content%3Djune_11_23).
