@@ -1,24 +1,111 @@
 ---
 title: 'Understanding mergeable libraries in Xcode'
-excerpt: '.'
+excerpt: ''
 pubDate: 2023-06-21
 ---
 
-## What are mergeable libraries?
+Before the introduction of mergeable libraries in this year's edition of WWDC, we had two options when it came to creating a new framework. We could either make it static or dynamic. This was a choice that had to be made in a very conscious way as it choosing one library type over the other could have a knock-on effect on the app's build time and launch time performance. 
+
+While static libraries don't require dynamic lookup at runtime and hence don't hurt app launch time, they cause both the app's size and the build time to increase. 
+
+Dynamic libraries, on the other hand, are not part of the resulting app binary and don't harm either build time or app size. However, they need to be looked up at run time, so they have a negative impact on the app's launch time.
+
+From Xcode 15, we no longer need to make this choice. We can now make use of mergeable libraries, which are a new type of library that combines the best of dynamic and static libraries. They are optimised for both build time and launch time performance and are designed to feel like static libraries.
+
+> I would encourage you to watch the WWDC session [Meet mergeable libraries]() and read [Apple's documentation]() if you want to find out more about mergeable libraries. 
+
+In this article, I will show you a particular issue they solve in modular codebases and how you can configure your project to use them.
 
 ## Linking normal dynamic frameworks
 
+Let's start with a simple example to understand how dynamic frameworks are linked in an iOS app. 
+
+Let's create an iOS app that has a dependency on a dynamic framework called `Home`. 
+
+In turn, the dynamic framework `Home` has two dependencies on two different dynamic frameworks called `HomeCore` and `HomeUI`:
+
+
+`HomeCore` and `HomeUI` are internal to `Home` and the app target only uses the `Home` framework. For this reason, we can go ahead and link the `Home` module in the app target (and embed it as well) and then link the `HomeCore` and `HomeUI` modules in the `Home` target (without embedding them - we'll see why in a moment).
+
+Building and running the app works as expected on the simulator but, when running it on a device, we get the following crash:
+
+![]()
+
 ### Manually embedding all frameworks
 
-### The resulting binary
+The _library not found_ crash is very common when working in modular codebases with dynamic frameworks. The reason for this is that in the previous section we linked `HomeCore` and `HomeUI` in the `Home` target but we didn't embed them. 
 
-### Umbrella frameworks?
+As opposed to the way static libraries work, dynamic frameworks are not part of the library or binary that links them. Instead, they are searched for at runtime. This means that when the app launches, it will look for the `HomeCore` and `HomeUI` frameworks in the app bundle but it won't find them because we have not embedded them.
+
+We can check which dynamic frameworks the app will look for at runtime by using `otool` on the app binary in Derived Data:
+
+```bash
+otool -L ~/Library/Developer/Xcode/DerivedData/<AppName>-<hash>/Build/Products/Debug-iphoneos/<AppName>.app/AppName
+```
+
+The command above yields the following result, which shows that the app is relying on a single dynamic framework called `Home` and a bunch of system frameworks available on device:
+
+```bash
+```
+
+If we now inspect the `Home` framework using the same command we'll see that it relies on `HomeCore` and `HomeUI`:
+
+```bash
+```
+
+#### What is `@rpath`?
+
+As we saw in the output of the `otool` commands, the libraries and binaries linking dynamic frameworks only have a reference to the framework name prefixed with `@rpath`. This is a special path that is resolved at runtime to the path where the framework is located.
+
+In Xcode, the `@rpath` is set through the `Runpath Search Paths` build setting, where we can provide several locations where the linker will be able to find our frameworks at runtime. 
+
+By default, Xcode sets this build setting to `@executable_path/Frameworks` which means that the linker will look for dynamic frameworks in the `Frameworks` folder next to the app binary.
+
+If we inspect the derived data folder of our app we can indeed see why the crash is happening. The `HomeCore` and `HomeUI` frameworks are not present in the `Frameworks` folder:
+
+![]()
+
+#### Umbrella frameworks?
+
+We now understand that to fix the crash we need to embed and sign the dynamic frameworks so that they can be found on app launch. Our first instinct might be to embed and sign them in the `Home` target. However, this is not the right approach, as we would be creating an **Umbrella Framework** which is a practice strongly discouraged by Apple.
+
+#### The proper approach
+
+Instead, we need to link and embed and sign `HomeUI` and `HomeCore` at the app target level and not embed them in the `Home` target. This is a very common approach in modular applications and works well but has a few drawbacks:
+
+1. Frameworks are no longer self-contained. We can't simply link the `Home` feature on its own, we also have to link `HomeCore` and `HomeUI` as well.
+2. We might be exposing too much information to the app target. The app target only needs to know about `Home` but it now also has access to the internal `HomeCore` and `HomeUI` frameworks even though it doesn't need them.
+3. Each of the dynamic modules embedded in the app target will need to be loaded at runtime, which will increase the app's launch time.
 
 ## Mergeable libraries
 
+Before mergeable libraries were introduced, the only way to solve the issues mentioned above was by making use of static libraries wherever possible. However, this could be a very arduous task, especially when dealing with third-party dynamic dependencies or resources and would on some occasions lead to changing dependency graphs just to avoid dynamic frameworks.
+
+This has all changed with the introduction of mergeable libraries in Xcode 15. You can just tell Xcode that you want to merge a dynamic framework instead of linking it dynamically and Xcode will take care of the rest. They are optimised and designed to feel like you're using a static library while at the same time having optimal build time and launch time performance.
+
+In one of the slides of the [Meet mergeable libraries WWDC session](), [Cynthia ]() shares the following slide, which sums up dynamic libraries perfectly:
+
+![]()
+
 ### Automatic merging
 
+The easiest way to make a dynamic framework mergeable is by setting automatic merging in the target that consumes it. This can be done by setting the `Create Merged Binary` build setting to `Automatic`. Xcode will then build any direct dependencies of the target as mergeable libraries and merge them into the target's binary.
+
+Let's set this in the `Home` framework:
+
+![]()
+
+We can now remove the references from the app target to `HomeCore` and `HomeUI`, keep embedding and signing the `Home` framework on the app target and run the app. It will now run successfully on the device without any crashes and with the app only embedding strictly what it needs.
+
+Let's take it one step further and see if we can make `Home` a mergeable library too. Let's set the `Create Merged Binary` build setting to `Automatic` in the `App` target:
+
+![]()
+
+We need to keep the link to the `Home` framework in the app target but we can now stop embedding it and let Xcode take care of merging it into the app binary. If we run it on the device, it will still work as expected. 🎉 
+
 ### Manual merging
+
+We can achieve more fine-grained control over the merging process by setting the `Create Merged Binary` build setting to `Manual`. 
 
 ### The resulting binary
 
