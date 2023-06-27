@@ -1,0 +1,186 @@
+---
+title: 'Configuring SwiftData in a SwiftUI app'
+excerpt: ''
+pubDate: 2023-06-28
+---
+
+SwiftData is a new framework written in Swift that allows users to persist data in iOS and macOS apps.
+
+In this article, I will show you how I configured SwiftData for one of my SwiftUI apps and some of the things I have learnt along the way.
+
+## Creating a model
+
+Let's say you want to make an app that allows users to save the most recent restaurants they have visited. The first thing you would need to do is create a model that represents a restaurant visit by decorating a Swift class with SwiftData's `Model` macro:
+
+```swift:DiaryEntry.Swift
+import SwiftData
+
+@Model
+final class DiaryEntry {
+    let restaurant: String
+    let createdAt: Date
+
+    init(restaurant: String, createdAt: Date = .now) {
+        self.restaurant = restaurant
+        self.createdAt = createdAt
+    }
+}
+```
+
+The model defines two properties: `restaurant`, which is the name of the restaurant, and `createdAt`, which is the date the restaurant was visited at.
+
+## Schemas and versioning
+
+As recommended during the [Model your schema with SwiftData WWDC session](https://developer.apple.com/wwdc23/10195), it is good practice to encapsulate each version of your app's model in its schema type. This allows you to easily migrate your app's data when you release a new version of your app with an updated version of your model.
+
+To create a schema version, define a new type that conforms to the `VersionedSchema` protocol and conform to it by implementing the `versionIdentifier` and `models` properties:
+
+```swift:DiaryEntrySchemaV1.swift
+import SwiftData
+
+enum DiaryEntryV1Schema: VersionedSchema {
+    static var versionIdentifier: String? = "v1"
+    static var models: [any PersistentModel.Type] { [DiaryEntry.self] }
+
+    @Model
+    final class DiaryEntry {
+        let restaurant: String
+        let createdAt: Date
+
+        init(restaurant: String, createdAt: Date = .now) {
+            self.restaurant = restaurant
+            self.createdAt = createdAt
+        }
+    }
+}
+```
+
+The `VersionedSchema` above defines a single model `DiaryEntry` and sets the identifier to the String `"v1"`.
+
+This now means that to reference the `DiaryEntry` model, you need to use the fully qualified name `DiaryEntryV1Schema.DiaryEntry`. This is okay while your app is small, but as your app grows and you use your model more and more, the number of changes you need to make to your codebase when you create a new version of your schema will also grow.
+
+To guard against this, you can create a `typealias` called `DiaryEntry` that references the current version of your model and use this new `typealias` throughout your app instead:
+
+```swift:DiaryEntry.swift
+typealias DiaryEntry = DiaryEntryV1Schema.DiaryEntry
+```
+
+## Creating a migration plan
+
+The next step is to create a migration plan that will tell `SwiftData` how it needs to convert data from one version of your schema to another.
+
+`SwiftData` migration plans are defined by creating a new type that conforms to the `SchemaMigrationPlan` protocol and implementing the `schemas` and `stages` methods:
+
+```swift:DiaryEntryMigrationPlan.swift
+import SwiftData
+
+enum MigrationPlan: SchemaMigrationPlan {
+    static var schemas: [VersionedSchema.Type] {
+        [
+            DiaryEntryV1Schema.self
+        ]
+    }
+
+    static var stages: [MigrationStage] {
+        []
+    }
+}
+```
+
+As you can see, the migration plan above defines a single schema `DiaryEntryV1Schema` and no migration stages. As the app only has a single version of the schema, there is no need to define any migration stages yet.
+
+Even if you don't have to migrate any data yet, I think it's a good idea to do all of this set up ahead of time so you have all the configuration in place for when you need it.
+
+> I am planning on writing a detailed article on SwiftData migrations soon so stay tuned for that 👀.
+
+## Creating the model container
+
+Once you have defined your model and schema, you need to create a model container make it available to your app's view hierarchy through `SwiftData`'s `modelContainer` view modifier:
+
+```swift:FoodieDiariesApp.swift
+import SwiftUI
+import SwiftData
+
+@main
+struct FoodieDiariesApp: App {
+    let container: ModelContainer
+
+    init() {
+        do {
+            container = try ModelContainer(
+                for: Schema(versionedSchema: DiarySchema.self),
+                migrationPlan: MigrationPlan.self,
+                ModelConfiguration(for: DiaryEntry.self)
+            )
+        } catch {
+            fatalError("Could not initialise the container...")
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(container)
+    }
+}
+```
+
+As opposed to what is shown in the [Model your schema with SwiftData WWDC session](https://developer.apple.com/wwdc23/10195), if you want to use migration plans you need to initialise the model container with a `Schema` instance that wraps your schema type and pass it a configuration with the actual model type you want to use on top of the migration plan you created earlier.
+
+To make your life easier, I would suggest creating a new `typealias` to wrap your current schema type (which you can then use to initialise the model container) and modify the entry one you created earlier to use the new schema typealias:
+
+```swift:DiaryEntry.swift
+typealias DiarySchema = DiaryEntryV1Schema
+typealias DiaryEntry = DiarySchema.DiaryEntry
+```
+
+## Querying models from views
+
+The `modelContainer` view modifier makes the model container available to all child views through SwiftUI's environment. `SwiftData` ships with a `@Query` property wrapper that uses the model container in the environment under the hood to query models directly from your views:
+
+```swift:DiaryEntryListView.swift
+import SwiftUI
+import SwiftData
+
+struct DiaryEntryListView: View {
+    @Query(sort: \.createdAt, order: .reverse) private var entries: [DiaryEntry]
+
+    var body: some View {
+        List {
+            ForEach(entries) { entry in
+                Text(entry.restaurant)
+            }
+        }
+    }
+}
+```
+
+The `@Query` property wrapper above also allows you to sort and filter the results in a Swifty and type-safe way through key paths 🤩.
+
+## Accessing the model context from a view
+
+Having the model container available in the environment also allows you to access the model context directly from your views to perform operations such as deleting entries from the database:
+
+```swift:DiaryEntryListView.swift
+import SwiftUI
+import SwiftData
+
+struct DiaryEntryListView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \.createdAt, order: .reverse) private var entries: [DiaryEntry]
+
+    var body: some View {
+        List {
+            ForEach(entries) { entry in
+                Text(entry.restaurant)
+                    .swipeActions {
+                        Button(action: {
+                            modelContext.delete(entry)
+                            try? modelContext.save()
+                        }, label: { Label("Delete", systemImage: "xmark") })
+            }
+        }
+    }
+}
+```
