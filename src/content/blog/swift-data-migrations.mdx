@@ -1,0 +1,138 @@
+---
+title: 'SwiftData migrations'
+excerpt: 'Learn how SwiftData migrations work and how you can configure your app to automatically run them.'
+pubDate: 2023-06-28
+---
+
+## What is a SwiftData migration?
+
+### Versioned schemas
+
+Let's say we have an app that stores a list of restaurants you have visited using SwiftUI and SwiftData. The app allows you to add a restaurant to the list and delete it using a swipe gesture:
+
+<Video />
+
+The `SwiftData` model for this application looks like this:
+
+```swift:DiaryEntry.swift
+import SwiftData
+
+@Model
+final class DiaryEntry {
+    var restaurant: String
+    var createdAt: Date
+
+    init(restaurant: String, createdAt: Date = .now) {
+        self.restaurant = restaurant
+        self.createdAt = createdAt
+    }
+}
+```
+
+This model contains only the minimum required data for what the view needs but it is likely to expand in future releases.
+
+For this reason, you want to make sure that the data is stored in a way that allows you to perform migrations between different versions of the model without losing any data or breaking any functionalities.
+
+To achieve this, you can use the `SwiftData` migration system. First, wrap the model in a `VersionedSchema`:
+
+```swift:DiaryEntry.swift
+enum DiaryEntryV1Schema: VersionedSchema {
+    static var versionIdentifier: String? = "v1"
+    static var models: [any PersistentModel.Type] { [DiaryEntry.self] }
+
+    @Model
+    final class DiaryEntry {
+        var restaurant: String
+        var createdAt: Date
+
+        init(restaurant: String, createdAt: Date = .now) {
+            self.restaurant = restaurant
+            self.createdAt = createdAt
+        }
+    }
+}
+```
+
+You will now need to change any references to the model in your app to `DiaryEntryV1Schema.DiaryEntry` instead of `DiaryEntry` due to the new namespace.
+
+I would suggest you create a new `typealias` now to make this change easier in the future and contained to a single file:
+
+```swift:DiaryEntry.swift
+typealias DiaryEntry = DiaryEntryV1Schema.DiaryEntry
+```
+
+Then you can use this new `typealias` in the rest of your app! 🎉
+
+## SwiftData migrations
+
+Now that we have defined a version schema we need to create a migration to safely convert data from one version to another.
+
+`SwiftData` has two types of migrations: **lightweight** and **custom**.
+
+### Lightweight
+
+Lightweight migrations are the simplest way to migrate data between two versions of a `SwiftData` model. They do not require any custom code and are automatically handled by `SwiftData`.
+
+Changes that can be handled by lightweight migrations include:
+
+- Adding a new property to a model.
+- Removing a property from a model.
+- Renaming a property on a model.
+- Changing the type of a property on a model.
+
+#### Schema
+
+Let's create a new versioned schema for our `DiaryEntry` model that adds a new property to save the rating of the restaurant:
+
+```swift:DiaryEntry.swift
+enum DiaryEntryV2Schema: VersionedSchema {
+    static var versionIdentifier: String? = "v2"
+    static var models: [any PersistentModel.Type] { [DiaryEntry.self] }
+
+    @Model
+    final class DiaryEntry {
+        var restaurant: String
+        var createdAt: Date
+        var rating: Int?
+
+        init(restaurant: String, createdAt: Date = .now, rating: Int? = nil) {
+            self.restaurant = restaurant
+            self.createdAt = createdAt
+            self.rating = rating
+        }
+    }
+}
+```
+
+#### Migration plan
+
+To tell SwiftData to migrate from one model to another you need to create a `MigrationPlan`:
+
+```swift:DiaryEntry.swift
+enum MigrationPlan: SchemaMigrationPlan {
+    static var schemas: [VersionedSchema.Type] = [
+        DiaryEntryV1Schema.self,
+        DiaryEntryV2Schema.self
+    ]
+    static var stages: [MigrationStage] = [
+        .lightweight(
+            fromVersion: DiaryEntryV1Schema.self,
+            toVersion: DiaryEntryV2Schema.self
+        )
+    ]
+}
+```
+
+In the migration plan, you must specify the schemas that you want to migrate between and the stages of the migration.
+
+Finally, you just need to update the `typealias` to use the latest version of the model:
+
+```swift:DiaryEntry.swift
+typealias DiaryEntry = DiaryEntryV2Schema.DiaryEntry
+```
+
+### Custom
+
+Custom migrations are used when you need to perform more complex operations that cannot be handled by lightweight migrations.
+
+## Configure a SwiftUI app to run migrations
