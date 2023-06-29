@@ -118,9 +118,9 @@ struct FoodieDiariesApp: App {
     init() {
         do {
             container = try ModelContainer(
-                for: Schema(versionedSchema: DiarySchema.self),
+                for: [DiaryEntry.self],
                 migrationPlan: MigrationPlan.self,
-                ModelConfiguration(for: DiaryEntry.self)
+                ModelConfiguration(for: [DiaryEntry.self])
             )
         } catch {
             fatalError("Could not initialise the container...")
@@ -138,9 +138,9 @@ struct FoodieDiariesApp: App {
 
 As opposed to the set-up code shown in the [Model your schema with SwiftData WWDC session](https://developer.apple.com/wwdc23/10195), if you want to use migration plans you need to initialise the model container with three arguments:
 
-1. A `Schema` instance that wraps your `VersionedSchema` type.
-2. A `ModelConfiguration` instance for the `@Model` decorated type you want to use.
-3. The type of the migration plan you created earlier.
+1. The SwiftData model types your application uses.
+2. The type of the migration plan you created earlier.
+3. A `ModelConfiguration` instance for the `@Model` decorated type you want to use. This last argument feels redundant but not passing it results in a runtime crash.
 
 To make your life easier, I would suggest creating a second `typealias` to wrap your current schema type (which you can then use to initialise the model container) and modify the `DiaryEntry` `typealias` you created earlier to use the schema one:
 
