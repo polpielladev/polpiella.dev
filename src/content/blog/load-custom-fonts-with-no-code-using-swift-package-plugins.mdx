@@ -1,5 +1,5 @@
 ---
-title: 'Load custom fonts into your app without writing any code'
+title: 'Load custom fonts into your app using Swift Package Plugins'
 excerpt: 'How to make use of Swift Packages, plugins and code generation to automate the process of loading custom fonts into your app.'
 pubDate: 2023-07-05
 ---
@@ -128,20 +128,20 @@ fonts:
 
 The configuration file above tells `SwiftGen` to:
 
-1. Generate code for font assets.
-2. Look for font files in the `Resources` directory of the target the plugin is applied to.
-3. Use the [fonts swift5 template](https://github.com/SwiftGen/SwiftGen/blob/stable/Sources/SwiftGenCLI/templates/fonts/swift5.stencil) to generate the code.
-4. Output the generated code to the plugin's work directory. Build tool plugins are only allowed to write to their work directory so all generated files must be written there. [SwiftGenPlugin](https://github.com/SwiftGen/SwiftGenPlugin) sets the `DERIVED_SOURCES_DIR` environment variable to the plugin's work directory so that it can be used in configuration files.
-5. Make the generated code public so that it can be used by clients of the Swift Package.
+1. Generate code for **font assets**.
+2. Look for **font files in the `Resources` directory** of the target the plugin is applied to.
+3. **Use the [fonts swift5 template](https://github.com/SwiftGen/SwiftGen/blob/stable/Sources/SwiftGenCLI/templates/fonts/swift5.stencil)** to generate the code.
+4. **Output the generated code** to a file called `Generated.swift`. [SwiftGenPlugin](https://github.com/SwiftGen/SwiftGenPlugin) sets an environment variable called `DERIVED_SOURCES_DIR` to the path of the plugin's work directory, which is the only directory with write permissions the plugin has access to. We can then use this variable in the configuration file to specify the exact location within where we want SwiftGen to create any output files.
+5. Make the **generated code public** so that it can be used by clients of the Swift Package.
 
-Next time we build the package, `SwiftGen` will create a file called `Generated.swift` that will be added to the `Fonts` target's list of input files. This means that the file will be compiled and included in the package's final result build product.
+Next time we build the package, `SwiftGen` will create a file called `Generated.swift` that will be added to the `Fonts` target's list of input files. This means that the file **will be compiled and included** in the package's final build product.
 
 If you want to inspect the generated code, you need to know that the file will be created in a different location based on how you're building the package:
 
 - If you're building the package **using Xcode**, the file will be created in the `Fonts` directory in `~/Library/Developer/Xcode/DerivedData`:
   ![Location of generated plugin code in Derived Data](/assets/posts/load-custom-fonts-with-no-code-using-swift-package-plugins/derived-data.webp)
 
-- If you're building the package using `swift build` from the command line, the file will be created in the `.build` directory in the package's root directory:
+- If you're building the package **using `swift build` from the command line**, the file will be created in the `.build` directory in the package's root directory:
   ![Location of generated plugin code in the root directory](/assets/posts/load-custom-fonts-with-no-code-using-swift-package-plugins/swift-build.webp)
 
 ## Using the generated code
