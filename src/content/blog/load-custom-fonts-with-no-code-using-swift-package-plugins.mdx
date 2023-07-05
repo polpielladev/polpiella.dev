@@ -1,7 +1,7 @@
 ---
-title: 'Load custom fonts into your apps using Swift Package Plugins'
-excerpt: ''
-pubDate: 2023-06-28
+title: 'Load custom fonts into your app without writing any code'
+excerpt: 'How to make use of Swift Packages, plugins and code generation to automate the process of loading custom fonts into your app.'
+pubDate: 2023-07-05
 ---
 
 If you're an **indie developer** or **you're part of an organisation with multiple apps that share a common design language** and find yourself using the same fonts over and over again, you might want to consider creating a Swift Package to contain the shared font files and font-loading code.
@@ -111,7 +111,7 @@ let package = Package(
 
 SwiftGen requires a configuration file (`swiftgen.yml`) to be present in either the root of the Swift Package or in a target's `Sources` directory. In our case, we'll create this configuration file in the `Fonts` target's `Sources` directory:
 
-```yml:swiftgen.yml
+```yaml:swiftgen.yml
 # 1
 fonts:
   # 2
@@ -168,7 +168,7 @@ struct ArticleView: View {
 
 - A `Font`, which is a typealias that resolves to `UIFont` on iOS and `NSFont` on macOS that you can use directly from your `AppKit` or `UIKit` views:
 
-```swift: ArticleViewController.swift
+```swift:ArticleViewController.swift
 import UIKit
 import Fonts
 
