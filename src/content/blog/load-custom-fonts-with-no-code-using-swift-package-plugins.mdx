@@ -58,7 +58,7 @@ For this reason, let's remove the contents of the auto-generated `Fonts.swift` f
 
 Let's now create a `Resources` directory in the `Fonts` target's `Sources` directory to match the resource we defined earlier in the package's manifest and add one or more font files to it.
 
-As per Apple's documentation, format support for custom fonts is limited to `otf` and `ttf` files. I will be adding both [the Excon and Ranade variable font files]() which pair well together and that I found thanks to [Fontshare's font pair finder](), which I would thoroughly recommend.
+As per Apple's documentation, format support for custom fonts is limited to `otf` and `ttf` files. I will be adding both [the Excon](https://www.fontshare.com/fonts/excon) and [Ranade variable](https://www.fontshare.com/fonts/ranade) font files which pair well together and that I found thanks to [Fontshare's font pair finder](https://www.fontshare.com/pairs), which I would thoroughly recommend.
 
 After the package setup is done, our package structure should look like this:
 
@@ -76,7 +76,7 @@ Fonts
 
 ## Adding the SwiftGen plugin
 
-Now that we have a Swift Package that can host the custom fonts we want to use in our apps, we need to generate the necessary code to load such fonts. To achieve this, I decided to use one of my favourite Swift Package Plugins: [SwiftGen]().
+Now that we have a Swift Package that can host the custom fonts we want to use in our apps, we need to generate the necessary code to load such fonts. To achieve this, I decided to use one of my favourite Swift Package Plugins: [SwiftGen](https://github.com/SwiftGen/SwiftGenPlugin).
 
 One of SwiftGen's most powerful features is the ability to generate Swift interfaces for resources such as Fonts. To start using the plugin, we must define it as a dependency in our `Package.swift` file and add the `SwiftGenPlugin` to our target's `plugins` array:
 
@@ -130,8 +130,8 @@ The configuration file above tells `SwiftGen` to:
 
 1. Generate code for font assets.
 2. Look for font files in the `Resources` directory of the target the plugin is applied to.
-3. Use the [fonts swift5 template]() to generate the code.
-4. Output the generated code to the plugin's work directory. Build tool plugins are only allowed to write to their work directory so all generated files must be written there. [SwiftGenPlugin]() sets the `DERIVED_SOURCES_DIR` environment variable to the plugin's work directory so that it can be used in configuration files.
+3. Use the [fonts swift5 template](https://github.com/SwiftGen/SwiftGen/blob/stable/Sources/SwiftGenCLI/templates/fonts/swift5.stencil) to generate the code.
+4. Output the generated code to the plugin's work directory. Build tool plugins are only allowed to write to their work directory so all generated files must be written there. [SwiftGenPlugin](https://github.com/SwiftGen/SwiftGenPlugin) sets the `DERIVED_SOURCES_DIR` environment variable to the plugin's work directory so that it can be used in configuration files.
 5. Make the generated code public so that it can be used by clients of the Swift Package.
 
 Next time we build the package, `SwiftGen` will create a file called `Generated.swift` that will be added to the `Fonts` target's list of input files. This means that the file will be compiled and included in the package's final result build product.
