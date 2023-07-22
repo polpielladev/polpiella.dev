@@ -4,6 +4,7 @@ h4 > a,
 h5 > a,
 h6 > a {
   text-decoration: none !important;
+  font-family: 'Satoshi', sans-serif;
 }
 
 div.remark-code-title {

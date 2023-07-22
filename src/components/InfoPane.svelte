@@ -18,7 +18,7 @@
     {alt} />
   <div class="prose grid content-center dark:prose-invert">
     <div class="flex flex-col gap-3">
-      <h1 class="m-0 overflow-hidden text-4xl font-bold md:text-5xl">
+      <h1 class="m-0 overflow-hidden font-title text-4xl md:text-5xl">
         {title}
       </h1>
       <div class="block lg:hidden">

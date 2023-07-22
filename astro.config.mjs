@@ -28,5 +28,9 @@ export default defineConfig({
     },
   },
   output: 'static',
-  integrations: [tailwind(), mdx(), svelte()],
+  integrations: [
+    tailwind({ config: { applyBaseStyles: false } }),
+    mdx(),
+    svelte(),
+  ],
 })
