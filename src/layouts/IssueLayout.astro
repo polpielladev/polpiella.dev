@@ -4,6 +4,7 @@ import InfoPane from '@components/InfoPane.svelte'
 import Subscribe from '@components/Subscribe.svelte'
 import { getCollection } from 'astro:content'
 import './issue.css'
+import Hero from '@components/Hero.svelte'
 
 const posts = await getCollection('newsletter')
 const sortedPosts = posts.sort(
@@ -22,24 +23,17 @@ const nextURL =
   description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
   image="https://polpiella.dev/assets/newsletter.jpg"
   activeNav="newsletter">
-  <div
-    class="flex mx-auto my-0 gap-1 prose dark:prose-invert h-full hover:prose-h2:underline">
+  <div class="flex my-0 gap-1">
     <div class="my-0 flex flex-col gap-5">
       <header class="w-full">
-        <InfoPane
+        <Hero
           title="iOS CI Newsletter"
-          description="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
-          alt="/assets/profile.jpg"
-          image="/assets/ci-newsletter.svg"
-          circleImage={false}
+          body="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
         />
       </header>
 
-      <section class="mt-4 mb-4 w-full">
-        <Subscribe hideDescription client:load />
-      </section>
-
-      <section>
+      <section
+        class="prose mx-auto dark:prose-invert h-full hover:prose-h2:underline">
         <slot />
       </section>
 

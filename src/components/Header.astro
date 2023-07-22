@@ -19,8 +19,8 @@ const searchables = posts.map(({ data, slug }) => {
 })
 ---
 
-<header class="mb-8 mt-4 w-full">
-  <div class="mx-auto flex items-center justify-between gap-4 py-4">
+<header class="mt-4 w-full">
+  <div class="mx-auto flex items-center justify-between">
     <nav class="prose flex items-center gap-4 no-underline dark:prose-invert">
       <a
         class={`text-xl no-underline ${
@@ -43,16 +43,6 @@ const searchables = posts.map(({ data, slug }) => {
         }`}
         href="/newsletter">
         Newsletter
-      </a>
-
-      <a
-        class={`text-xl no-underline ${
-          activeNav == 'speaking'
-            ? 'text-gray-900 dark:text-gray-100'
-            : 'text-gray-500 dark:text-gray-400'
-        }`}
-        href="/speaking">
-        Speaking
       </a>
     </nav>
     <div class="lg:block hidden">

@@ -61,7 +61,7 @@ const isNewsletter = pathname.includes('/newsletter')
   <body
     class="flex min-h-screen flex-col max-w-[1200px] px-4 mx-auto justify-between dark:bg-gray-900">
     <Header activeNav={activeNav} />
-    <main class={`flex flex-auto ${center ? 'items-center' : ''}`}>
+    <main class={`flex flex-col flex-auto ${center ? 'items-center' : ''}`}>
       <slot />
     </main>
     <Footer />

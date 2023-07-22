@@ -3,13 +3,19 @@
   export let title: string
   export let excerpt: string
   export let pubDate: Date
+  export let isNew: boolean = false
 
   const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
     dateStyle: 'medium',
   })
 </script>
 
-<div class="flex max-w-[650px] flex-col gap-3">
+<div class="relative flex max-w-[650px] flex-col gap-1">
+  {#if isNew}
+    <span
+      class="absolute -top-6 mr-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-violet-800 dark:bg-violet-900 dark:text-purple-300"
+      >New!</span>
+  {/if}
   <h4
     class="text-theme-primary m-0 font-title text-xl hover:underline dark:text-gray-100">
     <a href={`/${slug}`} {title}>{title}</a>
