@@ -1,7 +1,6 @@
 ---
 import '@styles/blog-detail.css'
 import BaseLayout from '@layouts/BaseLayout.astro'
-import Subscribe from '@components/Subscribe.svelte'
 
 interface Props {
   url: string
@@ -30,8 +29,5 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </time>
     </header>
     <slot />
-    <div class="mt-14">
-      <Subscribe client:visible />
-    </div>
   </article>
 </BaseLayout>

@@ -4,7 +4,6 @@ import Talk from '@components/Talk.svelte'
 import InfoPane from '@components/InfoPane.svelte'
 import TwoColumns from '@components/TwoColumns.svelte'
 import Media from '@components/Media.svelte'
-import Subscribe from '@components/Subscribe.svelte'
 
 interface Year {
   value: number
@@ -161,8 +160,6 @@ const events: Year[] = [
           title="AppForce1 Podcast Interview"
         />
       </section>
-
-      <Subscribe client:load />
     </div>
   </TwoColumns>
 </BaseLayout>
