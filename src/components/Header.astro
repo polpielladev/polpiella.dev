@@ -4,19 +4,7 @@ interface Props {
 }
 
 const { activeNav } = Astro.props
-import SearchBar from '@components/SearchBar.svelte'
-import { getCollection } from 'astro:content'
 import Social from './Social.svelte'
-
-const posts = await getCollection('blog')
-
-const searchables = posts.map(({ data, slug }) => {
-  return {
-    title: data.title,
-    excerpt: data.excerpt,
-    slug: slug,
-  }
-})
 ---
 
 <header class="mt-4 w-full">
@@ -48,6 +36,5 @@ const searchables = posts.map(({ data, slug }) => {
     <div class="lg:block hidden">
       <Social />
     </div>
-    <SearchBar client:idle searchables={searchables} />
   </div>
 </header>

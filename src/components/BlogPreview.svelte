@@ -10,10 +10,10 @@
   })
 </script>
 
-<div class="relative flex max-w-[650px] flex-col gap-1">
+<div class="relative flex max-w-[650px] flex-col gap-2">
   {#if isNew}
     <span
-      class="absolute -top-6 mr-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-violet-800 dark:bg-violet-900 dark:text-purple-300"
+      class="absolute -top-7 mr-2 rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-violet-800 dark:bg-violet-900 dark:text-purple-300"
       >New!</span>
   {/if}
   <h4

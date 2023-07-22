@@ -63,7 +63,7 @@ By now you might be thinking that I have contradicted myself. I started the arti
 
 The cool thing about `git` is that you can provide overrides for the way it clones repositories through the git config file. This way, we were able to tell git to use HTTPS URLs instead of SSH URLs when cloning repositories on CI/CD while keeping SSH keys locally:
 
-```yml:override-git-config
+```yaml:override-git-config
 [url "https://github.com/"]
 	insteadOf = git@github.com:
 ```
@@ -89,7 +89,7 @@ This causes any access token used for authentication to be stored in the keychai
 
 To override this behaviour, we had to override the system git config file we created earlier to use `cache` as the git credential helper instead:
 
-```yml:override-git-config
+```yaml:override-git-config
 [credential]
 	helper = cache --timeout 900
 [url "https://github.com/"]

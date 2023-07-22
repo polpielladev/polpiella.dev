@@ -6,7 +6,7 @@
 <section
   class="relative mb-5 flex flex-col gap-4 rounded-lg border-2 border-gray-300 p-4 dark:border-gray-800 sm:flex-row sm:items-center">
   <p
-    class="text-md absolute right-6 -top-3.5 m-0 rounded-lg bg-gray-300 px-2 font-medium dark:bg-gray-800">
+    class="text-md absolute -top-3.5 right-6 m-0 rounded-lg bg-gray-300 px-2 font-medium dark:bg-gray-800">
     SPONSORED
   </p>
 
@@ -18,7 +18,7 @@
   <div class="flex flex-col gap-1">
     <a
       href={promotionLink}
-      class="text-xl font-semibold no-underline hover:underline dark:text-white">
+      class="font-title text-xl no-underline hover:underline dark:text-white">
       {title}
     </a>
     <p class="m-0 text-sm leading-relaxed">

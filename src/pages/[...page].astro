@@ -3,11 +3,9 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview.svelte'
 import Paginator from '@components/Paginator.svelte'
 import Hero from '@components/Hero.svelte'
-import InfoPane from '@components/InfoPane.svelte'
 import { getCollection } from 'astro:content'
 import type { GetStaticPathsOptions } from 'astro'
 import Media from '@components/Media.svelte'
-import TwoColumns from '@components/TwoColumns.svelte'
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const posts = await getCollection('blog')

@@ -1,7 +1,5 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
-import InfoPane from '@components/InfoPane.svelte'
-import Subscribe from '@components/Subscribe.svelte'
 import { getCollection } from 'astro:content'
 import './issue.css'
 import Hero from '@components/Hero.svelte'
@@ -33,7 +31,7 @@ const nextURL =
       </header>
 
       <section
-        class="prose mx-auto dark:prose-invert h-full hover:prose-h2:underline">
+        class="prose mx-auto dark:prose-invert h-full hover:prose-h2:underline prose-h2:font-title">
         <slot />
       </section>
 

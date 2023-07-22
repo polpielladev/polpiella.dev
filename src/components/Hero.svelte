@@ -13,9 +13,13 @@
     class="mb-8 text-lg font-normal text-gray-500 dark:text-gray-200 sm:px-16 lg:px-48 lg:text-xl">
     {body}
   </p>
-  <form class="mx-auto w-full max-w-md">
+  <form
+    action="https://sendy.polpiella.dev/subscribe"
+    method="POST"
+    acceptCharset="utf-8"
+    class="mx-auto w-full max-w-md">
     <label
-      for="default-email"
+      for="email"
       class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white"
       >Email sign-up</label>
     <div class="relative">
@@ -35,16 +39,24 @@
       </div>
       <input
         type="email"
-        id="default-email"
+        id="email"
+        name="email"
         class="block w-full rounded-lg border border-gray-300 bg-white p-4 pl-10 text-sm text-gray-900 focus:border-violet-500 focus:ring-violet-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-violet-500 dark:focus:ring-violet-500"
         placeholder="Enter your email here..."
         required />
+      <div class="hidden">
+        <label for="hp">HP</label>
+        <br />
+        <input type="text" name="hp" id="hp" />
+      </div>
+      <input type="hidden" name="list" value="uzljZVi1QE9MgNuJYMbe4Q" />
+      <input type="hidden" name="subform" value="yes" />
       <button
         type="submit"
+        name="submit"
+        id="submit"
         class="absolute bottom-2.5 right-2.5 rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:hover:bg-violet-700 dark:focus:ring-violet-800"
-        >Sign up</button>
+        >Subscribe</button>
     </div>
   </form>
 </div>
-<div
-  class="absolute left-0 top-0 -z-50 h-[450px] w-full bg-gradient-to-b from-violet-200 to-transparent dark:from-violet-900" />
