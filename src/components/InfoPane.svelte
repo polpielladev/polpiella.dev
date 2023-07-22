@@ -19,13 +19,7 @@
   <div class="prose grid content-center dark:prose-invert">
     <div class="flex flex-col gap-3">
       <h1 class="m-0 overflow-hidden text-4xl font-bold md:text-5xl">
-        <span
-          class="
-              bg-gradient-to-bl from-cyan-200 to-cyan-200 bg-[length:90%_40%]
-              bg-bottom bg-no-repeat dark:from-cyan-700 dark:to-cyan-700
-          ">
-          {title}
-        </span>
+        {title}
       </h1>
       <div class="block lg:hidden">
         <Social />
