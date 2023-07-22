@@ -40,65 +40,26 @@ const { page } = Astro.props
   description="Blog posts about iOS mobile app development and Swift by Pol Piella."
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
-  <TwoColumns>
-    <div class="flex flex-col gap-12" slot="main">
-      <InfoPane
-        title="Pol Piella Abadia"
-        subtitle="Senior software engineer at the BBC"
-        description="Hi, welcome to my blog! I am Pol, a senior iOS developer working in the iPlayer app by the BBC. I love sharing content and writing about all things mobile development and Swift."
-        alt="/assets/profile.jpg"
-        image="/assets/profile.jpg"
-        circleImage
-      />
-
-      <section class="flex flex-col gap-8">
-        {
-          page.data.map((post: PageItem) => (
-            <BlogPreview
-              title={post.data.title}
-              slug={post.slug}
-              excerpt={post.data.excerpt}
-              pubDate={post.data.pubDate}
-            />
-          ))
-        }
-
-        <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
-      </section>
+  <section class="flex flex-col gap-6">
+    <div>
+      <h2 class="text-2xl font-black flex pb-1">Latest posts</h2>
+      <hr />
     </div>
-
-    <div slot="aside" class="flex flex-col gap-8">
-      <section class="flex flex-col gap-2">
-        <p class="text-lg font-semibold m-0 pl-2">🎥 Videos</p>
-        <Media
-          href="https://www.youtube.com/watch?v=yyOXynCoagE"
-          thumbnail="/assets/thumbnails/do-ios.webp"
-          title="Fantastic Swift tools and where to find them - Pol Piella Abadia - Do iOS 2022 (English)"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=l7nN7QdiGyY"
-          thumbnail="/assets/thumbnails/live-coding.webp"
-          title="Building a CLI app in Swift with Pol Piella"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=sZj-8sDUYAs"
-          thumbnail="/assets/thumbnails/bitrise.webp"
-          title="Bitrise Mobile Devops Summit 2022 - Getting ahead of the game: Avoid release day drama!"
-        />
-      </section>
-
-      <section class="flex flex-col gap-2">
-        <p class="text-lg font-semibold m-0 pl-2">🎙️ Podcasts</p>
-        <Media
-          href="https://www.buzzsprout.com/1414396/11876905-pol-piella-abadia-senior-software-engineer-at-the-bbc"
-          thumbnail="/assets/thumbnails/app-force-1.webp"
-          title="AppForce1 Podcast Interview"
-        />
-      </section>
-
-      <Subscribe client:load />
+    <div class="grid grid-cols-2 gap-6">
+      {
+        page.data.map((post: PageItem) => (
+          <BlogPreview
+            title={post.data.title}
+            slug={post.slug}
+            excerpt={post.data.excerpt}
+            pubDate={post.data.pubDate}
+          />
+        ))
+      }
     </div>
-  </TwoColumns>
+  </section>
+
+  <div class="flex flex-col gap-12" slot="main">
+    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+  </div>
 </BaseLayout>

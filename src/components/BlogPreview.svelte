@@ -9,12 +9,12 @@
   })
 </script>
 
-<div class="flex max-w-[650px] flex-col gap-1">
+<div class="flex max-w-[650px] flex-col gap-3">
   <h4
-    class="text-theme-primary m-0 text-2xl font-semibold hover:underline dark:text-gray-100">
+    class="text-theme-primary m-0 text-xl font-semibold hover:underline dark:text-gray-100">
     <a href={`/${slug}`} {title}>{title}</a>
   </h4>
-  <p class="hyphens-auto text-lg leading-6 line-clamp-2 dark:text-gray-400">
+  <p class="hyphens-auto text-lg leading-6 line-clamp-3 dark:text-gray-400">
     {excerpt}
   </p>
   <time
