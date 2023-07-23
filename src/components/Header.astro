@@ -10,15 +10,13 @@ import Social from './Social.svelte'
 <header class="mt-4 w-full">
   <div class="mx-auto flex items-center justify-between">
     <nav class="prose flex items-center gap-4 no-underline dark:prose-invert">
-      <a
-        class={`text-xl no-underline ${
-          activeNav == 'index'
-            ? 'text-gray-900 dark:text-gray-100'
-            : 'text-gray-500 dark:text-gray-400'
-        }`}
-        href="/">
+      <a href="/">
         <img
-          class="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500 object-cover"
+          class={`w-10 h-10 p-1 rounded-full ring-2 ${
+            activeNav == 'index'
+              ? 'dark:ring-violet-500 ring-violet-500'
+              : 'dark:ring-gray-500 ring-gray-300'
+          }  object-cover`}
           src="/assets/profile.jpg"
           alt="Bordered avatar"
         />
