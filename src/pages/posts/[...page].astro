@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Paginator from '@components/Paginator.svelte'
+import { getCollection } from 'astro:content'
+import type { GetStaticPathsOptions } from 'astro'
+import BlogPreview from '@components/BlogPreview.svelte'
+import SearchBar from '@components/SearchBar.svelte'
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getCollection('blog')
+  const sortedPosts = posts.sort(
+    (a, b) =>
+      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+  )
+
+  return paginate(sortedPosts, {
+    pageSize: 12,
+  })
+}
+
+interface PageItem {
+  data: PageItemData
+  slug: string
+}
+
+interface PageItemData {
+  title: string
+  excerpt: string
+  pubDate: Date
+}
+
+const posts = await getCollection('blog')
+
+const searchables = posts.map(({ data, slug }) => {
+  return {
+    title: data.title,
+    excerpt: data.excerpt,
+    slug: slug,
+  }
+})
+
+const { page } = Astro.props
+---
+
+<BaseLayout
+  title="All articles — polpiella.dev"
+  description="All articles about iOS development and Swift in my blog">
+  <section>
+    <div class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
+      <h1
+        class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+        Find any article in my blog
+      </h1>
+      <p
+        class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
+        In this blog I talk about all things Apple and Swift development but my
+        main area of focus is on tooling and automation.
+      </p>
+      <SearchBar searchables={searchables} client:only />
+    </div>
+  </section>
+  <section>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 py-12">
+      {
+        page.data.map((post: PageItem, index: number) => (
+          <BlogPreview
+            title={post.data.title}
+            slug={post.slug}
+            excerpt={post.data.excerpt}
+            pubDate={post.data.pubDate}
+            isNew={index == 0 && page.currentPage == 1}
+          />
+        ))
+      }
+    </div>
+    <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+  </section>
+</BaseLayout>

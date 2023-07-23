@@ -30,13 +30,13 @@
   }
 </script>
 
-<div class="relative ml-4 hidden w-96 sm:block">
+<div class="relative hidden h-auto w-96 sm:block">
   <div class="relative">
     <input
       aria-label="Search articles"
       type="text"
       placeholder="Search articles"
-      class="w-full rounded-md bg-gray-100 px-4 py-2 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+      class="w-full rounded-md border-2 border-violet-100 px-4 py-2 text-gray-900 shadow-sm dark:border-violet-400 dark:bg-gray-800 dark:text-gray-100"
       on:input={onInput}
       autoComplete="off" />
     <svg
@@ -59,7 +59,7 @@
     {#each searchResults as searchable}
       <a href={`/${searchable.slug}`}>
         <div
-          class="flex cursor-pointer flex-col gap-1 bg-gray-100 p-4 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">
+          class="flex cursor-pointer flex-col gap-1 border-b-2 bg-gray-100 p-4 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700">
           <header class="font-title text-lg text-gray-900 dark:text-gray-100">
             {searchable.title}
           </header>

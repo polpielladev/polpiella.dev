@@ -1,37 +1,18 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview.svelte'
-import Paginator from '@components/Paginator.svelte'
 import Hero from '@components/Hero.svelte'
 import { getCollection } from 'astro:content'
-import type { GetStaticPathsOptions } from 'astro'
 import Subscribe from '@components/Subscribe.svelte'
 import YoutubeVideo from '@components/YoutubeVideo.svelte'
 
-export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = await getCollection('blog')
-  const sortedPosts = posts.sort(
+const posts = await getCollection('blog')
+const sortedPosts = posts
+  .sort(
     (a, b) =>
       new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
   )
-
-  return paginate(sortedPosts, {
-    pageSize: 6,
-  })
-}
-
-interface PageItem {
-  data: PageItemData
-  slug: string
-}
-
-interface PageItemData {
-  title: string
-  excerpt: string
-  pubDate: Date
-}
-
-const { page } = Astro.props
+  .slice(0, 6)
 ---
 
 <BaseLayout
@@ -78,16 +59,15 @@ const { page } = Astro.props
 
         <hr />
       </div>
-      <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
         {
-          page.data.map((post: PageItem, index: number) => (
+          sortedPosts.map((post, index: number) => (
             <BlogPreview
               title={post.data.title}
               slug={post.slug}
               excerpt={post.data.excerpt}
               pubDate={post.data.pubDate}
-              isNew={index == 0 && page.currentPage == 1}
+              isNew={index == 0}
             />
           ))
         }
