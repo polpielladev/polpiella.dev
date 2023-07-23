@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCollection } from 'astro:content'
 import './issue.css'
 import Hero from '@components/Hero.svelte'
+import Subscribe from '@components/Subscribe.svelte'
 
 const posts = await getCollection('newsletter')
 const sortedPosts = posts.sort(
@@ -26,8 +27,9 @@ const nextURL =
       <header class="w-full">
         <Hero
           title="iOS CI Newsletter"
-          body="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community."
-        />
+          body="A fortnightly independent newsletter gathering all updates and news about Continuous Integration and Continuous Delivery from the iOS community.">
+          <Subscribe />
+        </Hero>
       </header>
 
       <section
