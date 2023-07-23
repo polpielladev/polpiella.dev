@@ -5,8 +5,9 @@ import Paginator from '@components/Paginator.svelte'
 import Hero from '@components/Hero.svelte'
 import { getCollection } from 'astro:content'
 import type { GetStaticPathsOptions } from 'astro'
-import Media from '@components/Media.svelte'
+import Media from '@components/YoutubeVideo.svelte'
 import Subscribe from '@components/Subscribe.svelte'
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const posts = await getCollection('blog')
@@ -80,35 +81,11 @@ const { page } = Astro.props
       </div>
 
       <div class="grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
-        <Media
-          href="https://www.youtube.com/watch?v=ORGwfDBfLLk"
-          thumbnail="/assets/thumbnails/swift-heroes.webp"
-          title="Making developer tools with Swift - Swift Heroes 2023 (English)"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=5Xf5ihKvogs"
-          thumbnail="/assets/thumbnails/nyswifty.webp"
-          title="Getting started with Xcode Cloud - NYSwifty 2023 (English)"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=yyOXynCoagE"
-          thumbnail="/assets/thumbnails/do-ios.webp"
-          title="Fantastic Swift tools and where to find them - Pol Piella Abadia - Do iOS 2022 (English)"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=l7nN7QdiGyY"
-          thumbnail="/assets/thumbnails/live-coding.webp"
-          title="Building a CLI app in Swift with Pol Piella"
-        />
-
-        <Media
-          href="https://www.youtube.com/watch?v=sZj-8sDUYAs"
-          thumbnail="/assets/thumbnails/bitrise.webp"
-          title="Bitrise Mobile Devops Summit 2022 - Getting ahead of the game: Avoid release day drama!"
-        />
+        <YoutubeVideo id="ORGwfDBfLLk" />
+        <YoutubeVideo id="5Xf5ihKvogs" />
+        <YoutubeVideo id="yyOXynCoagE" />
+        <YoutubeVideo id="l7nN7QdiGyY" />
+        <YoutubeVideo id="sZj-8sDUYAs" />
       </div>
     </section>
   </div>
