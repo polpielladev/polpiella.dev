@@ -4,7 +4,8 @@ import BlogPreview from '@components/BlogPreview.svelte'
 import Hero from '@components/Hero.svelte'
 import { getCollection } from 'astro:content'
 import Subscribe from '@components/Subscribe.svelte'
-import YoutubeVideo from '@components/YoutubeVideo.svelte'
+import MediaGrid from '@components/media/MediaGrid.astro'
+import TitledGrid from '@components/TitledGrid.svelte'
 
 const posts = await getCollection('blog')
 const sortedPosts = posts
@@ -28,67 +29,22 @@ const sortedPosts = posts
         <Subscribe />
       </Hero>
     </section>
-    <!-- Latest -->
-    <section class="flex flex-col gap-6">
-      <div>
-        <div class="flex justify-between">
-          <h2 class="text-2xl font-title dark:text-gray-50 flex pb-1">
-            Latest articles
-          </h2>
-          <a
-            href="/posts"
-            class="flex hover:underline dark:text-violet-200 dark:hover:text-violet-100 hover:text-violet-600 gap-0.5 text-violet-500 stroke-current">
-            See all
-            <svg
-              class="w-4"
-              width="24px"
-              height="24px"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              color="current"
-              ><path
-                d="M9 6l6 6-6 6"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </a>
-        </div>
+    <TitledGrid title="Latest articles">
+      {
+        sortedPosts.map((post, index: number) => (
+          <BlogPreview
+            title={post.data.title}
+            slug={post.slug}
+            excerpt={post.data.excerpt}
+            pubDate={post.data.pubDate}
+            isNew={index == 0}
+          />
+        ))
+      }
+    </TitledGrid>
 
-        <hr />
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-        {
-          sortedPosts.map((post, index: number) => (
-            <BlogPreview
-              title={post.data.title}
-              slug={post.slug}
-              excerpt={post.data.excerpt}
-              pubDate={post.data.pubDate}
-              isNew={index == 0}
-            />
-          ))
-        }
-      </div>
-    </section>
-
-    <section class="flex flex-col gap-6">
-      <div>
-        <h2 class="text-2xl font-title dark:text-gray-50 flex pb-1">
-          Speaking
-        </h2>
-        <hr />
-      </div>
-
-      <div class="grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
-        <YoutubeVideo id="ORGwfDBfLLk" client:visible />
-        <YoutubeVideo id="5Xf5ihKvogs" client:visible />
-        <YoutubeVideo id="yyOXynCoagE" client:visible />
-        <YoutubeVideo id="l7nN7QdiGyY" client:visible />
-        <YoutubeVideo id="sZj-8sDUYAs" client:visible />
-      </div>
-    </section>
+    <TitledGrid title="Speaking">
+      <MediaGrid />
+    </TitledGrid>
   </div>
 </BaseLayout>

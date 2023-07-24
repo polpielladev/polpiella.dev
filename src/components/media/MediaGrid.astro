@@ -1,0 +1,13 @@
+---
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
+
+const videos = [
+  'ORGwfDBfLLk',
+  '5Xf5ihKvogs',
+  'yyOXynCoagE',
+  'l7nN7QdiGyY',
+  'sZj-8sDUYAs',
+]
+---
+
+{videos.map((video) => <YoutubeVideo id={video} client:visible />)}
