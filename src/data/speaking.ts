@@ -1,6 +1,6 @@
 export interface SpeakingEngagement {
   eventName: string
-  image: string
+  image?: string
   startDate: Date
   endDate: Date
   link: string
@@ -11,7 +11,6 @@ export interface SpeakingEngagement {
 export const speakingEngagements: SpeakingEngagement[] = [
   {
     eventName: '❓ TBA ❓',
-    image: '',
     startDate: new Date('December 2023'),
     endDate: new Date('December 2023'),
     link: '',
@@ -42,16 +41,16 @@ export const speakingEngagements: SpeakingEngagement[] = [
     image: '/assets/conferences/nsbarcelona.webp',
     startDate: new Date('2023-05-18'),
     endDate: new Date('2023-05-18'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://www.meetup.com/nsbarcelona/',
     title: 'Delightful UX for Swift CLI applications',
     description: '',
   },
   {
     eventName: 'Swift Heroes',
-    image: '/assets/conferences/swift-heroes.webp',
+    image: '/assets/conferences/swiftheroes.webp',
     startDate: new Date('2023-05-04'),
     endDate: new Date('2023-05-05'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://swiftheroes.com/2023/',
     title: 'Making developer tools with Swift',
     description: '',
   },
@@ -60,16 +59,16 @@ export const speakingEngagements: SpeakingEngagement[] = [
     image: '/assets/conferences/nyswifty.webp',
     startDate: new Date('2023-04-18'),
     endDate: new Date('2023-04-19'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://nyswifty.com/',
     title: 'Getting started with Xcode Cloud',
     description: '',
   },
   {
     eventName: 'NSManchester',
-    image: '/assets/conferences/nsmanchester.webp',
+    image: '/assets/conferences/nsmcr.webp',
     startDate: new Date('2023-02-06'),
     endDate: new Date('2023-02-06'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://www.meetup.com/nsmanchester/',
     title: 'Serverless Swift: A URL shortener',
     description: '',
   },
@@ -78,34 +77,34 @@ export const speakingEngagements: SpeakingEngagement[] = [
     image: '/assets/conferences/arc.webp',
     startDate: new Date('2022-11-17'),
     endDate: new Date('2022-11-17'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://arc.dev/',
     title: 'Exploring the power of Swift beyond app development',
     description: '',
   },
   {
     eventName: 'Mobile DevOps Summit by Bitrise',
-    image: '/assets/conferences/arc.webp',
+    image: '/assets/conferences/mobile-devops-summit.webp',
     startDate: new Date('2022-11-10'),
     endDate: new Date('2022-11-10'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://summit.bitrise.io/',
     title: 'Getting ahead of the game: Avoid release day drama!',
     description: '',
   },
   {
     eventName: 'Do iOS Amsterdam',
-    image: '/assets/conferences/do-ios.webp',
+    image: '/assets/conferences/doios.webp',
     startDate: new Date('2022-11-09'),
     endDate: new Date('2022-11-09'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://do-ios.com/',
     title: 'Fantastic Swift tools and where to find them',
     description: '',
   },
   {
     eventName: 'NSManchester',
-    image: '/assets/conferences/do-ios.webp',
+    image: '/assets/conferences/nsmcr.webp',
     startDate: new Date('2022-07-04'),
     endDate: new Date('2022-07-04'),
-    link: 'https://www.iosdevuk.com/',
+    link: 'https://www.meetup.com/nsmanchester/',
     title: 'Code generation using Swift Package plugins',
     description: '',
   },
