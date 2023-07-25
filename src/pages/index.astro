@@ -30,7 +30,10 @@ const sortedPosts = posts
         <Subscribe />
       </Hero>
     </section>
-    <TitledGrid title="Latest articles" offsetTop>
+    <TitledGrid
+      title="Latest articles"
+      offsetTop
+      disclose={{ title: 'See all', link: '/posts' }}>
       {
         sortedPosts.map((post, index: number) => (
           <BlogPreview
