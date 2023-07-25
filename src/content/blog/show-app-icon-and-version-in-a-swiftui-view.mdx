@@ -1,0 +1,118 @@
+---
+title: 'How to show the app icon and version in a SwiftUI view'
+excerpt: ''
+pubDate: 2023-07-26
+---
+
+I have recently been working on a new settings screen at work which has a footer view showing the current app icon and version:
+
+We have built it using SwiftUI and, in this article, I will show you how you can do the same for your own apps.
+
+## Getting the app icon
+
+The first step to building the view is to get the app icon. This can be done by retrieving the values for a set of keys in the app's `Info.plist` file:
+
+```swift:AppIconProvider.swift
+import Foundation
+
+enum AppIconProvider {
+    static func appIcon(in bundle: Bundle = .main) -> String {
+        let infoDictionary = bundle.infoDictionary
+        guard let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
+              let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+              let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+              let iconFileName = iconFiles.last else {
+            fatalError("Could not find icons in bundle")
+        }
+
+        return iconFileName
+    }
+}
+```
+
+The code above is based on [this Stack Overflow answer](https://stackoverflow.com/a/51241158) and it works by retrieving the value for the `CFBundleIcons` key in the app's `Info.plist` file. This value is a dictionary containing the app's icons in the form of an array of dictionaries, and we can then retrieve the value for the `CFBundlePrimaryIcon` key which is another dictionary containing the app's primary icon. Finally, we can retrieve the value for the `CFBundleIconFiles` key which is an array of strings containing the names of the app's icons.
+
+## Getting the app version
+
+The next step is to get the app version. This can be done by retrieving the value for the `CFBundleShortVersionString` key in the app's `Info.plist` file:
+
+```swift:AppVersionProvider.swift
+import Foundation
+
+enum AppVersionProvider {
+    static func appVersion(in bundle: Bundle = .main) -> String {
+        guard let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
+            fatalError("CFBundleShortVersionString should not be missing from info dictionary")
+        }
+        return version
+    }
+}
+```
+
+If you want to show the build number in the view we will create in the next section, you can retrieve the value for the `CFBundleVersion` key instead.
+
+## Creating a SwiftUI view
+
+Let's now put everything together and create a SwiftUI view that shows the app icon and version:
+
+```swift:AppVersionInformationView
+import SwiftUI
+
+struct AppVersionInformationView: View {
+    # 1
+    let versionString: String
+    let appIcon: String
+
+    var body: some View {
+        # 2
+        HStack(alignment: .center, spacing: 12) {
+            # 3
+            // App icons can only be retrieved as named `UIImage`s
+            // https://stackoverflow.com/a/62064533/17421764
+            if let image = UIImage(named: appIcon) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            # 4
+            VStack(alignment: .leading) {
+                Text("Version")
+                    .bold()
+                Text("v\(versionString)")
+            }
+            .font(.caption)
+            .foregroundColor(.primary)
+        }
+        # 5
+        .fixedSize()
+        # 6
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("App version \(versionString)")
+    }
+}
+```
+
+Let's go through the code above step by step:
+
+1. The view takes two parameters: the app version and the app icon. These values will be passed through to the view by the two providers we created earlier.
+2. We'll display the app icon and version in a horizontal stack with a spacing of 12 points.
+3. We'll display the app icon in an `Image` view. However, app icons can only be retrieved as named `UIImage`s, so we'll have to use `UIImage(named:)` to get the image and then pass it to the `Image` view initialiser.
+4. We'll then display the app version in a vertical stack composed of a label with the text version and the app version string itself.
+5. Finally, we'll use the `fixedSize()` modifier to ensure that both the app icon and `VStack` views are the same height. This will cause the icon to **automatically resize with text**.
+6. We'll also group all elements into a single accessibility element and give it a label to provide a better experience for VoiceOver users.
+
+Finally we can use the view in our app like so:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        AppVersionInformationView(
+            versionString: AppVersionProvider.appVersion(),
+            appIcon: AppIconProvider.appIcon()
+        )
+    }
+}
+```
