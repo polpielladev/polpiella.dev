@@ -6,6 +6,7 @@ import { getCollection } from 'astro:content'
 import Subscribe from '@components/Subscribe.svelte'
 import MediaGrid from '@components/media/MediaGrid.astro'
 import TitledGrid from '@components/TitledGrid.svelte'
+import UpcomingTalks from '@components/UpcomingTalks.svelte'
 
 const posts = await getCollection('blog')
 const sortedPosts = posts
@@ -21,7 +22,7 @@ const sortedPosts = posts
   description="Blog posts about iOS mobile app development and Swift by Pol Piella."
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-12">
     <section>
       <Hero
         title="Welcome to my blog 👋"
@@ -29,7 +30,7 @@ const sortedPosts = posts
         <Subscribe />
       </Hero>
     </section>
-    <TitledGrid title="Latest articles">
+    <TitledGrid title="Latest articles" offsetTop>
       {
         sortedPosts.map((post, index: number) => (
           <BlogPreview
@@ -41,6 +42,10 @@ const sortedPosts = posts
           />
         ))
       }
+    </TitledGrid>
+
+    <TitledGrid title="Upcoming speaking engagements" responsive={false}>
+      <UpcomingTalks />
     </TitledGrid>
 
     <TitledGrid title="Speaking">

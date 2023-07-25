@@ -3,9 +3,10 @@
     title: string
     link: string
   }
-
   export let title: string
   export let disclose: Disclose | undefined = undefined
+  export let responsive: boolean = true
+  export let offsetTop: boolean = false
 </script>
 
 <section class="flex flex-col gap-6">
@@ -41,7 +42,10 @@
     <hr />
   </div>
 
-  <div class="grid gap-6 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div
+    class={`grid gap-6 ${offsetTop ? 'pt-4' : ''} ${
+      responsive ? 'sm:grid-cols-2 lg:grid-cols-3' : ''
+    }`}>
     <slot />
   </div>
 </section>
