@@ -18,7 +18,7 @@
       {#if disclose}
         <a
           href={disclose.link}
-          class="flex gap-0.5 stroke-current text-violet-500 hover:text-violet-600 hover:underline dark:text-violet-200 dark:hover:text-violet-100">
+          class="flex items-center gap-0.5 stroke-current text-violet-500 hover:text-violet-600 hover:underline dark:text-violet-200 dark:hover:text-violet-100">
           {disclose.title}
           <svg
             class="w-4"
