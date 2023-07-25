@@ -47,7 +47,10 @@ const sortedPosts = posts
       }
     </TitledGrid>
 
-    <TitledGrid title="Upcoming speaking engagements" responsive={false}>
+    <TitledGrid
+      title="Upcoming speaking engagements"
+      responsive={false}
+      disclose={{ title: 'See more', link: '/speaking' }}>
       <UpcomingTalks />
     </TitledGrid>
 
