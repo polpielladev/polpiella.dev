@@ -17,7 +17,7 @@
       >New!</span>
   {/if}
   <h4
-    class="text-theme-primary m-0 font-title text-xl hover:underline dark:text-gray-100">
+    class="text-theme-primary m-0 font-title text-xl hover:text-violet-700 dark:text-gray-100 dark:hover:text-violet-400">
     <a href={`/${slug}`} {title}>{title}</a>
   </h4>
   <p class="hyphens-auto text-lg leading-6 line-clamp-3 dark:text-gray-400">

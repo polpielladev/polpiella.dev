@@ -39,7 +39,7 @@
     <li class="relative mb-6 w-full sm:mb-0 sm:h-full">
       <div class="flex items-center">
         <div
-          class="z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full shadow-lg  ring-2 ring-violet-400 dark:bg-violet-900 dark:ring-gray-900">
+          class="z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full shadow-lg  ring-2 ring-violet-400  dark:ring-violet-600">
           {#if engagement.event.image}
             <img
               class="h-3.5 w-3.5 rounded-sm"
@@ -65,7 +65,7 @@
           rel="noopener noreferrer"
           href={engagement.event.link}>
           <h3
-            class="font-title text-lg text-gray-900 transition-colors hover:text-violet-700 dark:text-white">
+            class="font-title text-lg text-gray-900 transition-colors hover:text-violet-700 dark:text-white dark:hover:text-violet-400">
             {engagement.event.title}
           </h3>
         </a>
@@ -73,8 +73,8 @@
         <time
           class="mb-2 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
           >{engagement.event.date}</time>
-        <p class="text-base font-normal text-gray-500 dark:text-gray-400">
-          <strong>{engagement.title}</strong>
+        <p class="text-base text-gray-500 dark:text-gray-300">
+          {engagement.title}
         </p>
       </div>
     </li>
