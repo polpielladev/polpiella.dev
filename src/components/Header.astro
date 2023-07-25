@@ -30,6 +30,24 @@ import Social from './Social.svelte'
         href="/newsletter">
         Newsletter
       </a>
+      <a
+        class={`text-xl no-underline ${
+          activeNav == 'posts'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 dark:text-gray-400'
+        }`}
+        href="/posts">
+        Posts
+      </a>
+      <a
+        class={`text-xl no-underline ${
+          activeNav == 'speaking'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 dark:text-gray-400'
+        }`}
+        href="/speaking">
+        Speaking
+      </a>
     </nav>
     <div class="lg:block hidden">
       <Social />
