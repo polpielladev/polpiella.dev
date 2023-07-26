@@ -29,7 +29,7 @@ export const speakingEngagements: SpeakingEngagement[] = [
   {
     eventName: 'iOS Dev UK',
     image: '/assets/conferences/iosdevuk.webp',
-    startDate: new Date('2023-07-07'),
+    startDate: new Date('2023-09-04'),
     endDate: new Date('2023-09-07'),
     link: 'https://www.iosdevuk.com/',
     title: 'Making developer tools with Swift',
