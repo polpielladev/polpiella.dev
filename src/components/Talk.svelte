@@ -15,6 +15,9 @@
 
     return formattedDate
   }
+
+  const now = new Date()
+  const dateIsInTheFuture = date > now
 </script>
 
 <div class="flex items-start gap-3">
@@ -22,7 +25,12 @@
     class="not-prose m-0 h-12 w-12 rounded-sm object-contain shadow"
     src={icon ?? '/assets/conferences/placeholder.webp'}
     alt="Conference icon" />
-  <div class="flex flex-col gap-1">
+  <div class="relative flex flex-col gap-1">
+    {#if dateIsInTheFuture}
+      <span
+        class="absolute -top-7 mr-2 rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-violet-800 dark:bg-violet-900 dark:text-purple-300"
+        >Upcoming!</span>
+    {/if}
     <a href={link}>
       <h3
         class="m-0 font-title text-lg hover:text-violet-700 dark:hover:text-violet-400">

@@ -59,7 +59,7 @@ const engagementsByYear: { [key: number]: SpeakingEngagement[] } =
       Object.entries(engagementsByYear)
         .sort(([leftYear]: any, [rightYear]: any) => rightYear - leftYear)
         .map(([year, engagements]) => (
-          <TitledGrid title={`${year}`}>
+          <TitledGrid title={`${year}`} offsetTop client:visible>
             {engagements.map((engagement: SpeakingEngagement) => (
               <Talk
                 title={engagement.title}
