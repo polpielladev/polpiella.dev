@@ -44,7 +44,7 @@
         </a>
 
         <time
-          class="text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
+          class="text-sm font-normal leading-none text-gray-500 dark:text-gray-500"
           >{formatDate(engagement.startDate)} - {formatDate(
             engagement.endDate
           )}</time>

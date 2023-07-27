@@ -33,12 +33,12 @@
     {/if}
     <a href={link}>
       <h3
-        class="m-0 font-title text-lg hover:text-violet-700 dark:hover:text-violet-400">
+        class="m-0 font-title text-lg hover:text-violet-700 dark:text-white dark:hover:text-violet-400">
         {event}
       </h3>
     </a>
-    <p class="m-0">{title}</p>
-    <p class="m-0 text-gray-500">{formatDate(date)}</p>
+    <p class="m-0 dark:text-gray-200">{title}</p>
+    <p class="m-0 text-gray-500 dark:text-gray-300">{formatDate(date)}</p>
     <div class="flex flex-wrap">
       {#if slides}
         <a href="/">Slides</a>

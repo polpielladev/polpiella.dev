@@ -25,7 +25,7 @@
   </p>
   <time
     datetime={pubDate.toDateString()}
-    class="block text-sm text-zinc-400 sm:text-base">
+    class="block text-sm text-zinc-500 dark:text-zinc-400 sm:text-base">
     {formattedDate}
   </time>
 </div>
