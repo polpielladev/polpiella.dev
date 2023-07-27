@@ -13,7 +13,7 @@ export const speakingEngagements: SpeakingEngagement[] = [
     eventName: '❓ TBA ❓',
     startDate: new Date('December 2023'),
     endDate: new Date('December 2023'),
-    link: '',
+    link: '/speaking',
     title: 'Details coming soon... 👀',
     description: '',
   },
