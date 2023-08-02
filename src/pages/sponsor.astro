@@ -38,66 +38,151 @@ import BaseLayout from '@layouts/BaseLayout.astro'
       </a>
     </div>
   </section>
-  <section>
-    <header class="font-title text-2xl">What's in it for you?</header>
-    <div class="grid grid-cols-2">
-      <ul
-        class="max-w-md space-y-1 text-gray-500 list-inside dark:text-gray-400">
-        <li class="flex items-center">
-          <svg
-            class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20">
-            <path
-              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
-            ></path>
-          </svg>
-          At least 10 characters
-        </li>
-        <li class="flex items-center">
-          <svg
-            class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 20">
-            <path
-              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
-            ></path>
-          </svg>
-          At least one lowercase character
-        </li>
-      </ul>
+  <section class="flex flex-col gap-2">
+    <div class="grid sm:grid-cols-2 gap-4 items-center">
+      <div class="space-y-2">
+        <header class="font-title text-3xl mb-5">What's in it for you?</header>
+        <ul
+          class="space-y-2 text-gray-500 list-inside text-lg dark:text-gray-400">
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            A slot showing in every blog post across my site.
+          </li>
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            A Linkedin post announcing the sponsorship to 1k+ followers.
+          </li>
 
-      <div
-        class="relative mb-5 flex flex-col gap-4 rounded-lg border-2 bg-violet-50/75 border-violet-400 sm:flex-row sm:items-center">
-        <p
-          class="text-md absolute -top-3.5 right-6 m-0 rounded-lg bg-gray-300 px-2 font-medium dark:bg-gray-800">
-          SPONSORED
-        </p>
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            A tweet announcing the sponsorship to 1k+ followers.
+          </li>
 
-        <img
-          class="relative m-0 hidden aspect-square w-36 object-contain px-2 sm:block"
-          src="/assets/sponsors/runway-alt.png"
-          alt="Runway logo"
-        />
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            An ad in the home page.
+          </li>
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            Comprehensive analytics reports with the data you need.
+          </li>
 
-        <div class="flex flex-col gap-1">
-          <a
-            href=""
-            class="font-title text-xl no-underline hover:underline dark:text-white">
-            Hello World!
-          </a>
-          <p class="m-0 text-sm leading-relaxed">
-            No more cat-herding, spreadsheets, or steady drip of manual
-            busywork.{' '}
-            <a href="">Runway</a> helps your team level-up your release coordination
-            and automation, from kickoff to release to rollout.
-            <a href="">Get started for free &rarr;</a>
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            You'll be helping create free content for everyone 🤝.
+          </li>
+
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            You'll help me maitain and create Open-Source projects! 🚀.
+          </li>
+
+          <li class="flex items-center">
+            <svg
+              class="w-3.5 h-3.5 mr-2 text-green-500 dark:text-green-400 flex-shrink-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"
+              ></path>
+            </svg>
+            My content is exclusively mobile focused 📱.
+          </li>
+        </ul>
+      </div>
+      <div class="flex flex-col gap-2 mx-auto">
+        <div
+          class="relative flex flex-col rounded-lg border-2 bg-violet-50/75 border-violet-400 sm:items-center justify-center text-center max-w-lg lg:w-full px-24 py-8 shadow-lg">
+          <p
+            class="absolute top-2 right-2 font-title text-xs py-0.5 px-2 bg-violet-300 rounded-md shadow mx-auto">
+            Sponsored
           </p>
+
+          <img
+            class="relative m-0 hidden aspect-square w-36 object-contain px-2 sm:block"
+            src="/assets/sponsors/runway-alt.png"
+            alt="Runway logo"
+          />
+
+          <div>
+            <a
+              href=""
+              class="font-title text-xl no-underline hover:underline dark:text-white">
+              QReate: A QR code editor
+            </a>
+            <p class="m-0 text-sm leading-relaxed">
+              Create beautiful and fully customisable QR codes with QReate.
+            </p>
+          </div>
         </div>
+        <p class="text-sm text-gray-500">
+          💡 An example of what your sponsor slot would look like.
+        </p>
       </div>
     </div>
   </section>
