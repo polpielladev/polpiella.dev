@@ -6,7 +6,7 @@ pubDate: 2023-08-02
 
 A while ago I wrote an article about how I use [GitHub Actions scheduled workflows to post a tweet every Friday with a list of that week's most read articles on my blog](https://www.polpiella.dev/scheduling-tweets-with-github-actions-and-swift). While this approach worked great initially, I quickly faced a limitation with GitHub Actions that broke my automation workflow 😭:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/gha-email.webp)
+![A screenshot showing an email from GitHub saying my workflow had been disabled due to repository inactivity](/assets/posts/scheduled-swift-aws-lambdas/gha-email.webp)
 
 GitHub automatically turns off any scheduled workflows after 60 days of inactivity in a repository and, as my repository's sole job was to run a workflow on a schedule without committing any code back to the repository, this trick was not really going to work.
 
@@ -18,11 +18,11 @@ For this reason, I decided to put on my serverless hat again, convert my CLI int
 
 Let's first create a new AWS lambda by heading over to the AWS console, searching for the Lambda service and clicking on the `Create a new function` button:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/new-lambda.webp)
+![A screenshot of the new lambda creation page.](/assets/posts/scheduled-swift-aws-lambdas/new-lambda.webp)
 
 You will now see a `Create function` page where you can configure the new lambda:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/configure-lambda.webp)
+![A screenshot of the configure lambda page.](/assets/posts/scheduled-swift-aws-lambdas/configure-lambda.webp)
 
 In this page you need to:
 
@@ -37,15 +37,15 @@ In this page you need to:
 
 In the function overview page, click on the `Add trigger` button:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/add-trigger.webp)
+![A screenshot of the function overview view with an arrow pointing to the add trigger button.](/assets/posts/scheduled-swift-aws-lambdas/add-trigger.webp)
 
 Then, in the `Trigger cofiguration` page select the `EventBridge (CloudWatch Events)` service as the trigger condition:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/select-service.webp)
+![A screenshot showing the list of available triggers with a focus on the EventBridge CloudWatch Events service.](/assets/posts/scheduled-swift-aws-lambdas/select-service.webp)
 
 Finally, create a new event rule and configure it:
 
-![](/assets/posts/scheduled-swift-aws-lambdas/configure-service.webp)
+![A screenshot showing how to configure the event bridge service.](/assets/posts/scheduled-swift-aws-lambdas/configure-service.webp)
 
 You will need to set up the new rule by:
 
