@@ -8,13 +8,13 @@ import BaseLayout from '@layouts/BaseLayout.astro'
   activeNav="sponsor"
   image="">
   <section>
-    <div class="max-w-2xl mb-12">
+    <div class="max-w-2xl mb-20">
       <h1
         class="text-4xl mb-4 font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
         Want to become a sponsor? 🤝
       </h1>
       <p
-        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-400">
+        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-300">
         Help me continue to create content for my blog and open source projects
         by sponsoring me.
       </p>
@@ -41,9 +41,11 @@ import BaseLayout from '@layouts/BaseLayout.astro'
   <section class="flex flex-col gap-2">
     <div class="grid md:grid-cols-2 gap-12 items-center">
       <div class="space-y-2">
-        <header class="font-title text-3xl mb-5">What's in it for you?</header>
+        <header class="font-title text-3xl mb-5 dark:text-white">
+          What's in it for you?
+        </header>
         <ul
-          class="space-y-2 text-gray-500 list-inside text-lg dark:text-gray-400">
+          class="space-y-2 text-gray-500 list-inside text-lg dark:text-gray-300">
           <li class="flex items-center">
             🎰 A slot showing in every blog post across my site.
           </li>
@@ -74,8 +76,11 @@ import BaseLayout from '@layouts/BaseLayout.astro'
         </ul>
       </div>
       <div class="flex flex-col gap-2 w-full">
+        <p class="text-sm text-gray-500 dark:text-gray-300">
+          💡 An example of what your sponsor slot would look like.
+        </p>
         <div
-          class="relative flex flex-col rounded-lg border-2 bg-violet-50/75 border-violet-400 items-center text-center p-8 shadow-lg">
+          class="relative flex flex-col rounded-lg border-2 bg-violet-50/75 border-violet-400 items-center text-center p-8 shadow-lg dark:bg-violet-600/20">
           <p
             class="absolute top-2 right-2 font-title text-xs py-0.5 px-2 bg-violet-300 rounded-md shadow mx-auto">
             Sponsored
@@ -93,42 +98,57 @@ import BaseLayout from '@layouts/BaseLayout.astro'
               class="font-title text-xl no-underline hover:underline dark:text-white">
               QReate: A QR code editor
             </a>
-            <p class="m-0 text-sm leading-relaxed">
+            <p class="m-0 text-sm leading-relaxed dark:text-gray-300">
               Create beautiful and fully customisable QR codes with QReate.
             </p>
           </div>
         </div>
-        <p class="text-sm text-gray-500">
-          💡 An example of what your sponsor slot would look like.
-        </p>
       </div>
     </div>
   </section>
   <section class="bg-white dark:bg-gray-900">
     <div
       class="flex flex-col gap-8 max-w-screen-xl px-4 py-8 mx-auto text-center lg:py-16 lg:px-6">
-      <header class="font-title text-2xl">More about me and the blog</header>
+      <header class="font-title text-2xl dark:text-white">
+        More about me and the blog
+      </header>
       <dl
         class="grid max-w-screen-md gap-8 mx-auto text-gray-900 sm:grid-cols-3 dark:text-white">
         <div class="flex flex-col items-center justify-center">
           <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-400">
-            <strong>Twitter</strong> and <strong>Linkedin</strong> followers
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            <strong class="text-violet-600 font-semibold dark:text-violet-400"
+              >Twitter</strong
+            > and <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >Linkedin</strong
+            > followers
           </dd>
         </div>
         <div class="flex flex-col items-center justify-center">
           <dt class="mb-2 text-3xl md:text-4xl font-extrabold">10k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-400">
-            monthly blog <strong class="text-violet-600 font-semibold"
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            monthly blog <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
               >page views</strong
             >
           </dd>
         </div>
         <div class="flex flex-col items-center justify-center">
           <dt class="mb-2 text-3xl md:text-4xl font-extrabold">7k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-400">
-            monthly <strong class="text-violet-600 font-semibold"
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            monthly <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
               >unique visitors</strong
+            >
+          </dd>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1</dt>
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            article<strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >every week</strong
             >
           </dd>
         </div>
