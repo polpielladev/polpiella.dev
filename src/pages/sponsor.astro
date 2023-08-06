@@ -1,0 +1,158 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+---
+
+<BaseLayout
+  title="Sponsor"
+  description="Help me continue to create content and open source projects by sponsoring me."
+  activeNav="sponsor"
+  image="">
+  <section>
+    <div class="max-w-2xl mb-20">
+      <h1
+        class="text-4xl mb-4 font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+        Want to become a sponsor? 🤝
+      </h1>
+      <p
+        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-300">
+        Help me continue to create content for my blog and open source projects
+        by sponsoring me.
+      </p>
+      <a
+        href="mailto:hi@polpiella.dev?subject=We%20want$20to%20sponsor%20you!"
+        class="inline-flex items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-300 dark:focus:ring-violet-900 transition-colors">
+        Book a slot
+        <svg
+          class="w-3.5 h-3.5 ml-2"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 10">
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+      </a>
+    </div>
+  </section>
+  <section class="flex flex-col gap-2">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="space-y-2">
+        <header class="font-title text-3xl mb-5 dark:text-white">
+          What's in it for you?
+        </header>
+        <ul
+          class="space-y-2 text-gray-500 list-inside text-lg dark:text-gray-300">
+          <li class="flex items-center">
+            🎰 A slot showing in every blog post across my site.
+          </li>
+          <li class="flex items-center">
+            📢 A Linkedin post announcing the sponsorship to 1k+ followers.
+          </li>
+
+          <li class="flex items-center">
+            🐦 A tweet announcing the sponsorship to 1k+ followers.
+          </li>
+
+          <li class="flex items-center">🏠 An ad in the home page.</li>
+          <li class="flex items-center">
+            📈 Comprehensive analytics reports with the data you need.
+          </li>
+
+          <li class="flex items-center">
+            🤝 You'll be helping create free content for everyone.
+          </li>
+
+          <li class="flex items-center">
+            🚀 You'll help me maitain and create Open-Source projects!
+          </li>
+
+          <li class="flex items-center">
+            📱 My content is exclusively mobile focused.
+          </li>
+        </ul>
+      </div>
+      <div class="flex flex-col gap-2 w-full">
+        <p class="text-sm text-gray-500 dark:text-gray-300">
+          💡 An example of what your sponsor slot would look like.
+        </p>
+        <div
+          class="relative flex flex-col rounded-lg border-2 bg-violet-50/75 border-violet-400 items-center text-center p-8 shadow-lg dark:bg-violet-600/20">
+          <p
+            class="absolute top-2 right-2 font-title text-xs py-0.5 px-2 bg-violet-300 rounded-md shadow mx-auto">
+            Sponsored
+          </p>
+
+          <img
+            class="relative m-0 aspect-square w-36 object-contain px-2"
+            src="/assets/sponsors/qreate.webp"
+            alt="Runway logo"
+          />
+
+          <div class="max-w-xs">
+            <a
+              href=""
+              class="font-title text-xl no-underline hover:underline dark:text-white">
+              QReate: A QR code editor
+            </a>
+            <p class="m-0 text-sm leading-relaxed dark:text-gray-300">
+              Create beautiful and fully customisable QR codes with QReate.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="bg-white dark:bg-gray-900">
+    <div
+      class="flex flex-col gap-8 max-w-screen-xl px-4 py-8 mx-auto text-center lg:py-16 lg:px-6">
+      <header class="font-title text-2xl dark:text-white">
+        More about me and the blog
+      </header>
+      <dl
+        class="grid max-w-screen-md gap-8 mx-auto text-gray-900 sm:grid-cols-3 dark:text-white">
+        <div class="flex flex-col items-center justify-center">
+          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1k+</dt>
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            <strong class="text-violet-600 font-semibold dark:text-violet-400"
+              >Twitter</strong
+            > and <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >Linkedin</strong
+            > followers
+          </dd>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">10k+</dt>
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            monthly blog <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >page views</strong
+            >
+          </dd>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">7k+</dt>
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            monthly <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >unique visitors</strong
+            >
+          </dd>
+        </div>
+        <div class="flex flex-col items-center justify-center">
+          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1</dt>
+          <dd class="font-light text-gray-500 dark:text-gray-300">
+            article <strong
+              class="text-violet-600 font-semibold dark:text-violet-400"
+              >every week</strong
+            >
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
