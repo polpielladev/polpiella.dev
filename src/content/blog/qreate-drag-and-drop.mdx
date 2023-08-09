@@ -1,0 +1,159 @@
+---
+title: 'Delightful SwiftUI image drag & drop for a macOS app'
+excerpt: 'How to easily implement image drag & drop with beautiful animations in a SwiftUI app'
+pubDate: 2023-08-09
+---
+
+import Video from '@components/Video.svelte'
+
+I have recently finished a new feature for my app [QReate]() that allows users to add images to their custom QR codes.
+
+I wanted to make the experience as native and intuitive as possible, so I decided to add support for dragging and dropping images directly onto the editor and much to my surprise coming from a UIKit background, it was a breeze to implement in SwiftUI:
+
+<Video src="/assets/posts/qreate-drag-and-drop/finished.mp4" />
+
+## The view
+
+The view I added support for dragging and dropping images is simple and acts as a canvas for the QR code the user is creating:
+
+```swift:QRCodeCanvas.swift
+import SwiftUI
+
+struct QRCodeCanvas: View {
+    @Binding var qrCode: QRCodeModel
+
+    var body: some View {
+        QRCodeView(qrCode: $qrCode)
+    }
+}
+```
+
+The view above simply renders a custom view that is passed a binding to the QR code model that is being edited.
+
+## Adding support for dragging and dropping
+
+Adding support for dragging and dropping images onto a SwiftUI view is rather simple. You just need to add a view modifier, specify the `UTTypes` you'd like to support (in this case just `.image`) and provide a closure that will be called when the user drops an image onto the view.
+
+We will also create a `@State` property to keep track of whether the user is currently dragging an image over the view or not so that we can update our UI accordingly:
+
+```swift:QRCodeCanvas.swift
+import SwiftUI
+import QRCode
+
+struct QRCodeCanvas: View {
+    @Binding var qrCode: QRCodeModel
+    @State private var isTargeted: Bool = false
+
+    var body: some View {
+        QRCodeView(qrCode: $qrCode)
+            .onDrop(of: [.image], isTargeted: $isTargeted, perform: { providers in
+                return true
+            })
+    }
+}
+```
+
+While we are already supporting dragging and dropping images onto the view, we are not making it clear to the user a clear that the feature is available:
+
+<Video src="/assets/posts/qreate-drag-and-drop/no-feedback.mov" />
+
+## Updating the UI
+
+Let's provide an overlay that is only shown when the `isTargeted` property is set to `true`.
+
+To make things look as smooth as possible, we will also add a view modifier to animate whenever the `isTargeted` property changes:
+
+```swift:QRCodeCanvas.swift
+import SwiftUI
+
+struct QRCodeCanvas: View {
+    @Binding var qrCode: QRCodeModel
+    @State private var isTargeted: Bool = false
+
+    var body: some View {
+        QRCodeView(qrCode: $qrCode)
+            .onDrop(of: [.image], isTargeted: $isTargeted, perform: { providers in
+                return true
+            })
+            .overlay {
+                if isTargeted {
+                    ZStack {
+                        Color.black.opacity(0.7)
+
+                        VStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 60))
+                            Text("Drop your image here...")
+                        }
+                        .font(.largeTitle)
+                        .fontWeight(.heavy)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: 250)
+                        .multilineTextAlignment(.center)
+                    }
+                }
+            }
+            .animation(.default, value: isTargeted)
+    }
+}
+```
+
+When we next run the app and drag an image over the view, we should see the following:
+
+<Video src="/assets/posts/qreate-drag-and-drop/overlay.mp4" />
+
+## Hadling a drop
+
+Last but not least, we need to do something whenever the user drops an image onto the view.
+
+In the closure we provide to the `onDrop` view modifier, we need to make sure we can get the first provider from the closure's parameter and then load the data representation for the `.image` type. We can then initialise an `NSImage` instance with the data and assign it to the QR code model.
+
+```swift:QRCodeCanvas.swift
+import SwiftUI
+import QRCode
+
+struct QRCodeCanvas: View {
+    @Binding var qrCode: QRCodeModel
+    @State private var isTargeted: Bool = false
+
+    var body: some View {
+        QRCodeView(qrCode: $qrCode)
+            .onDrop(of: [.image], isTargeted: $isTargeted, perform: { providers in
+                guard let provider = providers.first else { return false }
+
+                _ = provider.loadDataRepresentation(for: .image) { data, error in
+                    if error == nil, let data {
+                        DispatchQueue.main.async {
+                            qrCode.image.image = NSImage(data: data)
+                        }
+                    }
+                }
+
+                return true
+            })
+            .overlay {
+                if isTargeted {
+                    ZStack {
+                        Color.black.opacity(0.7)
+
+                        VStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 60))
+                            Text("Drop your image here...")
+                        }
+                        .font(.largeTitle)
+                        .fontWeight(.heavy)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: 250)
+                        .multilineTextAlignment(.center)
+                    }
+                }
+            }
+            .animation(.default, value: isTargeted)
+    }
+}
+```
+
+With that, we are done! We can now drag and drop images onto our view and they will be added to the QR code model. 🎉
+
+<Video src="/assets/posts/qreate-drag-and-drop/finished.mp4" />
