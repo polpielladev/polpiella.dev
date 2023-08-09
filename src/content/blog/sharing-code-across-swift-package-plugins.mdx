@@ -4,6 +4,12 @@ excerpt: 'How to share and reuse code across multiple Swift package plugins usin
 pubDate: 2023-08-09
 ---
 
-## Can't import libraries
+It is common for Swift package plugin authors to provide multiple plugin types with very similar logic in a single package.
+
+For example, you might come across a package that provides both a command and a build tool plugin that perform the same action. This is a great way to provide a better user experience for your users, but it can become hard to maintain if you don't reuse code.
+
+## SwiftGen plugin
+
+## SPM plugins can't import library targets
 
 ## Symlinks to the rescue!
