@@ -1,0 +1,229 @@
+---
+title: 'Building a searchable map with SwiftUI and MapKit'
+excerpt: ''
+pubDate: 2023-08-15
+---
+
+import Video from '@components/Video.svelte'
+
+There are some very exciting improvements coming to MapKit in iOS 17 that will make working with maps in SwiftUI much easier. To get to grips with the new APIs, I decided to build a small searchable map UI component that lets users search for locations, see them on a map, and then select one to take a closer look around:
+
+<Video src="" />
+
+## Creating a map view
+
+The first step to creating the searchable map component above is to create a new SwiftUI view with MapKit's Map view inside it:
+
+```swift:SearchableMap.swift
+import SwiftUI
+import MapKit
+
+struct SearchableMap: View {
+    @State private var position = MapCameraPosition.automatic
+
+    var body: some View {
+        Map(position: $position)
+            .ignoresSafeArea()
+    }
+}
+```
+
+The `Map` view is initialised with an `automatic` camera position, which means that it will automatically zoom and pan to show all of the annotations that are added to the map. This is perfect for our use case, as we'll be adding pins for the locations that the user searches for.
+
+Furthermore and to make things look a bit nicer, we can also use the `.ignoresSafeArea()` modifier to make the map view extend to the top and bottom of the screen.
+
+## Adding a sheet overlay
+
+Let's now add a sheet overlay with a custom view that allows the user to search for locations.
+
+```swift:SearchableMap.swift
+import SwiftUI
+import MapKit
+
+struct SearchableMap: View {
+    @State private var position = MapCameraPosition.automatic
+    @State private var isSheetPresented: Bool = true
+
+    var body: some View {
+        Map(position: $position)
+            .ignoresSafeArea()
+            .sheet(isPresented: $isSheetPresented) {
+                SheetView()
+            }
+    }
+}
+```
+
+And this is what the contents of the sheet view look like for now:
+
+```swift:SheetView.swift
+import SwiftUI
+import MapKit
+
+struct SheetView: View {
+    @State private var search: String = ""
+
+    var body: some View {
+        VStack {
+            // 1
+            HStack {
+                Image(systemName: "magnifyingglass")
+                TextField("Search for a restaurant", text: $search)
+                    .autocorrectionDisabled()
+            }
+            .modifier(TextFieldGrayBackgroundColor())
+
+            Spacer()
+        }
+        .padding()
+        // 2
+        .interactiveDismissDisabled()
+        // 3
+        .presentationDetents([.height(200), .large])
+        // 4
+        .presentationBackground(.regularMaterial)
+        // 5
+        .presentationBackgroundInteraction(.enabled(upThrough: .large))
+    }
+}
+
+struct TextFieldGrayBackgroundColor: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(12)
+            .background(.gray.opacity(0.1))
+            .cornerRadius(8)
+            .foregroundColor(.primary)
+    }
+}
+```
+
+Let's go through the code above step by step:
+
+1. The sheet view has a search bar (`TextField`) at the top, with a binding to the `search` state property.
+2. The user can not dismiss the sheet view by swiping it down.
+3. The sheet view has two possible sizes: a small one (200 points tall) and a large one (the default size).
+4. The sheet view has a regular material background, giving it a nice blur effect.
+5. The sheet view's background is interactive, meaning that the user can interact with the map view behind it.
+
+The great thing about this code is that we don't have to write any custom code to make the sheet resize when the user is searching for a location. The sheet view will automatically resize itself to the small size when the user starts typing in the search bar, and then back to the large size when the submits the search with the return key.
+
+## Location search completion
+
+Let's now provide the user with a list of search results as they type in the search bar.
+
+To do this, we'll use the `MKLocalSearchCompleter` class from MapKit, which we'll use in a custom `LocationService` decorated with the new `@Observable` macro:
+
+```swift:LocationService.swift
+import MapKit
+
+struct SearchCompletions: Identifiable {
+    let id = UUID()
+    let title: String
+    let subTitle: String
+}
+
+@Observable
+class LocationService: NSObject, MKLocalSearchCompleterDelegate {
+    private let completer: MKLocalSearchCompleter
+
+    var completions = [SearchCompletions]()
+
+    init(completer: MKLocalSearchCompleter) {
+        self.completer = completer
+        super.init()
+        self.completer.delegate = self
+    }
+
+    func update(queryFragment: String) {
+        completer.resultTypes = .pointOfInterest
+        completer.queryFragment = queryFragment
+    }
+
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        completions = completer.results.map { .init(title: $0.title, subTitle: $0.subtitle) }
+    }
+}
+```
+
+Working with `MKLocalSearchCompleter` is rather straightforward. You just need to:
+
+1. Create an instance of `MKLocalSearchCompleter`.
+2. Set the delegate to an `NSObject` class that conforms to the `MKLocalSearchCompleterDelegate` protocol where you get notified about completion results as they come in through the `completerDidUpdateResults` method.
+3. Update the `queryFragment` property to trigger a new request for completion results.
+
+As opposed to its `MKLocalSearch` counterpart, `MKLocalSearchCompleter` has no rate limit, so you can update the `queryFragment` property as often as you want and there is no need to throttle the requests yourself.
+
+### Displaying search completions
+
+Now that we have a way of getting search completions, let's update the location service with the textfield's value and display the results as they come in in the sheet view:
+
+```swift:SheetView.swift
+import SwiftUI
+import MapKit
+
+struct SheetView: View {
+    // 1
+    @State private var locationService = LocationService(completer: .init())
+    @State private var search: String = ""
+
+    var body: some View {
+        VStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                TextField("Search for a restaurant", text: $search)
+                    .autocorrectionDisabled()
+            }
+            .modifier(TextFieldGrayBackgroundColor())
+
+            Spacer()
+
+            // 2
+            List {
+                ForEach(locationService.completions) { completion in
+                    Button(action: { }) {
+                        VStack(alignment: .leading) {
+                            Text(completion.title)
+                                .font(.headline)
+                                .fontDesign(.rounded)
+                            Text(completion.subTitle)
+                        }
+                    }
+                    // 3
+                    .listRowBackground(Color.clear)
+                }
+            }
+            // 4
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+        // 5
+        .onChange(of: search) {
+            locationService.update(queryFragment: search)
+        }
+        .padding()
+        .interactiveDismissDisabled()
+        .presentationDetents([.height(200), .large])
+        .presentationBackground(.regularMaterial)
+        .presentationBackgroundInteraction(.enabled(upThrough: .large))
+    }
+}
+```
+
+Let's break down the code above step by step:
+
+1. We create a new state property to hold the location service instance.
+2. We display the search completions in a list.
+3. We set the row background to `.clear` to remove the default background styles.
+4. We set the list style to `.plain` and the `scrollContentBackground` to `.hidden` to remove the default list styles.
+5. We update the location service's query fragment to trigger an update to the completions list whenever the search text changes.
+
+## Location search results
+
+## Selecting a location
+
+## Look around scenes
+
+```
+
+```
