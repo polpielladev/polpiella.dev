@@ -9,6 +9,7 @@ export interface Props {
 }
 
 const { tweet } = Astro.props
+console.log(tweet)
 const url = getUserUrl(tweet)
 const followURL = getFollowUrl(tweet)
 ---

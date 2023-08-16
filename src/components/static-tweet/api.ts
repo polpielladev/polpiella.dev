@@ -48,7 +48,8 @@ export async function getTweet(id: string): Promise<Tweet | undefined> {
   const isJson = res.headers.get('content-type')?.includes('application/json')
 
   if (res.ok) {
-    return isJson ? res.json() : undefined
+    console.log(await res.json())
+    return isJson ? await res.json() : undefined
   }
   if (res.status === 404) return
 
