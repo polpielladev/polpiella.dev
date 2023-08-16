@@ -1,6 +1,6 @@
 ---
 title: 'Building a searchable map with SwiftUI and MapKit'
-excerpt: ''
+excerpt: 'A practical example of how to use the new MapKit APIs in iOS 17 to build a searchable map with SwiftUI.'
 pubDate: 2023-08-15
 ---
 
@@ -8,7 +8,7 @@ import Video from '@components/Video.svelte'
 
 There are some very exciting improvements coming to MapKit in iOS 17 that will make working with maps in SwiftUI much easier. To get to grips with the new APIs, I decided to build a small searchable map UI component that lets users search for locations, see them on a map, and then select one to take a closer look around:
 
-<Video src="" />
+<Video src="/assets/posts/mapkit-and-swiftui-searchable-map/demo.mp4" />
 
 ## Creating a map view
 
@@ -182,7 +182,7 @@ struct SheetView: View {
             List {
                 ForEach(locationService.completions) { completion in
                     Button(action: { }) {
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(completion.title)
                                 .font(.headline)
                                 .fontDesign(.rounded)
@@ -218,12 +218,331 @@ Let's break down the code above step by step:
 4. We set the list style to `.plain` and the `scrollContentBackground` to `.hidden` to remove the default list styles.
 5. We update the location service's query fragment to trigger an update to the completions list whenever the search text changes.
 
+#### 🤫 Private APIs
+
+The responses from the `MKLocalSearchCompleter` contain a limited amount of information about the locations that are returned. If you inspect the [runtime headers for the MKLocalSearchCompletion](https://developer.limneos.net/?ios=16.3&framework=MapKit.framework&header=MKLocalSearchCompletion.h) class you will see that there is a `_mapItem` property available which surfaces a lot more information.
+
+Let's use this property on the private API to get the location's URL in the `LocationService` class:
+
+```swift:LocationService.swift
+import MapKit
+
+struct SearchCompletions: Identifiable {
+    let id = UUID()
+    let title: String
+    let subTitle: String
+    // New property to hold the URL if it exists
+    var url: URL?
+}
+
+@Observable
+class LocationService: NSObject, MKLocalSearchCompleterDelegate {
+    // ...
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        completions = completer.results.map { completion in
+            // Get the private _mapItem property
+            let mapItem = completion.value(forKey: "_mapItem") as? MKMapItem
+
+            return .init(
+                title: completion.title,
+                subTitle: completion.subtitle,
+                url: mapItem?.url
+            )
+        }
+    }
+}
+```
+
+We can then update the `SheetView` to display the URL along with the location's title and subtitle:
+
+```swift:SheetView.swift
+import SwiftUI
+import MapKit
+
+struct SheetView: View {
+    @State private var locationService = LocationService(completer: .init())
+    @State private var search: String = ""
+
+    var body: some View {
+        VStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                TextField("Search for a restaurant", text: $search)
+                    .autocorrectionDisabled()
+            }
+            .modifier(TextFieldGrayBackgroundColor())
+
+            Spacer()
+
+            List {
+                ForEach(locationService.completions) { completion in
+                    Button(action: { }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(completion.title)
+                                .font(.headline)
+                                .fontDesign(.rounded)
+                            Text(completion.subTitle)
+                            // Show the URL if it's present
+                            if let url = completion.url {
+                                Link(url.absoluteString, destination: url)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+        .onChange(of: search) {
+            locationService.update(queryFragment: search)
+        }
+        .padding()
+        .interactiveDismissDisabled()
+        .presentationDetents([.height(200), .large])
+        .presentationBackground(.regularMaterial)
+        .presentationBackgroundInteraction(.enabled(upThrough: .large))
+    }
+}
+```
+
 ## Location search results
 
-## Selecting a location
+Now that we have a way of showing locations as the user types, we need to add a way for the user to submit the search and see one or more locations on the map.
+
+We will do this by making a request to `MKLocalSearch` from the `LocationService` and searching for the location that the user has typed in the search bar, filtering by the `pointOfInterest` result type:
+
+```swift:LocationService.swift
+import MapKit
+
+struct SearchResult: Identifiable, Hashable {
+    let id = UUID()
+    let location: CLLocationCoordinate2D
+
+    static func == (lhs: SearchResult, rhs: SearchResult) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+@Observable
+class LocationService: NSObject, MKLocalSearchCompleterDelegate {
+    // ...
+    func search(with query: String, coordinate: CLLocationCoordinate2D? = nil) async throws -> [SearchResult] {
+        let mapKitRequest = MKLocalSearch.Request()
+        mapKitRequest.naturalLanguageQuery = query
+        mapKitRequest.resultTypes = .pointOfInterest
+        if let coordinate {
+            mapKitRequest.region = .init(.init(origin: .init(coordinate), size: .init(width: 1, height: 1)))
+        }
+        let search = MKLocalSearch(request: mapKitRequest)
+
+        let response = try await search.start()
+
+        return response.mapItems.compactMap { mapItem in
+            guard let location = mapItem.placemark.location?.coordinate else { return nil }
+
+            return .init(location: location)
+        }
+    }
+}
+```
+
+### Displaying search results
+
+We now need to call the new `search` method from the `SheetView` when:
+
+1. The user taps on a search result.
+2. The user submits the search by pressing the return key.
+
+```swift:SheetView.swift
+import SwiftUI
+import MapKit
+
+struct SheetView: View {
+    @State private var locationService = LocationService(completer: .init())
+    @State private var search: String = ""
+    // 1
+    @Binding var searchResults: [SearchResult]
+
+    var body: some View {
+        VStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                TextField("Search for a restaurant", text: $search)
+                    .autocorrectionDisabled()
+                    // 2
+                    .onSubmit {
+                        Task {
+                            searchResults = (try? await locationService.search(with: search)) ?? []
+                        }
+                    }
+            }
+            .modifier(TextFieldGrayBackgroundColor())
+
+            Spacer()
+
+            List {
+                ForEach(locationService.completions) { completion in
+                    // 3
+                    Button(action: { didTapOnCompletion(completion) }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(completion.title)
+                                .font(.headline)
+                                .fontDesign(.rounded)
+                            Text(completion.subTitle)
+                            // What can we show?
+                            if let url = completion.url {
+                                Link(url.absoluteString, destination: url)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+        .onChange(of: search) {
+            locationService.update(queryFragment: search)
+        }
+        .padding()
+        .interactiveDismissDisabled()
+        .presentationDetents([.height(200), .large])
+        .presentationBackground(.regularMaterial)
+        .presentationBackgroundInteraction(.enabled(upThrough: .large))
+    }
+
+    // 4
+    private func didTapOnCompletion(_ completion: SearchCompletions) {
+        Task {
+            if let singleLocation = try? await locationService.search(with: "\(completion.title) \(completion.subTitle)").first {
+                searchResults = [singleLocation]
+            }
+        }
+    }
+}
+```
+
+Let's break down the code above step by step:
+
+1. We add a new `@Binding` property to update the search results. This property will be held as a `@State` property in the parent view so that the map can be updated accordingly.
+2. We add an `onSubmit` modifier to the text field to trigger a search when the user presses the return key.
+3. We add a `didTapOnCompletion` method to trigger a search when the user taps on a completion result.
+4. We add logic to the `didTapOnCompletion` method to search for the location's title and subtitle when the user taps on a completion result.
+
+Let's now update our `SearchableMap` view to hold search results, display them on the map and allow the user to select the location they want:
+
+```swift:SearchableMap.swift
+import SwiftUI
+import MapKit
+
+struct SearchableMap: View {
+    @State private var position = MapCameraPosition.automatic
+    // 1
+    @State private var searchResults = [SearchResult]()
+    //2
+    @State private var selectedLocation: SearchResult?
+    @State private var isSheetPresented: Bool = true
+
+    var body: some View {
+        // 3
+        Map(position: $position, selection: $selectedLocation) {
+            // 4
+            ForEach(searchResults) { result in
+                Marker(coordinate: result.location) {
+                    Image(systemName: "mappin")
+                }
+                .tag(result)
+            }
+        }
+        .ignoresSafeArea()
+        // 5
+        .onChange(of: selectedLocation) {
+            isSheetPresented = selectedLocation == nil
+        }
+        // 6
+        .onChange(of: searchResults) {
+            if let firstResult = searchResults.first, searchResults.count == 1 {
+                selectedLocation = firstResult
+            }
+        }
+        .sheet(isPresented: $isSheetPresented) {
+            SheetView(searchResults: $searchResults)
+        }
+    }
+}
+```
+
+Let's break down the code above step by step:
+
+1. We add a new `@State` property to hold the search results.
+2. We add a new `@State` property to hold the selected location.
+3. We update the `Map` view to take a selection binding.
+4. We add a `Marker` view to show each search result on the map.
+5. We update the `SearchableMap` view to dismiss the sheet when a location is selected.
+6. We update the `SearchableMap` view to select the first location if there is only one result.
 
 ## Look around scenes
 
-```
+iOS 17 has made it very easy to create look-around scenes with the new `LookAroundPreview` view. To create one, we just need to retrieve a scene from a coordinate and pass it through to the new view:
 
+```swift:SearchableMap.swift
+import SwiftUI
+import MapKit
+
+struct SearchableMap: View {
+    @State private var position = MapCameraPosition.automatic
+    @State private var searchResults = [SearchResult]()
+    @State private var selectedLocation: SearchResult?
+    @State private var isSheetPresented: Bool = true
+    @State private var scene: MKLookAroundScene?
+
+    var body: some View {
+        Map(position: $position, selection: $selectedLocation) {
+            ForEach(searchResults) { result in
+                Marker(coordinate: result.location) {
+                    Image(systemName: "mappin")
+                }
+                .tag(result)
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if selectedLocation != nil {
+                LookAroundPreview(scene: $scene, allowsNavigation: false, badgePosition: .bottomTrailing)
+                    .frame(height: 150)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .safeAreaPadding(.bottom, 40)
+                    .padding(.horizontal, 20)
+            }
+        }
+        .ignoresSafeArea()
+        .onChange(of: selectedLocation) {
+            if let selectedLocation {
+                Task {
+                    scene = try? await fetchScene(for: selectedLocation.location)
+                }
+            }
+            isSheetPresented = selectedLocation == nil
+        }
+        .onChange(of: searchResults) {
+            if let firstResult = searchResults.first, searchResults.count == 1 {
+                selectedLocation = firstResult
+            }
+        }
+        .sheet(isPresented: $isSheetPresented) {
+            SheetView(searchResults: $searchResults)
+        }
+    }
+
+    private func fetchScene(for coordinate: CLLocationCoordinate2D) async throws -> MKLookAroundScene? {
+        let lookAroundScene = MKLookAroundSceneRequest(coordinate: coordinate)
+        return try await lookAroundScene.scene
+    }
+}
 ```
