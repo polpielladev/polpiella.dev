@@ -1,0 +1,178 @@
+---
+title: 'Named capture groups in Swift regular expressions'
+excerpt: 'How to set and retrieve named capture groups in Swift regular expressions using SwiftRegex and NSRegularExpression.'
+pubDate: 2023-08-23
+---
+
+I have recently been working on a new feature for my app [QReate](https://getqreate.app) that will allow users to create different kinds of QR codes from a set of templates.
+
+This feature is essentially a way of formatting and displaying the content of a QR code in a more user-friendly way.
+
+## WIFI URLs
+
+The first template I will be adding to the app is the WIFI URL one. WIFI URLs are used in QR codes to allow users to easily connect to a WIFI network by scanning the QR code.
+
+The format of such URLs looks like this:
+
+```bash:ExampleWifiURL
+WIFI:S:wifinetwork;T:WPA;P:password;;
+```
+
+The URL above defines the required information to join the WIFI network through a number of key-value pairs:
+
+1. S: The SSID of the WIFI network. This is a **required field**.
+2. T: The type of security used by the WIFI network. This is an **optional field**. It can be one of the following values: WEP, WPA, WPA2, or nopass.
+3. P: The password of the WIFI network. This is a **required field**. If the WIFI network does not require a password, this field should be empty.
+4. H: The hidden status of the WIFI network. This is an **optional field**. If not specified, the WIFI network is assumed to be a visible network and the H field will be empty or `FALSE`.
+
+> Note that this is how I defined my schema in the app and I have made fields that are optional to make the client-side experience better.
+
+## Regex: Extracting information
+
+After a lot of fighting with regular expressions, I was able to come up with one that did the job of extracting the right information from the WIFI URL:
+
+```bash:WifiRegex
+WIFI:S:(?<ssid>[^;]+);(?:T:(?<security>[^;]*);)?P:(?<password>[^;]+);(?:H:(?<hidden>[^;]*);)?;
+```
+
+The regular expression above has a set of capture groups for each of the values, taking optionality into account based on whether the keys are required or not.
+
+The thing I learnt while working on this feature and that made my life a lot easier is that you can name capture groups to later retrieve them more nicely from your code.
+
+In the next couple of sections, I will show you how to do this in Swift in two different ways: using `NSRegularExpression` and using `SwiftRegex`.
+
+### iOS 16+: Using SwiftRegex
+
+SwiftRegex is a relatively new API introduced in iOS 16 that allows you to write and use regular expressions in a more Swift-friendly way.
+
+There are two ways you can build a regular expression using SwiftRegex:
+
+1. Using Regex literals.
+2. Using `RegexBuilder`'s result builders.
+
+#### Using Regex literals
+
+You can define a Regex literal by wrapping a regular expression in forward slashes:
+
+```swift:SwiftRegex.swift
+import Foundation
+
+let regex = /WIFI:S:(?<ssid>[^;]+);(?:T:(?<security>[^;]*);)?P:(?<password>[^;]+);(?:H:(?<hidden>[^;]*);)?;/
+```
+
+You can then retrieve the whole match in the string you are matching against using the `.wholeMatch` method and retrieve the named captured groups directly:
+
+```swift:SwiftRegex.swift
+let wifi = "WIFI:S:superwificonnection;T:WPA;P:strongpassword;;"
+
+if let result = try? regex.wholeMatch(in: wifi) {
+    print("SSID: \(result.ssid)")
+    print("Security: \(result.security)")
+    print("Password: \(result.password)")
+}
+```
+
+#### Result builders
+
+This is by far my favourite way of writing regular expressions in Swift. The `RegexBuilder` APIs allow you to compose a regular expression using a set of result builders that make the code a lot more readable and maintainable.
+
+```swift:RegexBuilder.swift
+import RegexBuilder
+
+let ssid = Reference(Substring.self)
+let password = Reference(Substring.self)
+let security = Reference(Substring.self)
+let hidden = Reference(Substring.self)
+
+let regex = Regex {
+  "WIFI:S:"
+  Capture(as: ssid) {
+      OneOrMore(CharacterClass.anyOf(";").inverted)
+  }
+  ";"
+  Optionally {
+    Regex {
+      "T:"
+      Capture(as: security) {
+        ZeroOrMore(CharacterClass.anyOf(";").inverted)
+      }
+      ";"
+    }
+  }
+  "P:"
+  Capture(as: password) {
+    OneOrMore(CharacterClass.anyOf(";").inverted)
+  }
+  ";"
+  Optionally {
+    Regex {
+      "H:"
+      Capture(as: hidden) {
+        ZeroOrMore(CharacterClass.anyOf(";").inverted)
+      }
+      ";"
+    }
+  }
+  ";"
+}
+.anchorsMatchLineEndings()
+```
+
+> If you'd like to convert your existing regular expressions to SwiftRegex and don't know where to start, check out [swiftregex.com](https://swiftregex.com) by [Kishikawa Katsumi](https://twitter.com/k_katsumi).
+
+You can then use the same `wholeMatch` method you used in the previous section and retrieve the values from the named capture groups through the reference properties:
+
+```swift:RegexBuilder.swift
+let wifi = "WIFI:S:superwificonnection;T:WPA;P:strongpassword;;"
+
+if let result = try? regex.wholeMatch(in: wifi) {
+    print("SSID: \(result[ssid])")
+    print("Security: \(result[security])")
+    print("Password: \(result[password])")
+}
+```
+
+### Using NSRegularExpression
+
+`NSRegularExpression` is an alternative API you can use if you still need to support versions older than iOS 16. This API has been around for a while and is widely supported across all Apple platforms. The only downside to it is that it is far more cumbersome to use and it is more error-prone.
+
+You can start by instantiating a new `NSRegularExpression` object and pass it the same regular expression we defined earlier as its pattern:
+
+```swift:NSRegularExpression.swift
+import Foundation
+
+let regex = try! NSRegularExpression(
+    pattern: #"WIFI:S:(?<ssid>[^;]+);(?:T:(?<security>[^;]*);)?P:(?<password>[^;]+);(?:H:(?<hidden>[^;]*);)?;"#,
+    options: []
+)
+```
+
+You can then get the first match from the string using the `firstMatch` method and then retrieve all capture groups by name:
+
+```swift:NSRegularExpression.swift
+import Foundation
+
+let wifi = "WIFI:S:superwificonnection;T:WPA;P:strongpassword;;"
+
+let range = NSRange(wifi.startIndex..<wifi.endIndex, in: wifi)
+guard let match = regex.firstMatch(in: wifi, options: [], range: range) else {
+    fatalError()
+}
+
+if let ssidRange = Range(match.range(withName: "ssid"), in: wifi),
+    let passwordRange = Range(match.range(withName: "password"), in: wifi)  {
+    let security: String? = {
+        guard let range = Range(match.range(withName: "security"), in: wifi) else { return nil }
+        return String(wifi[range])
+    }()
+    let hidden: String? = {
+        guard let range = Range(match.range(withName: "hidden"), in: wifi) else { return nil }
+        return String(wifi[range])
+    }()
+
+    print("SSID: \(wifi[ssidRange])")
+    print("Password: \(wifi[passwordRange])")
+    print("Security: \(security ?? "not set")")
+    print("Hidden: \(hidden ?? "not set")")
+}
+```
