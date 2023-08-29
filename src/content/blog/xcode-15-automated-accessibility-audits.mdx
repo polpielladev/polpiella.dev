@@ -4,9 +4,11 @@ excerpt: 'Spot accessibility issues in your app automatically with Xcode 15 both
 pubDate: 2023-08-30
 ---
 
+import Video from '@components/Video.svelte'
+
 Xcode 15 introduces a way of automatically performing accessibility audits on your app through UI tests. Such audits can help you identify accessibility issues in your app such as missing labels, clipped text, insufficient colour contrast, lack of support for Dynamic Type and many more.
 
-> If you want to learn more about everything the new audits can catch, please refer to [Apple's documentation on the topic]() and [the great session from this year's WWDC]().
+> If you want to learn more about everything the new audits can catch, please refer to [Apple's documentation on the topic](https://developer.apple.com/documentation/xctest/xcuiapplication/4191487-performaccessibilityaudit) and [the great session from this year's WWDC](https://developer.apple.com/wwdc23/10035).
 
 Before Xcode 15, there was no first-party API to do this and you had to rely on some brilliant third-party libraries such as [Rob Whitaker's A11yUITests](https://github.com/rwapp/A11yUITests) or [Cash App's AccessibilitySnapshot](https://github.com/cashapp/AccessibilitySnapshot).
 
@@ -50,13 +52,13 @@ If the audit has found no accessibility issues for your app, the test will pass 
 
 For my demo app, the audit fails with several errors that I listed earlier in the article, which are listed in the tests section of the latest test run in the local Report navigator:
 
-![]()
+![A screenshot of the test report showing all issues caught by the audit](/assets/posts/xcode-15-automated-accessibility-audits/audit.webp)
 
 The new accessibility audit feature, paired with the excellent new test reports, makes it very easy to identify and fix accessibility issues in your app.
 
 You can double-click on any of the issues to see more details about it, including a video of the test run that failed, a screenshot of the app at the time of the failure and a close-up of the element that failed the audit! 🎉
 
-{/* Video! */}
+<Video src="/assets/posts/xcode-15-automated-accessibility-audits/audit.mp4" />
 
 ### Narrowing down the audit scope
 
