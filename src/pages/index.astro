@@ -1,12 +1,12 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview.svelte'
-import Hero from '@components/Hero.svelte'
 import { getCollection } from 'astro:content'
 import Subscribe from '@components/Subscribe.svelte'
 import MediaGrid from '@components/media/MediaGrid.astro'
 import TitledGrid from '@components/TitledGrid.svelte'
 import UpcomingTalks from '@components/UpcomingTalks.svelte'
+import BlogSponsor from '@components/BlogSponsor.svelte'
 
 const posts = await getCollection('blog')
 const sortedPosts = posts
@@ -23,12 +23,23 @@ const sortedPosts = posts
   image="https://polpiella.dev/assets/home.jpg"
   activeNav="index">
   <div class="flex flex-col gap-12">
-    <section>
-      <Hero
-        title="Welcome to my blog 👋"
-        body="I'm Pol, a content creator and iOS developer. In this blog I write about all things iOS, Swift and software development best practices. I also have a newsletter about iOS CI/CD if you want to subscribe 👇">
-        <Subscribe />
-      </Hero>
+    <section class="grid lg:grid-cols-[1fr_400px] gap-8">
+      <div class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
+        <h1
+          class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+          Welcome to my blog 👋
+        </h1>
+        <p
+          class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
+          I'm Pol, a content creator and iOS developer. In this blog I write
+          about all things iOS, Swift and software development best practices. I
+          also have a newsletter about iOS CI/CD if you want to subscribe 👇.
+        </p>
+        <Subscribe centered={false} />
+      </div>
+      <div class="">
+        <BlogSponsor />
+      </div>
     </section>
     <TitledGrid
       title="Latest articles"

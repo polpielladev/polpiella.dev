@@ -1,4 +1,5 @@
 ---
+import BlogSponsor from '@components/BlogSponsor.svelte'
 import BaseLayout from '@layouts/BaseLayout.astro'
 ---
 
@@ -79,30 +80,7 @@ import BaseLayout from '@layouts/BaseLayout.astro'
         <p class="text-sm text-gray-500 dark:text-gray-300">
           💡 An example of what your sponsor slot would look like.
         </p>
-        <div
-          class="relative flex flex-col rounded-lg border-2 bg-violet-50/75 border-violet-400 items-center text-center p-8 shadow-lg dark:bg-violet-600/20">
-          <p
-            class="absolute top-2 right-2 font-title text-xs py-0.5 px-2 bg-violet-300 rounded-md shadow mx-auto">
-            Sponsored
-          </p>
-
-          <img
-            class="relative m-0 aspect-square w-36 object-contain px-2"
-            src="/assets/sponsors/qreate.webp"
-            alt="Runway logo"
-          />
-
-          <div class="max-w-xs">
-            <a
-              href=""
-              class="font-title text-xl no-underline hover:underline dark:text-white">
-              QReate: A QR code editor
-            </a>
-            <p class="m-0 text-sm leading-relaxed dark:text-gray-300">
-              Create beautiful and fully customisable QR codes with QReate.
-            </p>
-          </div>
-        </div>
+        <BlogSponsor />
       </div>
     </div>
   </section>

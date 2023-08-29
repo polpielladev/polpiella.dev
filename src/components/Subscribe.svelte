@@ -1,8 +1,12 @@
+<script lang="ts">
+  export let centered: boolean = true
+</script>
+
 <form
   action="https://sendy.polpiella.dev/subscribe"
   method="POST"
   acceptCharset="utf-8"
-  class="mx-auto w-full max-w-md">
+  class={`${centered ? 'mx-auto' : ''} w-full max-w-md`}>
   <label
     for="email"
     class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white"
