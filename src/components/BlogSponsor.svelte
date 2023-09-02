@@ -17,22 +17,22 @@
     class={`relative mx-auto aspect-square ${
       variant == 'small' ? 'w-20' : 'w-36'
     } object-contain px-2`}
-    src="/assets/sponsors/qreate.webp"
+    src="/assets/sponsors/runway-emoji.webp"
     alt="Runway logo" />
 
   <div class={`${variant == 'small' ? 'my-auto' : ''} max-w-xs`}>
     <a
-      href="https://www.getqreate.app"
+      href="https://runway.team/?utm_source=polpiella&utm_medium=sponsorship&utm_campaign=individuals"
       class={`font-title ${
-        variant == 'default' ? 'text-xl' : 'text-md'
+        variant == 'default' ? 'text-lg' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
-      QReate: A QR code editor
+      Runway: Dare to release on a Friday
     </a>
     <p
       class={`m-0 ${
         variant == 'default' ? 'text-sm' : 'text-xs'
       } text-sm leading-relaxed dark:text-gray-300`}>
-      Create beautiful and fully customisable QR codes with QReate.
+      Release management by mobile engineers, for mobile engineers.
     </p>
   </div>
 </div>
