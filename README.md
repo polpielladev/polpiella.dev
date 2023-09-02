@@ -1,4 +1,4 @@
-![CleanShot 2023-01-06 at 09 59 23@2x](https://user-images.githubusercontent.com/24246926/210977497-9ed2fb23-10b0-4d7d-8f09-b79d07487715.png)
+![](./readme.png)
 
 ## polpiella.dev
 
