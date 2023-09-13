@@ -4,15 +4,13 @@ excerpt: 'Learn how to use a new open-source framework by the Swift Server Workg
 pubDate: 2023-09-13
 ---
 
-As Swift developers, we tend to focus exclusively on developing Swift packages for Apple platforms but the truth is that Swift is now a cross-platform language and we should embrace it where possible by making our Swift packages available to Linux clients.
+As Swift developers, we tend to focus exclusively on developing Swift packages for Apple platforms but the truth is that **Swift is now a cross-platform language** and we should embrace it where possible by making our Swift packages **available to Linux clients too**.
 
-Ensuring that our Swift packages are compatible with Linux is not always an easy task and can be a cumbersome and time-consuming process. To build a package for Linux, we need to set up a development environment locally, usually using Docker, or have a dedicated machine running Linux that we can test our code on.
+Ensuring that our Swift packages are compatible with Linux is not always an easy task and can be a cumbersome and time-consuming process. To build a package for Linux, we need to set up a **development environment locally**, usually using Docker, or have a **dedicated machine running Linux** that we can test our code on.
 
-Furthermore, if we do this process manually and Linux is not our primary development environment, we run the risk of forgetting to check that our code still compiles for Linux every time we make a change. But this is where automation truly shines.
+Furthermore, if we do this process manually and Linux is not our primary development environment, we run the risk of **forgetting to check that our code still compiles for Linux** every time we make a change.
 
-Whether you are developing a Swift package with a library product that is available to Linux clients, a server-side application or a command-line tool you want to run on Linux operating systems, it is a good idea to have a CI/CD pipeline that builds and tests your code on Linux.
-
-In this article, I will show you how you can set up a workflow running on the latest version of Ubuntu using GitHub Actions that installs Swift, builds a Swift package and runs its unit tests.
+But this is where automation truly shines. In this article, I will show you how you can set up a CI/CD workflow running on the latest version of Ubuntu using GitHub Actions that installs Swift, builds a Swift package and runs its unit tests.
 
 ## Setting up the workflow
 
@@ -22,7 +20,7 @@ The name of the file can be anything you want but it must have the `.yml` extens
 
 This file is responsible for telling GitHub Actions when it needs to run, where it needs to run and what actions it needs to execute when it does:
 
-```yml:linux.yml
+```yaml:linux.yml
 name: Linux
 on:
   push:
@@ -49,7 +47,7 @@ Aside from being very easy to use and being inspired by [rustup](https://rustup.
 
 Let's add a step to install [swiftly](https://github.com/swift-server/swiftly) in our workflow:
 
-```yml:linux.yml
+```yaml:linux.yml
 name: Linux
 on:
   push:
@@ -73,7 +71,7 @@ This behaviour is not supported by CI/CD systems like GitHub Actions, so we need
 
 And then a second step to install the latest Swift toolchain:
 
-```yml:linux.yml
+```yaml:linux.yml
 name: Linux
 on:
   push:
@@ -97,7 +95,7 @@ jobs:
 
 All that's left to do now is to add a step to build and test our Swift package:
 
-```yml:linux.yml
+```yaml:linux.yml
 name: Linux
 on:
   push:
