@@ -1,5 +1,124 @@
 ---
 title: 'Swift on Linux CI/CD using swiftly'
-excerpt: ''
+excerpt: 'Learn how to use a new open-source framework by the Swift Server Workgroup to install Swift on Linux and use it to set up a CI/CD pipeline for your Swift packages.'
 pubDate: 2023-09-13
 ---
+
+As Swift developers, we tend to focus exclusively on developing Swift packages for Apple platforms but the truth is that Swift is now a cross-platform language and we should embrace it where possible by making our Swift packages available to Linux clients.
+
+Ensuring that our Swift packages are compatible with Linux is not always an easy task and can be a cumbersome and time-consuming process. To build a package for Linux, we need to set up a development environment locally, usually using Docker, or have a dedicated machine running Linux that we can test our code on.
+
+Furthermore, if we do this process manually and Linux is not our primary development environment, we run the risk of forgetting to check that our code still compiles for Linux every time we make a change. But this is where automation truly shines.
+
+Whether you are developing a Swift package with a library product that is available to Linux clients, a server-side application or a command-line tool you want to run on Linux operating systems, it is a good idea to have a CI/CD pipeline that builds and tests your code on Linux.
+
+In this article, I will show you how you can set up a workflow running on the latest version of Ubuntu using GitHub Actions that installs Swift, builds a Swift package and runs its unit tests.
+
+## Setting up the workflow
+
+The first thing to do is to set up a new workflow in your GitHub repository. You can do this by creating a new `yml` file in the `.github/workflows` directory of your repository.
+
+The name of the file can be anything you want but it must have the `.yml` extension. For example, you can call it `linux.yml`.
+
+This file is responsible for telling GitHub Actions when it needs to run, where it needs to run and what actions it needs to execute when it does:
+
+```yml:linux.yml
+name: Linux
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-danger:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+```
+
+The workflow above just tells the system it needs to run on the latest version of Ubuntu when new changes are pushed to the main branch but does not specify any actions to execute other than just cloning the repository.
+
+## Installing Swift using swiftly
+
+[Swiftly](https://github.com/swift-server/swiftly) is an open-source CLI tool built and maintained by the [Swift Server Workgroup (SSWG)](https://www.swift.org/sswg/) that allows you to install, manage and switch between different Swift toolchain versions.
+
+Aside from being very easy to use and being inspired by [rustup](https://rustup.rs), which I am a big fan of, it is entirely written in Swift 🎉❤️.
+
+> ⚠️ Swiftly is still in its early stages of development and is currently only available for Linux but, as stated in their README, they are planning on adding support for macOS in the future as well.
+
+Let's add a step to install [swiftly](https://github.com/swift-server/swiftly) in our workflow:
+
+```yml:linux.yml
+name: Linux
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-danger:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install swiftly
+      shell: bash
+      run: curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+```
+
+Something very important you need to keep in mind is that, by default, [swiftly](https://github.com/swift-server/swiftly) will run an interactive shell script that will ask the user whether they want to customise the installation or not.
+
+This behaviour is not supported by CI/CD systems like GitHub Actions, so we need to turn off the confirmation dialogue by passing the `-y` (or `--disable-confirmation`) flag to the script.
+
+And then a second step to install the latest Swift toolchain:
+
+```yml:linux.yml
+name: Linux
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-danger:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install swiftly
+      shell: bash
+      run: curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+    - name: Install the latest Swift toolchain
+      run: swiftly install latest
+```
+
+## Building and testing the Swift package
+
+All that's left to do now is to add a step to build and test our Swift package:
+
+```yml:linux.yml
+name: Linux
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-danger:
+    name: Build and run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install swiftly
+      shell: bash
+      run: curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+    - name: Install the latest Swift toolchain
+      run: swiftly install latest
+    - name: Build and run the unit tests
+      run: swift test
+```
+
+That's it, next time you do a push to the main branch, GitHub Actions will build and run the unit tests for your Swift package on Linux:
+
+![An image of a successful GitHub Actions run](/assets/posts/setting-up-swift-on-linux-ci-cd-using-swiftly/gha.webp)
