@@ -1,43 +1,49 @@
 ---
 title: 'How to create an App Clip for your app'
-excerpt: ''
-pubDate: 2023-09-13
+excerpt: 'Learn how to create an App Clip for your app and how to generate codes you can share with your users to launch said App Clip.'
+pubDate: 2023-09-20
 ---
 
-App Clips are a reduced version of your app and allow users to perform specific tasks without having to download the full app. They are lightweight as they are limited to 15MB in size and they are fast and intuitive to use.
+import Video from '@components/Video.svelte'
 
-App Clips can be launched by scanning an App Clip code generated with the camera type or by tapping an App Clip code generated with the NFC type. They can also be launched from Safari, Maps and Messages.
+An App Clips is a reduced version of your app that allows users to perform specific tasks without having to download the full app. They are lightweight as they are limited to 15MB in size and they are meant to be fast and intuitive to use.
+
+App Clips can be launched by scanning an App Clip code generated with the camera type or by tapping your phone against an App Clip code generated with the NFC type. They can also be launched from Safari, Maps and even Messages.
 
 In this article, I will show you how to create an App Clip for your app and how to generate codes you can share with your users to launch said App Clip.
 
 ## Creating an App Clip target
 
-You can create an App Clip target in the same way you would create a new target for your app. The template and the code Xcode will generate for you are very similar to the ones you get when creating a new app target.
+You can create an App Clip target by selecting `File > New > Target...` and choosing the `App Clip` template from the `iOS` section:
 
-From the Xcode menu, select `File > New > Target...` and choose the `App Clip` template from the `iOS` section:
+![A screenshot showing how to create a new App Clip target in Xcode](/assets/posts/create-app-clips/new-target.webp)
 
-![]()
+When you configure the new target, make sure that you select the target for the iOS app you want to create an App Clip for in the `Embed in Application` section:
 
-Now that you have a new App Clip target, you can select its scheme and run it on a device or simulator as if it were a regular app target. As I mentioned in the introduction, App Clips are just a small version of an app, so you can write code in the same way you would for a regular app.
+![A screenshot showing how to embed the app clip in an iOS target](/assets/posts/create-app-clips/embed-in.webp)
+
+Now that you have a new App Clip target, you can select its scheme and run it on a device or simulator as if it were a regular app target. As I mentioned in the introduction, App Clips are just a small version of an app, so you can write code in the same way you would for a regular iOS app.
 
 ### Reusing code from your app
 
-You will likely want to reuse some of the code you already have in your app. To do so, you have three options:
+You will likely want to reuse some of the code you already have in your app to build your App Clip's UI.
+
+You can do so in one of three ways:
 
 1. (**Easiest**) Add the files you want to reuse to your App Clip target. You can do so by selecting the files in the Project Navigator and checking the App Clip target in the Target Membership section of the file inspector.
-   ![]()
+   ![Select the App Clip target in the target membership section for a file](/assets/posts/create-app-clips/target-membership.webp)
 2. (**My favourite one**) Move the code you want to reuse to a Swift package and add it as a dependency to both your app and your App Clip target.
 3. (**Not recommended**) Copy the files you want to use to your App Clip target. I don't recommend this approach as it will make it harder to maintain your code in the future.
 
-### The `APPCLIP` flag
+### Active compilation flags
 
-While App Clip targets are almost identical to app targets, they have some limitations. For example, you are not allowed to ask the user for `MusicKit` permissions and have a size limitation of 15MB.
+While App Clip targets are almost identical to app targets, they have some limitations. For example, you are not allowed to ask the user for `MusicKit` permissions and have a total binary size limitation of 15MB.
 
-To help you deal with these limitations while reusing your existing code at the same time, [Apple]() suggests you add an active compilation flag to your App Clip target.
+To help you deal with these limitations while reusing your existing code at the same time, [Apple suggests you add an active compilation flag to your App Clip target](https://developer.apple.com/documentation/app_clips/creating_an_app_clip_with_xcode#3634038) to allow you to exclude certain logic.
 
-You can give this flag any name you want as long as it does not clash with any other flag either you or Xcode are using and you can define it in the `Active Compilation Conditions` section of your App Clip target's build settings.
+You can give this flag any name you want as long as it does not clash with any other flag either you or Xcode have defined and you can create it in the `Active Compilation Conditions` section of your App Clip target's build settings:
 
-![]()
+![How to create the APPCLIP compilation flag for the target in Xcode](/assets/posts/create-app-clips/compilation-flags.webp)
 
 This compilation flag can then be used to conditionally compile code that needs to be included or excluded from your App Clip target:
 
@@ -47,32 +53,27 @@ let musicAuthorizationStatus = await MusicAuthorization.request()
 #endif
 ```
 
-If you have set things up correctly, every time you switch to your App Clip scheme, Xcode 15 will gray out the code that is not being compiled.
-
-![]()
+If you have set things up correctly, every time you switch to your App Clip scheme, Xcode 15 will gray out the code that is not being compiled 🌟.
 
 ## Creating an App Clip code
 
 Now that you have an App Clip target, you can create an App Clip code that allows you to launch it. You can do so either directly from App Store Connect or using Apple's App Clip Code Generator command-line tool.
 
-In this article I am only going to cover developing App Clip codes locally and, for that reason, I am going to use the command-line tool. If you are interested in learning how to set up App Clip experiences for a version of your app on App Store Connect, check out this brilliant document by [Apple]().
+In this article I am only going to cover developing App Clip experiences locally and, for that reason, I am going to use the command-line tool.
+
+If you are interested in learning how to set up App Clip experiences for a version of your app on App Store Connect, check out [this brilliant document by Apple](https://developer.apple.com/documentation/app_clips/creating_app_clip_codes/creating_app_clip_codes_with_app_store_connect).
 
 ### Using the command-line tool
 
-The first thing you need to do is download the App Clip Code Generator command-line tool from your [Apple Developer account]().
+The first thing you need to do is download the App Clip Code Generator command-line tool from your [Apple Developer account](https://developer.apple.com/app-clips/resources/).
 
-![]()
-
-Once you have gone through the install process, you can run the following command to ensure the foreground and background colours you have picked for your code are valid:
+Once you have gone through the install process, you can run the following command to ensure the foreground and background colours you have picked for your code are valid. If they are, you'll get a single line of output displaying the colours you have picked:
 
 ```bash
 AppClipCodeGenerator suggest --foreground FFFFFF --background 000000
-```
 
-If the colours are valid, you will get an output similar to this one:
-
-```
-Foreground: FFFFFF Background: 000000
+# Output
+# Foreground: FFFFFF Background: 000000
 ```
 
 On the other hand, if there is something wrong with the colours you have picked, you will get a list of suggestions you can use instead:
@@ -102,7 +103,7 @@ AppClipCodeGenerator generate \
     --output output.svg
 ```
 
-Let's break down the command above and all of its arguments:
+Let's break down the command above and go through what each of its arguments does:
 
 - `--url`: The URL that will be opened when the App Clip code is scanned.
 - `--type`: The type of App Clip code you want to generate. You can choose between `cam` and `nfc`.
@@ -112,37 +113,33 @@ Let's break down the command above and all of its arguments:
 
 If everything goes well, the command above will generate an SVG file like this one:
 
-![]()
+![The App Clip code generated in this section](/assets/posts/create-app-clips/output.svg)
 
-### URL considerations
-
-App Clip codes are limited in the amount of information they can contain and the algorithm used to generate them treats certain words more efficiently.
-
-If you run into any issues with the size of the URLs you are using (I did 😅), I would recommend you read this document from Apple that contains some great advice and examples on how to structure your URLs to get the best results.
+> App Clip codes are limited in the amount of information they can contain and the algorithm used to generate them treats certain words more efficiently than others. If you run into any issues with the size of the URLs you are using (I did 😅), I would recommend you read [this document from Apple that contains some great advice and examples on how to structure your URLs to get the best results](https://developer.apple.com/documentation/app_clips/creating_app_clip_codes/encoding_a_url_in_an_app_clip_code).
 
 ## Setting up a local experience
 
-If you have your App Clip target installed on your device and try to scan the App Clip code you generated in the previous section, you will notice that nothing happens. The camera app detects the code but shows a message saying 'No usable data':
+If you have your App Clip target installed on your device and try to scan the App Clip code you generated in the previous section, you will notice that nothing happens. The camera app detects the code but shows a message saying 'No usable data found':
 
-{/* Video */}
+<Video src="/assets/posts/create-app-clips/app-clips.mp4" />
 
 The reason for this is that, as you have not yet submitted your App Clip experience to App Store Connect, your device does not know what to launch when it scans the code.
 
 Thankfully, there is a way to test your App Clip experiences locally. On your device, go to `Settings > Developer` and navigate to `Local Experiences`. In the `Local Experiences` page, tap on `Register Local Experience` and add the URL you used to generate your App Clip code, the bundle identifier of your App Clip target and the information you'd want to show in the App Clip card:
 
-![]()
+<Video src="/assets/posts/create-app-clips/local-experience.mp4" />
 
 Now that you have set up the local experience, you can go back and scan the App Clip code again. If you have the app clip target installed on your device, you will see the App Clip card appear at the bottom of the screen:
 
-{/* Video */}
+<Video src="/assets/posts/create-app-clips/app-clip-launch.mp4" />
 
 ## Handling the user activity
 
-Last but not least, you need to add some code to your App Clip target to retrieve data from the code's URL and perform the action the user is expecting.
+Last but not least, you need to add some code to your App Clip target to retrieve data from the user activity and perform the action the user is expecting.
 
 In our case, the URL contains a single query parameter in the form of an ISRC code for a song, with key `p` and value `QM72823682`.
 
-The `continueUserActivity` modifier with type `NSUserActivityTypeBrowsingWeb` allows you to retrieve the URL from the App Clip code and perform the action the user is expecting:
+The `continueUserActivity` modifier with type `NSUserActivityTypeBrowsingWeb` allows you to retrieve the URL from the App Clip and get its query parameter:
 
 ```swift:ContentView.swift
 struct ContentView: View {
