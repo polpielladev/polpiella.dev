@@ -13,40 +13,46 @@ import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
   promotionLink="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23"
 />
 
-## [🚀 How to set up Swift on Linux using swiftly](https://www.polpiella.dev/setting-up-swift-on-linux-ci-cd-using-swiftly)
+What a couple of weeks these have been if you're a Swift developer! We got a **new version of iOS and Swift**, a new **release of Xcode** and **brand-new devices too**. I bought myself an iOS 15 Pro and an Apple Watch Ultra 2, which were delivered on Friday and I am loving them so far!
 
-The [Swift Server Workgroup (SSWG)](https://www.swift.org/sswg/) released version 0.1.0 of their open-source tool [swiftly](https://github.com/swift-server/swiftly), which makes it easy for developers to **download, install and manage Swift toolchains**.
+In terms of what I have been working on, [Hidde](https://twitter.com/hiddevdploeg) and I have been busy getting a vastly improved and redesigned version of [NowPlaying](https://nowplaying.page) ready for release. We're hoping to have it out at some point in October with some great new features such as [interactive widgets](https://twitter.com/hiddevdploeg/status/1703358795710189900), [better airdrop support](https://twitter.com/polpielladev/status/1696970984165724208) and _hopefully_ App Clips to better share songs with friends.
+
+📬 I'll keep you all up to date on how the new version is coming along, but in the meantime, let's get into this week's newsletter!
+
+## [🚀 How to set up Swift on Linux using swiftly](https://www.polpiella.dev/setting-up-swift-on-linux-ci-cd-using-swiftly?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
+
+The [Swift Server Workgroup (SSWG)](https://www.swift.org/sswg?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23) released version 0.1.0 of their open-source tool [swiftly](https://github.com/swift-server/swiftly), which makes it easy for developers to **download, install and manage Swift toolchains**.
 
 To celebrate this release, I wrote an article on how to set up Swift on a Linux CI/CD machine on GitHub Actions using swiftly.
 
-## [📦 Swift Package template](https://github.com/mattmassicotte/PackageTemplate)
+## [📦 Swift Package template](https://github.com/mattmassicotte/PackageTemplate?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
 
 After I [tooted about my article on how to set up Swift on Linux](https://iosdev.space/@mattiem@mastodon.social/111092498537696610) last week, [Matt Massicotte](https://iosdev.space/@mattiem@mastodon.social) replied with a link to his Swift Package template, which I hadn't come across before.
 
-The template, which is open-source and available on GitHub, is a great starting point for making new Swift packages. It includes several useful features, such as a setting to enable complete concurrency checking and testing, a YAML file with configuration for adding the new package to the [Swift Package Index](https://swiftpackageindex.com), and a GitHub Actions workflow for running tests on CI/CD for both Apple and Linux platforms.
+The template, which is open-source and available on GitHub, is a great starting point for making new Swift packages. It includes several useful features, such as a setting to enable complete concurrency checking and testing, a YAML file with configuration for adding the new package to the [Swift Package Index](https://swiftpackageindex.com?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23), and a GitHub Actions workflow for running tests on CI/CD for both Apple and Linux platforms.
 
-## [🎉 Swift 5.9 is out!](https://www.swift.org/blog/swift-5.9-released)
+## [🎉 Swift 5.9 is out!](https://www.swift.org/blog/swift-5.9-released?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
 
 Together with the release of iOS 17, Apple announced last week that Swift 5.9 is now out too!
 
-Along with some great improvements to the language, Swift 5.9 also includes some new game-changing features for tooling and CI/CD, such as the new [accessibility audits in Xcode 15](https://www.polpiella.dev/xcode-15-automated-accessibility-audits) and the [new network request permissions for Swift Package plugins](https://www.polpiella.dev/network-requests-in-swift-package-plugins).
+Along with some great improvements to the language, Swift 5.9 also includes some new game-changing features for tooling and CI/CD, such as the new [accessibility audits in Xcode 15](https://www.polpiella.dev/xcode-15-automated-accessibility-audits?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23) and the [new network request permissions for Swift Package plugins](https://www.polpiella.dev/network-requests-in-swift-package-plugins?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23).
 
-## [⚠️ Time to update your GitHub Actions](https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20)
+## [⚠️ Time to update your GitHub Actions](https://github.blog/changelog/2023-09-22-github-actions-transitioning-from-node-16-to-node-20?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
 
 Node 16 has now reached its end of life and, as a consequence, GitHub has started its deprecation process for GitHub actions.
 
 If you're using GitHub Actions that use Node under the hood, such as [actions/checkout](https://github.com/actions/checkout) or [actions/upload-artifact](https://github.com/actions/checkout), you'll start seeing warnings in your logs. To silence them, you'll need to update to the latest version of these actions (v4), which are now available and use Node 20.
 
-If you have a bunch of workflows you need to update, I would recommend reading [this article](https://blog.eidinger.info/why-and-how-to-adopt-actionscheckoutv3-in-your-github-action-workflow#heading-how) by [Marco Eidinger](https://twitter.com/MarcoEidinger) as it includes a handy script to automate the process that you can **update to use version 4 instead of 3**.
+If you have a bunch of workflows you need to update, I would recommend reading [this article](https://blog.eidinger.info/why-and-how-to-adopt-actionscheckoutv3-in-your-github-action-workflow#heading-how?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23) by [Marco Eidinger](https://twitter.com/MarcoEidinger) as it includes a handy script to automate the process that you can **update to use version 4 instead of 3**.
 
-## [How to use EC2 Macs for Apple app CI/CD](https://bitrise.io/blog/post/summit-speaker-spotlight-series-aws)
+## [🖥️ How to use EC2 Macs for Apple app CI/CD](https://bitrise.io/blog/post/summit-speaker-spotlight-series-aws?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
 
-The [Mobile DevOps Summit](https://summit.bitrise.io) is coming up in a couple of weeks and, to celebrate the occasion, [Bitrise](https://twitter.com/bitrise) is publishing a series of spotlight articles on some of the speakers.
+The [Mobile DevOps Summit](https://summit.bitrise.io?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23) is coming up in a couple of weeks and, to celebrate the occasion, [Bitrise](https://twitter.com/bitrise) is publishing a series of spotlight articles on some of the speakers.
 
 A session that caught my eye and I am looking forward to is **Apple @ AWS—CI/CD developer environments on EC2 Mac** by [Dave Siederer](https://www.linkedin.com/in/siederer), a **Senior Specialist Solutions Architect for EC2 Mac at [AWS](https://twitter.com/awscloud)**. There has been a recent trend of companies moving their **CI/CD systems to EC2 Macs**, and I'm looking forward to hearing more about the benefits and experiences of doing so.
 
-## [🧪 A new macro-based approach to testing in Swift](https://forums.swift.org/t/a-new-approach-to-testing-in-swift/67425)
+## [🧪 A new macro-based approach to testing in Swift](https://forums.swift.org/t/a-new-approach-to-testing-in-swift/67425?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23)
 
-The Swift Forums are a great place to keep up to date with the latest developments in the Swift community. This week, [Stuart Montgomery](https://github.com/apple/swift-testing), a software engineer working on the XCTest team at Apple, shared a new macro-based open-source Swift testing library.
+The Swift Forums are a great place to keep up to date with the latest developments in the Swift community. This week, [Stuart Montgomery](https://github.com/apple/swift-testing?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2025%26utm_content%3Dsept_24_23), a software engineer working on the XCTest team at Apple, shared a new macro-based open-source Swift testing library.
 
 I haven't tried it yet, but the code snippets in the post look very interesting and I'm looking forward to giving it a go.
