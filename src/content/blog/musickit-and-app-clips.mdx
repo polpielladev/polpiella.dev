@@ -1,28 +1,30 @@
 ---
 title: 'MusicKit and App Clips'
-excerpt: 'Due to the nature of App Clips.'
-pubDate: 2023-09-26
+excerpt: 'A real-world example of the limitations of App Clips using MusicKit as an example, and how to work around them.'
+pubDate: 2023-09-27
 ---
 
-Last week I published an article about [how to create an App Clip for your app](). As a follow-up, I wanted to share my experience working on the [NowPlaying]() App Clip.
+Last week I published an article about [how to create an App Clip for your app](https://www.polpiella.dev/create-app-clips) where I mentioned that App Clips have a set of limitations such as the amount of memory they can use and the amount of permissions they can request.
 
-The App Clip, which is still in the early stages of development, shows information about a song using, among other data sources, the [MusicKit]() framework.
-
-In this article, I will show you why it is not possible to use MusicKit in an AppClip and how I worked around it by retrieving information from the Apple Music API.
+While I was working on the [NowPlaying](https://nowplaying.page) App Clip, I faced one of these limitations and I thought it would be interesting to share my experience with you and how I got around it.
 
 ## The problem
 
-Before going into the details about why it's not possible to use MusicKit in an App Clip, let's set some context about how I set up the App Clip and what I tried to get it working.
+The [NowPlaying](https://nowplaying.page) App Clip, which is still in the early stages of development, shows information about a given song using the same layout and data as the main app.
+
+To find the song from an ID, such as an ISRC (International Standard Recording Code), [NowPlaying](https://nowplaying.page) uses [MusicKit](https://developer.apple.com/musickit/), which is an Apple framework to interact with Apple Music. Unfortunately for us, we couldn't reuse our logic from the main app as is, as [MusicKit](https://developer.apple.com/musickit/) does not work in App Clips.
+
+Before going into the details about why it's not possible to use [MusicKit](https://developer.apple.com/musickit/) in an App Clip, let's set some context about how I set up the App Clip and what I tried to get it working.
 
 ### Setting up MusicKit for the App Clip
 
-The first thing you need to do when using MusicKit in your app is to create an app identifier with the same bundle identifier as you app clip in your Developer Account and enable the `MusicKit` App Service:
+The first thing you need to do to be able to use [MusicKit](https://developer.apple.com/musickit/) in your app is to create an app identifier with the same bundle identifier as your App Clip in your Developer Account and enable the [MusicKit](https://developer.apple.com/musickit/) App Service:
 
-![]()
+![Start by creating a new media id and enabling MusicKit](/assets/posts/musickit-and-app-clips/new-id.webp)
 
 ### Adding keys to the `Info.plist`
 
-As [MusicKit]() requires authorization from the user and will present an alert, you need to add the 'Privacy - Media Library Usage Description' (`NSAppleMusicUsageDescription`) key with a description of why you need access to the user's media library to your target's `Info.plist` file.
+As [MusicKit](https://developer.apple.com/musickit/) requires authorization from the user and will present an alert, you need to add the 'Privacy - Media Library Usage Description' (`NSAppleMusicUsageDescription`) key with a description of why you need access to the user's media library to your target's `Info.plist` file.
 
 ```xml:Info.plist
 <?xml version="1.0" encoding="UTF-8"?>
@@ -37,7 +39,7 @@ As [MusicKit]() requires authorization from the user and will present an alert, 
 
 ### Requesting authorization
 
-Now that you have added the services to the App Clip identifier and the keys to the `Info.plist` file, you can go ahead and request authorization from the user if it's not yet granted at the entry point of your App Clip:
+Now that you have added the services to the App Clip identifier in App Store Connect and the `NSAppleMusicUsageDescription` key to the `Info.plist` file, you can go ahead and request authorization from the user in your App Clip's code:
 
 ```swift:ContentView.swift
 import SwiftUI
@@ -74,13 +76,15 @@ struct ContentView: View {
 
 If you run your App Clip target now, you will see that, regardless of what you try, the permission status will always be `.denied` and the `request` method will never present the authorization alert to the user.
 
-I have not been able to find any documentation about this but, after asking a few people about this issue, I found out that it's not possible to grant MusicKit permissions in an App Clip.
+I have not been able to find any documentation about this but, after asking a few people about this issue, I found out that it's **not possible to grant MusicKit permissions in an App Clip**.
 
 ## What I tried
 
+I was keen on getting the App Clip working so I decided to persevere and try a few different things to see if I could work around the permissions issue.
+
 ### ❌ Catalogue requests
 
-As the App Clip only needs to find a song by its ISRC (International Standard Recording Code) directly from the Apple Music catalogue without the need to access the user's media library, I thought that I could potentially use `MusicKit` without requesting authorization:
+As the App Clip only needs to find a song by its ISRC (International Standard Recording Code) directly from the Apple Music catalogue without the need to access the user's media library, I thought that I could potentially use this part of the `MusicKit` framework without requesting authorization:
 
 ```swift:ContentView.swift
 import SwiftUI
@@ -103,7 +107,6 @@ struct ContentView: View {
                 print(songResponse.items.first)
             } catch {
                 print(error.localizedDescription)
-                return nil
             }
         }
     }
@@ -113,12 +116,14 @@ struct ContentView: View {
 Despite my high hopes, this didn't work either. As soon as I ran the App Clip, I got the following error:
 
 ```
+Permission denied
 
+Failed to fetch current country code because the music authorization status is set to .denied. This is recoverable by guiding your user to the privacy settings, so they can grant your app access to Apple Music.
 ```
 
 ### ❌ Making a request to the Apple Music API using MusicKit
 
-I wasn't ready to give up at this point and I decided to make the request to the Apple Music API directly. If you have ever tried to use this API, you will know that authenticating with it manually can certainly be cumbersome. Thankfully, `MusicKit` offers a way of making authenticated network requests to the Apple Music API with very little effort:
+I wasn't ready to give up at this point and I decided to request the information from the Apple Music API directly. If you have ever tried to use this API, you will know that **authenticating with it manually can certainly be cumbersome**. Thankfully, [MusicKit](https://developer.apple.com/musickit/) offers a way of making authenticated network requests to the Apple Music API with very little effort:
 
 ```swift:ContentView.swift
 import SwiftUI
@@ -139,12 +144,11 @@ struct ContentView: View {
                 let urlString = "https: //api.music.apple.com/v1/catalog/us/songs?filter[isrc]=\(isrc)"
                 let url = URL(string: urlString)!
                 let songRequest = MusicDataRequest(urlRequest: .init(url: url))
-                let (data, _) = try await songRequest.response()
-                let items = try JSONDecoder().decode (MusicItemCollection<Song>.self, from: data)
+                let response = try await songRequest.response()
+                let items = try JSONDecoder().decode (MusicItemCollection<Song>.self, from: response.data)
                 print(items.first)
             } catch {
                 print(error.localizedDescription)
-                return nil
             }
         }
     }
@@ -154,70 +158,84 @@ struct ContentView: View {
 Unfortunately, this approach didn't work either. Despite this request only needing a developer token to work, I still got the same permission error as before:
 
 ```
+Permission denied
 
+Failed to request tokens because the music authorization status is set to .denied. This is recoverable by guiding your user to the privacy settings, so they can grant your app access to Apple Music.
 ```
 
 ### ✅ Making a request to the Apple Music API using `URLSession`
 
-Finally, I opted to make the request to the Apple Music API myself using `URLSession` and manual authentication. For this specific request, as it doesn't need any user permissions, I only had to get a developer token and add it to the request's headers.
+Finally, I opted to make the request to the Apple Music API myself using `URLSession` and manual authentication. For this specific request, as it doesn't need any user permissions, I only had to get **a developer token** and add it to the request's headers.
 
-If you use `MusicKit`, the heavy lifting of creating a developer token is all done for you and all you need to do is use the following code to retrieve it:
+[MusicKit](https://developer.apple.com/musickit/) does most of the heavy lifting of creating a developer token for you and allows you to retrieve it with a single line of code:
 
 ```swift
 let developerToken = try? await MusicDataRequest.tokenProvider.developerToken(options: .ignoreCache)
 ```
 
-However, and as you might be suspecting by now, this doesn't work in an App Clip either. Unfortunately, you also need to request authorization from the user to get a developer token 😭.
+However, and as you might be suspecting by now, this **doesn't work in an App Clip either**. Unfortunately, when you try to get the developer token, you get the following error saying permission is denied 😭:
+
+```
+Failed retrieving developer token: Error Domain=ICError Code=-7010 "Failed to get listener endpoint for cloud service status monitor." UserInfo={NSDebugDescription=Failed to get listener endpoint for cloud service status monitor., NSUnderlyingError=0x600000c754d0 {Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.itunescloudd.xpc" UserInfo={NSDebugDescription=connection to service named com.apple.itunescloudd.xpc}}}. Throwing .permissionDenied.
+```
 
 ## Generating a developer token
 
-With my options very limited at this point, and as I wasn't quite ready to give up yet, I decided to go ahead and generate a developer token manually.
+With my options very limited at this point, and as I wasn't quite ready to give up yet, I decided to go ahead and **generate a developer token manually**.
 
-This is not as straightforward as you might think but don't worry as I will walk you through the process.
+Contrary to what you might think, this process is fairly complex and, over the next few sections, I will do my best to walk you through the process.
 
 ### Creating a Media ID
 
-The first thing you need to do is to create a new media identifier in your Developer Account by going to the `Identifiers` section, clicking on the `+` button and selecting `Media IDs` from the list:
+The first thing you need to do is to create a new media identifier in your Developer Account by going to the 'Identifiers' section, clicking on the `+` button, selecting 'Media IDs' from the list and clicking on 'Continue:
 
-![]()
+![Create a new media ID by going to identifiers and pressing the + button.](/assets/posts/musickit-and-app-clips/new-media-id.webp)
 
-Next, you need enable `MusicKit`, give the Media ID an identifier and a description and click on `Continue:
+Next, you need to select 'MusicKit' from the list, give the Media ID an identifier and a description and click on 'Continue':
 
-![]()
+![Give the ID a name and a description](/assets/posts/musickit-and-app-clips/name-description.webp)
 
 Finally, register the new Media ID:
 
-![]()
+![Confirm the choice by clicking on the Register button](/assets/posts/musickit-and-app-clips/register.webp)
 
 ### Creating a new key
 
-Once you have done this, head over to the `Keys` section in the Apple Developer Portal and click on the `+` button:
+Once you have done this, head over to the 'Keys' section in the Apple Developer Portal and click on the '+' button:
 
-![]()
+![Create a new key from the Keys section by tapping on the + button](/assets/posts/musickit-and-app-clips/new-key.webp)
 
-Give your key a name and enable `Media Services` from the list:
+Give your key a name and enable 'Media Services' from the list:
 
-![]()
+![Configure the key with a name and with the media services option checked](/assets/posts/musickit-and-app-clips/key-media-services.webp)
 
-Tap on `Configure` next to the `Media Services` row and select the Media ID you created earlier:
+Tap on 'Configure' next to the 'Media Services' row, select the Media ID you created earlier and click 'Save':
 
-![]()
+![Configure the media services option by assigning it to a media id](/assets/posts/musickit-and-app-clips/configure-key.webp)
 
-Finally, click on `Continue` and then finish the process and download the key. You must keep this key somewhere safe as you won't be able to download it again.
+Finally, click on 'Continue' and then finish the process by downloading the key. You must **keep this key somewhere safe** as you **won't be able to download it again**.
 
 You will also need to get the key id from the key's details page:
 
-![]()
+![retrieve the key id from the key's details page](/assets/posts/musickit-and-app-clips/key-id.webp)
 
 ### Creating a JWT token
 
-Now that you have an id and a key, you need to turn them into a JWT token that you can use to authenticate with the Apple Music API.
+Now that you have a media id and a key, you need to turn them into a **JWT token** that you can use to authenticate with the Apple Music API.
 
-To do this, I decided to use the [SwiftJWT library](), which is a Swift package that helps you create and verify JWT tokens.
+I decided to do this using Swift with the [SwiftJWT library](https://github.com/Kitura/Swift-JWT), a Swift package that helps you create and verify JWT tokens.
 
-You can find more information about the specific of the JWT token in [Apple's documentation]() but to make a compatible JWT token from the id and key you created earlier, you can use the following code:
+You can find more information about the specifics of the JWT token's contents in [Apple's documentation](https://developer.apple.com/documentation/applemusicapi/generating_developer_tokens#3001626), but to make a compatible JWT token from the id and key you created earlier, you can use the following code:
 
 ```swift
+import SwiftJWT
+
+struct JWTClaims: Claims {
+    let iss: String
+    let iat: Date?
+    let exp: Date?
+}
+
 func generateToken(privateKey: String) throws -> String {
     let header = Header(kid: "key-id")
     let claims = JWTClaims(iss: "asc-team", iat: Date(), exp: Date() + 60 * 60 * 12)
@@ -228,13 +246,31 @@ func generateToken(privateKey: String) throws -> String {
 }
 ```
 
-Note that the `privateKey` parameter is the contents of the key you downloaded earlier. You can view and copy the key's contents by opening it in a text editor of your choice. I would recommend keeping this key safe and making the JWT token short-lived to increase security.
+> 🌟 Full credit for the code snippet above goes to [this awesome YouTube video by Get Swifty](https://www.youtube.com/watch?v=0DBNXoNN-7U), who does an amazing job at explaining how to make a JWT token for the Apple Music API.
 
-You can always verify that the token is valid before making a request using the following code:
+Note that the `privateKey` parameter in the method above is the contents of the key you downloaded earlier. You can view and copy the key's contents by opening it in a text editor of your choice.
 
-#### Decorating the request
+I would recommend **keeping this key safe** and making the JWT token **short-lived** to increase security. In the example above, I have set the token to expire after 12 hours.
 
-Now you are ready to make a request to the Apple Music API and use that information in your App Clip. All you have to do now is write some `URLSession` code that makes a request to the Apple Music API and decorate it with the JWT token you created earlier:
+You can always verify that the token is valid by extracting the claims from the raw JWT string before making a request using [SwiftJWT](https://github.com/Kitura/Swift-JWT):
+
+```swift
+import SwiftJWT
+
+func isTokenValid(tokenString: String) -> Bool {
+    guard let expiry = try? JWT<JWTClaims>(jwtString: token).claims.exp else {
+        return false
+    }
+
+    return expiry > Date()
+}
+```
+
+### Decorating the request
+
+Now that you have a JWT token, you are ready to make a request to the Apple Music API and use the response to display information in your App Clip.
+
+All you have to do now is write some `URLSession` code that makes a request to the Apple Music API and decorate it with the JWT token you created earlier:
 
 ```swift:ContentView.swift
 import SwiftUI
