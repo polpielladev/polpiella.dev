@@ -6,29 +6,31 @@ pubDate: 2023-10-05
 
 import Video from '@components/Video.svelte'
 
-I have recently been looking at how to set up Core Data and Swift Data in [NowPlaying]() to point to the same persistent data store so that I can use both frameworks side by side.
+I have recently been looking at how to set up Core Data and Swift Data in [NowPlaying](https://nowplaying.page) to point to the same persistent data store so that I can use both frameworks side by side.
 
-This is useful if you are looking at migrating from Core Data to Swift Data but want to do it gradually or if you want to use Swift Data for specific use cases in your app, such as Widgets.
+This is useful if you are looking at migrating from Core Data to Swift Data but want to do it **gradually** or if you want to use Swift Data for **specific use cases** in your app, such as Widgets.
+
+[Considering that Swift Data performs operations exclusively on the Main Thread](https://twitter.com/polpielladev/status/1702302025319399850), I would not recommend **migrating to it completely** just yet, as it will hurt your app's performance, but it can indeed be very useful for small and non-expensive operations.
 
 ## Context
 
-[Apple have a great session from this year's WWDC on how to migrate to Swift Data]() which gave me a great starting point but I wanted to go a step further and give you some tips in this article that weren't covered in the session and are key to get this working.
+[Apple have a great session from this year's WWDC on how to migrate to Swift Data](https://developer.apple.com/wwdc23/10189) which gave me a great starting point but I wanted to go a step further and give you some tips in this article that weren't covered in the session and are key to get this dual set-up working.
 
 ## The CoreData set up
 
-I created a small demo project with a very simple Core Data stack in a model file called `Storage`:
+I created a small demo project with a very simple Core Data stack described by a model file called `Storage`:
 
-![](/assets/posts/core-data-and-swift-data/model.webp)
+![The storage Core Data model file with a single entity and three properties](/assets/posts/core-data-and-swift-data/model.webp)
 
-The model has a single entity called `DiaryEntry` which has three non-optional properties: `title`, `date` and `body`. While you might be tempted and accustomed to making use of Core Data's automatic code generation setting, for the dual set-up to work you need to turn this off and create your own `NSManagedObject` subclasses.
+The model file defines a single entity called `DiaryEntry` which has three non-optional properties: `title`, `date` and `body`. While you might be tempted and accustomed to making use of Core Data's automatic code generation setting, for the dual set-up to work **you need to turn this off** and create your own `NSManagedObject` subclasses.
 
-The reason for this is that both the Swift Data and Core Data entities will need to have the same underlying name but, if you create the subclasses automatically, you will end up with two types with the same name and the compiler will complain.
+The reason for this is that both the Swift Data and Core Data entities will need to have **the same underlying name** but, if you create the subclasses automatically, you will end up with two types (Core Data and Swift Data) with the same name and the compiler will complain.
 
-I recommend changing the name of the Core Data entity to something like `CoreDataDiaryEntry` and keeping the entity name as `DiaryEntry` as Swift Data uses the actual type name for the underlying entity.
+I recommend changing the name of the Core Data entity to something like `CoreDataDiaryEntry` and keeping the actual entity name as `DiaryEntry` as Swift Data uses the type name for the underlying entity name and has no way of changing it that I know of.
 
-![](/assets/posts/core-data-and-swift-data/manual.webp)
+![Turn the codegen setting to manual/none and change the class name to the new Core Data name](/assets/posts/core-data-and-swift-data/manual.webp)
 
-The code for the `CoreDataDiaryEntry` subclass is very simple:
+The code for the `CoreDataDiaryEntry` `NSManagedObject` subclass is very simple:
 
 ```swift:CoreDataDiaryEntry.swift
 import Foundation
@@ -86,8 +88,8 @@ final class CoreDataManager {
 
 While I am not going to cover how to set up a Core Data container in detail, there are a couple of very important things that you can't miss if you want to use Swift Data and Core Data side by side:
 
-1. You need to enable persistent history tracking on the persistent store description. As stated in the [WWDC session](), this setting is key for changes made by Swift Data to be picked up by Core Data and vice versa and, while it is enabled by default for Swift Data, it is not for Core Data.
-2. You need to set the URL of the CoreData persistent store to be the same as the one used by Swift Data. This setting is only glanced over in the WWDC session and it is not clear where the path to the Swift Data store is. I did a bit of digging and, by the looks of things, Swift Data automatically creates a `default.store` file in your app's `Application Support` folder.
+1. You need to enable **persistent history tracking** on the persistent store description. As stated in the [WWDC session](https://developer.apple.com/wwdc23/10189), this setting is key for changes made by Swift Data to be picked up by Core Data and vice versa and, while it is enabled by default for Swift Data, it is not for Core Data.
+2. You need to set **the URL of the CoreData persistent store** to be the **same** as the one used by Swift Data. This setting is only glanced over in the WWDC session and it is not clear where the path to the Swift Data store is. I did a bit of digging and, by the looks of things, Swift Data automatically creates a `default.store` file in your app's `Application Support` folder.
 
 ### Initialising the container
 
@@ -133,7 +135,7 @@ import SwiftData
 }
 ```
 
-> Pro tip: Similarly to what we did with Core Data earlier, we can also open the `Storage.xcdatamodeld` file in Xcode and automatically generate the Swift models by going to `Editor > Create Swift Data Code` and selecting the `DiaryEntry` entity.
+> Pro tip: Similarly to what we did with Core Data earlier, we can also open the `Storage.xcdatamodeld` file in Xcode and automatically generate the Swift Data models by going to `Editor > Create Swift Data Code` and selecting the `DiaryEntry` entity.
 
 Now that we have the entity defined, we can create a `ModelContainer` that uses it and make it available to the environment:
 
@@ -159,7 +161,7 @@ That's it! We now have both Core Data and Swift Data set up and ready to use.
 
 ## Testing things out
 
-To test that everything is working as expected, we can create a view that can create entires using both Core Data and Swift Data and keeps count of how many entries each of the frameworks has in their store:
+To test that everything is working as expected, we can make a view that can create entries using both Core Data and Swift Data and keep count of how many entries each of the frameworks has in their store:
 
 ```swift:ContentView.swift
 import SwiftUI
@@ -211,12 +213,12 @@ struct ContentView: View {
 }
 ```
 
-If we run the app now and create a few entries using Core Data, we can see that the count of entities returned by both frameworks is the same:
+If we run the app now and create a few entries using Core Data, we can see that the count of entities returned **by both frameworks is the same**:
 
 <Video src="/assets/posts/core-data-and-swift-data/core-data.mp4" />
 
-On the other hand, if we create a few entries using Swift Data, we can see that while the count of entities returned by Swift Data is correct, the count of entities returned by Core Data is not updating.
+On the other hand, if we create a few entries using Swift Data, we can see that while the count of entities returned by Swift Data is correct, the count of entities **returned by Core Data is not updating**.
 
-This is an issue with the `@FetchRequest` property wrapper which is not getting notified of changes but, if we force a refresh by restarting the app, we can see that both frameworks are returning the same amount of entities:
+I believe this is an issue with the `@FetchRequest` property wrapper which is not getting notified of changes but, if we force a refresh by restarting the app, we can see that both frameworks are returning the same amount of entities:
 
 <Video src="/assets/posts/core-data-and-swift-data/swift-data.mp4" />
