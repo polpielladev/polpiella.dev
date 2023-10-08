@@ -1,0 +1,11 @@
+---
+title: 'Adding a bundle identifier to a Swift command-line tool'
+excerpt: ''
+pubDate: 2023-10-11
+---
+
+I recently made a small Swift command-line tool that would use [MusicKit]() to gather information about one or more songs based on user input.
+
+If you have ever used [MusicKit](), you will know that the first prerequisite is to create an app identifier in the Apple Developer portal and give it the right capabilities.
+
+But how can you do this for a command-line tool that has no `Info.plist` or bundle identifiers? Are you able to use MusicKit at all? The answer is yes, and in this article, I will show you exactly how!
