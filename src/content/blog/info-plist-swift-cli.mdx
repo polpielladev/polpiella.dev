@@ -1,0 +1,57 @@
+---
+title: 'Adding an Info.plist file to a Swift executable'
+excerpt: 'Find out how to add extra information to your Swift command-line tool through an Info.plist file while keeping it as a single-file executable.'
+pubDate: 2023-10-11
+---
+
+I have recently made a **command-line tool** to retrieve information about a given song from Apple Music using [MusicKit](https://developer.apple.com/musickit/). If you have ever used MusicKit, you will know that it requires you to set up a bundle identifier with the right capabilities to make requests.
+
+But how do you add an `Info.plist` that contains information such as the app's bundle identifier to a command-line tool? The process differs slightly depending on whether you are using a Swift Package or an Xcode project and in this article, I will show you how to do it in both cases.
+
+## Swift Package
+
+Let's say you have a Swift Package with a single executable target. To be able to add an `Info.plist` to the target, you need to pass in a few linker flags that create a new section in the resulting binary:
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+
+import PackageDescription
+
+let package = Package(
+    name: "Musicli",
+    platforms: [.macOS(.v12)],
+    products: [
+        .executable(name: "Musicli", targets: ["Musicli"])
+    ],
+    dependencies: [
+    ],
+    targets: [
+        .executableTarget(
+            name: "Musicli",
+            dependencies: [],
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", "Sources/Resources/Info.plist"
+                ])
+            ]
+        ),
+    ]
+)
+```
+
+> Full credit to this goes to [this great answer in the Swift forums](https://forums.swift.org/t/swift-package-manager-use-of-info-plist-use-for-apps/6532/13).
+
+Note that you don't have to include the `Info.plist` as an actual resource in the target. If you do so, you will get a build failure as SPM does not allow having top-level files named `Info.plist` in a target's resulting product. This is fine, as the contents of the file will be added to the binary and will be accessible without the need to load the file from disk at runtime.
+
+## Xcode project
+
+Let's say you have opted to use an Xcode project to create a command-line tool instead of a Swift Package. In this case, you just have to add a new `Info.plist` file to the project (and not add it to any target), populate it with the required information and then add the following build settings to the target:
+
+![An image showing the build settings in Xcode](/assets/posts/info-plist-swift-cli/build-settings.webp)
+
+You might have noticed that these settings are equivalent to the linker flags we used in the Swift Package, but we can set them through Xcode's UI in this case. 🎉
+
+> If you'd like to learn more about these settings, please refer to the [Apple documentation on the topic](https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html).
