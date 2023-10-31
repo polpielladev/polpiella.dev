@@ -1,0 +1,58 @@
+---
+title: 'Building Swift CLIs for Windows using GitHub Actions'
+excerpt: ''
+pubDate: 2023-11-01
+---
+
+Swift is a great language choice for writing cross-platform libraries and command-line applications. While Swift is commonly used on Apple platforms and Linux, it is also possible to run Swift programs on Windows.
+
+Despite this, setting up a Windows development environment for Swift can be a bit of a challenge as you might be developing on a Mac or Linux machine. In this article, I will show you how to set up a GitHub Actions workflow to build and test your Swift project on Windows.
+
+## Building the workflow
+
+Let's consider we have a Swift package with a single executable target and product and we want to make it available for Windows users.
+
+We can do so by creating a GitHub Actions workflow that runs on every push to the `main` branch and builds the package on a Windows machine:
+
+```yaml:windows.yml
+name: Build for Windows
+
+on:
+  push:
+    branches:
+      - main
+
+  build-windows-executable:
+    name: Build Windows Executable
+    # 1
+    runs-on: windows-latest
+    steps:
+      # 2
+      - uses: compnerd/gha-setup-swift@main
+        with:
+          branch: swift-5.6-release
+          tag: 5.6-RELEASE
+      # 3
+      - uses: actions/checkout@v4
+      # 4
+      - run: git config --global core.protectNTFS false
+      # 5
+      - run: swift build -c release --static-swift-stdlib --product ReadingTimeCLI
+      # 6
+      - run: cp .build\release\ReadingTimeCLI.exe ReadingTimeCLI.exe
+      # 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReadingTimeCLI-windows.exe
+          path: ReadingTimeCLI.exe
+```
+
+Let's break down the workflow above step by step:
+
+1. We specify that the workflow should run on the most up-to-date Windows machine available.
+2. We use the [gha-setup-swift]() action which will make the Swift toolchain available on the machine.
+3. We check out the repository.
+4. We disable NTFS protection as it can cause issues when copying files and cloning the repository.
+5. We build the package using the `swift build` command. We specify the `--static-swift-stdlib` flag to statically link the Swift standard library.
+6. We copy the executable from the build folder to the root of the repository. We must remember to use the backslash (`\`) as the path separator as opposed to what we would normally use on Unix systems (`/`).
+7. We upload the executable as an artefact using GitHub's own [actions/upload-artifact]() action so that we can download it later.
