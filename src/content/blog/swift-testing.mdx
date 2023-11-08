@@ -4,15 +4,15 @@ excerpt: ''
 pubDate: 2023-11-01
 ---
 
-A couple of months ago, [Stuart Montgomery](), a software engineer working on the XCTest team at Apple, shared a new macro-based open-source Swift testing library.
+A couple of months ago, [Stuart Montgomery](https://twitter.com/throwspace), a software engineer in the `XCTest` team at Apple, shared a new macro-based open-source Swift testing library.
 
-The library is called [swift-testing]() and, [as its documentation states]() it is meant to be a proof of concept for a new testing API for Swift that is based on macros and that is integrated into Swift the same way that XCTest is.
+The library is called [swift-testing](https://github.com/apple/swift-testing) and, [as its documentation states](https://swiftpackageindex.com/apple/swift-testing/main/documentation/testing) it is meant to be a proof of concept for a new testing API for Swift that is based on macros and that is integrated into Swift the same way that `XCTest` is.
 
-For this reason, the library is meant to be short-lived and it is not meant to be used in production or migrated to from XCTest. However, it is a great way to get a glimpse of what the future of testing in Swift might look like, which is exactly what I did this week!
+For this reason, the library is meant to be **short-lived** and it is **not meant to be used in production** or migrated to from `XCTest`. However, it is a great way to get a glimpse of what the **future of testing** in Swift might look like, which is exactly what I did this week!
 
 ## Getting started
 
-The first thing I did was to create a small Swift package to demo
+The first thing I did was to create a small Swift package that would allow me to write some tests using the new library:
 
 ```swift:Package.swift
 // swift-tools-version: 5.9
@@ -40,7 +40,7 @@ let package = Package(
 )
 ```
 
-I then added some code that I had from my app [QReate]() which decodes WIFI url strings into Swift structs, which I thought would be an ideal candidate to try swift-testing on:
+I then added some code that I had from my app [QReate](https://www.getqreate.app) which decodes WIFI URL strings into Swift structs, which I thought would be an ideal candidate to try `swift-testing` on:
 
 ```swift:WifiParser.swift
 import Foundation
@@ -88,11 +88,11 @@ struct WifiParser {
 
 ## Setting up swift-testing
 
-Now that I had code to test, I went ahead and set up the test target to be able to use swift-testing.
+Now that I had code to test, I went ahead and set up the test target to be able to start using `swift-testing`.
 
 ### Depending on swift-testing
 
-The first thing I had to do was add swift-testing as a dependency to both the package and the test target:
+The first thing I had to do was add `swift-testing` as a dependency to both the package and the test target:
 
 ```swift:Package.swift
 // swift-tools-version: 5.9
@@ -130,11 +130,9 @@ let package = Package(
 )
 ```
 
-> Note that, as [stated in the documentation](), you must set the minimum platforms to the ones in the snippet above for the unit tests to run.
-
 ### Running all tests
 
-Due to the way that tests are organised in swift-testing and the fact that it is not integrated into Xcode or SPM yet, you need to create a small `XCTestCase` subclass that creates a single test method which finds and runs all tests using `XCTestScaffold`:
+Due to the way that tests are organised in swift-testing and the fact that it is not integrated into Xcode or SPM yet, you need to create a small `XCTestCase` subclass that creates a single test method that finds and runs all tests using `XCTestScaffold`:
 
 ```swift:TestScaffold.swift
 import XCTest
@@ -156,7 +154,7 @@ Now that I had set up my test target correctly, I could start writing some tests
 
 ### Defining tests
 
-Something that has changed compared to `XCTest` is **how** you define unit tests. You no longer need to prefix your functions with `test` and you can now attach the `@Test` function to any function that you want to be a test:
+Something that has changed compared to `XCTest` is **how** you define unit tests. You no longer need to prefix your functions with `test` and you can now instead attach the `@Test` function to any function that you want to be a test:
 
 ```swift:WifiParserTests.swift
 @Test
@@ -180,11 +178,11 @@ struct WifiParserTests {
 }
 ```
 
-From what I can gather by reading the documentation, it is good practice to wrap your `struct`s that group unit tests with the `@Suite` macro.
+From what I can gather by reading the documentation, it seems to be **good practice** to attach the `@Suite` macro to `strutc`s that group unit tests.
 
 ### Testing when the WIFI string is not valid
 
-The first test I wanted to add, and that would showcase some of the differences between swift-testing and XCTests, was to verify that the parser throws an error and sends a monitoring event when the WIFI string is not valid:
+The first test I wanted to add, and that would showcase some of the differences between `swift-testing` and `XCTest`, was to verify that the parser throws an error and sends a monitoring event when the WIFI string is not valid:
 
 ```swift:WifiParserTests.swift
 @Suite
@@ -209,13 +207,13 @@ struct WifiParserTests {
 
 Let's break down the test suite above and understand what is going on:
 
-1. The first thing I did was to set up the system under test (`WifiParser`) and the test double to spy on the monitoring events (`SpyErrorMonitoring`). In XCTest, you would usually do this in the `setUp` method so that the instances are created before each test. However, in swift-testing, since the suite is created before every test is run, it is sufficient to do this in the `init` method.
+1. The first thing I did was to set up the system under test (`WifiParser`) and the test double to spy on the monitoring events (`SpyErrorMonitoring`). In XCTest, you would usually do this in the `setUp` method so that the instances are created before each test. However, in `swift-testing`, since the suite is created before every test is run, it is sufficient to do this in the `init` method.
 2. Use an overload of the `#expect` macro that allows you to assert that a closure throws a specific error. You can also pass in a type instead of an instance of the error if you don't want to be as specific.
 3. Use the `#expect` macro with a boolean condition to assert that the spy has captured the correct error.
 
 ### Testing when all test fields are present
 
-The second test I wrote was the one that checks that the parser can parse a valid WIFI string with all fields present:
+The second test I wrote checked that the parser could parse a valid WIFI string with all fields present:
 
 ```swift:WifiParserTests.swift
 @Suite
@@ -239,7 +237,7 @@ On top of this, and as you can see above where I am unwrapping the optional `sec
 
 ### Testing when only the required fields are present
 
-The last test I added was to verify that my logic still works even when the wifi string only has the required fields using only the `#expect` macro:
+The last test I added was to verify that my logic would still work even when the wifi string only had the required fields using only the `#expect` macro:
 
 ```swift:WifiParserTests.swift
 @Suite
@@ -259,8 +257,8 @@ struct WifiParserTests {
 
 ## Further reading
 
-The examples above are just a small subset of what you can do with swift-testing. If you're trying the library out and struggling to find out how to do a specific assertion that you would normally do in XCTest, I recommend you check out this migration chart from the documentation that compares both libraries at an assertion level:
+The examples above are just a small subset of what you can do with `swift-testing`. If you're trying the library out and struggling to find out how to do a specific assertion that you would normally do in `XCTest`, I recommend you check out [this migration chart from the documentation that compares both libraries at an assertion level](https://swiftpackageindex.com/apple/swift-testing/main/documentation/testing/migratingfromxctest#Converting-XCTAssert-XCTUnwrap-and-XCTFail-calls):
 
-![]()
+![A chart from the swift-testing documentation showing a comparison between methods from XCTest and their swift-testing counterparts](/assets/posts/swift-testing/migration.webp)
 
-There is also a set of examples and more in-depth explanation of the library itself in its documentation, which is hosted on the Swift Package Index site.
+There is also a set of examples and more in-depth explanation of the library itself [in its documentation, which is hosted on the Swift Package Index site](https://swiftpackageindex.com/apple/swift-testing/main/documentation/testing).
