@@ -135,3 +135,5 @@ The extra code does the following to achieve the migration:
 5. If the new App Group store exists, it means that a migration isn't needed and the `NSPersistentStoreDescription` object with the App Group URL can be set up. This step is crucial as otherwise Core Data will create a new store in the Application Support directory.
 
 Next time you run the app you will see that all your existing data has been migrated correctly to the App Group shared container and that your widgets can access it! 🎉
+
+> 💡 Pro tip: If you'd like to make sure that the migration has happened and the old store is empty, you can open the `.sqlite` database files in a tool like [Core Data Lab by Betamagic](https://betamagic.nl/products/coredatalab.html).
