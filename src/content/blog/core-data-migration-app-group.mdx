@@ -1,57 +1,50 @@
 ---
-title: 'Migrating a Core Data store to an app group'
-excerpt: ''
+title: 'Migrating a Core Data store to an App Group shared container'
+excerpt: 'How to make an existing Core Data store accessible to widgets without losing any existing data.'
 pubDate: 2023-11-15
 ---
 
-If you have a Core Data store set up for your iOS app, you must know that it widgets won't be able to access it. This is because widgets run in a separate process, and they can't access the app's directories, they can instead access directories that are shared between an app group.
+If you have a Core Data store set up for your iOS app in its default location, you must know that widgets won't be able to access it.
 
-In this article, I'll show you how you can create a store in an app group from scratch and how you can migrate an existing store to an app group so that it can be used by your widgets.
+The reason for this is that widgets run in a separate process, and they can't access the app's directories, where Core Data stores are created by default.
+
+Thankfully, there is a way to set up a shared location where we can move the store to and that both the app and the widget can access by using an **App Group**.
 
 ## Creating an app group
 
-Creating an app group is pretty straighforward and can be done directly in Xcode. To do so, go to your target's `Signing & Capabilities` section and press on the `+ Capability` button.
+Creating an app group is straightforward and can be done directly in Xcode. To do so, go to your target's `Signing & Capabilities` section and press on the `+ Capability` button.
 
-![]()
+![Xcode's target settings focused in the signing and capabilities section](/assets/posts/core-data-migration-app-group/signing-and-capabilities.webp)
 
-Then, search for `App Groups` and press on the `+ Capability` button to add it to your target.
+Then, search for `App Groups` and press on double-click on the result to add it to your target.
 
-![]()
+![Highlighting App Groups from the list of capabilities](/assets/posts/core-data-migration-app-group/app-groups.webp)
 
-Note that container IDs _must_ begin with `group.` and then be followed by a custom string in reverse DNS notation. If you'd like to find out more, please check out [Apple's documentation on the topic](https://developer.apple.com/documentation/xcode/configuring-app-groups).
+Finally, enter a name and create the App Group. If everything has gone well, you should see the App Group in the list of capabilities for the target:
 
-## Creating a store in the app group folder
+![A list of target capabilities showing AppGroup as one of them](/assets/posts/core-data-migration-app-group/capabilities-list.webp)
 
-Now that you have created an app group, you can create a store in the app group folder with just a few lines of code:
+> Note that container IDs _must_ be prefixed with `group.` and then be followed by a custom string in reverse DNS notation. If you'd like to find out more, please check out [Apple's documentation on the topic](https://developer.apple.com/documentation/xcode/configuring-app-groups).
+
+## Creating a store in the App Group folder
+
+Now that you have created an App Group, you can create a store in the group's shared container with just a few lines of code:
 
 ```swift:CoreDataManager.swift
 final class CoreDataManager {
     let container: NSPersistentCloudKitContainer
 
     init?(inMemory: Bool = false) {
-        let storageName = "Demo"
+        let storageName = "MigrationDemo"
         let container = NSPersistentCloudKitContainer(name: storageName)
-
-        if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
-        } else {
-            // 1
-            guard let storeLocation = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.dev.polpiella.demo")?.appendingPathComponent("\(storageName).sqlite") else {
-                return nil
-            }
-
-            // 2
-            let description = NSPersistentStoreDescription(url: storeLocation)
-            // 3
-            container.persistentStoreDescriptions = [description]
-
-            description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-            description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: Constants.iCloudContainerID)
-            description.setOption(true as NSObject, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
-            description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-            description.shouldMigrateStoreAutomatically = true
-            description.shouldInferMappingModelAutomatically = false
+        // 1
+        guard let storeLocation = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.dev.polpiella.MigrationDemo")?.appendingPathComponent("\(storageName).sqlite") else {
+            return nil
         }
+        // 2
+        let description = NSPersistentStoreDescription(url: storeLocation)
+        // 3
+        container.persistentStoreDescriptions = [description]
 
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -59,80 +52,64 @@ final class CoreDataManager {
             }
         })
 
-        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        container.viewContext.automaticallyMergesChangesFromParent = true
-        try? container.viewContext.setQueryGenerationFrom(.current)
-
         self.container = container
     }
 }
 ```
 
-A lot is going on here and you might notice that several settings might not apply to your use case, so let's focus on the important bits:
+The code above does the following to create a store in the App Group:
 
-1. We get the URL of the app group folder by using the `FileManager`'s `containerURL(forSecurityApplicationGroupIdentifier:)` method.
-2. We create an `NSPersistentStoreDescription` object and give it the app group folder URL we have just retrieved. This will override the default store location and will allow the widgets to access it.
-3. We set the description as the only one in the `NSPersistentCloudKitContainer`'s `persistentStoreDescriptions` array
+1. Retrieve the URL of the app group folder by using the `FileManager`'s `containerURL(forSecurityApplicationGroupIdentifier:)` method.
+2. Create an `NSPersistentStoreDescription` object and give it the App Group folder URL you have just retrieved. This will override the default store location and will allow the widgets to access persistent data.
+3. Set the `NSPersistentStoreDescription` you have just created in the container.
 
-I would like to give credit to this awesome video by [Flo Writes Code]() that helped me figure out what to do here.
+I would like to give credit to this awesome video by [Flo Writes Code](https://twitter.com/FloWritesCode) that helped me figure out what to do here.
 
-{/* Insert video here! */}
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
+
+<YoutubeVideo id="FV_3kiRF90g" client:visible />
 
 ## Migrating a current store to the app group folder
 
-In the previous section we saw how you can create a CoreData store in the app group folder from scratch but, if you already have a store in a different location and replace your code with the one above, you will lose all your data. This is because the store will be created from scratch and it won't contain any of the data you had in the previous store.
+In the previous section I showed you how you can create a Core Data store in a shared App Group container from scratch but, let's say you already have a store in a different location and you replace your code with the one above, what will happen?
 
-Thankfully, there is a way to migrate your current store to the app group folder but it requires a bit more code:
+The answer is that you **will lose all your data** as a new store will be created in a different location and no migration will happen out of the box.
+
+Thankfully, there is a way to migrate the data from the current store to new store but it requires a bit more code:
 
 ```swift:CoreDataManager.swift
 final class CoreDataManager {
     let container: NSPersistentCloudKitContainer
 
-    init?(inMemory: Bool = false) {
-        let storageName = "Demo"
+    init(inMemory: Bool = false) {
+        let storageName = "MigrationDemo"
         let container = NSPersistentCloudKitContainer(name: storageName)
+        let fileManager = FileManager.default
+
+        // 1
+        guard let sharedStoreLocation = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.dev.polpiella.MigrationDemo")?.appendingPathComponent("\(storageName).sqlite"),
+            let currentStoreLocation = container.persistentStoreDescriptions.first?.url else {
+            fatalError("Expected both locations to exist...")
+        }
 
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         } else {
-            guard let sharedStoreLocation = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.dev.polpiella.demo")?.appendingPathComponent("\(storageName).sqlite") else {
-                return nil
-            }
-
-            // 1
-            let currentStoreLocation = container.persistentStoreDescriptions.first?.url
-
             // 2
-            if currentStoreLocation == nil {
-                let description = NSPersistentStoreDescription(url: sharedStoreLocation)
-                container.persistentStoreDescriptions = [description]
-            // 3
-            } else if let currentStoreLocation, currentStoreLocation != sharedStoreLocation {
+            if fileManager.fileExists(atPath: currentStoreLocation.path) && !fileManager.fileExists(atPath: sharedStoreLocation.path) {
                 let coordinator = container.persistentStoreCoordinator
                 do {
+                    // 3
+                    try coordinator.replacePersistentStore(at: sharedStoreLocation, destinationOptions: nil, withPersistentStoreFrom: currentStoreLocation, sourceOptions: nil, type: .sqlite)
                     // 4
-                    try coordinator.replacePersistentStore(at: sharedStoreLocation, destinationOptions: nil, withPersistentStoreFrom: currentStoreLocation, sourceOptions: nil, ofType: NSSQLiteStoreType)
-                    try? coordinator.destroyPersistentStore(at: currentStoreLocation, ofType: NSSQLiteStoreType, options: nil)
-
-                    // 5
-                    NSFileCoordinator(filePresenter: nil).coordinate(writingItemAt: currentStoreLocation.deletingLastPathComponent(), options: .forDeleting, error: nil, byAccessor: { url in
-                        try? FileManager.default.removeItem(at: currentStoreLocation)
-                        try? FileManager.default.removeItem(at: currentStoreLocation.deletingLastPathComponent().appendingPathComponent("\(container.name).sqlite-shm"))
-                        try? FileManager.default.removeItem(at: currentStoreLocation.deletingLastPathComponent().appendingPathComponent("\(container.name).sqlite-wal"))
-                        try? FileManager.default.removeItem(at: currentStoreLocation.deletingLastPathComponent().appendingPathComponent("ckAssetFiles"))
-                    })
+                    try? coordinator.destroyPersistentStore(at: sharedStoreLocation, type: .sqlite, options: nil)
                 } catch {
-                    return nil
+                    print("\(error.localizedDescription)")
                 }
-            }
-
-            if let description = container.persistentStoreDescriptions.first {
-                description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-                description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: Constants.iCloudContainerID)
-                description.setOption(true as NSObject, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
-                description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-                description.shouldMigrateStoreAutomatically = true
-                description.shouldInferMappingModelAutomatically = false
+            } else {
+                // 5
+                let description = NSPersistentStoreDescription(url: sharedStoreLocation)
+                container.persistentStoreDescriptions = [description]
             }
         }
 
@@ -142,21 +119,19 @@ final class CoreDataManager {
             }
         })
 
-        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        container.viewContext.automaticallyMergesChangesFromParent = true
-        try? container.viewContext.setQueryGenerationFrom(.current)
-
         self.container = container
     }
 }
 ```
 
-Again, there is a lot of code to dissect here, so let's go through what has changed step by step:
+> Note that I was able to get to this solution thanks to [this brilliant answer in Stack Overflow on how to migrate a store](https://stackoverflow.com/a/72480066) and this other equally as brilliant answer [pointing out that files are not deleted when using the `destroyPersistentStore` method](https://stackoverflow.com/a/72585271).
 
-1. We get the current store location from the `NSPersistentStoreDescription` object.
-2. If the current store location is `nil`, this will mean that the store hasn't been created yet, so there is no need to migrate it. We follow the same steps as before and create a new `NSPersistentStoreDescription` object and give it the app group folder URL.
-3. If there is a current store location that is not in the app group folder, then we need to migrate it.
-4. We use the `persistentStoreCoordinator` from the `container` to first replace the current store with the new one in the app group folder and then destroy the old store.
-5. As []() mentions in this amazing thread, which I have also corroborated myself, the `destroyPersistentStore` method does not delete all files, so there are some extra manual steps we need to take to make sure that all files are deleted.
+The extra code does the following to achieve the migration:
 
-Next time you run the app you will see that there all your existing data has been migrated correctly to the app group folder and that your widgets can access it! 🎉
+1. Get the URLs for both the current Core Data store and the one in the shared container.
+2. Use `FileManager` to check if the current store exists at the default location and if the store in the App Group folder doesn't exist. If this is the case, a migration needs to happen to move the data from the current store to the one in the shared container. By default and if not specified otherwise, the store will always be created by CoreData in the Application Support directory.
+3. Call the `replacePersistentStore` method on the `persistentStoreCoordinator` to replace the current store with the one in the App Group folder.
+4. Call the `destroyPersistentStore` method on the `persistentStoreCoordinator` to delete the store that was created in the Application Support directory. Contrary to what you might think, this method **does not delete the underlying database files** so you will need to do this manually.
+5. If the new App Group store exists, it means that a migration isn't needed and the `NSPersistentStoreDescription` object with the App Group URL can be set up. This step is crucial as otherwise Core Data will create a new store in the Application Support directory.
+
+Next time you run the app you will see that all your existing data has been migrated correctly to the App Group shared container and that your widgets can access it! 🎉
