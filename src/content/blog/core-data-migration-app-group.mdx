@@ -32,11 +32,11 @@ Now that you have created an App Group, you can create a store in the group's sh
 
 ```swift:CoreDataManager.swift
 final class CoreDataManager {
-    let container: NSPersistentCloudKitContainer
+    let container: NSPersistentContainer
 
     init?(inMemory: Bool = false) {
         let storageName = "MigrationDemo"
-        let container = NSPersistentCloudKitContainer(name: storageName)
+        let container = NSPersistentContainer(name: storageName)
         // 1
         guard let storeLocation = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.dev.polpiella.MigrationDemo")?.appendingPathComponent("\(storageName).sqlite") else {
             return nil
@@ -79,11 +79,11 @@ Thankfully, there is a way to migrate the data from the current store to new sto
 
 ```swift:CoreDataManager.swift
 final class CoreDataManager {
-    let container: NSPersistentCloudKitContainer
+    let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {
         let storageName = "MigrationDemo"
-        let container = NSPersistentCloudKitContainer(name: storageName)
+        let container = NSPersistentContainer(name: storageName)
         let fileManager = FileManager.default
 
         // 1
