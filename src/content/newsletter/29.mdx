@@ -1,0 +1,52 @@
+---
+number: 29
+date: 2023-11-19
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  promotionLink={`https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%20${frontmatter.number}%26utm_content%3Dnov_19_23`}
+/>
+
+Hey everyone! 👋 Welcome to the **twenty-ninth issue** of the iOS CI Newsletter. Hope you've had a great couple of weeks!
+
+These past couple of weeks [Hidde](https://twitter.com/hiddevdploeg) and I have been busy working on a very **exciting update for [NowPlaying](https://nowplaying.page)** which we will ship next week.
+
+My main focus has been on **performance** and working on some **Core Data improvements** such as migrating the models, improving the queries, and making our **persistent containers work for iOS widgets by moving the store to the device's App Group container**. I have written about the latter [on my blog this week](https://www.polpiella.dev/core-data-migration-app-group) if you're interested in doing something similar.
+
+While it is challenging and stressful at times, indie projects are **incredibly rewarding**. Not only are you working on your own product, but you also get the chance to work on features and learn about topics of iOS development that you usually wouldn't in a big company. I would thoroughly encourage everyone to start their own side projects and collaborate with other members of the community, **it is a great way to learn and grow as an engineer**!
+
+## [🔮 A (very) early look at the future of testing in Swift](https://www.polpiella.dev/swift-testing)
+
+A couple of months ago [Stuart Montgomery](https://twitter.com/throwspace), a software engineer working in the XCTest team at Apple, introduced a [new macro-based open-source proof of concept Swift package](https://github.com/apple/swift-testing) for what the future of testing could look like in Swift.
+
+I decided to try the library out a couple of weeks ago and share my findings in this article on my blog. Long story short, I am a **very big fan of it** and I **believe it improves the syntax of unit tests significantly**.
+
+## [💬 In-line errors on PRs with Tuist and GitHub Actions](https://twitter.com/tuistio/status/1725544460053012833)
+
+I love the work that [Pedro](https://twitter.com/pepicrft) and the team at [Tuist](https://twitter.com/tuistio) have been putting into the library recently, it is rapidly **becoming a standard for architecting and building iOS applications**.
+
+This time they have announced that an upcoming release of the library is going to **add support for showing errors on GitHub PRs as in-line comments using GitHub Actions**!
+
+## [🔙 Deploy iOS apps safely with instant rollbacks](https://www.runway.team/blog/introducing-rollbacks-by-runway)
+
+This week [Runway](https://twitter.com/RunwayTeam) announced that they are introducing a brand new feature: **rollbacks for native mobile apps**. This new feature will allow developers **to ship apps in a much safer way** and **quickly roll back versions** if things go wrong.
+
+The article goes into detail about **how this new feature** works and why you would want to use it.
+
+## [📏 Keeping an eye on your app size](https://engineering.atspotify.com/2023/11/the-what-why-and-how-of-mastering-app-size)
+
+This article by [Viktor Petrovski](https://twitter.com/petrovski_vic), [Dmitry Povolotskyi](https://www.linkedin.com/in/povolotskydmitry) and [Bruno Rocha](https://twitter.com/rockbruno_) on the [Spotify Engineering](https://twitter.com/SpotifyEng) blog goes through why app size is a very important metric that we mobile app developers should closely monitor.
+
+They also show tools and processes Spotify uses to ensure no major increases in app size occur at different points in their development lifecycle.
+
+## [🔐 Enabling macros on CI](https://stackoverflow.com/questions/77267883/how-do-i-trust-a-swift-macro-target-for-xcode-cloud-builds)
+
+If you happen to be using **third-party macros** and you're **struggling to enable them to get your project to compile on CI**, this Stack Overflow answer shows you how you can do it.
+
+There is an `xcodebuild` flag you can pass called `-skipMacroValidation` and, even if you can't modify the xcodebuild command itself, there is a `defaults` setting you can use on your runner to enable all macros.
