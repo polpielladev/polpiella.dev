@@ -1,30 +1,93 @@
 ---
-title: 'Using Swift SDKs to cross-compile Swift packages'
-excerpt: ''
+title: 'Using Swift SDKs to cross-compile Swift packages to Linux'
+excerpt: 'Learn about Swift SDKs and how you can use them to cross-compile Swift code to other platforms such as Linux.'
 pubDate: 2023-11-24
 ---
 
-As a developer for Apple platforms, you will be familiar with cross-compiling code for different platforms such as iOS, macOS, tvOS and watchOS with very minimal setup and directly from Xcode or using the latest Swift toolchain.
+As an Apple app developer, you will be familiar with **cross-compiling code for different platforms** such as iOS, macOS, tvOS and watchOS with very minimal setup and directly from Xcode.
 
-However, if you'd like to compile Swift code for other platforms such as Linux, you need a lot more setup
+However, if you try to cross-compile Swift code for any other platform that has Swift support like Linux, you will soon find out that it is an **arduous process** that involves **downloading and installing many files and tools** and setting the environment up correctly.
+
+Thankfully, the Swift team at Apple has made this process much easier with the introduction of Swift SDKs.
+
+> SDKs are only available for Linux and the issue remains for other platforms such as Windows though, in which case I would still recommend building directly on the platform either using Docker or [a CI/CD pipeline as I describe in this article about using Swift on Windows in GitHub Actions](https://www.polpiella.dev/running-swift-on-widnows-with-gha).
 
 ## What are Swift SDKs?
 
-First introduced in the [SE-0387](https://github.com/apple/swift-evolution/blob/main/proposals/0387-cross-compilation-destinations.md) proposal and built into SPM (from versions of Swift 5.9 and above), Swift SDKs are artifact bundles which contain all necessary files to cross-compile Swift code for specific platforms.
+First introduced in the [SE-0387](https://github.com/apple/swift-evolution/blob/main/proposals/0387-cross-compilation-destinations.md) proposal and now built into SPM (from versions of Swift 5.9 and above), Swift SDKs are artifact bundles which contain all necessary files to cross-compile Swift code for specific platforms.
 
-Swift SDKs can be retrieved, installed and used with the same `swift` command line tool you use to compile Swift code by passing it the `experimental-sdk` flag:
+Swift SDKs can be retrieved, installed and used with the same `swift` command line tool you use to build and run Swift programmes by passing it the `experimental-sdk` flag:
 
 ```bash:Terminal
 # List all installed Swift SDKs
 swift experimental-sdk list
+
 # Install a Swift SDK
 swift experimental-sdk install <bundle-path-or-url>
+
 # Remove an installed SDK
 swift experimental-sdk remove <sdk-id-or-bundle-name>
 ```
 
 ## Creating a Swift SDK
 
+Now that you know what Swift SDKs are, let's see how you can create one using the [swift-sdk-generator](https://github.com/apple/swift-sdk-generator), an open-source tool created and maintained by Apple.
+
+As it stands, the Swift SDK Generator only supports Linux as a target platform and macOS as a host platform, but the list of supported platforms may grow in the future.
+
+### Installing the Swift SDK Generator
+
+There are two ways to start using the Swift SDK Generator on your machine:
+
+- **Using it as a pre-built binary**:
+  - Use [mint](https://github.com/yonaskolb/Mint) to build the executable product from the repository and install it on your machine: `mint install apple/swift-sdk-generator@main`. Note that to make it globally available on your system, you will need to add `~/.mint/bin` ot your `$PATH`.
+  - Clone the repository and run `swift build -c release --product swift-sdk-generator` to build the executable product. You can then copy the output binary to a location in your `$PATH` to start using it.
+- **Building it from source**: You can simply clone the repository and execute `swift run swift-sdk-generator` followed by any options or arguments to start using it.
+
+The generator relies on a tool called [zstd](https://formulae.brew.sh/formula/zstd) which is not installed by default on macOS. You can install it using [Homebrew](https://brew.sh/) by running the following command:
+
+```bash:Terminal
+brew install zstd
+```
+
+### Creating an SDK
+
+Now that you have all dependencies installed, you can create an SDK by running the following command:
+
+```bash:Terminal
+swift run swift-sdk-generator
+```
+
+At the time of writing this article, by default, running `swift run swift-sdk-generator` with no arguments will create a bundle for cross-compiling Swift code to `Ubuntu 22.04` with the latest stable version of Swift. It will also set both the target and host architectures to that of the host (the machine you are building the bundle on).
+
+If you want to override any of these defaults, you can use the following options:
+
+- `swift-branch`: If you'd like to use a development toolchain of Swift, you can set this argument to the branch name in the Swift repo.
+- `swift-version`: The version of Swift you'd like to use.
+- `linux-distribution-name`: Whether you want to use `Ubuntu` or `rhel` (Red Hat Enterprise Linux).
+- `linux-distribution-version`: The version of the Linux distribution you'd like to use.
+- `target-arch`: The architecture you'd like to target.
+- `host-arch`: The architecture of the host machine that will be used to cross-compile the Swift code.
+
+> Note that if the options that the generator gives you out of the box are not enough for your use case and you'd like to, for example, provide an extra set of libraries to the bundle, you can base your SDK on a Docker image (either custom or pre-built) instead by using the `--with-docker` and `--from-container-image` options. You can also find [a list of official Swift Docker images on Swift's Docker Hub page](https://hub.docker.com/_/swift).
+
+After the command finishes running, you should see a new directory called `Bundles` with the new SDK you can use to cross-compile Swift code.
+
 ## Installing a Swift SDK
 
+Now that you have a Swift SDK bundle, you can install it using in your system using the `swift experimental-sdk install` command and passing it the path to the artifact bundle:
+
+```bash:Terminal
+swift experimental-sdk install Bundles/5.9.1-RELEASE_ubuntu_jammy_aarch64.artifactbundle
+```
+
+If the command succeeds, you should be able to see the newly-installed SDK by running `swift experimental-sdk list`.
+
 ## Cross-compiling Swift packages with Swift SDKs
+
+Now that you have a Swift SDK installed, you can use it to cross-compile a Swift package by passing the `--experimental-swift-sdk` flag to the `swift build` command with the name of the installed SDK.
+
+```bash:Terminal
+cd DemoSwiftPackage
+swift build --experimental-swift-sdk 5.9.1-RELEASE_ubuntu_jammy_aarch64
+```
