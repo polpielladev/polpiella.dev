@@ -3,3 +3,28 @@ title: 'Using Swift SDKs to cross-compile Swift packages'
 excerpt: ''
 pubDate: 2023-11-24
 ---
+
+As a developer for Apple platforms, you will be familiar with cross-compiling code for different platforms such as iOS, macOS, tvOS and watchOS with very minimal setup and directly from Xcode or using the latest Swift toolchain.
+
+However, if you'd like to compile Swift code for other platforms such as Linux, you need a lot more setup
+
+## What are Swift SDKs?
+
+First introduced in the [SE-0387](https://github.com/apple/swift-evolution/blob/main/proposals/0387-cross-compilation-destinations.md) proposal and built into SPM (from versions of Swift 5.9 and above), Swift SDKs are artifact bundles which contain all necessary files to cross-compile Swift code for specific platforms.
+
+Swift SDKs can be retrieved, installed and used with the same `swift` command line tool you use to compile Swift code by passing it the `experimental-sdk` flag:
+
+```bash:Terminal
+# List all installed Swift SDKs
+swift experimental-sdk list
+# Install a Swift SDK
+swift experimental-sdk install <bundle-path-or-url>
+# Remove an installed SDK
+swift experimental-sdk remove <sdk-id-or-bundle-name>
+```
+
+## Creating a Swift SDK
+
+## Installing a Swift SDK
+
+## Cross-compiling Swift packages with Swift SDKs
