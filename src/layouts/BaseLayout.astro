@@ -60,13 +60,13 @@ const isNewsletter = pathname.includes('/newsletter')
   </head>
   <body
     class="flex min-h-screen flex-col max-w-[1200px] px-4 mx-auto justify-between dark:bg-gray-900">
+    <div
+      class="absolute -z-50 inset-0 bg-[url(/assets/background.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:invert">
+    </div>
     <Header activeNav={activeNav} />
     <main class={`flex flex-col flex-auto ${center ? 'items-center' : ''}`}>
       <slot />
     </main>
     <Footer />
-    <div
-      class="absolute left-0 top-0 -z-50 h-[350px] w-full bg-gradient-to-b from-violet-200 to-transparent dark:from-violet-900">
-    </div>
   </body>
 </html>
