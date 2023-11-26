@@ -8,129 +8,110 @@ import BaseLayout from '@layouts/BaseLayout.astro'
   description="Help me continue to create content and open source projects by sponsoring me."
   activeNav="sponsor"
   image="">
-  <section>
-    <div class="max-w-2xl mb-20">
-      <h1
-        class="text-4xl mb-4 font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-        Want to become a sponsor? 🤝
-      </h1>
-      <p
-        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-300">
-        Help me continue to create content for my blog and open source projects
-        by sponsoring me.
-      </p>
-      <a
-        href="mailto:hi@polpiella.dev?subject=We%20want%20to%20sponsor%20you!"
-        class="inline-flex items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-300 dark:focus:ring-violet-900 transition-colors">
-        Book a slot
-        <svg
-          class="w-3.5 h-3.5 ml-2"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 10">
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
-      </a>
-    </div>
-  </section>
-  <section class="flex flex-col gap-2">
-    <div class="grid md:grid-cols-2 gap-12">
-      <div class="space-y-2">
-        <header class="font-title text-3xl mb-5 dark:text-white">
-          What's in it for you?
-        </header>
-        <ul
-          class="space-y-2 text-gray-500 list-inside text-lg dark:text-gray-300">
-          <li class="flex items-center">
-            🎰 A slot showing in every blog post across my site.
-          </li>
-          <li class="flex items-center">
-            📢 A Linkedin post announcing the sponsorship to 1k+ followers.
-          </li>
-
-          <li class="flex items-center">
-            🐦 A tweet announcing the sponsorship to 1k+ followers.
-          </li>
-
-          <li class="flex items-center">🏠 An ad in the home page.</li>
-          <li class="flex items-center">
-            📈 Comprehensive analytics reports with the data you need.
-          </li>
-
-          <li class="flex items-center">
-            🤝 You'll be helping create free content for everyone.
-          </li>
-
-          <li class="flex items-center">
-            🚀 You'll help me maitain and create Open-Source projects!
-          </li>
-
-          <li class="flex items-center">
-            📱 My content is exclusively mobile focused.
-          </li>
-        </ul>
-      </div>
-      <div class="flex flex-col gap-2 w-full">
-        <p class="text-sm text-gray-500 dark:text-gray-300">
-          💡 An example of what your sponsor slot would look like.
+  <div class="flex flex-col gap-8 max-w-2xl mx-auto">
+    <section class="scroll-smooth flex flex-col max-w-4xl mx-auto">
+      <div class="max-w-3xl my-8 space-y-5 text-center mx-auto">
+        <h1
+          class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-5xl dark:text-white">
+          Want to become a sponsor?
+        </h1>
+        <p
+          class="text-lg font-normal text-gray-700 lg:text-xl dark:text-gray-300">
+          polpiella.dev is a blog about iOS development with a focus on CI/CD,
+          tooling and automation. It's read by over 7,000 developers every month
+          and is updated with a new article every week.
         </p>
-        <BlogSponsor />
+
+        <a
+          href="mailto:hi@polpiella.dev?subject=I would like to sponsor polpiella.dev"
+          class="inline-flex items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-300 dark:focus:ring-violet-900 transition-colors">
+          Book a slot for 2024
+          <svg
+            class="w-3.5 h-3.5 ml-2"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10">
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+          </svg>
+        </a>
+        <div
+          class="flex gap-3 flex-wrap text-center mx-auto items-center justify-center">
+          <p
+            class="text-md font-normal text-gray-700 lg:text-lg dark:text-gray-300">
+            Trusted by these previous sponsors:
+          </p>
+          <a class="w-24" href="https://runway.team"
+            ><img class="dark:invert" src="/assets/sponsors/runway-logo.svg" />
+          </a>
+        </div>
       </div>
-    </div>
-  </section>
-  <section class="bg-white dark:bg-gray-900">
-    <div
-      class="flex flex-col gap-8 max-w-screen-xl px-4 py-8 mx-auto text-center lg:py-16 lg:px-6">
+    </section>
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-4">
+      <header class="font-title text-2xl dark:text-white">Pricing</header>
+      <ul class="list-disc list-inside">
+        <li
+          class="text-lg mb-4 font-normal text-gray-700 lg:text-xl dark:text-gray-300">
+          One week of sponsorship: <strong>£750</strong>.
+        </li>
+        <li
+          class="text-lg mb-4 font-normal text-gray-700 lg:text-xl dark:text-gray-300">
+          4 weeks of sponsorship: <strong>£2500</strong>, saving a whole <strong
+            >£500</strong
+          >!
+        </li>
+      </ul>
+    </section>
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-4">
       <header class="font-title text-2xl dark:text-white">
-        More about me and the blog
+        What do sponsored slots look like?
       </header>
-      <dl
-        class="grid max-w-screen-md gap-8 mx-auto text-gray-900 sm:grid-cols-3 dark:text-white">
-        <div class="flex flex-col items-center justify-center">
-          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-300">
-            <strong class="text-violet-600 font-semibold dark:text-violet-400"
-              >Twitter</strong
-            > and <strong
-              class="text-violet-600 font-semibold dark:text-violet-400"
-              >Linkedin</strong
-            > followers
-          </dd>
-        </div>
-        <div class="flex flex-col items-center justify-center">
-          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">10k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-300">
-            monthly blog <strong
-              class="text-violet-600 font-semibold dark:text-violet-400"
-              >page views</strong
-            >
-          </dd>
-        </div>
-        <div class="flex flex-col items-center justify-center">
-          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">7k+</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-300">
-            monthly <strong
-              class="text-violet-600 font-semibold dark:text-violet-400"
-              >unique visitors</strong
-            >
-          </dd>
-        </div>
-        <div class="flex flex-col items-center justify-center">
-          <dt class="mb-2 text-3xl md:text-4xl font-extrabold">1</dt>
-          <dd class="font-light text-gray-500 dark:text-gray-300">
-            article <strong
-              class="text-violet-600 font-semibold dark:text-violet-400"
-              >every week</strong
-            >
-          </dd>
-        </div>
-      </dl>
-    </div>
-  </section>
+      <BlogSponsor variant="small" />
+      <a
+        href="/core-data-migration-app-group"
+        class="text-lg underline text-violet-800 mb-4 font-normal lg:text-xl dark:text-violet-300"
+        >You can see it in context in any of the site's articles.</a
+      >
+    </section>
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-4">
+      <header class="font-title text-2xl dark:text-white">Stats</header>
+      <ul
+        class="text-lg mb-4 font-normal text-gray-700 lg:text-xl dark:text-gray-300 flex flex-col gap-3 list-disc list-inside">
+        <li>10k+ monthly views.</li>
+        <li>7k+ unique visitors.</li>
+        <li>100+ blog posts published so far.</li>
+        <li>Over 3k+ followers on social media across Linkedin and Twitter.</li>
+        <li>
+          Over 200k impressions on social media posts across Linkedin and
+          Twitter.
+        </li>
+      </ul>
+    </section>
+    <section class="bg-white dark:bg-gray-900 flex flex-col gap-4">
+      <header class="font-title text-2xl dark:text-white">
+        What you will get
+      </header>
+      <ul
+        class="text-lg mb-4 font-normal text-gray-700 lg:text-xl dark:text-gray-300 flex flex-col gap-3 list-disc list-inside">
+        <li>A sponsored slot in 100+ blog posts across the whole site.</li>
+        <li>
+          A <strong>tweet</strong> with a shoutout to your account announcing the
+          sponsorship.
+        </li>
+        <li>
+          A <strong>LinkedIn post</strong> with a shoutout to your account announcing
+          the sponsorship.
+        </li>
+        <li>
+          A permanent place in the <strong>trusted by</strong> section of this page
+          alongside all past sponsors.
+        </li>
+      </ul>
+    </section>
+  </div>
 </BaseLayout>
