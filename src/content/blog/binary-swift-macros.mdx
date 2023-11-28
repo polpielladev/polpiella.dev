@@ -76,6 +76,13 @@ Next, go to the target where you want to use the macro's `Build Settings` in Xco
 
 ![]()
 
+Finally, as you're no longer using the Swift package's library product with the macro definition, you will need to declare it in your target's source files. To do so, create a new Swift file and copy the macro definition from the Swift package over:
+
+```swift:StringifyMacro.swift
+@freestanding(expression)
+public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "StringifyMacros", type: "StringifyMacro")
+```
+
 ## Using the macro in a CocoaPods library
 
 ```
