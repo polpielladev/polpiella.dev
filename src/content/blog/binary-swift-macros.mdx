@@ -72,7 +72,7 @@ Now that you have the macro binary ready, you can import it into your project in
 
 First, drag and drop the binary you created in the last section into the directory where your project's `.xcodeproj` file is located. I would recommend moving it into the root directory of the project (next to the `.xcodeproj` file) and creating a new directory called `Macros` to keep things tidy.
 
-Next, go the target where you want to use the macro's `Build Settings` in Xcode and look for the `Other Swift Flags` settings under the `Swift Compiler - Custom Flags` section. You will need to add the `-load-plugin-executable-macros` to this setting followed by a string composed of the path to the binary you just created and the name of the `.macro` target in your swift package joined by a hash symbol (e.g. `macros/StringifyMacros#StringifyMacros`):
+Next, go to the target where you want to use the macro's `Build Settings` in Xcode and look for the `Other Swift Flags` settings under the `Swift Compiler - Custom Flags` section. You will need to add the `-load-plugin-executable-macros` to this setting followed by a string composed of the path to the binary you just created and the name of the `.macro` target in your swift package joined by a hash symbol (e.g. `macros/StringifyMacros#StringifyMacros`):
 
 ![]()
 
