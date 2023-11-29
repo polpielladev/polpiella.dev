@@ -6,7 +6,7 @@ pubDate: 2023-11-29
 
 Swift Macros are a powerful **new feature introduced in Swift 5.9** that allows developers to **generate code at compile time**. They are a great way to reduce boilerplate code and help scale your codebase by leveraging the **power of metaprogramming**.
 
-Due to the way they are implemented and their tight coupling with SPM, Swift macros **can only be defined in Swift packages** and, as such, they are usually imported into Xcode projects such as iOS apps or frameworks as **SPM dependencies**.
+Due to the way they are implemented and their tight coupling with SPM, Swift macros **are usually defined in Swift packages** and, as such, they are usually imported into Xcode projects such as iOS apps or frameworks as **SPM dependencies**.
 
 While this is fine in most cases, there are certain situations where you might not want or be able to import the macro as a Swift package dependency. For example, you might want to use a macro in a CocoaPods library or obfuscate its source code.
 
@@ -117,8 +117,6 @@ This is the binary you are interested in as it contains the macro definitions an
 
 To find the binary, navigate to the `.build > release` directory and you should see a file named after the `.macro` target in your package manifest (e.g. `StringifyMacros`).
 
-> Considering you don't need the macro definition library for this to work, I tried to replace it with a single executable product associated with the macro target to see if I could still get the same binary output but, as soon as I did, Xcode started crashing! 🤪
-
 ## Importing the macro binary into your target
 
 Now that you have the binary ready, you can import it into your project by making a couple of changes to the target where you want to use your new macro.
@@ -139,3 +137,41 @@ public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "S
 ```
 
 That's it! You are now ready to use your new macro in your project 🎉.
+
+## Does the macro even need to be a macro target? Or a Swift Package? 🤪
+
+Considering you don't need the macro definition library for this to work, I tried to replace it with a single executable product associated with the macro target to see if I could still get the same binary output but, as soon as I did, Xcode started crashing! 🤪
+
+This made me think that the macro target is probably doing something special under the hood to make a special binary for consumers to use but then I remembered that [Pedro](https://twitter.com/pepicrft) mentioned in [his article](https://pepicrft.me/blog/2023/11/08/swift-macros-with-xcodeproj-native-blocks) that to get macros to work in a [Tuist](https://twitter.com/tuistio) project you just need to create a macOS executable target with the right code in it, so I decided to give it a go in my Swift Package.
+
+I removed all targets and products from the package manifest and replaced them with a single executable target called `StringifyMacros` containing the same code as the original `.macro` target:
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+
+import PackageDescription
+
+let package = Package(
+    name: "Stringify",
+    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
+    products: [
+        .executable(name: "StringifyMacros", targets: ["StringifyMacros"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
+    ],
+    targets: [
+        .executableTarget(
+            name: "StringifyMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ]
+        ),
+    ]
+)
+```
+
+I compiled the package again and imported the resulting binary into my Xcode project and, to my surprise, it worked!
+
+This means that you don't need to have a macro target or even a Swift package to create and use a Swift macro in your project, which opens the door to a lot of interesting use cases and possibilities.
