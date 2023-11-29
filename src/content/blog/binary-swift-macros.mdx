@@ -1,48 +1,99 @@
 ---
-title: 'How to import Swift macros into your project as binaries'
-excerpt: '.'
+title: 'How to import Swift macros without using Swift Package Manager'
+excerpt: 'How to compile a Swift macro into a binary and import it into your Xcode project without using Swift Package Manager.'
 pubDate: 2023-11-28
 ---
 
+Swift Macros are a powerful **new feature introduced in Swift 5.9** that allows developers to **generate code at compile time**. They are a great way to reduce boilerplate code and help scale your codebase by leveraging the **power of metaprogramming**.
+
+Due to the way they are implemented and their tight coupling with SPM, Swift macros **can only be defined in Swift packages** and, as such, they are usually imported into Xcode projects such as iOS apps or frameworks as **SPM dependencies**.
+
+While this is fine in most cases, there are certain situations where you might not want or be able to import the macro as a Swift package dependency. For example, you might want to use a macro in a CocoaPods library or obfuscate its source code.
+
+In these cases, and as I will show you in this article, you might want to import your macro into your Xcode project as a **binary** instead and not as an SPM dependency.
+
+## Prior art and resources
+
+Before getting started with this week's topic, I wanted to give credit to and share a few resources that helped me get this working and that showed me this was possible in the first place 👏:
+
+- [Integrating Swift Macros with Xcodeproj native blocks by Pedro Piñera](https://pepicrft.me/blog/2023/11/08/swift-macros-with-xcodeproj-native-blocks): In this article, [Pedro](https://twitter.com/pepicrft) goes through how [Tuist](https://twitter.com/tuistio) uses SPM to resolve dependencies and then immediately maps them into Xcode targets and how, with a series of steps not too dissimilar to what I will show you in this article, you can use this principle to add a macro to your [Tuist](https://twitter.com/tuistio) project.
+- [Swift Forums thread](https://forums.swift.org/t/how-to-import-macros-using-methods-other-than-swiftpm/66645): This thread on the Swift forums has a lot of useful information on the process of importing a binary macro into an Xcode project.
+
 ## Creating a Swift macro
 
-There are two easy ways to create a Swift macro: using Xcode's template or using the `swift package` command line tool.
+First things first, how do you create a Swift macro? Well, there are two easy ways to do it: using Xcode or calling `swift package` from the command line tool.
 
-The outcome of both methods is identical and, making use of a template, will create a Swift package with a ready-to-use example freestanding macro called `#stringify`.
+Both methods eventually yield the same result and create a Swift package with a ready-to-use example macro called `#stringify`.
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+
+import PackageDescription
+import CompilerPluginSupport
+
+let package = Package(
+    name: "Stringify",
+    platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
+    products: [
+        .library(
+            name: "Stringify",
+            targets: ["Stringify"]
+        ),
+        .executable(
+            name: "StringifyClient",
+            targets: ["StringifyClient"]
+        ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
+    ],
+    targets: [
+        .macro(
+            name: "StringifyMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ]
+        ),
+        .target(name: "Stringify", dependencies: ["StringifyMacros"]),
+        .executableTarget(name: "StringifyClient", dependencies: ["Stringify"])
+    ]
+)
+```
 
 By default, the structure for a Swift macro usually consists of three targets:
 
-1. The `library` target: This target will usually be named after the macro itself (in this case `Stringify`) and its purpose will be to expose the macro as part of its public API to its consumers.
-2. The `macro` target: This target's name will usually be the macro name followed by the word `Macros` (in this case `StringifyMacros`) and the target will contain the list and implementation of all macros defined in the package.
-3. **Optional** The `executable` target: This target's name will usually be the macro name followed by the word `Client` (in this case `StringifyClient`) and will allow you to test the macro in the same way its consumers will. This target is optional really, you can get rid of it and achieve the same coverage through unit tests.
+1. A `library` target (`Stringify`) that exposes the macro definition as part of its public API to its consumers.
+2. A `macro` target (`StringifyMacros`) that contains the list and implementation of all macros defined in the package.
+3. **Optional** An `executable` target (`StringifyClient`) that allows you to test the macro in the same way its consumers will. This target is optional and you can use unit tests to validate the macro's behavior instead if you prefer.
 
 Alongside these targets, you will usually have two products defined in the package's manifest:
 
-1. A `library` product: This product is associated with the `library` target and it is the one the consumers of this package will use to import the macro into their projects when using Swift Package Manager.
-2. **Optional** An `executable` product: This product is associated with the `executable` target above and its only use is to provide a way to test and run the macro in a standalone environment.
+1. A `library` product associated with the `library` target that consumers of this package will use to import the macro into their projects when using Swift Package Manager.
+2. **Optional** An `executable` product associated with the `executable` target that provides a way to test and run the macro in a standalone environment.
 
 ### Using Xcode
 
-If you'd like to create a Swift macro using Xcode, you first need to create a new Swift package by clicking on `File > New > Swift Package...` and then selecting the `Macro` template:
+If you'd like to create a Swift macro using Xcode, you first need to create a new Swift package by clicking on `File > New > Swift Package...` menu and then selecting the `Macro` template from the list:
 
-![]()
+![](/assets/posts/binary-swift-macros/macro-template.webp)
 
-Next, give the package a name and select a location for it:
+Next, you must give the package a name and select a location where you want to save it:
 
-![]()
+![](/assets/posts/binary-swift-macros/macro-name.webp)
 
 ### Using `swift package init`
 
-You can achieve the same result as above directly from the terminal.
+You can also create a macro directly from the terminal in two simple steps.
 
-To do so, create a new directory for your macro and navigate to it:
+First, create a new directory for your macro and navigate into it:
 
 ```bash:Terminal
 mkdir stringify-macro
 cd stringify-macro
 ```
 
-Next, use the `swift` command line tool to create a new Swift package using the `package init` command and the `--type` flag set to `macro`:
+Next, use the `swift` command line tool to create a new Swift package using the `package init` command and setting the `--type` flag to `macro`:
 
 ```bash:Terminal
 swift package init --name Stringify --type macro
@@ -50,9 +101,9 @@ swift package init --name Stringify --type macro
 
 ## Compiling a macro into a binary
 
-As I mentioned at the beginning of this article, there might be situations where you might not want or be able to import the macro into your project as a Swift package dependency.
+As I mentioned at the beginning of this article, there might be situations where **you might not want or be able to import the macro** into your project as a Swift package dependency. In that case, you can compile the macro into a binary and import it directly into your Xcode.
 
-In that case, you can compile the macro into a binary and import it directly. The first step to do so is to build the macro into a binary by navigating into the package directory and using the `swift build` command:
+To do so, navigate into the package directory and call the `swift build` command with the release configuration:
 
 ```bash:Terminal
 cd stringify-macro
@@ -60,31 +111,31 @@ cd stringify-macro
 swift build -c release
 ```
 
-At this point you might be wondering, how can we compile the macro into a binary if we haven't defined it as a product? If you remember correctly, we only had two products defined in the package's manifest: a `library` that exposes the macro for clients to use and an `executable` target for testing purposes.
+Contrary to what you might think, even though the `.macro` target (`StringifyMacros`) is not declared as an executable product, a binary will still be generated for it by SPM so that it can be implicitly used by consumers of the macro when importing the package.
 
-Due to the way Swift Package Manager works with `.macro` targets and the fact that it's imported by the library product, the macro target will be compiled into a binary by default.
+This is the binary you are interested in as it contains the macro definitions and implementations and is the only piece of the package that you need for this use case to work. You will need to do what SPM is _most likely_ doing under the hood to **explicitly import the macro implementation into your Xcode project**.
 
-To find the binary, navigate to the `.build > release` directory and you should find a file called `StringifyMacros` which you will use in the next step to import the macro into your project.
+To find the binary, navigate to the `.build > release` directory and you should see a file named after the `.macro` target in your package manifest (e.g. `StringifyMacros`).
+
+> Considering you don't need the macro definition library for this to work, I tried to replace it with a single executable product associated with the macro target to see if I could still get the same binary output but, as soon as I did, Xcode started crashing! 🤪
 
 ## Importing the macro binary into your target
 
-Now that you have the macro binary ready, you can import it into your project in just a couple of steps.
+Now that you have the binary ready, you can import it into your project by making a couple of changes to the target where you want to use your new macro.
 
-First, drag and drop the binary you created in the last section into the directory where your project's `.xcodeproj` file is located. I would recommend moving it into the root directory of the project (next to the `.xcodeproj` file) and creating a new directory called `Macros` to keep things tidy.
+First, drag and drop the binary you created in the last section into the directory where your project lives. I would recommend moving it into the root directory of the project (next to the `.xcodeproj` file) and creating a new directory called `Macros` to keep things tidy.
 
-Next, go to the target where you want to use the macro's `Build Settings` in Xcode and look for the `Other Swift Flags` settings under the `Swift Compiler - Custom Flags` section. You will need to add the `-load-plugin-executable-macros` to this setting followed by a string composed of the path to the binary you just created and the name of the `.macro` target in your swift package joined by a hash symbol (e.g. `macros/StringifyMacros#StringifyMacros`):
+Next, go to the target's `Build Settings` in Xcode and look for the `Other Swift Flags` settings under the `Swift Compiler - Custom Flags` section. You will need to add a flag called `-load-plugin-executable` and set it to a string composed by the path to the binary you just created and the name of the `.macro` target in your package manifest joined by a hash symbol (e.g. `macros/StringifyMacros#StringifyMacros`):
 
-![]()
+![](/assets/posts/binary-swift-macros/other-swift-flags.webp)
 
-Finally, as you're no longer using the Swift package's library product with the macro definition, you will need to declare it in your target's source files. To do so, create a new Swift file and copy the macro definition from the Swift package over:
+Finally, as you're no longer using the Swift package's library product with the macro definition, you will need to declare it in your target's source files to start using it.
+
+To do so, create a new Swift file and copy the macro definition from the Swift package over:
 
 ```swift:StringifyMacro.swift
 @freestanding(expression)
 public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "StringifyMacros", type: "StringifyMacro")
 ```
 
-## Using the macro in a CocoaPods library
-
-```
-
-```
+That's it! You are now ready to use your new macro in your project 🎉.
