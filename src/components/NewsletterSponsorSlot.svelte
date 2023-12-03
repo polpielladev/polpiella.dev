@@ -1,31 +1,30 @@
 <script lang="ts">
+  export let image: string
   export let title: string
-  export let promotionLink: string
+  export let url: string
+  export let description: string
 </script>
 
-<section
-  class="relative mb-5 flex flex-col gap-4 rounded-lg border-2 border-gray-300 p-4 dark:border-gray-800 sm:flex-row sm:items-center">
+<div
+  class="not-prose relative flex items-start gap-2 rounded-lg border-2 border-violet-400 bg-violet-50/75 p-3 shadow-lg dark:bg-violet-600/20">
   <p
-    class="text-md absolute -top-3.5 right-6 m-0 rounded-lg bg-gray-300 px-2 font-medium dark:bg-gray-800">
-    SPONSORED
+    class="absolute right-2 mx-auto rounded-md bg-violet-300 px-2 py-0.5 font-title text-xs shadow [top:-10px] dark:text-black">
+    Sponsored
   </p>
 
   <img
-    class="relative m-0 hidden aspect-square w-36 object-contain px-2 sm:block"
-    src="/assets/sponsors/runway-alt.png"
-    alt="Runway logo" />
+    class="relative hidden aspect-square w-24 object-contain px-2 sm:block"
+    src={image}
+    alt="Sponsor logo" />
 
-  <div class="flex flex-col gap-1">
+  <div class="max-w-md">
     <a
-      href={promotionLink}
-      class="font-title text-xl no-underline hover:underline dark:text-white">
+      href={url}
+      class={`font-title text-lg no-underline hover:underline dark:text-white`}>
       {title}
     </a>
-    <p class="m-0 text-sm leading-relaxed">
-      No more cat-herding, spreadsheets, or steady drip of manual busywork.{' '}
-      <a href={promotionLink}>Runway</a> helps your team level-up your release
-      coordination and automation, from kickoff to release to rollout.
-      <a href={promotionLink}>Get started for free &rarr;</a>
+    <p class={`m-0 text-sm leading-relaxed dark:text-gray-300`}>
+      {description}
     </p>
   </div>
-</section>
+</div>
