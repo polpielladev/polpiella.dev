@@ -5,12 +5,17 @@ layout: /src/layouts/IssueLayout.astro
 ---
 
 import Title from '@components/Title.svelte'
-import NewsletterNewsletterSponsorSlot from '@components/NewsletterNewsletterSponsorSlot.svelte'
+import NewsletterNewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
 import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
 
 <Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
 
-<NewsletterSponsorSlot title="Put your mobile releases on autopilot." url="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2018%26utm_content%3Djun_18_23" description="No more cat-herding, spreadsheets, or steady drip of manual busywork. Runway helps your team level up your release coordination and automation, from kickoff to release to rollout." image="/assets/sponsors/runway-alt.png" />
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  url="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Dweb%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2018%26utm_content%3Djun_18_23"
+  description="No more cat-herding, spreadsheets, or steady drip of manual busywork. Runway helps your team level up your release coordination and automation, from kickoff to release to rollout."
+  image="/assets/sponsors/runway-alt.png"
+/>
 
 Hey everyone! 👋 Welcome to the **eighteenth issue** of the iOS CI Newsletter. Hope
 you've had a great couple of weeks!
