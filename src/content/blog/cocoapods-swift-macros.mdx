@@ -1,0 +1,144 @@
+---
+title: 'Distributing a Swift Macro using CocoaPods'
+excerpt: 'Learn how to create and distribute a Swift macro as a CocoaPods library.'
+pubDate: 2023-12-06
+---
+
+In the last article, [I showed you how you can compile a Swift macro into a binary and import it into your Xcode project without using Swift Package Manager](/binary-swift-macros).
+
+In this article, I want to take it a step further and show you how you can use CocoaPods to distribute a macro binary with no extra setup required by the client.
+
+## Creating a Pod library
+
+Before you can distribute your macro using CocoaPods, you need to create a Pod library that encapsulates the macro binary and exposes the macro API to its clients in a similar way to how Swift Package Manager does it.
+
+This is a relatively simple process, but there are a few things that you need to be aware of.
+
+### Installing CocoaPods
+
+The first thing that you need to do is to install `CocoaPods` if you haven't already. I would recommend you do this using `Bundler` to avoid polluting your system Ruby installation and to ensure that everyone on your team is using the same version of CocoaPods.
+
+You can do this by creating a `Gemfile` in an empty directory:
+
+```bash:Terminal
+mkdir StringifyMacro
+
+bundle init
+```
+
+Next, open the generated `Gemfile` and paste the following:
+
+```ruby:Gemfile
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+gem "cocoapods"
+```
+
+To install the contents of the `Gemfile`, run the following command in the terminal:
+
+```bash:Terminal
+bundle install --path vendor/bundle
+```
+
+This command will install `cocoapods` and all of its dependencies in the repository's directory without needing to install them globally on your system. Once this step is completed, you'll be able to run `pod` commands by calling `bundle exec pod`.
+
+### The Pod library
+
+Now that you have `CocoaPods` installed, you can create a Pod library by running:
+
+```bash:Terminal
+bundle exec pod lib create StringifyMacro
+```
+
+This command will download a template and guide you through several steps to configure the library as you wish. For this article, I'll be making a simple iOS library with no demo application.
+
+### Writing the code
+
+The pod library will be light and will contain a single source file called `StringifyMacro.swift`. This will be the file that contains the public declaration for the macro that clients will use:
+
+```swift:StringifyMacro.swift
+@freestanding(expression)
+public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "StringifyMacros", type: "StringifyMacro")
+
+```
+
+To adhere to the CocoaPods guidelines, you should create this file in the `Classes` directory for the library. This is similar to SPM's `Sources` directory for a given target.
+
+Finally, clients need to access the macro implementation, which you will have in the form of a binary. Create a `macros/` directory next to the `Classes` one and copy the macro binary into it.
+
+> If you are not sure how to create a binary for your macro, I would recommend you check out the [_How to import Swift macros without using Swift Package Manager_ article on my blog](https://www.polpiella.dev/binary-swift-macros).
+
+### Writing the Podspec file
+
+By default, the `pod lib create` command will create a `StringifyMacro.podspec` file for you with some example content. This file contains all the information that CocoaPods needs to know about your library to be able to distribute it.
+
+You will need to modify this file to tell CocoaPods where to find the macro binary and what to do with it:
+
+```ruby:StringifyMacro.podspec
+Pod::Spec.new do |s|
+  s.name             = 'StringifyMacro'
+  s.version          = '0.1.7'
+  s.summary          = 'A proof of concept macro to show they can work with cocoapods.'
+  s.description      = <<-DESC
+A proof of concept macro to show they can work with cocoapods.
+                       DESC
+  s.homepage         = '<homepage>'
+  s.license          = { :type => 'MIT', :file => 'LICENSE' }
+  s.author           = { '<your_name>' => '<your_email>' }
+  s.source           = { :git => '<repository_where_the_spec_lives>', :tag => s.version.to_s }
+  s.ios.deployment_target = '16.0'
+  # 1
+  s.source_files = ['StringifyMacro/Classes/**/*']
+  s.swift_version = "5.9"
+  # 2
+  s.preserve_paths = ["StringifyMacro/macros/StringifyMacros"]
+  # 3
+  s.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-load-plugin-executable ${PODS_ROOT}/StringifyMacro/StringifyMacro/macros/StringifyMacros#StringifyMacros'
+  }
+  # 4
+  s.user_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-load-plugin-executable ${PODS_ROOT}/StringifyMacro/StringifyMacro/macros/StringifyMacros#StringifyMacros'
+  }
+end
+```
+
+Let's break down the important parts of the Podspec file step by step:
+
+1. `CocoaPods` will look for the macro definition file in the `Classes` directory of the library.
+2. The macro binary is not a source file, so you need to tell CocoaPods to preserve it when it copies the source files to the client project so it can be linked against.
+3. Populate the `OTHER_SWIFT_FLAGS` build setting for the pod target with the `-load-plugin-executable` flag and the path to the macro binary.
+4. Step number 3 is not enough to make the macro available to the client project. While the pod target itself will compile, you will get an error when you try and use the macro in the client project saying that the macro implementation could not be found. To fix this, you need to add the same build setting to the client project using the `user_target_xcconfig` property.
+
+## Importing and using the macro
+
+Once you publish the CocoaPod, you can start using it in a project by simply adding the dependency to a specific target:
+
+```ruby:Podfile
+target 'StringifyMacroExample' do
+  use_frameworks!
+
+  pod 'StringifyMacro'
+end
+```
+
+After running `pod install`, you should be able to use the macro in your code like so:
+
+```swift:ViewController.swift
+import SwiftUI
+import StringifyMacro
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Text("Hello, CocoaPods macros!")
+        }
+        .onAppear {
+            print(#stringify(3 + 5))
+        }
+        .padding()
+    }
+}
+```
