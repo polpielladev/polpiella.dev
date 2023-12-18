@@ -1,0 +1,83 @@
+---
+title: 'How to get the most played Apple Music songs and albums using Swift'
+excerpt: '.'
+pubDate: 2023-12-20
+---
+
+It is that time of the year when music streaming services provide users with a recap of their most played songs and albums.
+
+If you are an Apple music user, you will know that the service is no exception and you'll be familiar with its "Apple Music Replay" playlist that is frequently updated with your most played songs.
+
+But what if you are a developer and want to get the user's most played Apple Music songs and albums and use the data in your app? Is that information accessible?
+
+The answer is yes but it is not as straightforward as you might think.
+
+## MusicKit vs MediaPlayer
+
+## Getting the most played songs
+
+```swift:MostPlayedService.swift
+import MusicKit
+import MediaPlayer
+
+final class MostPlayedService {
+    func getMostPlayedSongs(limit: Int = 5) async -> Song? {
+        let query = MPMediaQuery.songs()
+        guard let allSongs = query.items else { return [] }
+
+        let topSongs = try? await allSongs
+            .filter { $0.mediaType == .music && $0.playCount > 0 && $0.lastPlayedDate?.yearString == "2023" }
+            .sorted { $0.playCount > $1.playCount }
+            .prefix(limit)
+            .concurrentMap { getSong(withMusicID: $0.playbackStoreID) }
+            .compactMap { $0 }
+
+        return topSongs ?? []
+    }
+
+    private func getSong(withID id: String) async -> Song? {
+        var songRequest = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
+        songRequest.limit = 1
+        songRequest.properties = [.albums]
+        let response = try? await songRequest.response()
+        return response?.items.first
+    }
+}
+```
+
+## Getting the most played albums
+
+```swift:MostPlayedService.swift
+import MusicKit
+import MediaPlayer
+
+final class MostPlayedService {
+    func getMostPlayedAlbums(limit: Int = 5) async -> Album {
+        let query = MPMediaQuery.albums()
+        guard let allAlbums = query.collections else { return [] }
+
+        let mostPlayedAlbums = try? await allAlbums
+            .filter { $0.mediaTypes == .music }
+            .reduce(into: [String: Int]()) { partialResult, collection in
+                let wasAlbumPlayedInYear = collection.items
+                    .map { $0.lastPlayedDate?.yearString == "2023" }
+                    .contains(true)
+
+                guard let firstItem = collection.representativeItem, wasAlbumPlayedInYear else {
+                    return
+                }
+                // Add up the `playCount`s for all songs in the album
+                let playCount = collection.items.reduce(into: 0) { $0 += $1.playCount }
+                partialResult[firstItem.playbackStoreID] = playCount
+            }
+            .filter { $1 > 0 }
+            .sorted { $0.1 > $1.1 }
+            .map { $0.0 }
+            .prefix(limit)
+            .concurrentMap { await getSong(withMusicID: $0) }
+            .compactMap(\.?.albums?.first)
+
+        return mostPlayedAlbums ?? []
+    }
+}
+```
