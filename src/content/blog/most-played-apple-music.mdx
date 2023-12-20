@@ -4,23 +4,19 @@ excerpt: '.'
 pubDate: 2023-12-20
 ---
 
-It is that time of the year when music streaming services provide users with a recap of their most played songs and albums.
+It is that time of the year when music streaming services provide users with a recap of their most played songs and albums. If you are an Apple music user, you will know that the service is no exception and you'll be familiar with its famous "Apple Music Replay" playlist that is frequently updated with your most played songs of the year.
 
-If you are an Apple music user, you will know that the service is no exception and you'll be familiar with its "Apple Music Replay" playlist that is frequently updated with your most played songs.
-
-But what if you are a developer and want to get the user's most played Apple Music songs and albums and use the data in your app? Is that information accessible?
-
-The answer is yes but it is not as straightforward as you might think.
+But what if you are a **developer and want to show the user's most played Apple Music songs and albums in your app**? Is that information accessible? The answer is **yes** but, as you will see in this article, it is not as straightforward as you might think.
 
 ## MusicKit vs MediaPlayer
 
-When it comes to getting information about the user's music library such as the most played songs, you have two options: [MusicKit](https://developer.apple.com/documentation/musickit) and [MediaPlayer](https://developer.apple.com/documentation/mediaplayer).
+You can use one of two frameworks to retrieve information about the user's music library: [MusicKit](https://developer.apple.com/documentation/musickit) and [MediaPlayer](https://developer.apple.com/documentation/mediaplayer).
 
-As it stands, there is no method or endpoint to retrieve a list of the user's most played songs or albums using either framework. Instead, you need to manually get a list of all the songs or albums in the user's library and then apply some manual logic to filter and sort the results.
+While both frameworks grant you access to a large number of music library information, as it stands, there is **no method or endpoint to retrieve a list of the user's most played songs or albums** in either framework. Instead, you need to manually get a list of all the songs or albums in the user's library and then apply some manual logic to filter and sort the results.
 
-Both frameworks can achieve the same result but while [MusicKit]() is easier to use and requires less manual work from the developer's side, it seems to be slightly slower than [MediaPlayer]() in executing the queries.
+Both frameworks can achieve the same result but while [MusicKit](https://developer.apple.com/documentation/musickit) is easier to use and requires less manual work from the developer's side, it seems to be slightly slower than [MediaPlayer](https://developer.apple.com/documentation/mediaplayer) in executing the queries.
 
-If you're not too concerned about performance and value simplicity, I would thoroughly recommend using [MusicKit](), but I will show you how to use both frameworks in this article so you can decide which one is best for your use case.
+For this reason, if you're not too concerned about **performance** and **value simplicity**, I would thoroughly recommend using [MusicKit](https://developer.apple.com/documentation/musickit), but if performance is important to you, worry not as I will show you how to use both frameworks in this article so you can decide which one is best for your use case.
 
 ## Getting the most played songs
 
@@ -31,6 +27,7 @@ Let's start by getting the most played songs in the user's library for a given y
 ```swift:MostPlayedService.swift
 import MusicKit
 import MediaPlayer
+import CollectionConcurrencyKit
 
 final class MostPlayedService {
     func getMostPlayedSongs(inYear year: Int, limit: Int = 5) async -> [Song] {
@@ -62,6 +59,14 @@ final class MostPlayedService {
 }
 ```
 
+Let's break down the code above step by step:
+
+1. First, get all the songs in the user's library using the `song` static method on `MPMediaQuery`.
+2. Then, only keep the music items that have been played at least once in the given year.
+3. Sort the music items from most played to least played.
+4. Only after the sorting has taken place, keep the number of items specified by the `limit` parameter.
+5. Finally get the full information for the song using `MusicKit` and return the result. Note that I am using the `concurrentMap` method from [John Sundell's CollectionConcurrencyKit](https://github.com/JohnSundell/CollectionConcurrencyKit) to execute all requests concurrently.
+
 ## Using MusicKit
 
 ```swift:MostPlayedService.swift
@@ -89,6 +94,14 @@ final class MostPlayedService {
 }
 ```
 
+Let's break down the code above step by step:
+
+1. First, create a `MusicLibraryRequest` for the `Song` type. This type of request does not query Apple Music's catalog but instead queries the user's library.
+2. Add a sort descriptor to the request to sort the songs by their `playCount` property in descending order.
+3. Execute the request and get the response.
+4. Filter the songs to only keep the ones that have been played at least once in the given year.
+5. As the request has a sort descriptor, we don't manually need to sort the songs again. Instead, we can simply keep the number of songs specified by the `limit` parameter.
+
 ## Getting the most played albums
 
 Let's now see how to get the most played albums in the user's library for a given year using both frameworks. As you will see in the code snippets below, the process is slightly more complex than getting the most played songs as albums don't have `playCount` properties and we need to calculate the play count for each album by summing the play count of all the songs in the album.
@@ -98,6 +111,7 @@ Let's now see how to get the most played albums in the user's library for a give
 ```swift:MostPlayedService.swift
 import MusicKit
 import MediaPlayer
+import CollectionConcurrencyKit
 
 final class MostPlayedService {
     func getMostPlayedAlbums(inYear year: Int, limit: Int = 5) async -> [Album] {
@@ -141,6 +155,18 @@ final class MostPlayedService {
 }
 ```
 
+Let's break down the code above step by step:
+
+1. Similarly to the previous example with songs, first get all the albums in the user's library using the `albums` static method on `MPMediaQuery`.
+2. Filter to only keep the music items.
+3. Reduce the albums to a dictionary where the key is one of the album's songs' `playbackStoreID` and the value is the sum of the play count of all the songs in the album in the given year. The reason for using a song's `playbackStoreID` as the key is that the album media item does not have an id that can be used to fetch the full album information using `MusicKit`.
+4. Filter the albums to only keep the ones that have been played at least once in the given year.
+5. Sort the albums from most played to least played.
+6. Only keep the value from the dictionary, which is the song's `playbackStoreID`.
+7. Only keep the number of albums specified by the `limit` parameter.
+8. Get the full information for the album's song using `MusicKit`. Note that I am using the `concurrentMap` method from [John Sundell's CollectionConcurrencyKit](https://github.com/JohnSundell/CollectionConcurrencyKit) to execute all requests concurrently.
+9. From the song's information, get the album information if available and return the result.
+
 ### Using MusicKit
 
 ```swift:MostPlayedService.swift
@@ -175,3 +201,11 @@ final class MostPlayedService {
     }
 }
 ```
+
+Let's break down the code above step by step:
+
+1. First, create a `MusicLibraryRequest` for the `Album` type. This type of request does not query Apple Music's catalog but instead queries the user's library.
+2. Reduce the albums to a tuple where the first element is the album and the second element is the sum of the play count of all the songs in the album in the given year. The reason for using a tuple is that the album information does not have a `playCount` property and it must be calculated manually.
+3. Sort the albums from most played to least played.
+4. Only keep the number of albums specified by the `limit` parameter.
+5. Only keep the album information from the tuple.
