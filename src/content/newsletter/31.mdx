@@ -1,0 +1,65 @@
+---
+number: 31
+date: 2023-12-17
+layout: /src/layouts/IssueLayout.astro
+---
+
+import Title from '@components/Title.svelte'
+import NewsletterSponsorSlot from '@components/NewsletterSponsorSlot.svelte'
+
+<Title title={`Issue ${frontmatter.number}`} date={frontmatter.date} />
+
+<NewsletterSponsorSlot
+  title="Put your mobile releases on autopilot."
+  url="https://get.runway.team/get-started?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Demail%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2031%26utm_content%3Ddec_17_23"
+  description="No more cat-herding, spreadsheets, or steady drip of manual busywork. Runway helps your team level up your release coordination and automation, from kickoff to release to rollout."
+  image="/assets/sponsors/runway-alt.png"
+/>
+
+_Let's rest and plan for the new year!_
+
+Friday was my last day of work for the year as I decided to book next week and the few days between Christmas and New Year off.
+
+This year has been great professionally but it has also been **very stressful** and **overwhelming** at times.
+
+Between speaking at **several conferences**, keeping up with **weekly articles** and **fortnightly newsletter issues**, a **full-time job**, a **country move** and starting a **new role**, I haven't had a single week off where I could fully disconnect from everything.
+
+I love what I do so I sometimes feel guilty expressing how stressed I sometimes get, but I was very relieved [Dave Verwer](https://twitter.com/daveverwer) also spoke about this in the [latest issue of iOS Dev Weekly](https://iosdevweekly.com/issues/640#start). It was a read I really needed as I could relate with everything Dave was saying and I was inspired to tell my own story too! 🎉
+
+On top of this, this year has been the hardest of my life personally and everything combined has made me take some **much-needed rest** to recharge batteries for the new year.
+
+Having said this, **worry not** as there will still be articles over the next two weeks on my blog and a newsletter issue on the 31st, but I will finish getting them all ready tomorrow so I can relax for the whole Christmas break! 🎅🎄
+
+## [☁️ 25 hours of Xcode Cloud now included with the Apple Developer Program](https://developer.apple.com/news/?id=ik9z4ll6)
+
+Xcode Cloud's free tier of **25 compute hours per month**, which was scheduled to disappear in January 2024, will now be **included** with the Apple Developer Program membership 🎉.
+
+## [⚙️ Configure your GitHub repositories using yaml files](https://www.roger.ml/p/syncing-github-repository-settings?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Demail%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2031%26utm_content%3Ddec_17_23)
+
+In this article, [Roger Oba](https://twitter.com/rogerluan_) goes through how you can configure GitHub repositories **using yaml config files**. This is a great way to **sync settings across multiple repositories** and streamline the **creation** and **configuration** of new ones.
+
+I had no idea you could do this and will be using it from now on 🤯.
+
+## [📦 Distributing Swift macros using CocoaPods](https://www.polpiella.dev/cocoapods-swift-macros?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Demail%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2031%26utm_content%3Ddec_17_23)
+
+I have recently been digging into the **build side of Swift macros** and how they can be distributed and imported without using Swift Package Manager.
+
+In this week's article on my blog, I go through how you can leverage binaries to **distribute** and **import** a Swift macro using [CocoaPods](https://twitter.com/CocoaPods).
+
+## [🎅 Get your releases ready for Christmas!](https://developer.apple.com/news/?id=uijoypq9)
+
+As the festive time of the year approaches again, I would like to remind you that, while **Apple still accepts app submissions**, they say that reviews **may take a bit longer** to complete from **December 22nd to December 27th**.
+
+For this reason, I would recommend you to plan accordingly if there is something big you'd like to release before the end of the year!
+
+## [🚀 A new version of the artifacts action is out!](https://github.blog/changelog/2023-12-14-github-actions-artifacts-v4-is-now-generally-available?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Demail%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2031%26utm_content%3Ddec_17_23)
+
+GitHub announced a couple of days ago that a new version (**v4**) of the first-party [actions/upload-artifact](https://github.com/actions/upload-artifact) and [actions/download-artifact](https://github.com/actions/download-artifact) actions is available.
+
+⚠️ While this release includes **some performance improvements**, it also **includes some breaking changes** so I would thoroughly encourage you [to read the full release notes](https://github.com/actions/upload-artifact/blob/main/README.md#v4---whats-new) before going through with the update!
+
+## [✨ Using Emerge Tools on CI/CD to optimise your app's size](https://blog.codemagic.io/optimising-ios-app-size-emerge-tools-ci-cd?utm_campaign%3DiOS%20CI%20Newsletter%26utm_medium%3Demail%26utm_source%3DiOS%20CI%20Newsletter%20Issue%2031%26utm_content%3Ddec_17_23)
+
+If you have been a subscriber of this newsletter for some time now you will know that I am a big fan of the work that the people at [Emerge Tools](https://twitter.com/emergetools) are doing and how their tools help optimise mobile applications.
+
+In this article in the [Codemagic](https://twitter.com/codemagicio) blog, [Himesh Panchal](https://twitter.com/himesh_p) goes through how you can set up and run [Emerge Tools](http://twitter.com/emergetools)' checks on a CI/CD workflow.

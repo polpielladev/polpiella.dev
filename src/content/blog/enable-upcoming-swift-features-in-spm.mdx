@@ -1,0 +1,98 @@
+---
+title: 'Enable upcoming Swift features in SPM'
+excerpt: 'How to effectively adopt upcoming Swift 6 features in your Swift packages today.'
+pubDate: 2023-12-13
+---
+
+The [SE-0362](https://github.com/apple/swift-evolution/blob/main/proposals/0362-piecemeal-future-features.md) Swift Evolution proposal, implemented and available from Swift 5.8, allows you to adopt upcoming Swift features in your code on a per-case basis.
+
+This is useful if you want to benefit from features that you would otherwise not be able to in Swift Packages until Swift 6 is released. The reason for such features not being available by default is to **preserve source compatibility** with older Swift versions and will **not be enabled by default until the next major version of Swift**.
+
+> There is also an [amazing post on swift.org](https://www.swift.org/blog/using-upcoming-feature-flags/) by [James Dempsey](https://twitter.com/jamesdempsey) going into great detail about the feature. I wanted to provide a more concise version of the same information for my future self, as well as a more up-to-date list of upcoming feature flags as of today.
+
+## How it works
+
+The way you enable upcoming Swift features in your Swift packages is by passing the `-enable-upcoming-feature` flag to the Swift compiler with the name of the feature you'd like to enable.
+
+For example, if you want to enable the `InternalImportsByDefault` feature, you'd pass the `-enable-upcoming-feature InternalImportsByDefault` flag to the compiler.
+
+As part of the proposal and to ease the adoption of upcoming Swift features, there is a new `.enableUpcomingFeature` method you can use on the `swiftSettings` property of your Swift package manifest:
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+
+import PackageDescription
+
+let package = Package(
+    name: "UpcomingFeatures",
+    products: [
+        .library(
+            name: "UpcomingFeatures",
+            targets: ["UpcomingFeatures"]),
+    ],
+    dependencies: [
+    ],
+    targets: [
+        .target(
+            name: "UpcomingFeatures",
+            swiftSettings: [
+                .enableUpcomingFeature("InternalImportsByDefault")
+            ]
+        )
+    ]
+)
+```
+
+This saves you from having to pass the `-enable-upcoming-feature` flag to the compiler manually through the `.unsafeFlags` method, which, as the documentation states, makes products that use such unsafe flags ineligible for use by other Swift packages.
+
+## Feature-proofing your work
+
+If you'd like to check whether a feature is available before using it, you can use the `hasFeature` compiler directive in your code:
+
+```swift:Regex.swift
+#if hasFeature(UpcomingFeatures)
+fileprivate import MyDependency
+#else
+import MyDependency
+#endif
+```
+
+This way, if at some point you decide to no longer adopt a new feature, your code will still compile.
+
+## Finding upcoming features
+
+Finding upcoming feature flags is simple, you just need to go to the [swift-evolution](https://www.swift.org/swift-evolution/) site and search for any proposal that contains the `Upcoming Feature Flag` label in the description:
+
+![An image showing what a proposal with an upcoming feature label looks like](/assets/posts/enable-upcoming-swift-features-in-spm/upcoming.webp)
+
+To save you a bit of time, I have gone through and listed them all here:
+
+1. [SE-0274](https://github.com/apple/swift-evolution/blob/main/proposals/0274-magic-file.md): `ConciseMagicFile`.
+2. [SE-0286](https://github.com/apple/swift-evolution/blob/main/proposals/0286-forward-scan-trailing-closures.md): `ForwardTrailingClosures`.
+3. [SE-0335](https://github.com/apple/swift-evolution/blob/main/proposals/0335-existential-any.md): `ExistentialAny`.
+4. [SE-0354](https://github.com/apple/swift-evolution/blob/main/proposals/0354-regex-literals.md): `BareSlashRegexLiterals`.
+5. [SE-0384](https://github.com/apple/swift-evolution/blob/main/proposals/0384-importing-forward-declared-objc-interfaces-and-protocols.md): `ImportObjcForwardDeclarations`.
+6. [SE-0401](https://github.com/apple/swift-evolution/blob/main/proposals/0401-remove-property-wrapper-isolation.md): `DisableOutwardActorInference`.
+7. [SE-0409](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md): `InternalImportsByDefault`.
+8. [SE-0411](https://github.com/apple/swift-evolution/blob/main/proposals/0411-isolated-default-values.md): `IsolatedDefaultValues`.
+9. [SE-0413](https://github.com/apple/swift-evolution/blob/main/proposals/0413-typed-throws.md): `FullTypedThrows`.
+
+I wanted to provide a small script that would allow you to fetch the full list of upcoming feature flags from the [Swift Evolution site's JSON source file](https://download.swift.org/swift-evolution/proposals.json), but unfortunately, and as stated in the site's JS source code, the `upcomingFeatureFlag` property is not yet returned in the `proposals.json` file:
+
+```javascript:swift-evolution.js
+/**
+ * Mapping of proposal ids to upcoming feature flags.
+ * Temporary until upcomingFeatureFlag property is returned in proposals.json.
+ */
+const upcomingFeatureFlags = new Map([
+  ['SE-0274', 'ConciseMagicFile'],
+  ['SE-0286', 'ForwardTrailingClosures'],
+  ['SE-0335', 'ExistentialAny'],
+  ['SE-0354', 'BareSlashRegexLiterals'],
+  ['SE-0384', 'ImportObjcForwardDeclarations'],
+  ['SE-0401', 'DisableOutwardActorInference'],
+  ['SE-0409', 'InternalImportsByDefault'],
+  ['SE-0411', 'IsolatedDefaultValues'],
+  ['SE-0413', 'FullTypedThrows'],
+])
+```
