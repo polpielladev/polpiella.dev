@@ -3,3 +3,82 @@ title: 'How to use Stable Diffusion models in a Swift app'
 excerpt: 'How to load and use local Stable Diffusion models in a Swift app using CoreML and ml-stable-diffusion.'
 pubDate: 2024-01-03
 ---
+
+I have recently been learning about how to use Stable Diffusion models in an iOS app using [Apple's open-source ml-stable-diffusion Swift package](https://github.com/apple/ml-stable-diffusion/tree/main).
+
+The library runs Stable Diffusion pipelines by loading [CoreML]() models from the filesystem and then using them to generate images from a given input image.
+
+In this article, I will show you how to use and generate CoreML models to then use them in a Swift app using Apple's open-source library.
+
+## Existing CoreML Stable Diffusion models
+
+As [the Swift package's README.md states](), there are already some Stable Diffusion models that have been converted to CoreML and are available for download from [HuggingFace]().
+
+Let's download one of them ([apple/coreml-stable-diffusion-v1-5-palettized]()) using `git` and inspect its contents:
+
+```bash:Terminal
+git lfs install
+git clone git@hf.co:apple/coreml-stable-diffusion-v1-5-palettized
+```
+
+Once the download is complete, you should have a folder with the model's name in your current directory with the following content:
+
+```bash:plaintext
+coreml-stable-diffusion-v1-5
+├── original
+│   ├── compiled
+│   └── packages
+└── split_einsum
+    ├── compiled
+    └── packages
+```
+
+As you can see, for each variation of the package, there are two directories:
+
+- **compiled**: This version of the model contains the necessary `merges.txt`, `vocab.json` and `.mlmodelc` files to be loaded using the Swift package.
+- **packages**: This version of the model contains several `.mlpackage` files to be loaded using the python interface of Apple's library.
+
+Now that we know which files are necessary to load a model in Swift, let's initialise the SDK, load the model and generate an image based on a prompt:
+
+```swift:main.swift
+import Foundation
+import StableDiffusion
+import CoreML
+
+func generate(prompt: String, numberOfImages: Int) async throws -> [CGImage] {
+    // 1
+    guard let resourcesURL = Bundle.module.url(forResource: "Resources", withExtension: nil)?.path() else {
+        return []
+    }
+    let url = URL(fileURLWithPath: resourcesURL)
+    // 2
+    let configuration = MLModelConfiguration()
+    configuration.computeUnits = .all
+    // 3
+    let pipeline = try StableDiffusionPipeline(resourcesAt: url,
+                                               controlNet: [],
+                                               configuration: configuration,
+                                               disableSafety: false,
+                                               reduceMemory: false)
+    try pipeline.loadResources()
+    // 4
+    var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
+    pipelineConfig.negativePrompt = "low resolution, blurry"
+    pipelineConfig.seed = UInt32.random(in: (0..<UInt32.max))
+    pipelineConfig.guidanceScale = 7
+    pipelineConfig.stepCount = 20
+    pipelineConfig.imageCount = numberOfImages
+
+    // 5
+    return try pipeline.generateImages(configuration: pipelineConfig, progressHandler: { _ in })
+        .compactMap { $0 }
+}
+```
+
+A lot is going on in the code above, so let's break it down step by step:
+
+1. Get the path to the `Resources` folder of the model, which contains the `.mlmodelc`, `merges.txt` and `vocab.json` files you downloaded earlier.
+2. Create a CoreML model configuration and set the `computeUnits` to `.all` to use all available compute units on the device.
+3. Initialise the `StableDiffusionPipeline` from Apple's library using the `resourcesAt` parameter to load the model from the filesystem.
+4. Create a `StableDiffusionPipeline.Configuration` object with the prompt and other parameters to generate the images.
+5. Call the `generateImages` method on the pipeline to generate the images.
