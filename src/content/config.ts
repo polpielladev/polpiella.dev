@@ -8,10 +8,4 @@ export const collections = {
       pubDate: z.date(),
     }),
   }),
-  newsletter: defineCollection({
-    schema: z.object({
-      number: z.number(),
-      date: z.date(),
-    }),
-  }),
 }

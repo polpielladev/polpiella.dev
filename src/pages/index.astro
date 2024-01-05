@@ -2,10 +2,8 @@
 import BaseLayout from '@layouts/BaseLayout.astro'
 import BlogPreview from '@components/BlogPreview.svelte'
 import { getCollection } from 'astro:content'
-import Subscribe from '@components/Subscribe.svelte'
 import MediaGrid from '@components/media/MediaGrid.astro'
 import TitledGrid from '@components/TitledGrid.svelte'
-// import UpcomingTalks from '@components/UpcomingTalks.svelte'
 import BlogSponsor from '@components/BlogSponsor.svelte'
 
 const posts = await getCollection('blog')
@@ -35,7 +33,6 @@ const sortedPosts = posts
           about all things iOS, Swift and software development best practices. I
           also have a newsletter about iOS CI/CD if you want to subscribe 👇.
         </p>
-        <Subscribe centered={false} />
       </div>
       <div class="">
         <BlogSponsor />
