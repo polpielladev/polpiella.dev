@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/newsletter",
+      "destination": "https://www.ioscinewsletter.com",
+      "permanent": true
+    },
+    {
+      "source": "/newsletter/:path*",
+      "destination": "https://www.ioscinewsletter.com/issues/:path*",
+      "permanent": true
+    }
+  ]
+}
