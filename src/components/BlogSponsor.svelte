@@ -24,7 +24,7 @@
 
   <div class={`${variant == 'small' ? 'my-auto' : ''} max-w-xs`}>
     <a
-      href="https://apps.apple.com/nl/app/gola-goal-tracking/id1661833753?l=en"
+      href="https://apps.apple.com/app/apple-store/id1661833753?pt=670995&ct=Pol%20Piella&mt=8"
       class={`font-title ${
         variant == 'default' ? 'text-lg' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
@@ -34,9 +34,8 @@
       class={`m-0 ${
         variant == 'default' ? 'text-sm' : 'text-xs'
       } text-sm leading-relaxed dark:text-gray-300`}>
-      Achieving your goals has never been as fun as it is with Gola. Don’t have
-      any goals? No worries! With over 20 templates, you get inspired and
-      challenge yourself today!
+      Achieving your goals has never been as fun as it is with Gola. Challenge
+      yourself today!
     </p>
   </div>
 </div>
