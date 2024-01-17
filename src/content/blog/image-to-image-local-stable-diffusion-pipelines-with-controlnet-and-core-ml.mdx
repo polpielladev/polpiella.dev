@@ -1,24 +1,26 @@
 ---
 title: 'Image to image local Stable Diffusion pipelines with ControlNet in Swift'
-excerpt: ''
+excerpt: 'How to use Core ML and Swift to modify existing images with Stable Diffusion and ControlNet.'
 pubDate: 2024-01-17
 ---
 
-A couple of weeks ago, I wrote an article about how to load Stable Diffusion models in Swift and generate images from text prompts.
+A couple of weeks ago, I wrote [an article about how to load Stable Diffusion models in Swift and generate images from text prompts](https://www.polpiella.dev/stable-diffusion-swift-apps).
 
-In this article, I want to expand on that and show you a new feature I have been working on for [QReate](https://getqreate.app): AI-generated QR codes.
+In this article, I want to expand on that and show you a new feature I have been working on for my [QReate](https://getqreate.app): **AI-generated QR codes**.
 
-The feature works by passing an image of a QR code to a Stable Diffusion image-to-image pipeline, which takes a prompt from the user and then changes the looks of the QR code to match the prompt.
+The feature works by passing an image of a QR code to a **Stable Diffusion image-to-image pipeline**, which takes a prompt from the user and then changes the look of the QR code to match the prompt's description.
 
-Sounds easy right? Well, there's a pretty important caveat: we need to make sure that the QR code is still readable after the transformation. To ensure this, we need to provide our pipeline with a ControlNet model which has been trained specifically to preserve the readability of QR codes. For this feature, I used [Dion Timmer's ControlNet model](), which works great!
+Sounds easy right? Well, there's a pretty important caveat: **we need to make sure that the QR code is still readable after the transformation**. To ensure this, we need to provide our pipeline with a ControlNet model which has been trained specifically to preserve the readability of QR codes. Specifically, I used [Dion Timmer's ControlNet model](https://huggingface.co/DionTimmer/controlnet_qrcode-control_v1p_sd15), which works great!
 
 Just as an example, by the end of this article, you will know how to generate QR codes like this one:
 
 ![](/assets/posts/image-to-image-local-stable-diffusion-pipelines-with-controlnet-and-core-ml/darth-vader.webp)
 
+Cool, right? Let's get started!
+
 ## Converting ControlNet models to Core ML
 
-Let's start by converting [DionTimmer's ControlNet model]() along with the [Runway's Stable Diffusion v1.5 model]() to CoreML following the script I described in my previous article:
+Let's start by converting [DionTimmer's ControlNet model](https://huggingface.co/DionTimmer/controlnet_qrcode-control_v1p_sd15) along with the [Runway's Stable Diffusion v1.5 model](https://huggingface.co/runwayml/stable-diffusion-v1-5) to CoreML using Apple's script I showed in my previous article:
 
 ```bash:Terminal
 python -m python_coreml_stable_diffusion.torch2coreml \
@@ -38,13 +40,13 @@ The command above looks very similar to the one I used in my previous article, b
 1. `--unet-support-controlnet`: This tells the script to generate a `Unet` model that supports `ControlNet`.
 2. `--convert-controlnet DionTimmer/controlnet_qrcode-control_v1p_sd15`: This tells the script to convert a `ControlNet` model from HuggingFace to CoreML.
 
-The script might take some time to run but, once it finishes, it will generate a `Resources` folder which you can bring directly into your project for testing.
+The script might take some time to run but, once it finishes, it will generate a `Resources` folder which you can bring directly into your project.
 
-> If you're unsure about what these files are, how to import them or about best practices when dealing with large CoreML models, make sure you check out [my previous article on the topic]().
+> If you're unsure about what these files are, how to import them or want to learn about best practices when dealing with large CoreML models, make sure you check out [my previous article on the topic](https://www.polpiella.dev/stable-diffusion-swift-apps).
 
 ## Loading the models in Swift
 
-Let's now load these models into a `StableDiffusionPipeline` using [Apple's ml-stable-diffusion Swift Package]():
+Let's now load these models into a `StableDiffusionPipeline` using [Apple's ml-stable-diffusion Swift Package](https://github.com/apple/ml-stable-diffusion/tree/main):
 
 ```swift:StableDiffusionPipeline.swift
 import Foundation
@@ -98,12 +100,12 @@ As there is a lot that I covered in my previous article and the code is fairly s
 
 1. Pass the name of the `ControlNet` model to use in the pipeline. The string passed here should match the name of the model in the `Resources` folder.
 2. Load the start image from disk, resize it to the scale that the model expects and convert it to a `CGImage`. If you pass an image that is too big or too small, the pipeline will throw an error.
-3. Pass a negative prompt to the pipeline. In this case, I used the one [this model on the Replicate API uses]() as it seems to work very well.
+3. Pass a negative prompt to the pipeline. In this case, I used the one [this model on the Replicate API uses](https://replicate.com/nateraw/qrcode-stable-diffusion) as it seems to work very well.
 4. Set the starting image in the pipeline configuration and also pass it as a `ControlNet` input.
 5. Set the strength of the pipeline to a number below 1. This is important as Apple's Stable Diffusion SDK will only set the pipeline mode to **image-to-image if both the strength is below 1 and there is a starting image**.
-6. Set the `guidanceScale` to the value that works for your use case. In this case, I used the same value that [this model on the Replicate API uses]() and it seems to do the job well.
+6. Set the `guidanceScale` to the value that works for your use case. In this case, I used the same value that [this model on the Replicate API uses](https://replicate.com/nateraw/qrcode-stable-diffusion) and it seems to do the job well.
 
-> I want to give a massive shout-out to Dion Timmer's effort in putting together both the model and some amazing documentation as well as [Nathan Raw]() for coming up with the Replicate API endpoint and open-sourcing the code, they were both very helpful to find correct values to work with.
+> I want to give a massive shout-out to [Dion Timmer](https://twitter.com/diontimmermusic)'s effort in putting together both the model and some amazing documentation as well as [Nathan Raw](https://replicate.com/nateraw) for coming up with the Replicate API endpoint and open-sourcing the code, they were both very helpful to find correct values to work with.
 
 ## Results
 
