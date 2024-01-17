@@ -6,7 +6,7 @@ pubDate: 2024-01-17
 
 A couple of weeks ago, I wrote an article about how to load Stable Diffusion models in Swift and generate images from text prompts.
 
-In this article, I want to expand on that and show you a new feature I have been working on for QReate: AI-generated QR codes.
+In this article, I want to expand on that and show you a new feature I have been working on for [QReate](https://getqreate.app): AI-generated QR codes.
 
 The feature works by passing an image of a QR code to a Stable Diffusion image-to-image pipeline, which takes a prompt from the user and then changes the looks of the QR code to match the prompt.
 
@@ -14,7 +14,7 @@ Sounds easy right? Well, there's a pretty important caveat: we need to make sure
 
 Just as an example, by the end of this article, you will know how to generate QR codes like this one:
 
-![]()
+![](/assets/posts/image-to-image-local-stable-diffusion-pipelines-with-controlnet-and-core-ml/darth-vader.webp)
 
 ## Converting ControlNet models to Core ML
 
@@ -101,3 +101,22 @@ As there is a lot that I covered in my previous article and the code is fairly s
 3. Pass a negative prompt to the pipeline. In this case, I used the one [this model on the Replicate API uses]() as it seems to work very well.
 4. Set the starting image in the pipeline configuration and also pass it as a `ControlNet` input.
 5. Set the strength of the pipeline to a number below 1. This is important as Apple's Stable Diffusion SDK will only set the pipeline mode to **image-to-image if both the strength is below 1 and there is a starting image**.
+6. Set the `guidanceScale` to the value that works for your use case. In this case, I used the same value that [this model on the Replicate API uses]() and it seems to do the job well.
+
+> I want to give a massive shout-out to Dion Timmer's effort in putting together both the model and some amazing documentation as well as [Nathan Raw]() for coming up with the Replicate API endpoint and open-sourcing the code, they were both very helpful to find correct values to work with.
+
+## Results
+
+Now that the pipeline is set up, let's run a couple of prompts and check out the Results
+
+### Prompt: Darth Vader from Star Wars
+
+May the force be with you!
+
+![](/assets/posts/image-to-image-local-stable-diffusion-pipelines-with-controlnet-and-core-ml/darth-vader.webp)
+
+### Prompt: A dark-eyed Junco
+
+The prompt is a bit longer than that and [I got it from this Reddit post](https://www.reddit.com/r/StableDiffusion/comments/14h907j/qrcodes_with_qrcodecontrol_v11p_sd21/). 🐦😅
+
+![](/assets/posts/image-to-image-local-stable-diffusion-pipelines-with-controlnet-and-core-ml/junco.webp)
