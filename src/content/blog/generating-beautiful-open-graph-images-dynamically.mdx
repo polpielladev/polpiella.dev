@@ -1,0 +1,144 @@
+---
+title: 'Generating beautiful open-graph images dynamically'
+excerpt: ''
+pubDate: 2024-01-17
+---
+
+I usually write about Swift and mobile app development but, as I have been working on an interesting and challenging project this week that is outside my comfort zone, I thought I would share it with you and write about it regardless.
+
+[Hidde](https://twitter.com/hiddevdploeg) and I have launched a new feature this week to [NowPlaying's website](https://nowplaying.page) that allows users to share any song via a single link from the app so that anyone they share it with can open it in their streaming platform of choice.
+
+This was a challenging feature that required building a new page on the website, mirroring a lot of the app's functionality on the web and making sure that we optimized the page for SEO as much as we could.
+
+But of all the challenges we faced, the one that I found most interesting and that I am most proud of is the **ability to generate beautiful open-graph images** that show the album art dynamically based on the link that the user shares:
+
+![NowPlaying open-graph image](/assets/posts/generating-beautiful-open-graph-images-dynamically/og.webp)
+
+## Creating an endpoint
+
+The first thing we did was to create an endpoint on the website that would receive the album artwork URL and the background and text colors from Apple Music's API, generate the open-graph image based on this data and then return it as a `png` image.
+
+We decided to pass the necessary data as **query parameters** so that we could keep the endpoint simple and make it handle only `GET` requests:
+
+```javascript:og.js
+// Astro-specific code to make the endpoint server-side
+export const prerender = false;
+
+export async function GET({ url }) {
+  const { searchParams } = url;
+  const artworkURL = searchParams.get("url");
+  const textColor = searchParams.get("textColor");
+  const bgColor = searchParams.get("bgColor");
+
+  if (!artworkURL || !textColor || !bgColor) {
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found'
+    });
+  }
+
+  return new Response(
+    JSON.stringify({
+      body: 'Hello World!',
+    })
+  );
+}
+```
+
+The syntax might vary slightly depending on the language and setup of your server. For context, the example above uses [Astro's server endpoints feature](https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes), which is the framework we use to build our website.
+
+As you can see, the `/og` endpoint supports receiving `GET` requests and expects all required data to be passed as query parameters. If the data is not present, it returns a `404` error.
+
+## Generating the image
+
+The most common way of generating open-graph images is by openning a headless browser window using a tool like [Puppeteer](https://pptr.dev) or [Playwright](https://playwright.dev), rendering HTML and CSS on it and then taking a screenshot of the result.
+
+A lot of websites have dedicated html pages and routes that simply serve the purpose of generating og-images image using this approach and **never actually get shown to the user**.
+
+While this is a valid approach, it is not the most efficient one and can slow down the generation of the open-graph images for your site. Instead, we can use a library like [Vercel's satori](https://github.com/vercel/satori) to render the HTML and CSS directly into an SVG and then convert it to a `png` image, which makes the process a lot simpler and **does not require spinning up a browser**.
+
+Unfortunately, [satori](https://github.com/vercel/satori) **only supports JSX** and expects you to provide **React-like element objects** if you do not want to use JSX, as was our case. Thankfully though, [Nate Moore](https://twitter.com/n_moore?lang=en) has created an amazing library built on top of [satori](https://github.com/vercel/satori) called [satori-html](https://github.com/natemoo-re/satori-html), which allows you to use HTML and CSS directly and takes care of converting it to the format that [satori](https://github.com/vercel/satori) expects.
+
+After writing the markup in vanilla HTML and CSS, converting it into a format that [satori](https://github.com/vercel/satori) expects with [satori-html](https://github.com/natemoo-re/satori-html) and rendering it into an SVG using [satori](https://github.com/vercel/satori), our endpoint converts the resulting SVG into a `png` using [resvg](https://github.com/RazrFalcon/resvg) and return it as the response to the request:
+
+```javascript:og.js
+import { Resvg } from "@resvg/resvg-js";
+import satori from "satori";
+import { html } from "satori-html";
+
+export const prerender = false;
+
+export async function GET({ url }) {
+  const { searchParams } = url;
+  const artworkURL = searchParams.get("url");
+  const textColor = searchParams.get("textColor");
+  const bgColor = searchParams.get("bgColor");
+
+  if (!artworkURL || !textColor || !bgColor) {
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found'
+    });
+  }
+
+  const markup = html`<html>
+    <body style="margin: 0; padding: 0">
+      <div
+        style="display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; overflow: hidden; position: relative;"
+      >
+        <div
+          style="display: flex; left: 0; right: 0; top: 0; bottom: 0; position: absolute; background-image: url(${artworkURL}); background-size: 100%; background-repeat: no-repeat; background-position: center; filter: blur(40px); opacity: 0.75;"
+        ></div>
+        <img
+          src="${artworkURL}"
+          style="width: 70%; object-fit: cover; bottom: -25%; border-radius: 14px; box-shadow: 0px 0px 3px rgba(0,0,0, 0.2), 0px 7px 14px rgba(0,0,0, 0.3); border: 2.343718px solid rgba(151,151,151, 1);"
+        />
+        <svg
+          style="height: 80px; width: 80px; float: right; bottom: 40px; right: 52px; position: absolute;"
+          height="32"
+          viewBox="0 0 32 32"
+          width="32"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="#${textColor}"
+            fill-rule="evenodd"
+            transform="translate(1.2 1)"
+          >
+            <path
+              d="m32 20.8108108v9.1891892l-17.0589499-.0002081c-.026359.0001387-.0527342.0002081-.0791254.0002081-8.20801437 0-14.8619247-6.7157288-14.8619247-15 0-8.28427125 6.65391033-15 14.8619247-15 8.2080143 0 14.8619247 6.71572875 14.8619247 15 0 1.2584111-.1535371 2.4806284-.4427359 3.6486106l-9.9382961.0003084c.7983523-.9974294 1.2764295-2.266825 1.2764295-3.648919 0-3.2092222-2.577641-5.81081081-5.7573222-5.81081081-3.1796813 0-5.75732219 2.60158861-5.75732219 5.81081081s2.57764089 5.8108108 5.75732219 5.8108108z"
+            />
+            <circle cx="14.8" cy="15" r="1" />
+          </g>
+        </svg>
+      </div>
+    </body>
+  </html>`;
+
+  // Minimum twitter OG image size
+  const svg = await satori(markup, {
+    width: 1200,
+    height: 675,
+  });
+
+  const png = new Resvg(svg, { background: "#" + bgColor }).render().asPng();
+
+  return new Response(png, { headers: { "Content-Type": "image/png" } });
+}
+```
+
+> Note that [satori](https://github.com/vercel/satori) does [not support all HTML elements and CSS properties](https://github.com/vercel/satori#html-elements), so it might take some trial and error to get the result you want.
+
+## Using the new endpoint
+
+Now that we had the image generation working, we just needed to add a line to the page's `<head>` element to tell the browser that the page has an open-graph image:
+
+```html:SongPage.astro
+<head>
+  <meta property="og:image" content="/og?albumArt={encodeURI(albumArt)}&background={background}&text={text}" />
+</head>
+```
+
+And that's it! Now, whenever a user shares a link to a song on NowPlaying, the image will be generated dynamically and will show a stunning preview of the song's album art. One of the most fun features I have worked on in a while!
+
+![Preview of a link shared from the NowPlaying app](/assets/posts/generating-beautiful-open-graph-images-dynamically/preview.webp)
