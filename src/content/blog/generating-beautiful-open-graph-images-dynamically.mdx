@@ -4,19 +4,21 @@ excerpt: ''
 pubDate: 2024-01-17
 ---
 
-I usually write about Swift and mobile app development but, as I have been working on an interesting and challenging project this week that is outside my comfort zone, I thought I would share it with you.
+I usually write about Swift and mobile app development but, as I have been working on an interesting and challenging project this week that is outside my comfort zone, I thought I would share it with you and write about it regardless.
 
-[Hidde](https://twitter.com/hiddevdploeg) and I have launched a new feature to [NowPlaying's website](https://nowplaying.page) that allows users to share a single link from the app so that their friends can open it in their streaming platform of choice without needing to have the app installed.
+[Hidde](https://twitter.com/hiddevdploeg) and I have launched a new feature this week to [NowPlaying's website](https://nowplaying.page) that allows users to share any song via a single link from the app so that anyone they share it with can open it in their streaming platform of choice.
 
 This was a challenging feature that required building a new page on the website, mirroring a lot of the app's functionality on the web and making sure that we optimized the page for SEO as much as we could.
 
-But of all the challenges we faced, the one that I found most interesting and that I am most proud of is the ability to generate beautiful open-graph images that show the album art dynamically based on the link that the user shares:
+But of all the challenges we faced, the one that I found most interesting and that I am most proud of is the **ability to generate beautiful open-graph images** that show the album art dynamically based on the link that the user shares:
 
 ![NowPlaying open-graph image](/assets/posts/generating-beautiful-open-graph-images-dynamically/og.webp)
 
 ## Creating an endpoint
 
-The way we approached this was to create an endpoint on the website that would take the album art URL, the background and text colors coming back from Apple Music's API as query parameters and then use them to generate the image's UI using HTML and CSS:
+The first thing we did was to create an endpoint on the website that would receive the album artwork URL and the background and text colors from Apple Music's API, generate the open-graph image based on this data and then return it as a `png` image.
+
+We decided to pass the necessary data as **query parameters** so that we could keep the endpoint simple and make it handle only `GET` requests:
 
 ```javascript:og.js
 // Astro-specific code to make the endpoint server-side
@@ -43,21 +45,21 @@ export async function GET({ url }) {
 }
 ```
 
-The syntax might vary depending on the language and setup of your server but, in our case, we are using [Astro](https://astro.build) and Javascript for our website, so we used [Astro's server endpoints feature](https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes).
+The syntax might vary slightly depending on the language and setup of your server. For context, the example above uses [Astro's server endpoints feature](https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes), which is the framework we use to build our website.
 
-As you can see, the `/og` endpoint supports receiving `GET` requests and expects all required data to be passed as query parameters.
+As you can see, the `/og` endpoint supports receiving `GET` requests and expects all required data to be passed as query parameters. If the data is not present, it returns a `404` error.
 
 ## Generating the image
 
-Now that we have all the necessary data, we can use it to generate the image's UI and render it as a `png` image. The most common way of doing this is to use a headless browser like [Puppeteer](https://pptr.dev) or [Playwright](https://playwright.dev) to render HTML and CSS and then take a screenshot of the result.
+The most common way of generating open-graph images is by openning a headless browser window using a tool like [Puppeteer](https://pptr.dev) or [Playwright](https://playwright.dev), rendering HTML and CSS on it and then taking a screenshot of the result.
 
-A lot of websites have dedicated open-graph image pages that simply serve the purpose of generating the image using this approach and never actually show the page to the user.
+A lot of websites have dedicated html pages and routes that simply serve the purpose of generating og-images image using this approach and **never actually get shown to the user**.
 
-While this is a valid approach, it is not the most efficient one and can slow down the generation of the OG images for your site. Instead, we can use a library like [Vercel's satori](https://github.com/vercel/satori) to render the HTML and CSS directly into an SVG and then convert it to a `png` image, which makes the process a lot simpler.
+While this is a valid approach, it is not the most efficient one and can slow down the generation of the open-graph images for your site. Instead, we can use a library like [Vercel's satori](https://github.com/vercel/satori) to render the HTML and CSS directly into an SVG and then convert it to a `png` image, which makes the process a lot simpler and **does not require spinning up a browser**.
 
-Unfortunately, [satori](https://github.com/vercel/satori) only supports JSX and expects you to provide React-like element objects if you do not have a JSX transpiler, as was our case. Thankfully though, [Nate Moore](https://twitter.com/n_moore?lang=en) has created an amazing library built on top of [satori](https://github.com/vercel/satori) called [satori-html](https://github.com/natemoo-re/satori-html), which allows you to use HTML and CSS directly to generate SVGs.
+Unfortunately, [satori](https://github.com/vercel/satori) **only supports JSX** and expects you to provide **React-like element objects** if you do not want to use JSX, as was our case. Thankfully though, [Nate Moore](https://twitter.com/n_moore?lang=en) has created an amazing library built on top of [satori](https://github.com/vercel/satori) called [satori-html](https://github.com/natemoo-re/satori-html), which allows you to use HTML and CSS directly and takes care of converting it to the format that [satori](https://github.com/vercel/satori) expects.
 
-After generating the SVG using [satori-html](https://github.com/natemoo-re/satori-html), we convert it to a `png` using [resvg](https://github.com/RazrFalcon/resvg), which is a Rust library that converts SVGs to `png` images, and we return it as the response to the request:
+After writing the markup in vanilla HTML and CSS, converting it into a format that [satori](https://github.com/vercel/satori) expects with [satori-html](https://github.com/natemoo-re/satori-html) and rendering it into an SVG using [satori](https://github.com/vercel/satori), our endpoint converts the resulting SVG into a `png` using [resvg](https://github.com/RazrFalcon/resvg) and return it as the response to the request:
 
 ```javascript:og.js
 import { Resvg } from "@resvg/resvg-js";
