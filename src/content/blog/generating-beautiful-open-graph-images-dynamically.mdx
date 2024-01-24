@@ -8,7 +8,7 @@ I usually write about Swift and mobile app development but, as I have been worki
 
 [Hidde]() and I have launched a new feature to [NowPlaying's website]() that allows users to share a single link from the app so that their friends can open it in their streaming platform of choice without needing to have the app installed.
 
-This was a challenging feature that required building a new page on the website, to mirror a lot of the app's functionality on the web and make sure that we optimised the page for SEO as much as we could.
+This was a challenging feature that required building a new page on the website, mirroring a lot of the app's functionality on the web and making sure that we optimized the page for SEO as much as we could.
 
 But of all the challenges we faced, the one that I found most interesting and that I am most proud of is the ability to generate beautiful open-graph images that show the album art dynamically based on the link that the user shares:
 
@@ -16,7 +16,7 @@ But of all the challenges we faced, the one that I found most interesting and th
 
 ## Creating an endpoint
 
-The way we approached this was to create an endpoint on the website that would take the album art URL, the background and text colours coming back from Apple Music's API as query parameters and then use them to generate the image's UI using HTML and CSS:
+The way we approached this was to create an endpoint on the website that would take the album art URL, the background and text colors coming back from Apple Music's API as query parameters and then use them to generate the image's UI using HTML and CSS:
 
 ```javascript:og.js
 
