@@ -1,0 +1,51 @@
+---
+title: 'Generating beautiful open-graph images dynamically'
+excerpt: ''
+pubDate: 2024-01-17
+---
+
+I usually write about Swift and mobile app development but, as I have been working on an interesting and challenging project this week that is outside my comfort zone, I thought I would share it with you.
+
+[Hidde]() and I have launched a new feature to [NowPlaying's website]() that allows users to share a single link from the app so that their friends can open it in their streaming platform of choice without needing to have the app installed.
+
+This was a challenging feature that required building a new page on the website, to mirror a lot of the app's functionality on the web and make sure that we optimised the page for SEO as much as we could.
+
+But of all the challenges we faced, the one that I found most interesting and that I am most proud of is the ability to generate beautiful open-graph images that show the album art dynamically based on the link that the user shares:
+
+![NowPlaying open-graph image](https://www.nowplayingmusic.app/images/og-image.png)
+
+## Creating an endpoint
+
+The way we approached this was to create an endpoint on the website that would take the album art URL, the background and text colours coming back from Apple Music's API as query parameters and then use them to generate the image's UI using HTML and CSS:
+
+```javascript:og.js
+
+```
+
+The syntax might vary depending on the language and setup of your server but, in our case, we are using [Astro]() and Javascript for our website, so we used [Astro's dynamic endpoint feature]().
+
+As you can see, the `/og` endpoint supports receiving `GET` requests and expects all required data to be passed as query parameters.
+
+## Generating the image
+
+Now that we have all the necessary data, we can use it to generate the image's UI and render it as a `png` image. The most common way of doing this is to use a headless browser like [Puppeteer]() to render the HTML and CSS and then take a screenshot of the result.
+
+While this is a valid approach, it is not the most efficient one and can slow down the generation of the OG images for your site. Instead, we can use a library like [Vercel's satori]() to render the HTML and CSS directly into an SVG and then convert it to a `png` image, which makes the process a lot simpler.
+
+Unfortunately, [satori]() only supports JSX and expects you to provide React-like element objects if you do not have a JSX transpiler, as was our case. Thankfully though, [Nate Moore]() has created an amazing library built on top of [satori]() called [satori-html](), which allows you to use HTML and CSS directly to generate SVGs:
+
+```javascript:og.js
+
+```
+
+> Note that [satori]() does [not support all HTML elements and CSS properties](https://github.com/vercel/satori#html-elements), so it might take some trial and error to get the result you want.
+
+## Using the new endpoint
+
+Now that we had the image generation working, we just needed to add a line to the page's `<head>` element to tell the browser that the page has an open-graph image:
+
+```html:SongPage.astro
+<head>
+  <meta property="og:image" content="/og?albumArt={encodeURI(albumArt)}&background={background}&text={text}" />
+</head>
+```
