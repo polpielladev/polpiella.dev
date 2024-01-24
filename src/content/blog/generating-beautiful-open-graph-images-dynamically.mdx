@@ -19,7 +19,28 @@ But of all the challenges we faced, the one that I found most interesting and th
 The way we approached this was to create an endpoint on the website that would take the album art URL, the background and text colors coming back from Apple Music's API as query parameters and then use them to generate the image's UI using HTML and CSS:
 
 ```javascript:og.js
+// Astro-specific code to make the endpoint server-side
+export const prerender = false;
 
+export async function GET({ url }) {
+  const { searchParams } = url;
+  const artworkURL = searchParams.get("url");
+  const textColor = searchParams.get("textColor");
+  const bgColor = searchParams.get("bgColor");
+
+  if (!artworkURL || !textColor || !bgColor) {
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found'
+    });
+  }
+
+  return new Response(
+    JSON.stringify({
+      body: 'Hello World!',
+    })
+  );
+}
 ```
 
 The syntax might vary depending on the language and setup of your server but, in our case, we are using [Astro]() and Javascript for our website, so we used [Astro's dynamic endpoint feature]().
@@ -28,14 +49,80 @@ As you can see, the `/og` endpoint supports receiving `GET` requests and expects
 
 ## Generating the image
 
-Now that we have all the necessary data, we can use it to generate the image's UI and render it as a `png` image. The most common way of doing this is to use a headless browser like [Puppeteer]() to render the HTML and CSS and then take a screenshot of the result.
+Now that we have all the necessary data, we can use it to generate the image's UI and render it as a `png` image. The most common way of doing this is to use a headless browser like [Puppeteer]() or [Playwright]() to render HTML and CSS and then take a screenshot of the result.
+
+A lot of websites have dedicated open-graph image pages that simply serve the purpose of generating the image using this approach and never actually show the page to the user.
 
 While this is a valid approach, it is not the most efficient one and can slow down the generation of the OG images for your site. Instead, we can use a library like [Vercel's satori]() to render the HTML and CSS directly into an SVG and then convert it to a `png` image, which makes the process a lot simpler.
 
-Unfortunately, [satori]() only supports JSX and expects you to provide React-like element objects if you do not have a JSX transpiler, as was our case. Thankfully though, [Nate Moore]() has created an amazing library built on top of [satori]() called [satori-html](), which allows you to use HTML and CSS directly to generate SVGs:
+Unfortunately, [satori]() only supports JSX and expects you to provide React-like element objects if you do not have a JSX transpiler, as was our case. Thankfully though, [Nate Moore]() has created an amazing library built on top of [satori]() called [satori-html](), which allows you to use HTML and CSS directly to generate SVGs.
+
+After generating the SVG using [satori-html], we convert it to a `png` using [resvg](), which is a Rust library that converts SVGs to `png` images, and we return it as the response to the request:
 
 ```javascript:og.js
+import { Resvg } from "@resvg/resvg-js";
+import satori from "satori";
+import { html } from "satori-html";
 
+export const prerender = false;
+
+export async function GET({ url }) {
+  const { searchParams } = url;
+  const artworkURL = searchParams.get("url");
+  const textColor = searchParams.get("textColor");
+  const bgColor = searchParams.get("bgColor");
+
+  if (!artworkURL || !textColor || !bgColor) {
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found'
+    });
+  }
+
+  const markup = html`<html>
+    <body style="margin: 0; padding: 0">
+      <div
+        style="display: flex; align-items: center; justify-content: center; height: 100vh; width: 100vw; overflow: hidden; position: relative;"
+      >
+        <div
+          style="display: flex; left: 0; right: 0; top: 0; bottom: 0; position: absolute; background-image: url(${artworkURL}); background-size: 100%; background-repeat: no-repeat; background-position: center; filter: blur(40px); opacity: 0.75;"
+        ></div>
+        <img
+          src="${artworkURL}"
+          style="width: 70%; object-fit: cover; bottom: -25%; border-radius: 14px; box-shadow: 0px 0px 3px rgba(0,0,0, 0.2), 0px 7px 14px rgba(0,0,0, 0.3); border: 2.343718px solid rgba(151,151,151, 1);"
+        />
+        <svg
+          style="height: 80px; width: 80px; float: right; bottom: 40px; right: 52px; position: absolute;"
+          height="32"
+          viewBox="0 0 32 32"
+          width="32"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="#${textColor}"
+            fill-rule="evenodd"
+            transform="translate(1.2 1)"
+          >
+            <path
+              d="m32 20.8108108v9.1891892l-17.0589499-.0002081c-.026359.0001387-.0527342.0002081-.0791254.0002081-8.20801437 0-14.8619247-6.7157288-14.8619247-15 0-8.28427125 6.65391033-15 14.8619247-15 8.2080143 0 14.8619247 6.71572875 14.8619247 15 0 1.2584111-.1535371 2.4806284-.4427359 3.6486106l-9.9382961.0003084c.7983523-.9974294 1.2764295-2.266825 1.2764295-3.648919 0-3.2092222-2.577641-5.81081081-5.7573222-5.81081081-3.1796813 0-5.75732219 2.60158861-5.75732219 5.81081081s2.57764089 5.8108108 5.75732219 5.8108108z"
+            />
+            <circle cx="14.8" cy="15" r="1" />
+          </g>
+        </svg>
+      </div>
+    </body>
+  </html>`;
+
+  // Minimum twitter OG image size
+  const svg = await satori(markup, {
+    width: 1200,
+    height: 675,
+  });
+
+  const png = new Resvg(svg, { background: "#" + bgColor }).render().asPng();
+
+  return new Response(png, { headers: { "Content-Type": "image/png" } });
+}
 ```
 
 > Note that [satori]() does [not support all HTML elements and CSS properties](https://github.com/vercel/satori#html-elements), so it might take some trial and error to get the result you want.
@@ -49,3 +136,7 @@ Now that we had the image generation working, we just needed to add a line to th
   <meta property="og:image" content="/og?albumArt={encodeURI(albumArt)}&background={background}&text={text}" />
 </head>
 ```
+
+And that's it! Now, whenever a user shares a link to a song on NowPlaying, the image will be generated dynamically and will show a stunning preview of the song's album art. One of the most fun features I have worked on in a while!
+
+![]()
