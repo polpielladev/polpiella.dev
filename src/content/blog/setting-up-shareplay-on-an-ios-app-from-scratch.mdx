@@ -1,30 +1,31 @@
 ---
-title: 'Setting up SharePlay on an iOS app from scratch'
-excerpt: ''
+title: 'Setting up SharePlay on an iOS app'
+excerpt: 'How to configure, start and manage shared experiences in your iOS app using SharePlay.'
 pubDate: 2024-02-07
 ---
 
-I have recently been working on a feature for [NowPlaying]() that leverages the SarePlay APIs to allow users to join listening sessions with their friends.
+I have recently worked on a feature for [NowPlaying](https://nowplaying.page) that leverages iOS's SharePlay APIs to allow users to join listening sessions and discover new music with their friends.
 
-It is the first time I have worked with SharePlay, and I found the documentation and process to set it up a bit confusing, so I decided to write this post to help others who might be in the same situation.
+I struggled a lot to get things working originally and found Apple's documentation to configure SharePlay sessions sparse and a bit confusing. For this reason, I decided to write a comprehensive guide on how to configure a SharePlay session that puts together all my findings.
 
 ## Adding the SharePlay capabilities
 
 The first step to building SharePlay experiences is to add the required capability to your app. You can do so by opening your project in Xcode, selecting the project file and then selecting your target.
 
-In the "Signing & Capabilities" tab, click the "+" button, search for "SharePlay" and add the capability.
+In the "Signing & Capabilities" tab, click the "+" button, search for "Group Activities" and add the capability.
 
-![]()
+![Selecting the Group Activities capability from the target's capability menu in Xcode](/assets/posts/setting-up-shareplay-on-an-ios-app-from-scratch/capability.webp)
 
-## Creating a GroupActivity
+## Creating a Group Activity
 
-SharePlay experiences are built around the concept of `GroupActivity`s, which are types that represent an app's shareable experiences. Creating one is as simple as defining a type (or using an existing one) and making it conform to the `GroupActivity` protocol.
+SharePlay experiences are built around the concept of `GroupActivity`s, which are types that represent an app's shareable experiences.
 
-```swift
+Creating one is as simple as defining a type (or using an existing one) and making it conform to the `GroupActivity` protocol.
+
+```swift:DemoAppActivity.swift
 import GroupActivities
 
 struct DemoAppActivity: GroupActivity {
-
     static let activityIdentifier = "dev.polpiella.demoapp.DemoAppActivity"
 
     var metadata: GroupActivityMetadata {
@@ -44,10 +45,10 @@ As you can see in the example above, the `GroupActivity` protocol requires you t
 
 Now that you have defined your `GroupActivity`, you are ready to start a SharePlay session. There are a few ways you can do so, depending on the state of your app:
 
-- If your app is already in a FaceTime call, you can start the SharePlay session directly.
-- If your app is not in a FaceTime call, you can let the user start a session by presenting a ``.
+- If the user is already on a FaceTime call, you can start the SharePlay session directly.
+- If the user is not on a FaceTime call, you can let them share a session with their friends using a share sheet, which you will implement in a moment.
 
-```swift
+```swift:GroupActivityManager.swift
 import Foundation
 import GroupActivities
 import Combine
@@ -92,15 +93,17 @@ Let's break down the code above step by step:
 2. Create a new instance of your `GroupActivity` and call the `prepareForActivation` method to check if the user has chosen to start a SharePlay session or if they have chosen to start a local session when prompted.
 3. If the user has chosen to start a SharePlay session, call the `activate` method to start the session.
 4. If the user has chosen to not start a SharePlay session, return `.local`.
-5. If the user is not in a FaceTime call, return `.needsDialog` to prompt the user to share the activity.
+5. If the user is not on a FaceTime call, return `.needsDialog` to prompt the user to share the activity with their friends.
 
 ### Starting a SharePlay session from a view
 
 If you want to start a SharePlay session from a view, you can just call the `startSharing` method from the `GroupActivityManager` and handle the outcome accordingly.
 
-If the user is eligible for group sessions, the SharePlay session can begin immediately. If not, you will need to handle the outcome and share the activity with their friends using a [GroupActivitySharingController]():
+If the user is eligible for group sessions and confirms they want to start a shared experience using a system's alert, the SharePlay session will begin immediately.
 
-```swift
+If not, you will need to handle the outcome and share the activity with their friends using a [GroupActivitySharingController](https://developer.apple.com/documentation/groupactivities/groupactivitysharingcontroller-4gtfk?changes=_1):
+
+```swift:GroupActivityShareSheet.swift
 import SwiftUI
 import UIKit
 
@@ -117,10 +120,10 @@ struct GroupActivityShareSheet<Activity: GroupActivity>: UIViewControllerReprese
 
 In your view code, you can just call the `startSharing` method and present `GroupActivityShareSheet` if the outcome is `.needsDialog`:
 
-```swift
+```swift:ContentView.swift
 import SwiftUI
 
-struct SharePlayView: View {
+struct ContentView: View {
     @State private var showDialog = false
     private let activityManager = GroupActivityManager()
 
@@ -154,11 +157,13 @@ struct SharePlayView: View {
 
 ## Managing a SharePlay session
 
-So far you have started a SharePlay session, but at no point have you kept track of the session or managed it.
+So far you have started a SharePlay session, but at no point have you **kept track of the session or managed it**.
 
-To get an instance of the current SharePlay session, you need to use the `sessions()` static property on your `GroupActivity` type. As this property returns an AsyncStream, you can use it to subscribe to listen for new sessions and keep track of the currently active one:
+To get an instance of the current SharePlay session, you need to use the `sessions()` static property on your `GroupActivity` type.
 
-```swift
+As this property returns an [AsyncStream](https://developer.apple.com/documentation/swift/asyncstream), you can use it to subscribe and listen for new sessions and keep track of the currently active one:
+
+```swift:GroupActivityManager.swift
 @Observable final class GroupActivityManager {
     var session: GroupSession<DemoAppActivity>?
     var messenger: GroupSessionMessenger<DemoAppActivity>?
@@ -189,15 +194,15 @@ To get an instance of the current SharePlay session, you need to use the `sessio
 }
 ```
 
-As you can see in the snippet above, as soon as a new session is available, you can let your user join it by calling the `join` method and then start listening for messages using a newly created instance of the `GroupSessionMessenger`.
+As you can see in the snippet above, as soon as a new session is available, you can let your user join it by calling the `join` method and then start listening for messages using a newly created instance of the `GroupSessionMessenger`. You will also use the latter to send messages to other participants later on in the article.
 
-As was the case with the sessions, `messages` is an AsyncStream, so you can use structured concurrency to listen for any new messages and handle them accordingly.
+Instances of `GroupSessionMessenger` have a property called `messages`. This property is an `AsyncStream` that can be used to listen to any new messages and handle them accordingly.
 
 ## Sending messages
 
 Once you have an active session, you can send messages to the other participants using the `send` method on the `GroupSessionMessenger`:
 
-```swift
+```swift:GroupActivityManager.swift
 @Observable final class GroupActivityManager {
     func send(_ message: String) async throws {
         try await messenger?.send(message)
@@ -205,13 +210,13 @@ Once you have an active session, you can send messages to the other participants
 }
 ```
 
-Note that you can send any `Codable` type as a message, but be careful to not send large payloads as otherwise, SharePlay will throw an error.
+Note that you can send any `Codable` type as a message, but you must know that there is a size limit for the messages' payloads you send in a SharePlay session. If you send a message that exceeds the limit, you will receive an error.
 
 ## Keeping count of the participants
 
 Let's say you would like to show a count of the participants in the SharePlay session. You can do so by listening to the `$activeParticipants` property on the `GroupSession`:
 
-```swift
+```swift:GroupActivityManager.swift
 @Observable final class GroupActivityManager {
     var participantCount = 0
     private var cancellables = Set<AnyCancellable>()
@@ -235,14 +240,16 @@ Let's say you would like to show a count of the participants in the SharePlay se
 
 ## Ending a SharePlay session
 
-This particular use case is something that I struggled with during my implementation. There are two ways to end a SharePlay session, and you will want to handle both of them:
+This particular use case is something that I struggled with during my implementation and that I could barely find any documentation about.
+
+There are two ways for a user to end a SharePlay session:
 
 1. The user taps on a button in the app to end the session.
 2. The user leaves the FaceTime call or decides to end the SharePlay session from the system menus.
 
-Let's first handle the first case and allow users to end the session from the app:
+Let's handle the first case and allow users to end the session from the app:
 
-```swift
+```swift:GroupActivityManager.swift
 @Observable final class GroupActivityManager {
     func stop() {
         guard let session else { return }
@@ -258,9 +265,11 @@ As you can see in the snippet above, ending a session is as simple as calling th
 
 > It might be worth noting that there is a method available on the session to simply leave the session without ending it for other participants you might want to use depending on your use case.
 
-Now, as the session will be invalidated, you will need to handle the change of state and clean up any resources for all the participants and not just the one that ended the session. You can do so by listening to the `$state` property on the `GroupSession`:
+Now, as the session will be invalidated, you will need to handle the change of state and clean up any resources for all participants and not just the one that ended the session. Doing this will handle the case where a user decides to end the FaceTime call or the SharePlay session from the system menus.
 
-```swift
+You can react to sessions being invalidated by listening to the `$state` property on the `GroupSession`:
+
+```swift:GroupActivityManager.swift
 @Observable final class GroupActivityManager {
     private func sessionJoined(_ session: GroupSession<DemoAppActivity>) {
         if session.state != .joined { session.join() }
