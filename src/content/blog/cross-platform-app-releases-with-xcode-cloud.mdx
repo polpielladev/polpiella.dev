@@ -1,0 +1,85 @@
+---
+title: 'Automating app releases for multiple platforms with Xcode Cloud'
+excerpt: 'A peek into a real-world example of a release workflow using Xcode Cloud to build and distribute an app with an iOS and a visionOS target.'
+pubDate: 2024-02-14
+---
+
+I recently decided to spend some time automating the release process for [NowPlaying]() and make shipping new versions of the app as simple as possible.
+
+I decided to use Xcode Cloud due to its tight integration with Xcode and App Store Connect and the fact that, as we have an Apple Developer Membership, we would get a tier of 25 compute hours per month at no extra cost!
+
+At the moment, NowPlaying has two targets that we ship to the App Store regularly - one for iOS and one for tvOS. I wanted to create a solution that would allow us to specify which platform we want to release and have the workflow take care of the rest.
+
+## Defining the workflow
+
+While I am taking an iterative approach to the automation and there are things I still want to improve, the workflow I settled on works in the following way:
+
+1. A tag is created in the repository specifying the version number and the platform to release: `iOS/<version>` or `visionOS/<version>`.
+2. Once the tag is pushed, a workflow for the specific platform is triggered.
+3. Before the app is built, the workflow sets the `MARKETING_VERSION` property of all relevant targets for the specified platform to the version number in the tag.
+4. Changes are committed and pushed to the `main` branch of the repository.
+5. The app is built and distributed to TestFlight using Xcode Cloud.
+
+## Setting up the workflow
+
+The first thing I did was to set up the 'iOS Release' workflow. In the general information section, I specified the repository and project to use, as well as checking the 'Restrict Editing' box as it is required for workflows that upload builds for external testing:
+
+![]()
+
+Then, I added a GitHub token with push permissions to the environment variables section and marked it as a secret. This token will be used later on in the workflow to push the version update changes to the repository:
+
+![]()
+
+The workflow has a single start condition - when a tag is created. I specified that the workflow should only run when the tag begins with `iOS/`:
+
+![]()
+
+The workflow only has a single action that archives the app for iOS and prepares it for external testing and distribution to the App Store:
+
+![]()
+
+Last but not least, the workflow needs to upload the build to TestFlight and add it to any relevant groups:
+
+![]()
+
+## Setting up Fastlane
+
+Now that the Xcode Cloud workflow was ready, I needed to build a script that would set the `MARKETING_VERSION` property of the relevant targets to the version number in the tag.
+
+I decided to use Fastlane for this as it is a tool I am familiar with and it provides a lot of actions that make it easy to automate tasks like this.
+
+To install fastlane, I decided to use Ruby's `Bundler` to manage all dependencies and easily install them on CI:
+
+```bash
+bundle init
+```
+
+This created a `Gemfile` at the root of the repository that I then edited to include the `fastlane` and `xcodeproj` gems:
+
+```ruby
+source "https://rubygems.org"
+
+gem "fastlane"
+gem "xcodeproj"
+
+plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
+eval_gemfile(plugins_path) if File.exist?(plugins_path)
+```
+
+Now, after running `bundle install`, I had fastlane installed and ready to use, so I could then initialize the fastlane project with the `bundle exec fastlane init` command.
+
+I also installed a plugin to help me check the `git status` for specific files to then make a decision on whether to commit the changes or not:
+
+```bash
+bundle exec fastlane add_plugin fastlane-plugin-git_status
+```
+
+## Writing the script
+
+The first thing I did after initializing the fastlane project was to create a new lane in the `FastFile` with some logic to read the value of the tag, set the `MARKETING_VERSION` property of the relevant targets and commit the changes to the repository:
+
+```ruby
+
+```
+
+## Future improvements
