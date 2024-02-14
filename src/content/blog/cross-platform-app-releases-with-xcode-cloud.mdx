@@ -4,31 +4,29 @@ excerpt: 'A peek into a real-world example of a release workflow using Xcode Clo
 pubDate: 2024-02-14
 ---
 
-I recently decided to spend some time automating the release process for [NowPlaying](https://nowplaying.page) and make shipping new versions of the app as simple as possible.
+I recently decided to spend some time automating the release process for [NowPlaying](https://nowplaying.page) and make **shipping new versions of the app as simple as possible**.
 
-I decided to use Xcode Cloud due to its tight integration with Xcode and App Store Connect and the fact that, as we have an Apple Developer Membership, we would get a tier of 25 compute hours per month at no extra cost!
+I decided to use Xcode Cloud as our CI/CD solution due to its **tight integration with Xcode and App Store Connect** and the fact that, as we have an Apple Developer Membership, we would get a tier of 25 compute hours per month **at no extra cost**!
 
-At the moment, NowPlaying has two targets that we ship to the App Store regularly - one for iOS and one for tvOS. I wanted to create a solution that would allow us to specify which platform we want to release and have the workflow take care of the rest.
+At the moment, NowPlaying has two targets that we ship to the App Store regularly - one for iOS and one for tvOS. I wanted to create a solution that would allow us to **specify which platform** we want to release and have the workflow take care of the rest.
 
 ## Defining the workflow
 
 While I am taking an iterative approach to the automation and there are things I still want to improve, the workflow I settled on works in the following way:
 
-1. A tag is created in the repository specifying the version number and the platform to release: `iOS/<version>` or `visionOS/<version>`.
-2. Once the tag is pushed, a workflow for the specific platform is triggered.
+1. We manually create a tag in the repository that specifies the **version number** and **platform** we want to ship: `iOS/<version>` or `visionOS/<version>`.
+2. Once the tag is pushed, **a workflow for the specific platform is triggered**.
 3. Before the app is built, the workflow sets the `MARKETING_VERSION` property of all relevant targets for the specified platform to the version number in the tag.
-4. Changes are committed and pushed to the `main` branch of the repository.
-5. The app is built and distributed to TestFlight using Xcode Cloud.
-
-## Setting up the workflows
-
-The first thing I did was to set up the workflows for both platforms: `iOS and `visionOS`.
+4. Changes are **committed and pushed** to the `main` branch of the repository.
+5. The app is **built and distributed** to TestFlight using Xcode Cloud.
 
 ## The iOS Workflow
 
-I started with the iOS workflow and set up all of its steps and information, which I will go through in this section.
+I started setting up the iOS workflow and all of its steps and information, which I will go through in this section.
 
-In the general information section, I specified the repository and project to use, as well as checked the 'Restrict Editing' box as it is required for workflows that upload builds for external testing:
+In the general information section, I specified which **repository and project** to use, as well as checked the 'Restrict Editing' box.
+
+The latter is **required** for workflows that upload builds for external testing:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-general.webp)
 
@@ -36,45 +34,45 @@ Then, I added a GitHub token with push permissions to the environment variables 
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-environment.webp)
 
-The workflow has a single start condition - when a tag is created. I specified that the workflow should only run when the tag begins with `iOS/`:
+The workflow has a single start condition - **when a tag is created**. I specified that the workflow should only run when the tag name is prefixed with `iOS/`:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-tag-changes.webp)
 
-The workflow only has a single action that archives the app for iOS and prepares it for external testing and distribution to the App Store:
+The workflow only has a single action that **archives the app for iOS** and **prepares it for external testing and distribution** to the App Store:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-archive.webp)
 
-Last but not least, the workflow needs to upload the build to TestFlight and add it to any relevant groups:
+Last but not least, the workflow needs to upload the build to TestFlight and add it to any relevant groups of beta testers:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-testflight.webp)
 
 ## The visionOS Workflow
 
-Both the iOS and visionOS workflows are very similar, so I will only highlight the main differences you need to be aware of.
+Both the iOS and visionOS workflows are very similar, so I will only highlight the main differences between the two you need to be aware of.
 
 First, instead of specifying the `iOS/` prefix for the tag, I specified `visionOS/`:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/visionos-tag-changes.webp)
 
-And in the `Archive` action, I changed the scheme and platform:
+And in the `Archive` action, I changed the scheme and platform to the visionOS target:
 
 ![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/visionos-archive.webp)
 
 ## Setting up Fastlane
 
-Now that the Xcode Cloud workflow was ready, I needed to build a script that would set the `MARKETING_VERSION` property of the relevant targets to the version number in the tag.
+Now that the Xcode Cloud workflow was ready, I needed to create a script that would set the `MARKETING_VERSION` property of the relevant targets to the version number in the tag.
 
-I decided to use Fastlane for this as it is a tool I am familiar with and it provides a lot of actions that make it easy to automate tasks like this.
+I decided to use fastlane for this as it is a tool I am familiar with and it provides a lot of actions that make it easy to automate numerous tasks.
 
-To install fastlane, I decided to use Ruby's `Bundler` to manage all dependencies and easily install them on CI:
+To install fastlane, I decided to use Ruby's `Bundler` so that I could manage all dependencies and easily install them on CI:
 
-```bash
+```bash:Terminal
 bundle init
 ```
 
-This created a `Gemfile` at the root of the repository that I then edited to include the `fastlane` and `xcodeproj` gems:
+The command above created a `Gemfile` at the root of the repository that I then edited to include the `fastlane` and `xcodeproj` gems and support loading fastlane plugins:
 
-```ruby
+```ruby:Gemfile
 source "https://rubygems.org"
 
 gem "fastlane"
@@ -84,11 +82,11 @@ plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
 eval_gemfile(plugins_path) if File.exist?(plugins_path)
 ```
 
-Now, after running `bundle install`, I had fastlane installed and ready to use, so I could then initialize the fastlane project with the `bundle exec fastlane init` command.
+Now, after running the `bundle install` command, I had fastlane available locally, so I could then initialize the fastlane project by running the `bundle exec fastlane init` command.
 
-I also installed a plugin to help me check the `git status` for specific files to then decide on whether to commit the changes or not:
+I also installed a plugin to help me check the `git status` for specific files to then decide on whether to commit changes or not:
 
-```bash
+```bash:Terminal
 bundle exec fastlane add_plugin fastlane-plugin-git_status
 ```
 
@@ -168,7 +166,7 @@ bundle exec fastlane bump_version
 
 The script installs all dependencies using `Bundler` and then calls the `bump_version` lane I created in the `FastFile`.
 
-> If you'd like to learn more about all available ci scripts and how to use them in Xcode Cloud, check out [my article on the topic](https://www.polpiella.dev/xcode-cloud-scripts-fastlane-and-cocoapods).
+> If you'd like to learn more **about all available ci scripts** and how to use them in Xcode Cloud, check out [my article on the topic](https://www.polpiella.dev/xcode-cloud-scripts-fastlane-and-cocoapods).
 
 ## Future improvements
 
