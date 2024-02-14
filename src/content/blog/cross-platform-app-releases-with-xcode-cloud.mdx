@@ -4,7 +4,7 @@ excerpt: 'A peek into a real-world example of a release workflow using Xcode Clo
 pubDate: 2024-02-14
 ---
 
-I recently decided to spend some time automating the release process for [NowPlaying]() and make shipping new versions of the app as simple as possible.
+I recently decided to spend some time automating the release process for [NowPlaying](https://nowplaying.page) and make shipping new versions of the app as simple as possible.
 
 I decided to use Xcode Cloud due to its tight integration with Xcode and App Store Connect and the fact that, as we have an Apple Developer Membership, we would get a tier of 25 compute hours per month at no extra cost!
 
@@ -30,23 +30,23 @@ I started with the iOS workflow and set up all of its steps and information, whi
 
 In the general information section, I specified the repository and project to use, as well as checked the 'Restrict Editing' box as it is required for workflows that upload builds for external testing:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-general.webp)
 
 Then, I added a GitHub token with push permissions to the environment variables section and marked it as a secret. This token will be used later on in the workflow to push the version update changes to the repository:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-environment.webp)
 
 The workflow has a single start condition - when a tag is created. I specified that the workflow should only run when the tag begins with `iOS/`:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-tag-changes.webp)
 
 The workflow only has a single action that archives the app for iOS and prepares it for external testing and distribution to the App Store:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-archive.webp)
 
 Last but not least, the workflow needs to upload the build to TestFlight and add it to any relevant groups:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/ios-testflight.webp)
 
 ## The visionOS Workflow
 
@@ -54,11 +54,11 @@ Both the iOS and visionOS workflows are very similar, so I will only highlight t
 
 First, instead of specifying the `iOS/` prefix for the tag, I specified `visionOS/`:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/visionos-tag-changes.webp)
 
 And in the `Archive` action, I changed the scheme and platform:
 
-![]()
+![](/assets/posts/cross-platform-app-releases-with-xcode-cloud/visionos-archive.webp)
 
 ## Setting up Fastlane
 
@@ -168,13 +168,13 @@ bundle exec fastlane bump_version
 
 The script installs all dependencies using `Bundler` and then calls the `bump_version` lane I created in the `FastFile`.
 
-> If you'd like to learn more about all available ci scripts and how to use them in Xcode Cloud, check out [my article on the topic]().
+> If you'd like to learn more about all available ci scripts and how to use them in Xcode Cloud, check out [my article on the topic](https://www.polpiella.dev/xcode-cloud-scripts-fastlane-and-cocoapods).
 
 ## Future improvements
 
 There are a couple of things I would like the workflow to do in the future:
 
-- Automatically update the release notes based on a local file in the repository and handle translations automatically, [as I do in this article on my blog]().
+- Automatically update the release notes based on a local file in the repository and handle translations automatically, [as I do in this article on my blog](https://www.polpiella.dev/setting-testflight-test-notes-for-xcode-cloud-builds).
 - Create a new release in GitHub with the release notes and the tag.
 
 I will keep iterating on this automation and will update the article with any new improvements I make, so make sure to keep an eye on my social media to not miss any updates!
