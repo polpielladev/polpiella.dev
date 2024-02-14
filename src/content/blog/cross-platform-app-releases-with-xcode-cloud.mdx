@@ -20,9 +20,15 @@ While I am taking an iterative approach to the automation and there are things I
 4. Changes are committed and pushed to the `main` branch of the repository.
 5. The app is built and distributed to TestFlight using Xcode Cloud.
 
-## Setting up the workflow
+## Setting up the workflows
 
-The first thing I did was to set up the 'iOS Release' workflow. In the general information section, I specified the repository and project to use, as well as checking the 'Restrict Editing' box as it is required for workflows that upload builds for external testing:
+The first thing I did was to set up the workflows for both platforms: `iOS and `visionOS`.
+
+## The iOS Workflow
+
+I started with the iOS workflow and set up all of its steps and information, which I will go through in this section.
+
+In the general information section, I specified the repository and project to use, as well as checked the 'Restrict Editing' box as it is required for workflows that upload builds for external testing:
 
 ![]()
 
@@ -39,6 +45,18 @@ The workflow only has a single action that archives the app for iOS and prepares
 ![]()
 
 Last but not least, the workflow needs to upload the build to TestFlight and add it to any relevant groups:
+
+![]()
+
+## The visionOS Workflow
+
+Both the iOS and visionOS workflows are very similar, so I will only highlight the main differences you need to be aware of.
+
+First, instead of specifying the `iOS/` prefix for the tag, I specified `visionOS/`:
+
+![]()
+
+And in the `Archive` action, I changed the scheme and platform:
 
 ![]()
 
@@ -68,7 +86,7 @@ eval_gemfile(plugins_path) if File.exist?(plugins_path)
 
 Now, after running `bundle install`, I had fastlane installed and ready to use, so I could then initialize the fastlane project with the `bundle exec fastlane init` command.
 
-I also installed a plugin to help me check the `git status` for specific files to then make a decision on whether to commit the changes or not:
+I also installed a plugin to help me check the `git status` for specific files to then decide on whether to commit the changes or not:
 
 ```bash
 bundle exec fastlane add_plugin fastlane-plugin-git_status
@@ -78,8 +96,85 @@ bundle exec fastlane add_plugin fastlane-plugin-git_status
 
 The first thing I did after initializing the fastlane project was to create a new lane in the `FastFile` with some logic to read the value of the tag, set the `MARKETING_VERSION` property of the relevant targets and commit the changes to the repository:
 
-```ruby
+```ruby:Fastfile
+fastlane_require 'xcodeproj'
 
+# 1
+def set_all_xcodeproj_version_numbers(version_number, platform)
+  project = Xcodeproj::Project.open('../NowPlaying.xcodeproj')
+  targets = project.targets
+  if platform == "ios"
+    targets = targets.select { |target| target.name != "NowPlayingTests" && target.name != "NowPlaying visionOS" }
+  else
+    targets = targets.select { |target| target.name == "NowPlaying visionOS" } if platform == "visionOS"
+  end
+
+  targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings["MARKETING_VERSION"] = version_number
+    end
+  end
+  project.save
+end
+
+desc "Description of what the lane does"
+lane :bump_version do
+  # 2
+  split_git_ref = ENV["CI_TAG"].split("/", -1)
+  version_number = split_git_ref.last
+  platform = split_git_ref.first
+  # 3
+  set_all_xcodeproj_version_numbers(version_number, platform.downcase)
+  # 4
+  if git_status(path: "NowPlaying.xcodeproj/project.pbxproj").empty?
+    puts "🚀 Nothing to commit, pushing the same version again!"
+  else
+    sh("git fetch origin main:main")
+    sh("git checkout main")
+
+    git_commit(path: "NowPlaying.xcodeproj/project.pbxproj", message: "[🚀 release #{platform}] Updating version to: #{version_number}")
+
+    # Push with personal access token to enable permissions in Xcode Cloud
+    sh("git push https://polpielladev:#{ENV["GITHUB_TOKEN"]}@github.com/hiddevdploeg/NowPlaying.git")
+  end
+end
 ```
 
+Let's go through the lane I created step by step:
+
+1. I created a method called `set_all_xcodeproj_version_numbers` that takes the version number and the platform as arguments. This method opens the `NowPlaying.xcodeproj` file and sets the `MARKETING_VERSION` property of all relevant targets to the version number. The `platform` argument is used to determine which targets to update.
+2. I then created a lane called `bump_version` that reads the value of the tag using Xcode Cloud's `CI_TAG` environment variable and uses it to retrieve the version and platform.
+3. The new lane then calls `set_all_xcodeproj_version_numbers` method with the version number and platform as arguments.
+4. Finally the lane checks if the `NowPlaying.xcodeproj/project.pbxproj` file has been modified and, if so, commits the changes to the repository and pushes them to the `main` branch using the GitHub token I added to the environment variables in the Xcode Cloud workflow. If the file has not been modified, the lane prints a message to the console and exits.
+
+Once the lane was ready, I added a new file called `ci_post_clone.sh` in a new `ci_scripts` directory at the root of the repository. This file is executed by Xcode Cloud straight after the repository is cloned and before the actions start.
+
+```bash:ci_post_clone.sh
+#!/bin/sh
+
+cd ..
+
+echo 'export GEM_HOME=$HOME/gems' >>~/.bash_profile
+echo 'export PATH=$HOME/gems/bin:$PATH' >>~/.bash_profile
+export GEM_HOME=$HOME/gems
+export PATH="$GEM_HOME/bin:$PATH"
+
+gem install bundler --install-dir $GEM_HOME
+
+bundle install
+
+bundle exec fastlane bump_version
+```
+
+The script installs all dependencies using `Bundler` and then calls the `bump_version` lane I created in the `FastFile`.
+
+> If you'd like to learn more about all available ci scripts and how to use them in Xcode Cloud, check out [my article on the topic]().
+
 ## Future improvements
+
+There are a couple of things I would like the workflow to do in the future:
+
+- Automatically update the release notes based on a local file in the repository and handle translations automatically, [as I do in this article on my blog]().
+- Create a new release in GitHub with the release notes and the tag.
+
+I will keep iterating on this automation and will update the article with any new improvements I make, so make sure to keep an eye on my social media to not miss any updates!
