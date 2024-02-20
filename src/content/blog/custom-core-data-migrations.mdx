@@ -1,0 +1,17 @@
+---
+title: 'Custom Core Data migrations'
+excerpt: ''
+pubDate: 2024-02-21
+---
+
+It is natural for your app to evolve. As your app and your user base grow, you will need to add new features, remove other ones and change the way your app works. This is a natural way of the software development lifecycle that we should embrace.
+
+And as your app evolves, so does your data model. You will need to change the way your data is structured to accommodate new features while ensuring users don't lose any data across different versions. This is where Core Data migrations come into play.
+
+## What is a Core Data migration?
+
+A Core Data migration is the process of updating your data model to a new version when the shape of your data changes (e.g. adding or removing a new attribute).
+
+In most cases, Core Data will handle the migration process for you automatically. However, there are cases where you will need to customize the migration process by providing a mapping model that tells Core Data exactly how to migrate each attribute and entity from the source entity to the destination one.
+
+There are even use cases where a mapping model won't be enough, and you will need to write a custom migration policy to handle specific migration scenarios. This is the case that I will focus on in this article.
