@@ -15,3 +15,68 @@ A Core Data migration is the process of updating your data model to a new versio
 In most cases, Core Data will handle the migration process for you automatically. However, there are cases where you will need to customize the migration process by providing a mapping model that tells Core Data exactly how to migrate each attribute and entity from the source entity to the destination one.
 
 There are even use cases where a mapping model won't be enough, and you will need to write a custom migration policy to handle specific migration scenarios. This is the case that I will focus on in this article.
+
+## The example
+
+Let's consider an app that stores objects that represent music tracks in a Core Data stack. The model is very simple and contains only one entity: `Track`:
+
+```swift:Track.swift
+import Foundation
+import CoreData
+
+@objc(Track)
+public class Track: NSManagedObject, Identifiable {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Track> {
+        return NSFetchRequest<Track>(entityName: "Track")
+    }
+
+    @NSManaged public var imageURL: String?
+    @NSManaged public var json: String?
+    @NSManaged public var lastPlayedAt: Date?
+    @NSManaged public var title: String?
+    @NSManaged public var artistName: String?
+}
+```
+
+The `Track` entity above has five attributes:
+
+- `imageURL`: A string that represents the URL of the track's cover image.
+- `json`: A string that represents the raw JSON data response from the server.
+- `lastPlayedAt`: A date that represents the last time the track was played.
+- `title`: A string that represents the title of the track.
+- `artistName`: A string that represents the name of the artist.
+
+The Core Data stack does not sync with iCloud and has the following setup:
+
+```swift:CoreDataStack.swift
+import CoreData
+
+struct PersistenceController {
+    static let shared = PersistenceController()
+
+    let container: NSPersistentContainer
+
+    init(inMemory: Bool = false) {
+        container = NSPersistentContainer(name: "CustomMigration")
+        if inMemory {
+            container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
+        }
+
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        if let description = container.persistentStoreDescriptions.first {
+            description.shouldMigrateStoreAutomatically = true
+            description.shouldInferMappingModelAutomatically = false
+        }
+
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+    }
+}
+```
+
+If you pay close attention to the example above, you will notice that we are telling Core Data to migrate the store automatically, as we do not want to do [progressive migrations]() which are orders of magnitude slower and more complex, and we are also telling Core Data not to infer the mapping model automatically, which means that we will have to provide a mapping model file for each migration.
+
+## Updating the model
