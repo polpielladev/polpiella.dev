@@ -2,6 +2,7 @@
 title: 'Cancelling unnecessary GitHub actions automatically'
 excerpt: 'How to make use of the github actions concurrency feature to cancel unnecessary runs automatically. Talking about a real-world example and a tale of two approaches, and why I decided to implement it the way I did.'
 pubDate: 2021-11-26
+layout: ../../layouts/BlogPostLayout.astro
 ---
 
 If you use GitHub actions as your continuos integration solution and you work in a large enough project maintained by a **team of developers**, chances are that you will have dedicated workflows for pull requests, main/master pushes, uploading to the stores, etc. Most of these tend to be **expensive performance wise** and require dedicated CI runners for them to run on, so you want to trigger them only when it is **absolutely necessary** in order not to build a backlog and slow down development for the rest of your team.

@@ -2,6 +2,7 @@
 title: 'Safely pinning SPM dependencies to exact versions'
 excerpt: 'I will show you how code might change across different builds even when depending on an exact version of a Swift Package as well as how to mitigate the risks associated with this.'
 pubDate: 2023-02-15
+layout: ../../layouts/BlogPostLayout.astro
 ---
 
 This week at work we have been looking into migrating third-party [CocoaPods](https://cocoapods.org/) dependencies to Swift Package Manager. We wanted to do this in a way where we maintained the same level of reproducibility and security that we currently had with CocoaPods or, if we couldn't, we reached an acceptable compromise.
