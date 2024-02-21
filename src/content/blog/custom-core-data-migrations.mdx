@@ -94,15 +94,15 @@ To address these issues, let's remove the `artistName` and `json` attributes in 
 
 Let's first create a new model version by selecting the `.xcdatamodeld` file and selecting `Editor > Add Model Version...` from the menu bar.
 
-![]()
+![](/assets/posts/custom-core-data-migrations/add-model-version.webp)
 
 Let's give it a name and base it on the first model version:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/new-model-version.webp)
 
 Now, let's create the `Artist` entity and add all fields:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/artist-entity.webp)
 
 Let's also create the `NSManagedObject` subclass for the new `Artist` entity:
 
@@ -139,7 +139,7 @@ As you can see in the example above, in the same way that we're going to add a t
 
 Let's now add the missing relationship to the `Track` entity and remove the `artistName` and `json` attributes:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/track-entity.webp)
 
 And update the `NSManagedObject` subclass to reflect the changes:
 
@@ -174,21 +174,29 @@ public class Track: NSManagedObject, Identifiable {
 
 Last but not least, let's set the new model as the current one from the `.xcdatamodeld` file:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/current-model-version.webp)
 
 ### Creating a mapping model
 
 As we've told Core Data not to infer mapping models automatically, we will have to create a mapping model file to bridge between the two versions.
 
-Select `File > New > File...` from the menu bar and select `Mapping Model` and select the source and destination model versions:
+Select `File > New > File...` from the menu bar and select `Mapping Model`.
 
-![]()
+![](/assets/posts/custom-core-data-migrations/mapping-model.webp)
+
+Then, select the source model:
+
+![](/assets/posts/custom-core-data-migrations/custom-migration-source.webp)
+
+Finally, select the destination model:
+
+![](/assets/posts/custom-core-data-migrations/custom-migration-destination.webp)
 
 ### Writing a custom migration policy
 
 By default, Core Data will do its best to map the attributes and most of the work will be done for us (including the removed properties).
 
-However, as we have created a new entity and we want to preserve existing data, we will need to tell Core Data how to do the migration.
+However, as we have created a new entity and we want to preserve existing data, we will need to tell Core Data how to migrate.
 
 We will do this by creating a new class that inherits from `NSEntityMigrationPolicy` and creates and links a new relationship on the old `Track` entity to the new `Artist` entity:
 
@@ -201,7 +209,7 @@ struct Song: Decodable {
     struct Artist: Decodable {
         let id: String
         let name: String
-        let imageURL: URL
+        let imageURL: String
     }
 }
 
@@ -253,8 +261,8 @@ Let's break down the code above step by step:
 
 Finally, let's add this custom policy to the mapping model:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/custom-policy.webp)
 
 Now, if we run the app again and inspect the database with [Core Data Lab](), we can see that there is a new entity populated with the correct data:
 
-![]()
+![](/assets/posts/custom-core-data-migrations/core-data-after.webp)
