@@ -4,17 +4,17 @@ excerpt: 'A step-by-step guide on how to perform complex Core Data migrations us
 pubDate: 2024-02-21
 ---
 
-It is natural for your app to evolve. As your app and your user base grow, you will need to add new features, remove other ones and change the way your app works. This is a natural way of the software development lifecycle that we should embrace.
+It is natural for your app to evolve. As your app and your user base grow, you will need to add new features, remove other ones and change the way your app works. This is a **natural consequence of the software development lifecycle** that we should embrace.
 
-And as your app evolves, so does your data model. You will need to change the way your data is structured to accommodate new features while ensuring users don't lose any data across different versions. This is where Core Data migrations come into play.
+And as your app evolves, so does your data model. You will need to **change the way your data is structured** to accommodate new features while ensuring users **don't lose any data across different versions**. If you use Core Data to persist information in your app, this is where Core Data migrations come into play.
 
 ## What is a Core Data migration?
 
-A Core Data migration is the process of updating your data model to a new version when the shape of your data changes (e.g. adding or removing a new attribute).
+A Core Data migration is the process of **updating your data model from one version to another** due to changes in the shape of your data (e.g. adding or removing a new attribute).
 
-In most cases, Core Data will handle the migration process for you automatically. However, there are cases where you will need to customize the migration process by providing a mapping model that tells Core Data exactly how to migrate each attribute and entity from the source entity to the destination one.
+In most cases, Core Data will handle the migration process for you automatically. However, there are cases where you will need to **customize the migration process** by providing a mapping model that tells Core Data exactly **how to migrate each attribute and entity** from the source model to the destination one.
 
-There are even use cases where a mapping model won't be enough, and you will need to write a custom migration policy to handle specific migration scenarios. This is the case that I will focus on in this article.
+There are even use cases where a mapping model won't be enough, and you will need to write a **custom migration policy** to handle specific scenarios. This is the case that I will focus on in this article.
 
 ## The example
 
@@ -77,20 +77,24 @@ struct PersistenceController {
 }
 ```
 
-If you pay close attention to the example above, you will notice that we are telling Core Data to migrate the store automatically, as we do not want to do [progressive migrations](https://williamboles.com/progressive-core-data-migration/) which are orders of magnitude slower and more complex, and we are also telling Core Data not to infer the mapping model automatically, which means that we will have to provide a mapping model file for each migration.
+If you pay close attention to the example above, you will notice that we are telling Core Data to **migrate the store automatically**, as we do not want to do [progressive migrations](https://williamboles.com/progressive-core-data-migration/) which are orders of magnitude slower and more complex, and we are also telling Core Data **not to infer the mapping model automatically**, which means that we will have to provide a mapping model file for each migration and will allow us to customize the process.
 
 After persisting a song and inspecting the database with [Core Data Lab](https://betamagic.nl/products/coredatalab.html), we can see that the attributes are being saved accordingly:
 
 ![](/assets/posts/custom-core-data-migrations/core-data-before.webp)
 
+> [Core Data Lab](https://betamagic.nl/products/coredatalab.html) is a macOS app that allows you to easily view, edit and analyze data from SQLite-based Core Data and SwiftData apps.
+
 ## Updating the model
 
 The current version of the model has a couple of scalability issues:
 
-1. The model only allows for one artist per track, whereas in reality, a track can have multiple artists.
-2. The model stores a raw JSON string that represents the track's data, which is not very efficient and can lead to performance issues when the app has to parse the JSON string to display the track's data to get a list of artists.
+1. The model only allows for **one artist per track**, whereas in reality, a track can have multiple artists.
+2. The model **stores a raw JSON string** that represents the track's data, which is not very efficient and can lead to performance issues when the app has to parse the JSON string to display the track's data to get a list of artists.
 
-To address these issues, let's remove the `artistName` and `json` attributes in favour of a new `Artist` entity that will have a one-to-many relationship with the `Track` entity. The `Artist` entity will have a `name` attribute that represents the name of the artist and an `id` and `imageURL` attributes that we will get from the raw JSON string.
+To address these issues, let's remove the `artistName` and `json` attributes in favor of a new `Artist` entity that will have a one-to-many relationship with the `Track` entity.
+
+The `Artist` entity will have a `name` attribute that represents the name of the artist and an `id` and `imageURL` attributes that we will get from the raw JSON string.
 
 ### Creating a new model version
 
@@ -219,12 +223,15 @@ class V2MigrationPolicy: NSEntityMigrationPolicy {
     private let decoder = JSONDecoder()
 
     override func createDestinationInstances(forSource sInstance: NSManagedObject, in mapping: NSEntityMapping, manager: NSMigrationManager) throws {
+        // 1
         let sourceKeys = sInstance.entity.attributesByName.keys
         let sourceValues = sInstance.dictionaryWithValues(forKeys: sourceKeys.map { $0 as String })
 
+        // 2
         let destinationInstance = NSEntityDescription.insertNewObject(forEntityName: mapping.destinationEntityName!, into: manager.destinationContext)
         let destinationKeys = destinationInstance.entity.attributesByName.keys.map { $0 as String }
 
+        // 3
         for key in destinationKeys {
             if let value = sourceValues[key] {
                 destinationInstance.setValue(value, forKey: key)
@@ -232,9 +239,12 @@ class V2MigrationPolicy: NSEntityMigrationPolicy {
         }
 
         if let jsonString = sInstance.value(forKey: "json") as? String {
+            // 3
             let jsonData = Data(jsonString.utf8)
             let object = try? decoder.decode(Song.self, from: jsonData)
+            // 4
             let artists: [NSManagedObject] = object?.artists.map { jsonArtist in
+                // 5
                 let request = Artist.fetchRequest()
                 request.fetchLimit = 1
                 request.predicate = NSPredicate(format: "name == %@", jsonArtist.name)
@@ -242,6 +252,7 @@ class V2MigrationPolicy: NSEntityMigrationPolicy {
                 if let matchedArtists = try? manager.destinationContext.fetch(request), let matchedArtist = matchedArtists.first {
                     return matchedArtist
                 }
+                // 6
                 let artist = NSEntityDescription.insertNewObject(forEntityName: "Artist", into: manager.destinationContext)
 
                 artist.setValue(jsonArtist.name, forKey: "name")
@@ -251,15 +262,26 @@ class V2MigrationPolicy: NSEntityMigrationPolicy {
                 return artist
             } ?? []
 
+            // 7
             destinationInstance.setValue(Set<NSManagedObject>(artists), forKey: "artists")
         }
 
+        // 8
         manager.associate(sourceInstance: sInstance, withDestinationInstance: destinationInstance, for: mapping)
     }
 }
 ```
 
 Let's break down the code above step by step:
+
+1. Get the source entity's attribute names and values.
+2. Create a brand new destination entity of the same type as the source one.
+3. Copy the source entity's attribute values to the destination entity.
+4. If the source entity has a `json` attribute, parse it into a `Song` object.
+5. To avoid duplicates, check if the artist already exists in the destination context.
+6. If the artist does not exist, create a new `Artist` entity, insert it into the context and set its attributes.
+7. Set the new `artists` relationship on the destination entity.
+8. Associate the source and destination instances.
 
 Finally, let's add this custom policy to the mapping model:
 
