@@ -77,9 +77,9 @@ struct PersistenceController {
 }
 ```
 
-If you pay close attention to the example above, you will notice that we are telling Core Data to migrate the store automatically, as we do not want to do [progressive migrations]() which are orders of magnitude slower and more complex, and we are also telling Core Data not to infer the mapping model automatically, which means that we will have to provide a mapping model file for each migration.
+If you pay close attention to the example above, you will notice that we are telling Core Data to migrate the store automatically, as we do not want to do [progressive migrations](https://williamboles.com/progressive-core-data-migration/) which are orders of magnitude slower and more complex, and we are also telling Core Data not to infer the mapping model automatically, which means that we will have to provide a mapping model file for each migration.
 
-After persisting a song and inspecting the database with [Core Data Lab](), we can see that the attributes are being saved accordingly:
+After persisting a song and inspecting the database with [Core Data Lab](https://betamagic.nl/products/coredatalab.html), we can see that the attributes are being saved accordingly:
 
 ![](/assets/posts/custom-core-data-migrations/core-data-before.webp)
 
@@ -265,6 +265,6 @@ Finally, let's add this custom policy to the mapping model:
 
 ![](/assets/posts/custom-core-data-migrations/custom-policy.webp)
 
-Now, if we run the app again and inspect the database with [Core Data Lab](), we can see that there is a new entity populated with the correct data:
+Now, if we run the app again and inspect the database with [Core Data Lab](https://betamagic.nl/products/coredatalab.html), we can see that there is a new entity populated with the correct data:
 
 ![](/assets/posts/custom-core-data-migrations/core-data-after.webp)
