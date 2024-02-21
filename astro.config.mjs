@@ -5,6 +5,7 @@ import remarkCodeTitles from 'remark-code-titles'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import svelte from '@astrojs/svelte'
+import vercel from '@astrojs/vercel/serverless'
 const rehypeAutolinkHeadingsOptions = {
   behavior: 'wrap',
 }
@@ -22,10 +23,15 @@ export default defineConfig({
       theme: 'css-variables',
     },
   },
-  output: 'static',
+  output: 'hybrid',
   integrations: [
-    tailwind({ config: { applyBaseStyles: false } }),
+    tailwind({
+      config: {
+        applyBaseStyles: false,
+      },
+    }),
     mdx(),
     svelte(),
   ],
+  adapter: vercel(),
 })
