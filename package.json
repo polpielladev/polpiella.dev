@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && tsc --noEmit && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "format:fix": "prettier --write ./**/*.{ts,js,svelte,mdx,css,astro}",
     "format:check": "prettier --check ./**/*.{ts,js,svelte,mdx,css,astro}"

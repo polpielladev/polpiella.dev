@@ -5,8 +5,6 @@ pubDate: 2023-04-19
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-import StaticTweet from '@components/static-tweet/StaticTweet.astro'
-
 Last week I wrote an [article on how you can deploy beta versions of your app to TestFlight and an external service like Microsoft's App Center](/how-to-deploy-beta-versions-of-your-app-to-testflight-and-appcenter-with-xcode-cloud).
 
 This week I want to write about how you can fully automate your release process by running an Xcode Cloud workflow that archives an app and submits the generated artefact to TestFlight for **external testing** on a schedule. Specifically, I will set it up to run every Sunday evening.
