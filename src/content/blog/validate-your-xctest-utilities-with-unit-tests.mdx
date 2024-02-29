@@ -1,0 +1,129 @@
+---
+title: 'Validate your XCTest utilities and extensions with unit tests'
+excerpt: 'Make sure no regressions occur in your custom XCTestCase extensions and helper methods with unit tests and XCTExpectFailure.'
+pubDate: 2024-02-29
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+One of my main goals in the last few weeks at work has been to **find and fix as many memory leaks as I can in our iOS app**. After fixing each memory leak and to ensure it would not come back again, I decided to write a unit test to track the lifecycle of the leaked instance/s.
+
+As some of the leaks occurred in methods across **different modules** in our app and **different repositories** in our organisation, I found myself repeating the same testing code over and over again.
+
+For this reason, I decided to create a small utility method in an `XCTestCase` extension to ensure specific instances are deallocated when their reference count is zero.
+
+I wanted the utility method to be shared across our organisation, so I decided to write comprehensive tests that would **ensure no regressions occur** and that would also serve **as documentation for how to use the new utility method**.
+
+## Detecting memory leaks in unit tests
+
+Detecting whether an instance is leaky or not in unit tests is simple. You just need to create an instance in a test method, capture the instance weakly in an `addTeardownBlock`, which will run after the test function has finished, and then ensure that the weak reference to your instance is `nil`.
+
+If we translate this logic into an `XCTestCase` extension that is capable of asserting one or more instances, we end up with something like this:
+
+```swift:InstanceLifecycle.swift
+import XCTest
+
+public extension XCTestCase {
+  func assertInstancesAreDeallocated(
+    _ instances: [AnyObject],
+    line: UInt = #line,
+    file: StaticString = #file
+  ) {
+    let instancesContainer = NSHashTable<AnyObject>.weakObjects()
+    instances.forEach { instancesContainer.add($0) }
+
+    addTeardownBlock {
+      instancesContainer.allObjects.forEach {
+        XCTAssertNil($0, file: file, line: line)
+      }
+    }
+  }
+}
+```
+
+Note that arrays hold strong references to their elements, so we need to use an `NSHashTable` to instead hold weak references to the instances we want to track. Failing to do this and using the array directly would **cause the tests using this utility method to always fail**.
+
+## Validating the extension with unit tests
+
+Let's first write a class with a method that causes a retain cycle and another method that doesn't to use as an example in our tests:
+
+```swift:InstanceLifecycleTests.swift
+import XCTest
+
+class ClosureHolder {
+  var heldClosure: (() -> Void)?
+  func hold(_ closure: @escaping () -> Void) {
+    heldClosure = closure
+  }
+}
+
+class ClosureCaller {
+  private let holder: ClosureHolder
+
+  init(holder: ClosureHolder) {
+    self.holder = holder
+  }
+
+  func leak() {
+    holder.hold {
+      self.noOp()
+    }
+  }
+
+  func call() {
+    holder.hold { [weak self] in
+      self?.noOp()
+    }
+  }
+
+  // This method is here to capture self in the closures
+  func noOp() {}
+}
+```
+
+In the `leak` method, we are creating a retain cycle as `ClosureCaller` holds a strong reference to `ClosureHolder` and at the same time, `ClosureHolder` holds a strong reference to the closure, which implicitly captures `ClosureCaller` through `self`.
+
+In the `call` method, we are capturing `self` weakly in the closure, so there is **no retain cycle**.
+
+Let's now write a test that asserts that when the `call` method is executed, no assertion failures are raised by our utility method:
+
+```swift:InstanceLifecycleTests.swift
+final class InstanceLifecycleTrackingTests: XCTestCase {
+  func test_GivenNoMemoryLeakExistsInInstances_ThenUtilityFlagsLeakWithAFailure() {
+    let holder = ClosureHolder()
+    let caller = ClosureCaller(holder: holder)
+
+    caller.call()
+
+    assertInstancesAreDeallocated([holder, caller])
+  }
+}
+```
+
+We now also need to validate that the utility method fails the test when a **memory leak occurs**. But how can we do this and still make the test pass?
+
+The answer is to tell `XCTest` that we are expecting a failure using `XCTExpectFailure`. This way, the test will pass if the failure occurs and fail if it doesn't. Furthermore, we can make sure that the assertion failure is the one we are expecting by using `XCTExpectedFailure.Options()`:
+
+```swift:InstanceLifecycleTests.swift
+final class InstanceLifecycleTrackingTests: XCTestCase {
+  func test_GivenALeakInMemoryExistsInInstances_ThenUtilityFlagsLeakWithAFailure() {
+    let holder = ClosureHolder()
+    let caller = ClosureCaller(holder: holder)
+
+    let options = XCTExpectedFailure.Options()
+    options.issueMatcher = { issue in
+      issue.type == .assertionFailure && issue.compactDescription.contains("XCTAssertNil failed")
+    }
+
+    caller.leak()
+
+    XCTExpectFailure("The utility method should have detected a memory leak.", options: options)
+    assertInstancesAreDeallocated([holder, caller])
+  }
+}
+```
+
+## Final thoughts
+
+Unit testing your test methods and utilities might feel like overkill and, in fact, it **probably is in most cases**.
+
+However, when you are creating methods that are going to be used across different teams and in different repositories or that are going to extensively be testing critical business logic, writing unit tests for them is a great way to ensure that **no false positives are reported** and that **your testing logic is sound**.
