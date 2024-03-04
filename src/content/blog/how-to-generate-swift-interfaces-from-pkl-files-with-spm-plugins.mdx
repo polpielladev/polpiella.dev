@@ -210,3 +210,52 @@ The `info.json` file should contain the following:
   }
 }
 ```
+
+Let's now write the code for the command plugin. The command will retrieve the command line tools from the context, iterates through the targets to find all `.pkl` files and then finally runs the `pkl-gen-swift` executable to generate the Swift interfaces:
+
+```swift:Sources/PklSwiftCommand/main.swift
+import PackagePlugin
+import Foundation
+
+@main
+struct PklSwiftCommandPlugin: CommandPlugin {
+    func performCommand(context: PluginContext, arguments: [String]) async throws {
+        let pklGenSwift = try context.tool(named: "pkl-gen-swift")
+        let pkl = try context.tool(named: "pkl")
+        let pklGenSwiftURL = URL(filePath: pklGenSwift.path.string)
+        
+        for target in context.package.targets {
+            let dirEnum = FileManager.default.enumerator(atPath: target.directory.string)
+            var pklFiles = [Path]()
+            while let file = dirEnum?.nextObject() as? String {
+                if file.hasSuffix(".pkl") {
+                    pklFiles.append(target.directory.appending(subpath: file))
+                }
+            }
+            
+            let process = Process()
+            process.executableURL = pklGenSwiftURL
+            process.arguments = pklFiles.map { $0.string } + ["-o", target.directory.appending(subpath: "Generated").string]
+            process.environment = ["PKL_EXEC": pkl.path.string]
+            
+            try process.run()
+            process.waitUntilExit()
+            
+            let gracefulExit = process.terminationReason == .exit && process.terminationStatus == 0
+            if !gracefulExit {
+                throw "🛑 The plugin execution failed with reason: \(process.terminationReason.rawValue) and status: \(process.terminationStatus) "
+            }
+        }
+    }
+}
+
+extension String: Error {}
+```
+
+The command plugin can now be run like so:
+
+```bash:Terminal
+swift package --disable-sandbox swift-pkl --allow-writing-to-package-directory
+```
+
+Note that you will need to use the `--disable-sandbox` flag otherwise the plugin will hang indefinitely and not work. I have not been able to find another workaround at the moment but I am still investigating.
