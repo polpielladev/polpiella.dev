@@ -57,3 +57,71 @@ timeout = 30.s
 ## Generating Swift bindings
 
 As I mentioned at the beginning of the article, one of the most powerful features of defining your configuration using Pkl is that you can generate Swift interfaces for your apps.
+
+To generate Swift interfaces from `pkl` files, you need to install the `pkl` and `pkl-gen-swift` command-line tools. I will now show you how you can install and use them both manually and in a Swift Package Manager plugin.
+
+### Installing and using `pkl-gen-swift` manually
+
+First, let's install the `pkl-gen-swift` command-line tool:
+
+```bash:Terminal
+curl -L https://github.com/apple/pkl-swift/releases/download/0.2.3/pkl-gen-swift-macos.bin -o pkl-gen-swift
+chmod +x pkl-gen-swift
+```
+
+Let's now generate Swift interfaces from the `.pkl` files by running the following command with all input files as arguments and the output directory passed to the `-o` flag:
+
+```bash:Terminal
+PKL_EXEC=./pkl
+./pkl-gen-swift Sources/ClientExample/Resources/*.pkl -o Sources/ClientExample/Generated
+```
+
+Note that `pkl-gen-swift` relies on the `pkl` command-line tool, which needs to either be found in your `PATH` or be specified using the `PKL_EXEC` environment variable.
+
+The output of the command will be a single Swift file that contains the generated interface:
+
+```swift:Sources/ClientExample/Generated/Config.pkl.swift
+// Code generated from Pkl module `Config`. DO NOT EDIT.
+import PklSwift
+
+public enum Config {}
+
+extension Config {
+    public struct Module: PklRegisteredType, Decodable, Hashable {
+        public static var registeredIdentifier: String = "Config"
+
+        public var baseUrl: String
+
+        public var retryCount: Int
+
+        public var timeout: Duration
+
+        public init(baseUrl: String, retryCount: Int, timeout: Duration) {
+            self.baseUrl = baseUrl
+            self.retryCount = retryCount
+            self.timeout = timeout
+        }
+    }
+
+    /// Load the Pkl module at the given source and evaluate it into `Config.Module`.
+    ///
+    /// - Parameter source: The source of the Pkl module.
+    public static func loadFrom(source: ModuleSource) async throws -> Config.Module {
+        try await PklSwift.withEvaluator { evaluator in
+            try await loadFrom(evaluator: evaluator, source: source)
+        }
+    }
+
+    /// Load the Pkl module at the given source and evaluate it with the given evaluator into
+    /// `Config.Module`.
+    ///
+    /// - Parameter evaluator: The evaluator to use for evaluation.
+    /// - Parameter source: The module to evaluate.
+    public static func loadFrom(
+        evaluator: PklSwift.Evaluator,
+        source: PklSwift.ModuleSource
+    ) async throws -> Config.Module {
+        try await evaluator.evaluateModule(source: source, as: Module.self)
+    }
+}
+```
