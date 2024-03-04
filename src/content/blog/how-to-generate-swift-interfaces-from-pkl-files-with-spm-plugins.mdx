@@ -7,4 +7,53 @@ A feature that sets it apart for Apple developers and, as it couldn't be any oth
 
 In this article, you will learn how to install and use the `pkl-gen-swift` command-line tool and how to integrate it into your Swift Package Manager (SPM) project as a plugin.
 
-## Creating a Pkl configuration file
+Something you must note is that, at this point, Pkl is only available for macOS.
+
+## An example Pkl config
+
+Let's get started by creating a simple Pkl module called `Config` with a set of properties that will define the configuration of a small macOS Swift Package library:
+
+```pkl:Config.pkl
+module Config
+
+baseUrl: String
+retryCount: Int(isBetween(0, 3))
+timeout: Duration
+```
+
+As you can see in the snippet above, we are making use of types and ranges to constraint the values that can be assigned to the properties and reduce the likelihood of errors. These types will be used by the Pkl CLI tools to both validate the configuration files and help generate Swift interfaces.
+
+Let's now write a separate `.pkl` file that amends this module file and provides values for the development configuration:
+
+```pkl:local.pkl
+amends "Config.pkl"
+
+baseUrl = "https://localhost:8080"
+retryCount = 0
+timeout = 30.s
+```
+
+And just like that, we have written a small configuration and we have specified some types and constraints that we can enforce.
+
+Let's now install the `pkl` command line tool and evaluate the module that defines the actual values:
+
+```bash:Terminal
+# Install pkl
+curl -L -o pkl https://github.com/apple/pkl/releases/download/0.25.2/pkl-macos-aarch64
+chmod +x pkl
+
+# Evaluate the local file
+./pkl eval Sources/ClientExample/Resources/local.pkl
+```
+
+The output of running the commands above prints the correct values and validates that the configurations can be validated accordingly:
+
+```bash:Terminal
+baseUrl = "https://localhost:8080"
+retryCount = 0
+timeout = 30.s
+```
+
+## Generating Swift bindings
+
+As I mentioned at the beginning of the article, one of the most powerful features of defining your configuration using Pkl is that you can generate Swift interfaces for your apps.
