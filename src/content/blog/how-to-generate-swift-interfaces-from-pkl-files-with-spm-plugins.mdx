@@ -125,3 +125,88 @@ extension Config {
     }
 }
 ```
+
+### Creating a SPM command plugin
+
+Let's say you don't want everyone who consumes your Swift Package to have to install all required tools manually to be able to generate code when they modify the configurations.
+
+You can instead create a Swift Package Manager command plugin that will wrap the command-line tools and expose a client-friendly command that finds all configuration files and generates Swift interfaces.
+
+Let's consider the following Swift Package:
+
+```swift:Package.swift
+// swift-tools-version: 5.9
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "PklSwiftPlugin",
+    platforms: [
+        // 1
+        .macOS(.v13),
+    ],
+    products: [
+        // 2
+        .plugin(name: "PklSwiftCommand", targets: ["PklSwiftCommand"])
+    ],
+    dependencies: [
+        // 3
+        .package(url: "https://github.com/apple/pkl-swift.git", exact: "0.2.3")
+    ],
+    targets: [
+        // 4
+        .plugin(name: "PklSwiftCommand",
+                capability: .command(intent: .custom(verb: "swift-pkl", description: ""),
+                                     permissions: [.writeToPackageDirectory(reason: "Write pkl to pkg")]),
+                dependencies: [.product(name: "pkl-gen-swift", package: "pkl-swift"), "Pkl"]),
+        // 5
+        .binaryTarget(name: "Pkl",
+                      path: "Pkl.artifactbundle"),
+        // 6
+        .target(name: "ClientExample",
+                dependencies: [.product(name: "PklSwift", package: "pkl-swift")])
+    ]
+)
+```
+
+Let's break down what's going on above step by step:
+
+1. We declare that the package is only available for macOS 13 and later to satisfy the requirement of [pkl-swift]().
+2. We declare a new product of type `plugin` that will be used to expose the `swift-pkl` command.
+3. We declare the dependencies of the package, which is Apple's [pkl-swift]() package, that provides the Swift binding for the Pkl language and the executable to generate the interfaces.
+4. We declare a new target for the `swift-pkl` command plugin. We also declare the dependencies of the plugin, which are the `pkl-gen-swift` executable and the `Pkl` package in the form of an artifact bundle. Luckily enough, we can rely on the executable product from the [pkl-swift]() package to add the Swift generator as a dependency but we need to manually create an artifact bundle for the `pkl` command-line tool.
+5. We declare a new binary target for the `pkl` command-line tool's artifact bundle.
+6. We declare a new target for the Swift Package that will consume the plugin for testing. This is the target that will contain the `.pkl` files configuration files.
+
+To create an artifact bundle, you just need to create a directory with the same name you have declared in the package manifest and with a `.artifactbundle` extension. In this directory, create the following folder structure:
+
+Create a folder structure with a json file and a directory  at the root and then the directory has two more nested levels 
+    
+```
+Pkl.artifactbundle
+├── info.json
+├── pkl-0.25.2-macos
+│   └── bin
+│       └── pkl
+```
+
+The `info.json` file should contain the following:
+
+```json:info.json
+{
+  "schemaVersion": "1.0",
+  "artifacts": {
+    "pkl": {
+      "version": "0.2.3",
+      "type": "executable",
+      "variants": [
+        {
+          "path": "pkl-0.25.2-macos/bin/pkl",
+          "supportedTriples": ["arm64-apple-macosx"]
+        }
+      ]
+    }
+  }
+}
+```
