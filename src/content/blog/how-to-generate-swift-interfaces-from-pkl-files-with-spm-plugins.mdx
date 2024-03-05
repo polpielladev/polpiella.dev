@@ -1,13 +1,17 @@
 ---
+title: 'How to generate Swift interfaces from Pkl configuration files using SPM plugins'
+excerpt: "Pkl (pronounced Pickle) is a new programming language from Apple designed specifically for configuration. It allows developers to design data models richly and expressively through the use of types and then validate them to catch errors early on. A feature that sets it apart for Apple developers and, as it couldn't be any other way with Pkl being an Apple language, is that it has a suite of tools available for generating Swift interfaces from `.pkl` configuration files."
+pubDate: 2024-03-06
+layout: ../../layouts/BlogPostLayout.astro
 ---
 
-Pkl (pronounced Pickle) is a new programming language from Apple designed specifically for configuration. It allows developers to design data models richly and expressively through the use of types and then validate them to catch errors early on.
+[Pkl (pronounced Pickle)](https://github.com/apple/pkl) is a new programming language from Apple designed specifically for configuration. It allows developers to design data models **safely and expressively** through the use of types and built-in validation.
 
-A feature that sets it apart for Apple developers and, as it couldn't be any other way with Pkl being an Apple language, is that it has a suite of tools available for generating Swift interfaces from `.pkl` configuration files. 
+A feature that sets it apart for Apple developers and, as it couldn't be any other way with Pkl being an Apple language, is that it has a **suite of tools available for generating Swift interfaces** from `.pkl` configuration files. 
 
-In this article, you will learn how to install and use the `pkl-gen-swift` command-line tool and how to integrate it into your Swift Package Manager (SPM) project as a plugin.
+In this article, you will learn how to **install and use** the `pkl-gen-swift` command-line tool and how to integrate it into your Swift Package Manager (SPM) project through the use of SPM plugins.
 
-Something you must note is that, at this point, Pkl is only available for macOS.
+> Something you must note is that, at this point, Pkl is only available for macOS.
 
 ## An example Pkl config
 
@@ -21,9 +25,11 @@ retryCount: Int(isBetween(0, 3))
 timeout: Duration
 ```
 
-As you can see in the snippet above, we are making use of types and ranges to constraint the values that can be assigned to the properties and reduce the likelihood of errors. These types will be used by the Pkl CLI tools to both validate the configuration files and help generate Swift interfaces.
+As you can see in the snippet above, we are making use of types and ranges to constrain the values that can be assigned to the properties and reduce the likelihood of errors. 
 
-Let's now write a separate `.pkl` file that amends this module file and provides values for the development configuration:
+These types will be used by the Pkl CLI tools to both **validate the configuration files** and help **generate Swift interfaces**.
+
+Let's now write a separate `.pkl` file that amends the module file we created earlier and provides configuration values for local development:
 
 ```pkl:local.pkl
 amends "Config.pkl"
@@ -46,7 +52,7 @@ chmod +x pkl
 ./pkl eval Sources/ClientExample/Resources/local.pkl
 ```
 
-The output of running the commands above prints the correct values and validates that the configurations can be validated accordingly:
+The output of running the commands above **prints the correct values**, which means the configurations can be validated correctly:
 
 ```bash:Terminal
 baseUrl = "https://localhost:8080"
@@ -58,7 +64,7 @@ timeout = 30.s
 
 As I mentioned at the beginning of the article, one of the most powerful features of defining your configuration using Pkl is that you can generate Swift interfaces for your apps.
 
-To generate Swift interfaces from `pkl` files, you need to install the `pkl` and `pkl-gen-swift` command-line tools. I will now show you how you can install and use them both manually and in a Swift Package Manager plugin.
+To generate Swift interfaces from `pkl` files, you need to install the `pkl` and `pkl-gen-swift` command-line tools.
 
 ### Installing and using `pkl-gen-swift` manually
 
@@ -69,16 +75,16 @@ curl -L https://github.com/apple/pkl-swift/releases/download/0.2.3/pkl-gen-swift
 chmod +x pkl-gen-swift
 ```
 
-Let's now generate Swift interfaces from the `.pkl` files by running the following command with all input files as arguments and the output directory passed to the `-o` flag:
+Let's now generate Swift interfaces from the `.pkl` files by running the following command in the terminal:
 
 ```bash:Terminal
 PKL_EXEC=./pkl
 ./pkl-gen-swift Sources/ClientExample/Resources/*.pkl -o Sources/ClientExample/Generated
 ```
 
-Note that `pkl-gen-swift` relies on the `pkl` command-line tool, which needs to either be found in your `PATH` or be specified using the `PKL_EXEC` environment variable.
+Note that `pkl-gen-swift` relies on the `pkl` command-line tool, which needs to either be available in your `PATH` or be specified using the `PKL_EXEC` environment variable.
 
-The output of the command will be a single Swift file that contains the generated interface:
+The output of the command will be a single Swift file containing the generated interface:
 
 ```swift:Sources/ClientExample/Generated/Config.pkl.swift
 // Code generated from Pkl module `Config`. DO NOT EDIT.
@@ -128,9 +134,9 @@ extension Config {
 
 ### Creating a SPM command plugin
 
-Let's say you don't want everyone who consumes your Swift Package to have to install all required tools manually to be able to generate code when they modify the configurations.
+Let's say you don't want everyone who actively works on your Swift Package to have to install all required tools manually to generate code when they modify the configurations.
 
-You can instead create a Swift Package Manager command plugin that will wrap the command-line tools and expose a client-friendly command that finds all configuration files and generates Swift interfaces.
+You can instead create a Swift Package Manager command plugin that will wrap both command-line tools and expose a client-friendly command that finds all configuration files and generates Swift interfaces from them.
 
 Let's consider the following Swift Package:
 
@@ -172,16 +178,14 @@ let package = Package(
 
 Let's break down what's going on above step by step:
 
-1. We declare that the package is only available for macOS 13 and later to satisfy the requirement of [pkl-swift]().
+1. We declare that the package is only available for macOS 13 and later to satisfy the requirement of [pkl-swift](https://github.com/apple/pkl-swift).
 2. We declare a new product of type `plugin` that will be used to expose the `swift-pkl` command.
-3. We declare the dependencies of the package, which is Apple's [pkl-swift]() package, that provides the Swift binding for the Pkl language and the executable to generate the interfaces.
-4. We declare a new target for the `swift-pkl` command plugin. We also declare the dependencies of the plugin, which are the `pkl-gen-swift` executable and the `Pkl` package in the form of an artifact bundle. Luckily enough, we can rely on the executable product from the [pkl-swift]() package to add the Swift generator as a dependency but we need to manually create an artifact bundle for the `pkl` command-line tool.
+3. We declare Apple's [pkl-swift](https://github.com/apple/pkl-swift) as the package's only depdency. [pkl-swift](https://github.com/apple/pkl-swift) provides the Swift bindings for the Pkl language and the executable to generate the Swift interfaces.
+4. We declare a new target for the `swift-pkl` command plugin. We also declare the dependencies of the plugin, which are the `pkl-gen-swift` executable and the `Pkl` command line tool in the form of an artifact bundle. Luckily enough, we can rely on the executable product from the [pkl-swift](https://github.com/apple/pkl-swift) package to add the Swift generator as a dependency but we need to manually create an artifact bundle for the `pkl` command-line tool.
 5. We declare a new binary target for the `pkl` command-line tool's artifact bundle.
-6. We declare a new target for the Swift Package that will consume the plugin for testing. This is the target that will contain the `.pkl` files configuration files.
+6. We declare a new target for the library that will be used for testing. This is the target that will contain the `.pkl` configuration files.
 
-To create an artifact bundle, you just need to create a directory with the same name you have declared in the package manifest and with a `.artifactbundle` extension. In this directory, create the following folder structure:
-
-Create a folder structure with a json file and a directory  at the root and then the directory has two more nested levels 
+To create an artifact bundle that wraps the `pkl` command line tool, you just need to create a directory with the same name you have declared in the package manifest followed by the `.artifactbundle` extension. In this directory, create the following folder structure:
     
 ```
 Pkl.artifactbundle
@@ -211,7 +215,7 @@ The `info.json` file should contain the following:
 }
 ```
 
-Let's now write the code for the command plugin. The command will retrieve the command line tools from the context, iterates through the targets to find all `.pkl` files and then finally runs the `pkl-gen-swift` executable to generate the Swift interfaces:
+Let's now write the code for the command plugin, which will retrieve the command line tools from the context, iterate through the targets to find all `.pkl` files and then finally run the `pkl-gen-swift` executable to generate the Swift interfaces:
 
 ```swift:Sources/PklSwiftCommand/main.swift
 import PackagePlugin
@@ -258,4 +262,29 @@ The command plugin can now be run like so:
 swift package --disable-sandbox swift-pkl --allow-writing-to-package-directory
 ```
 
-Note that you will need to use the `--disable-sandbox` flag otherwise the plugin will hang indefinitely and not work. I have not been able to find another workaround at the moment but I am still investigating.
+Note that you will need to use the `--disable-sandbox` flag otherwise the plugin will hang indefinitely. I have not been able to find a workaround for this issue yet so if you have any ideas, please let me know.
+
+The output of the command will yield the same results as before.
+
+## Loading a Pkl configuration
+
+Now that we have generated the Swift interfaces, we can load them into our app with the following code:
+
+```swift:Sources/ClientExample/main.swift
+import PklSwift
+import Foundation
+
+func load() async throws {
+    let pklGenSwift = Bundle.module.bundleURL.deletingLastPathComponent().appending(path: "pkl-gen-swift").path
+    let pklFile = Bundle.module.url(forResource: "local", withExtension: "pkl")!
+    setenv("PKL_EXEC", pklGenSwift, 1)
+    let config = try await SomeConfig.loadFrom(source: .path(pklFile.path))
+    print(config.baseUrl)
+    print(config.timeout)
+    print(config.retryCount)
+}
+```
+
+After attempting to execute the same code as in the documentation I ran into an issue where `PklSwift` was not able to find `pkl` in the path. For this reason, I had to set the `PKL_EXEC` environment variable manually in the sample executable.
+
+Even after getting past this hurdle, running the executable seems to throw a bunch of errors that I have not been able to resolve yet. Will update this article once I have a solution.  
