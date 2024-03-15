@@ -1,0 +1,293 @@
+---
+title: 'Core Data staged migrations'
+excerpt: "As announced in WWDC23, and very similarly to the way you perform migrations across Swift Data models, you can now define Core Data migrations programmatically using an NSStagedMigrationManager instance.This method works by defining a series of migration steps (called stages) that describe how to migrate across different versions of your model. "
+pubDate: 2024-03-15
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+A few weeks ago, I wrote an article where I explained how to [perform complex Core Data migrations using mapping models and custom migration policies](https://www.polpiella.dev/custom-core-data-migrations). While that approach is performant and works well, it can be hard to maintain, it does not scale with your application and is highly error-prone.
+
+For example, for every new model that you define that requires a custom migration, you need to define a mapping model to define how to migrate **each live version of your model to the new version**. Contrary to what you might think (and what I thought), Core Data does not sequentially iterate through mapping models when migrating across multiple versions, instead, it needs **an exact model from the current version to the new version**. 
+
+On top of this, you need to define all of this using Xcode's UI and mapping models, which make **PRs hard to review** and **errors hard to spot**. For these reasons, I have recently refactored our migration process to use staged migrations instead and what a difference it has made on developer experience!
+
+## What are staged migrations?
+
+As announced in [WWDC23](https://developer.apple.com/videos/play/wwdc2023/10186), and very similarly to the way you perform migrations across Swift Data models, you can now define Core Data migrations programmatically using an `NSStagedMigrationManager` instance.
+
+This method works by defining a series of migration steps (called _stages_) that describe how to migrate across different versions of your model. 
+
+For example, let's say your app is currently using version 1 of your data model and you want to migrate to version 3. The migration manager will sequentially apply all necessary stages to migrate from version 1 to version 2 and from version 2 to version 3.
+
+## Setting some context
+
+To demonstrate how Core Data staged migrations work, I am going to use the same example that I used in my previous article about [Custom Core Data Migrations using Mapping Models](https://www.polpiella.dev/custom-core-data-migrations).
+
+As we did in the previous article, we want to convert the `json` attribute from a `Track` model to a separate entity that will hold all relevant `Artist` information for each track. Converting this attribute will also allow us to make the model more flexible and easier to maintain as we'll be able to also remove the `json` attribute itself and `artistName` in favor of the new relationships.
+
+Let's compare the before and after of our `Track` model:
+
+```swift:CoreData.swift
+// Before
+import Foundation
+import CoreData
+
+@objc(Track)
+public class Track: NSManagedObject, Identifiable {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Track> {
+        return NSFetchRequest<Track>(entityName: "Track")
+    }
+
+    @NSManaged public var imageURL: String?
+    @NSManaged public var json: String?
+    @NSManaged public var lastPlayedAt: Date?
+    @NSManaged public var title: String?
+    @NSManaged public var artistName: String?
+}
+
+// After
+
+@objc(Track)
+public class Track: NSManagedObject, Identifiable {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Track> {
+        return NSFetchRequest<Track>(entityName: "Track")
+    }
+
+    @NSManaged public var imageURL: String?
+    @NSManaged public var lastPlayedAt: Date?
+    @NSManaged public var title: String?
+    @NSManaged public var artists: NSSet?
+
+    @objc(addArtistsObject:)
+    @NSManaged public func addToArtists(_ value: Artist)
+
+    @objc(removeArtistsObject:)
+    @NSManaged public func removeFromArtists(_ value: Artist)
+
+    @objc(addArtists:)
+    @NSManaged public func addToArtists(_ values: NSSet)
+
+    @objc(removeArtists:)
+    @NSManaged public func removeFromArtists(_ values: NSSet)
+}
+
+@objc(Artist)
+public class Artist: NSManagedObject, Identifiable {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Artist> {
+        return NSFetchRequest<Artist>(entityName: "Artist")
+    }
+
+    @NSManaged public var name: String?
+    @NSManaged public var id: String?
+    @NSManaged public var imageURL: String?
+    @NSManaged public var tracks: NSSet?
+
+    @objc(addTracksObject:)
+    @NSManaged public func addToTracks(_ value: Track)
+
+    @objc(removeTracksObject:)
+    @NSManaged public func removeFromTracks(_ value: Track)
+
+    @objc(addTracks:)
+    @NSManaged public func addToTracks(_ values: NSSet)
+
+    @objc(removeTracks:)
+    @NSManaged public func removeFromTracks(_ values: NSSet)
+}
+```
+
+As you can see from the code above, the migration is not trivial and, unfortunately for us, Core Data can not infer it automatically. Let's see how we can use staged migrations to define the migration steps as code.
+
+## Creating the migration manager
+
+To define our stages, we need to split our model into three different model versions and migrations:
+
+1. The original model version unchanged.
+2. The second model version with all attributes and adding the `Artist` entity and relationship. This will be a custom stage.
+3. The third model version with the `json` and `artistName` attributes removed. This will be a lightweight stage.
+
+The reason we need to break down the migration into three stages is that, as it stands, we can't **use and remove an attribute in the same stage**.
+
+Let's start by creating a factory class that is responsible for creating the `NSStagedMigrationManager` instance and defining all stages.
+
+```swift:StagedMigrationFactory.swift
+import Foundation
+import CoreData
+import OSLog
+
+// 1
+extension Logger {
+    private static var subsystem = "dev.polpiella.CustomMigration"
+    
+    static let storage = Logger(subsystem: subsystem, category: "Storage")
+}
+
+// 2
+extension NSManagedObjectModelReference {
+    convenience init(in database: URL, modelName: String) {
+        let modelURL = database.appending(component: "\(modelName).mom")
+        guard let model = NSManagedObjectModel(contentsOf: modelURL) else { fatalError() }
+        
+        self.init(model: model, versionChecksum: model.versionChecksum)
+    }
+}
+
+// 3
+final class StagedMigrationFactory {
+    private let databaseURL: URL
+    private let jsonDecoder: JSONDecoder
+    private let logger: Logger
+    
+    init?(
+        bundle: Bundle = .main,
+        jsonDecoder: JSONDecoder = JSONDecoder(),
+        logger: Logger = .storage
+    ) {
+        // 4
+        guard let databaseURL = bundle.url(forResource: "CustomMigration", withExtension: "momd") else { return nil }
+        self.databaseURL = databaseURL
+        self.jsonDecoder = jsonDecoder
+        self.logger = logger
+    }
+    
+    // 5
+    func create() -> NSStagedMigrationManager {
+        let allStages = [
+            v1toV2(),
+            v2toV3()
+        ]
+        
+        return NSStagedMigrationManager(allStages)
+    }
+
+    // 6
+    private func v1toV2() -> NSCustomMigrationStage {
+        struct Song: Decodable {
+            let artists: [Artist]
+            
+            struct Artist: Decodable {
+                let id: String
+                let name: String
+                let imageURL: String
+            }
+        }
+        
+        // 7
+        let customMigrationStage = NSCustomMigrationStage(
+            migratingFrom: NSManagedObjectModelReference(in: databaseURL, modelName: "CustomMigration"),
+            to: NSManagedObjectModelReference(in: databaseURL, modelName: "CustomMigration 2")
+        )
+        
+        // 8
+        customMigrationStage.didMigrateHandler = { migrationManager, currentStage in
+            guard let container = migrationManager.container else {
+                return
+            }
+            
+            // 9
+            let context = container.newBackgroundContext()
+            context.performAndWait {
+                let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Track")
+                fetchRequest.predicate = NSPredicate(format: "json != nil")
+                
+                do {
+                    let allTracks = try context.fetch(fetchRequest)
+                    let addedArtists = [String: NSManagedObject]()
+                    for track in allTracks {
+                        if let jsonString = track.value(forKey: "json") as? String {
+                            let jsonData = Data(jsonString.utf8)
+                            let object = try? self.jsonDecoder.decode(Song.self, from: jsonData)
+                            let artists: [NSManagedObject] = object?.artists.map { jsonArtist in
+                                if let matchedArtist = addedArtists[jsonArtist.id] {
+                                    return matchedArtist
+                                }
+                                let artist = NSEntityDescription
+                                    .insertNewObject(
+                                        forEntityName: "Artist",
+                                        into: context
+                                    )
+                                
+                                artist.setValue(jsonArtist.name, forKey: "name")
+                                artist.setValue(jsonArtist.imageURL, forKey: "imageURL")
+                                artist.setValue(jsonArtist.id, forKey: "id")
+                                
+                                return artist
+                            } ?? []
+                            
+                            track.setValue(Set<NSManagedObject>(artists), forKey: "artists")
+                        }
+                    }
+                    try context.save()
+                } catch {
+                    logger.error("\(error.localizedDescription)")
+                }
+            }
+        }
+        
+        return customMigrationStage
+    }
+    
+    // 10
+    private func v2toV3() -> NSCustomMigrationStage {
+        NSCustomMigrationStage(
+            migratingFrom: NSManagedObjectModelReference(in: databaseURL, modelName: "CustomMigration 2"),
+            to: NSManagedObjectModelReference(in: databaseURL, modelName: "CustomMigration 3")
+        )
+    }
+}
+```
+
+Let's go back and break down the code above step by step:
+
+1. We define a custom logger to report any errors that occurred during the migration process to the console.
+2. We extend `NSManagedObjectModelReference` to create a convenience initializer that takes a database URL and a model name and returns a new instance of `NSManagedObjectModelReference`.
+3. We define a factory class that is responsible for creating the `NSStagedMigrationManager` instance and defining all stages.
+4. We initialize the factory with the database URL, a JSON decoder and a logger.
+5. We create the `NSStagedMigrationManager` instance and define all stages.
+6. We define the method that will return the migration stage from version 1 to version 2 of our model.
+7. We create an instance of `NSCustomMigrationStage` and we pass the object model references we want to migrate from and to. The names need to match the names of the `.mom` files in your bundle.
+8. We define the `didMigrateHandler` closure, which will be called when the model has been migrated. At this point, the new model version is available in the context and you can populate its attributes. You must know that there is a separate handler that gets executed on the previous model version called `willMigrateHandler` which we won't use in this case.
+9. We create a new background context and fetch all tracks that have a `json` attribute. We then decode the JSON string into a `Song` object and create a new `Artist` entity for each artist in the JSON. We then set the `artists` relationship of the `Track` entity to the new `Artist` entities.
+10. We define the method that will return the migration stage from version 2 to version 3 of our model. This migration is very simple and, truthfully, it should be a lightweight migration. However, I could not find a way to use the `NSLightweightMigrationStage` instance that would work on all cases. If you know how to do it, please let me know!
+
+## Setting up the Core Data stack with staged migrations.
+
+Now that we have a way of creating the `NSStagedMigrationManager` instance, we need to set up our Core Data stack to use it.
+
+```swift:PersistenceController.swift
+import CoreData
+
+struct PersistenceController {
+    static let shared = PersistenceController()
+
+    let container: NSPersistentContainer
+
+    init(inMemory: Bool = false) {
+        container = NSPersistentContainer(name: "CustomMigration")
+        if inMemory {
+            container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
+        }
+        
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        if let description = container.persistentStoreDescriptions.first {
+            if let migrationFactory = StagedMigrationFactory() {
+                description.setOption(migrationFactory.create(), forKey: NSPersistentStoreStagedMigrationManagerOptionKey)
+            }
+        }
+        
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+    }
+}
+```
+
+This part is very simple and all you need to do is to set the `NSStagedMigrationManager` instance as an option of the persistent store description.
+
+That's it! You can now migrate from version 1 to version 3 and from version 2 to version 3 of your model with no data loss and programmatically.
+
+> I don't want to end the article without thanking [@fatbobman](https://twitter.com/fatbobman) for [writing an article after WWDC that fixed Apple's sample code](https://fatbobman.com/en/posts/what-s-new-in-core-data-in-wwdc23/) and to [@alpennec](https://twitter.com/alpennec) for the awesome help on X (formerly Twitter).
+
+
