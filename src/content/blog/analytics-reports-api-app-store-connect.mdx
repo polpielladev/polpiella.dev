@@ -1,0 +1,204 @@
+---
+title: 'Generate and read analytics reports from the App Store Connect API'
+excerpt: "Apple has recently introduced over 50 new analytics reports to help developers understand how their apps are performing. These are only available through the App Store Connect API and in this post, I'll show you how to generate and read them."
+pubDate: 2024-03-20
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Apple has [recently introduced over 50 new analytics reports](https://developer.apple.com/news/?id=en9v7jtv) with hundreds of new data points and metrics to help developers understand how their apps are performing.
+
+These reports include data such as App Store Engagement, App Store Commerce, App Usage, Frameworks Usage and Performance. 
+
+While this new data offers a lot of insights and can be very valuable, it's available exclusively through the App Store Connect API and the way of retrieving the data is not very intuitive.
+
+In this article, I'll show you how to access these new metrics using [Antoine Van Der Lee]()'s [App Store Connect Swift SDK](https://github.com/AvdLee/appstoreconnect-swift-sdk).
+
+## Installing the App Store Connect API Swift SDK
+
+As soon as the new metrics were announced in the latest version of the App Store Connect API, I decided to open a pull request to regenerate the Swift interfaces in the App Store Connect Swift SDK to include the new endpoints using the latest App Store Connect's 3.4 Open API specification. 
+
+These changes were merged and released in version 3.2.0 of the SDK, which is the version we'll be using in this article.
+
+To install the App Store Connect Swift SDK, you can just add it as a dependency to your package manifest file:
+
+```swift:Package.swift
+// swift-tools-version: 5.10
+
+import PackageDescription
+
+let package = Package(
+    name: "ASCAnalytics",
+    platforms: [.macOS(.v13)],
+    dependencies: [
+        .package(
+            url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git", 
+            exact: "3.2.0"
+        )
+    ],
+    targets: [
+        .executableTarget(
+            name: "ASCAnalytics", 
+            dependencies: [
+                .product(
+                    name: "AppStoreConnect-Swift-SDK", 
+                    package: "appstoreconnect-swift-sdk"
+                )
+            ]
+        ),
+    ]
+)
+```
+
+## Configuring the App Store Connect API Swift SDK
+
+Now that the SDK is installed, we just need to configure it with an App Store Connect API key:
+
+```swift:ASCAnalytics.swift
+import AppStoreConnect_Swift_SDK
+import Foundation
+
+let configuration = try! APIConfiguration(
+    issuerID: "🙈",
+    privateKeyID: "🙈",
+    privateKey: "🙈"
+)
+
+let provider = APIProvider(configuration: configuration)
+```
+
+If you're not sure how to create a key for the App Store Connect API, I would encourage you to read [the 'Creating an App Store Connect API key' section of my 'Fastlane and App Store Connect API keys' article](https://www.polpiella.dev/fastlane-appstore-connect-api-and-github-actions#creating-an-app-store-connect-api-key).
+
+## Generating an analytics report
+
+The first thing you need to do to access new metrics is to generate a report request for a specific app. This can be done by getting the ID of the app you want to generate the report for and then making a `POST` request to the `/v1/analyticsReportRequests` endpoint.
+
+```swift:ASCAnalytics.swift
+// MARK: - Get the ID of the app
+let request = APIEndpoint
+    .v1
+    .apps
+    .get(parameters: .init(sort: [.bundleID], fieldsApps: [.name]))
+
+let appsResponse = try await provider.request(request)
+let qreateAppId = appsResponse.data.first { $0.attributes?.name == "QReate - QR code generator" }.map { $0.id }
+
+guard let qreateAppId else { exit(1) }
+
+// MARK: - Create a new Report Request
+let relationships = AnalyticsReportRequestCreateRequest.Data.Relationships(
+    app: .init(data: .init(type: .apps, id: qreateAppId))
+)
+let attributes = AnalyticsReportRequestCreateRequest.Data.Attributes(accessType: .ongoing)
+let data = AnalyticsReportRequestCreateRequest.Data(
+    type: .analyticsReportRequests,
+    attributes: attributes,
+    relationships: relationships
+)
+let createRequest = AnalyticsReportRequestCreateRequest(data: data)
+
+let requestReport = APIEndpoint.v1.analyticsReportRequests
+    .post(createRequest)
+
+_ = try await provider.request(requestReport)
+```
+
+Despite what it may seem, the payload to the `POST` request is quite simple. We just need to specify the id of the app we want to generate the report for as a relationship (in this case my app QReate) and the access type of the report.
+
+The access type parameter can be one of two values:
+- `.ongoing`: The most common type of report request, which generates daily data for reports of all frequencies.
+- `.oneTimeSnapshot`: A one-time report request to obtain historical data.
+
+## Getting all available reports
+
+After making the `POST` request, we can periodically check the report request and retrieve all of its available reports. If we're only interested in a specific kind of data, we can filter the request to the reports endpoint by category (in this case `APP USAGE`):
+
+```swift:ASCAnalytics.swift
+// MARK: - Read all available report requests for an app
+let readReportsRequest = APIEndpoint
+    .v1
+    .apps
+    .id(qreateAppId)
+    .analyticsReportRequests
+    .get(parameters: .init(filterAccessType: [.oneTimeSnapshot, .ongoing], fieldsAnalyticsReportRequests: [.accessType, .reports, .stoppedDueToInactivity], fieldsAnalyticsReports: [.category, .instances, .name], include: [.reports]))
+
+let allReports = try await provider.request(readReportsRequest).data
+
+// MARK: - Get all reports for a report request
+guard let reportRequestId = allReports.first?.id else { exit(1) }
+let reportInformation = APIEndpoint
+    .v1
+    .analyticsReportRequests
+    .id(reportRequestId)
+    .reports
+    .get(parameters: .init(filterCategory: [.appUsage]))
+
+let appUsageReports = try await provider.request(reportInformation)
+```
+
+This will return a list of all available `APP USAGE` reports for the app, which we can then retrieve by name to see the data we are interested in. Let's for example get the id for the `App Crashes` report so that we can use it later to retrieve its data:
+
+```swift:ASCAnalytics.swift
+guard let crashesReportId = appUsageReports.data
+    .filter({ $0.attributes?.name == "App Crashes" })
+    .first?.id else {
+    exit(1)
+}
+```
+
+## Getting the report's segments
+
+Unfortunately, the App Store Connect API does not return the data for the reports directly. It instead splits the data into instances, which are generated for the available granularities (daily, weekly or monthly).
+
+In turn, each instance contains numerous segments, each of which contains a list of URLs to download the data for the reports.
+
+Let's now get all the segments for a report's instance:
+
+```swift:ASCAnalytics.swift
+// MARK: - Get the information for a report
+let instances = APIEndpoint
+    .v1
+    .analyticsReports
+    .id(crashesReportId)
+    .instances
+    .get(parameters: .init(filterGranularity: [.]))
+let instancesResponse = try await provider.request(instances)
+guard let instanceId = instancesResponse.data.first?.id else { exit(1) }
+
+// MARK: - Get segments
+let segments = APIEndpoint
+    .v1
+    .analyticsReportInstances
+    .id(instanceId)
+    .segments
+    .get(fieldsAnalyticsReportSegments: [.url, .checksum, .sizeInBytes])
+let segmentsResponse = try await provider.request(segments)
+```
+
+## Downloading the segment's data
+
+Finally, let's use the `url` attribute of the segment entity to download the data for the report and write it into a file we can then read:
+
+```swift:ASCAnalytics.swift
+// MARK: - Download segment file
+guard let segmentURL = segmentsResponse.data.first?.attributes?.url else { exit(1) }
+
+let (location, downloadFileResponse) = try await URLSession.shared.download(from: segmentURL)
+guard let httpResponse = downloadFileResponse as? HTTPURLResponse,
+      httpResponse.statusCode == 200 else {
+    exit(1)
+}
+
+try FileManager.default
+    .moveItem(
+        at: location,
+        to: URL.desktopDirectory.appending(component: "crashes.zip")
+    )
+```
+
+After all the steps above completes, we should have a `crashes.zip` file on our desktop that, when unzipped, will contain the file with the data for the `App Crashes` report:
+
+```txt:crashes
+Date	App Name	App Apple Identifier	App Version	Device	Platform Version	Crashes	Unique Devices
+2024-01-15	QReate - QR-code generator	6446048195	1.0.4	Desktop	macOS 13.6	1	1
+2024-01-15	QReate - QR-code generator	6446048195	1.0.4	Desktop	macOS 14.2	4	4
+```
