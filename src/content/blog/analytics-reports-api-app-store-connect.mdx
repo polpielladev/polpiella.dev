@@ -74,6 +74,7 @@ The first thing you need to do to access new metrics is to generate a report req
 
 ```swift:ASCAnalytics.swift
 // MARK: - Get the ID of the app
+// https://api.appstoreconnect.apple.com/v1/apps?sort=bundleId&fields%5Bapps%5D=name
 let request = APIEndpoint
     .v1
     .apps
@@ -95,7 +96,7 @@ let data = AnalyticsReportRequestCreateRequest.Data(
     relationships: relationships
 )
 let createRequest = AnalyticsReportRequestCreateRequest(data: data)
-
+// https://api.appstoreconnect.apple.com/v1/analyticsReportRequests
 let requestReport = APIEndpoint.v1.analyticsReportRequests
     .post(createRequest)
 
@@ -114,6 +115,7 @@ After making the `POST` request, we can periodically check the report request an
 
 ```swift:ASCAnalytics.swift
 // MARK: - Read all available report requests for an app
+// https://api.appstoreconnect.apple.com/v1/apps/6446048195/analyticsReportRequests?filter%5BaccessType%5D=ONE_TIME_SNAPSHOT,ONGOING&fields%5BanalyticsReportRequests%5D=accessType,reports,stoppedDueToInactivity&fields%5BanalyticsReports%5D=category,instances,name&include=reports
 let readReportsRequest = APIEndpoint
     .v1
     .apps
@@ -125,6 +127,7 @@ let allReports = try await provider.request(readReportsRequest).data
 
 // MARK: - Get all reports for a report request
 guard let reportRequestId = allReports.first?.id else { exit(1) }
+// https://api.appstoreconnect.apple.com/v1/analyticsReportRequests/105262f5-0cc0-4c4f-8eed-ff56509ee135/reports?filter%5Bcategory%5D=APP_USAGE
 let reportInformation = APIEndpoint
     .v1
     .analyticsReportRequests
@@ -155,6 +158,7 @@ Let's now get all the segments for a report's instance:
 
 ```swift:ASCAnalytics.swift
 // MARK: - Get the information for a report
+// https://api.appstoreconnect.apple.com/v1/analyticsReports/r2-105262f5-0cc0-4c4f-8eed-ff56509ee135/instances
 let instances = APIEndpoint
     .v1
     .analyticsReports
@@ -165,6 +169,7 @@ let instancesResponse = try await provider.request(instances)
 guard let instanceId = instancesResponse.data.first?.id else { exit(1) }
 
 // MARK: - Get segments
+// https://api.appstoreconnect.apple.com/v1/analyticsReportInstances/3472b36d-b349-41e5-8ff2-25967428947b/segments?fields%5BanalyticsReportSegments%5D=url,checksum,sizeInBytes
 let segments = APIEndpoint
     .v1
     .analyticsReportInstances
