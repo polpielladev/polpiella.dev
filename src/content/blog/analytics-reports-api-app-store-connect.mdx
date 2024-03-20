@@ -5,19 +5,19 @@ pubDate: 2024-03-20
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-Apple has [recently introduced over 50 new analytics reports](https://developer.apple.com/news/?id=en9v7jtv) with hundreds of new data points and metrics to help developers understand how their apps are performing.
+Apple has [recently introduced over 50 new analytics reports](https://developer.apple.com/news/?id=en9v7jtv) with hundreds of new data points and metrics to help developers **understand how their apps are performing**.
 
 These reports include data such as App Store Engagement, App Store Commerce, App Usage, Frameworks Usage and Performance. 
 
 While this new data offers a lot of insights and can be very valuable, it's available exclusively through the App Store Connect API and the way of retrieving the data is not very intuitive.
 
-In this article, I'll show you how to access these new metrics using [Antoine Van Der Lee]()'s [App Store Connect Swift SDK](https://github.com/AvdLee/appstoreconnect-swift-sdk).
+In this article, I'll show you how to access these new metrics using [Antoine Van Der Lee](https://twitter.com/twannl)'s [App Store Connect Swift SDK](https://github.com/AvdLee/appstoreconnect-swift-sdk).
 
 ## Installing the App Store Connect API Swift SDK
 
-As soon as the new metrics were announced in the latest version of the App Store Connect API, I decided to open a pull request to regenerate the Swift interfaces in the App Store Connect Swift SDK to include the new endpoints using the latest App Store Connect's 3.4 Open API specification. 
+As soon as the new metrics were announced in the latest version of the App Store Connect API, I decided to [open a pull request to regenerate the Swift interfaces in the App Store Connect Swift SDK to include the new endpoints using the latest App Store Connect's 3.4 Open API specification](https://github.com/AvdLee/appstoreconnect-swift-sdk/pull/262). 
 
-These changes were merged and released in version 3.2.0 of the SDK, which is the version we'll be using in this article.
+These changes were merged and released in [version 3.2.0 of the SDK](https://github.com/AvdLee/appstoreconnect-swift-sdk/releases/tag/3.2.0), which is the version we'll be using in this article.
 
 To install the App Store Connect Swift SDK, you can just add it as a dependency to your package manifest file:
 
@@ -160,7 +160,7 @@ let instances = APIEndpoint
     .analyticsReports
     .id(crashesReportId)
     .instances
-    .get(parameters: .init(filterGranularity: [.]))
+    .get()
 let instancesResponse = try await provider.request(instances)
 guard let instanceId = instancesResponse.data.first?.id else { exit(1) }
 
