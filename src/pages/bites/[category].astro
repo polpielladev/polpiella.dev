@@ -1,0 +1,59 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import type { GetStaticPathsResult } from "astro";
+import { BITES_CATEGORIES } from "@services/categories";
+
+const { category } = Astro.params;
+const allPosts = await getCollection("bites");
+const postsForCategory = allPosts.filter(
+    (post) => post.data.category === category,
+);
+
+const { emoji, background, hoverColor, emojiBackground, name } =
+    BITES_CATEGORIES[category];
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+    const allPosts = await getCollection("bites");
+    const categories = allPosts.reduce((acc, post) => {
+        const { category } = post.data;
+        if (!acc.includes(category)) {
+            acc.push(category);
+        }
+        return acc;
+    }, []);
+
+    return categories.map((category) => {
+        return {
+            params: { category },
+        };
+    });
+}
+---
+
+<BaseLayout>
+    <div>
+        <header class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
+            <div class="flex gap-3 items-center">
+                <p
+                    class=`${emojiBackground} text-4xl md:text-5xl lg:text-6xl rounded-md px-1`
+                >
+                    {emoji}
+                </p>
+                <h1
+                    class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+                >
+                    {name} Bites
+                </h1>
+            </div>
+        </header>
+        {
+            postsForCategory.map((post) => (
+                <a class="inline-flex" href={`/bites/${category}/${post.slug}`}>
+                    <h2>{post.data.title}</h2>
+                    <p>{post.data.description}</p>
+                </a>
+            ))
+        }
+    </div>
+</BaseLayout>
