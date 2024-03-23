@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import WeeBiteCategory from "@components/WeeBiteCategory.astro";
 ---
 
 <BaseLayout
@@ -9,7 +10,12 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 >
     <article class="flex flex-col gap-8 max-w-2xl mx-auto">
         <header class="text-center flex flex-col gap-4 items-center">
-            <img class="w-80 m-0" src="/assets/wee-bites.svg" />
+            <img
+                width="208px"
+                height="208px"
+                class="w-52 aspect-square m-0"
+                src="/assets/wee-bites.svg"
+            />
             <h1
                 class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
             >
@@ -22,5 +28,69 @@ import BaseLayout from "@layouts/BaseLayout.astro";
                 Apple development and Swift.
             </p>
         </header>
+        <div class="grid grid-cols-2 gap-3">
+            <WeeBiteCategory
+                title="Unit Testing"
+                emoji="🧪"
+                background="bg-green-400/30"
+                hoverColor="bg-green-400/50"
+                emojiBackground="bg-green-600/30"
+            />
+            <WeeBiteCategory
+                title="SwiftUI"
+                emoji="👨‍🎨"
+                background="bg-gray-400/30"
+                hoverColor="bg-gray-400/90"
+                emojiBackground="bg-gray-600/30"
+            />
+
+            <WeeBiteCategory
+                title="Xcode Cloud"
+                emoji="🌩"
+                background="bg-blue-400/30"
+                hoverColor="bg-blue-400/90"
+                emojiBackground="bg-blue-600/30"
+            />
+
+            <WeeBiteCategory
+                title="Swift"
+                emoji="🐦"
+                background="bg-orange-400/30"
+                hoverColor="bg-orange-400/90"
+                emojiBackground="bg-orange-600/30"
+            />
+
+            <WeeBiteCategory
+                title="GitHub Actions"
+                emoji="🤖"
+                background="bg-yellow-400/30"
+                hoverColor="bg-yellow-400/90"
+                emojiBackground="bg-yellow-600/30"
+            />
+
+            <WeeBiteCategory
+                title="Core Data"
+                emoji="💾"
+                background="bg-purple-400/30"
+                hoverColor="bg-purple-400/90"
+                emojiBackground="bg-purple-600/30"
+            />
+
+            <WeeBiteCategory
+                title="App Store Connect API"
+                emoji="🔗"
+                background="bg-cyan-400/30"
+                hoverColor="bg-cyan-400/90"
+                emojiBackground="bg-cyan-600/30"
+            />
+
+            <WeeBiteCategory
+                title="CLI"
+                emoji="🖥"
+                background="bg-fuchsia-400/30"
+                hoverColor="bg-fuchsia-400/90"
+                emojiBackground="bg-fuchsia-600/30"
+            />
+        </div>
     </article>
 </BaseLayout>

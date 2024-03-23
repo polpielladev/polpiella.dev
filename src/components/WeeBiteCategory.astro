@@ -1,0 +1,14 @@
+---
+const { title, emoji, background, hoverColor, emojiBackground } = Astro.props;
+---
+
+<a
+    class=`${background} inline-flex w-full rounded-lg p-3 hover:${hoverColor} transition-colors flex-col`
+>
+    <header class="flex align-middle items-center gap-2">
+        <p class=`text-2xl ${emojiBackground} rounded-md px-1`>
+            {emoji}
+        </p>
+        <p class="font-title text-xl">{title}</p>
+    </header>
+</a>
