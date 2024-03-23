@@ -1,0 +1,43 @@
+---
+title: 'Check for memory leaks from unit tests'
+excerpt: 'How to use the addTeardownBlock in an XCTestCase to make sure instances are deallocated accordingly.'
+pubDate: 2023-03-23
+category: "unit-testing"
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+This is how you can write a small utility method as an `XCTestCase` extension to ensure your objects are deallocated properly in your unit tests:
+
+```swift
+import XCTest
+
+// 1
+public extension XCTestCase {
+  // 2
+  func assertInstancesAreDeallocated(
+    _ instances: [AnyObject],
+    line: UInt = #line,
+    file: StaticString = #file
+  ) {
+    // 3
+    let instancesContainer = NSHashTable<AnyObject>.weakObjects()
+    instances.forEach { instancesContainer.add($0) }
+
+    // 4
+    addTeardownBlock {
+      instancesContainer.allObjects.forEach {
+        XCTAssertNil($0, file: file, line: line)
+      }
+    }
+  }
+}
+```
+
+## Step by step
+
+Let's break down the code step by step:
+
+1. Define a new extension for `XCTestCase` with the right access control level that you can use directly from your unit test classes.
+2. Define a method that takes in an array of `AnyObject` instances and two optional parameters: `line` and `file`. These parameters are used to show the failure message in the test's file and line rather than in the utility method.
+3. Create an array with weak objects using `NSHashTable` to store the instances without keeping strong references to them as Swift arrays do.
+4. Add a teardown block that runs after the test method has finished. When this block is executed, all instances defined in the test method should have been deallocated and, therefore, should be `nil`. If any of the instances are still alive, the test will fail indicating a memory leak has occurred. 
