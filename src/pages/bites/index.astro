@@ -1,6 +1,90 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import WeeBiteCategory from "@components/WeeBiteCategory.astro";
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("bites");
+
+const categoriesMap = Object.freeze({
+    "unit-testing": {
+        emoji: "🧪",
+        name: "Unit Testing",
+        background: "bg-green-400/30",
+        hoverColor: "bg-green-400/50",
+        emojiBackground: "bg-green-600/30",
+    },
+    swiftui: {
+        emoji: "👨‍🎨",
+        name: "SwiftUI",
+        background: "bg-gray-400/30",
+        hoverColor: "bg-gray-400/90",
+        emojiBackground: "bg-gray-600/30",
+    },
+    "xcode-cloud": {
+        emoji: "🌩",
+        name: "Xcode Cloud",
+        background: "bg-blue-400/30",
+        hoverColor: "bg-blue-400/90",
+        emojiBackground: "bg-blue-600/30",
+    },
+    swift: {
+        emoji: "🐦",
+        name: "Swift",
+        background: "bg-orange-400/30",
+        hoverColor: "bg-orange-400/90",
+        emojiBackground: "bg-orange-600/30",
+    },
+    "github-actions": {
+        emoji: "🤖",
+        name: "GitHub Actions",
+        background: "bg-lime-400/30",
+        hoverColor: "bg-lime-400/90",
+        emojiBackground: "bg-lime-600/30",
+    },
+    "core-data": {
+        emoji: "💾",
+        name: "Core Data",
+        background: "bg-purple-400/30",
+        hoverColor: "bg-purple-400/90",
+        emojiBackground: "bg-purple-600/30",
+    },
+    "app-store-connect-api": {
+        emoji: "🔗",
+        name: "App Store Connect API",
+        background: "bg-cyan-400/30",
+        hoverColor: "bg-cyan-400/90",
+        emojiBackground: "bg-cyan-600/30",
+    },
+    cli: {
+        emoji: "🖥",
+        name: "Command Line",
+        background: "bg-fuchsia-400/30",
+        hoverColor: "bg-fuchsia-400/90",
+        emojiBackground: "bg-fuchsia-600/30",
+    },
+    musickit: {
+        emoji: "🎸",
+        name: "MusicKit",
+        background: "bg-pink-400/30",
+        hoverColor: "bg-pink-400/90",
+        emojiBackground: "bg-pink-600/30",
+    },
+    "swift-package-manager": {
+        emoji: "📦",
+        name: "Swift Package Manager",
+        background: "bg-amber-400/30",
+        hoverColor: "bg-amber-400/90",
+        emojiBackground: "bg-amber-600/30",
+    },
+});
+
+const categories = allPosts.reduce((acc, post) => {
+    const { category } = post.data;
+    if (!acc.includes(category)) {
+        acc.push(category);
+    }
+    return acc;
+}, []);
 ---
 
 <BaseLayout
@@ -29,84 +113,27 @@ import WeeBiteCategory from "@components/WeeBiteCategory.astro";
             </p>
         </header>
         <div class="grid grid-cols-2 gap-3">
-            <WeeBiteCategory
-                title="Unit Testing"
-                emoji="🧪"
-                background="bg-green-400/30"
-                hoverColor="bg-green-400/50"
-                emojiBackground="bg-green-600/30"
-            />
-            <WeeBiteCategory
-                title="SwiftUI"
-                emoji="👨‍🎨"
-                background="bg-gray-400/30"
-                hoverColor="bg-gray-400/90"
-                emojiBackground="bg-gray-600/30"
-            />
-
-            <WeeBiteCategory
-                title="Xcode Cloud"
-                emoji="🌩"
-                background="bg-blue-400/30"
-                hoverColor="bg-blue-400/90"
-                emojiBackground="bg-blue-600/30"
-            />
-
-            <WeeBiteCategory
-                title="Swift"
-                emoji="🐦"
-                background="bg-orange-400/30"
-                hoverColor="bg-orange-400/90"
-                emojiBackground="bg-orange-600/30"
-            />
-
-            <WeeBiteCategory
-                title="GitHub Actions"
-                emoji="🤖"
-                background="bg-lime-400/30"
-                hoverColor="bg-lime-400/90"
-                emojiBackground="bg-lime-600/30"
-            />
-
-            <WeeBiteCategory
-                title="Core Data"
-                emoji="💾"
-                background="bg-purple-400/30"
-                hoverColor="bg-purple-400/90"
-                emojiBackground="bg-purple-600/30"
-            />
-
-            <WeeBiteCategory
-                title="App Store Connect API"
-                emoji="🔗"
-                background="bg-cyan-400/30"
-                hoverColor="bg-cyan-400/90"
-                emojiBackground="bg-cyan-600/30"
-            />
-
-            <WeeBiteCategory
-                title="CLI"
-                emoji="🖥"
-                background="bg-fuchsia-400/30"
-                hoverColor="bg-fuchsia-400/90"
-                emojiBackground="bg-fuchsia-600/30"
-            />
-
-            <WeeBiteCategory
-                title="MusicKit"
-                emoji="🎸"
-                background="bg-pink-400/30"
-                hoverColor="bg-pink-400/90"
-                emojiBackground="bg-pink-600/30"
-            />
-
-            <WeeBiteCategory
-                title="Swift Package Manager"
-                emoji="📦"
-                background="bg-amber-400/30"
-                hoverColor="bg-amber-400/90"
-                emojiBackground="bg-amber-600/30"
-            />
+            {
+                categories.map((category) => {
+                    const {
+                        emoji,
+                        background,
+                        hoverColor,
+                        emojiBackground,
+                        name,
+                    } = categoriesMap[category];
+                    return (
+                        <WeeBiteCategory
+                            href=`/bites/${category}`
+                            title={name}
+                            emoji={emoji}
+                            background={background}
+                            hoverColor={hoverColor}
+                            emojiBackground={emojiBackground}
+                        />
+                    );
+                })
+            }
         </div>
     </article>
 </BaseLayout>

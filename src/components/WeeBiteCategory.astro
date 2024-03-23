@@ -1,8 +1,10 @@
 ---
-const { title, emoji, background, hoverColor, emojiBackground } = Astro.props;
+const { title, emoji, background, hoverColor, emojiBackground, href } =
+    Astro.props;
 ---
 
 <a
+    href={href}
     class=`${background} inline-flex w-full rounded-lg p-3 hover:${hoverColor} transition-colors flex-col`
 >
     <header class="flex align-middle items-center gap-2">
