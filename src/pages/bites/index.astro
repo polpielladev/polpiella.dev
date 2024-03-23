@@ -1,0 +1,26 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+    title="All articles — polpiella.dev"
+    description="All articles about iOS development and Swift in my blog"
+    activeNav="posts"
+>
+    <article class="flex flex-col gap-8 max-w-2xl mx-auto">
+        <header class="text-center flex flex-col gap-4 items-center">
+            <img class="w-80 m-0" src="/assets/wee-bites.svg" />
+            <h1
+                class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+            >
+                Wee Bites
+            </h1>
+            <p
+                class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+            >
+                A collection of code snippets and short-form articles about
+                Apple development and Swift.
+            </p>
+        </header>
+    </article>
+</BaseLayout>
