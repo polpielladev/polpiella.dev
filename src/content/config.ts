@@ -8,4 +8,12 @@ export const collections = {
       pubDate: z.date(),
     }),
   }),
+  bites: defineCollection({
+    schema: z.object({
+      title: z.string(),
+      excerpt: z.string(),
+      pubDate: z.date(),
+      category: z.string()
+    }),
+  })
 }

@@ -1,0 +1,40 @@
+---
+title: 'Download files from a URL using async/await'
+excerpt: 'How to use URLSession and structured concurrency to download a file from a URL.'
+pubDate: 2023-06-14
+category: "swift"
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+This is how you use `URLSession` to download a file from a URL in Swift:
+
+```swift
+import Foundation
+
+// 1
+func download(from url: URL, to location: URL) async throws {
+    // 2
+    let (tempLocation, downloadFileResponse) = try await URLSession.shared.download(from: url)
+    // 3
+    guard let httpResponse = downloadFileResponse as? HTTPURLResponse,
+        httpResponse.statusCode == 200 else {
+        return
+    }
+
+    // 4
+    try FileManager.default
+        .moveItem(
+            at: tempLocation,
+            to: location
+        )
+}
+```
+
+## Step by step
+
+Let's break down the code step by step:
+
+1. Define an async throwing function that takes in a remote URL to download from and a local URL with the file location to save the file to.
+2. Use `URLSession.shared.download(from:)` to download the file from the remote URL. This function returns a tuple with the temporary location of the downloaded file and the response from the server.
+3. Check if the response is an HTTP response and if the status code is 200.
+4. Move the downloaded file from the temporary location to the final location.
