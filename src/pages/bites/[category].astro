@@ -4,6 +4,12 @@ import { getCollection } from "astro:content";
 import type { GetStaticPathsResult } from "astro";
 import { BITES_CATEGORIES } from "@services/categories";
 
+const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+        dateStyle: "medium",
+    });
+};
+
 const { category } = Astro.params;
 const allPosts = await getCollection("bites");
 const postsForCategory = allPosts.filter(
@@ -32,7 +38,7 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 ---
 
 <BaseLayout>
-    <div>
+    <div class="space-y-12">
         <header class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
             <div class="flex gap-3 items-center">
                 <p
@@ -47,13 +53,28 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
                 </h1>
             </div>
         </header>
-        {
-            postsForCategory.map((post) => (
-                <a class="inline-flex" href={`/bites/${category}/${post.slug}`}>
-                    <h2>{post.data.title}</h2>
-                    <p>{post.data.description}</p>
-                </a>
-            ))
-        }
+        <section class="flex flex-col gap-10">
+            {
+                postsForCategory.map((post) => (
+                    <a
+                        class="inline-flex flex-col gap-2 group max-w-xl"
+                        href={`/bites/${category}/${post.slug}`}
+                    >
+                        <h2 class="dark:text-white font-title text-2xl group-hover:text-purple-300 transition-colors">
+                            {post.data.title}
+                        </h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            {post.data.excerpt}
+                        </p>
+                        <time
+                            class="text-sm text-gray-600 dark:text-gray-300"
+                            datetime={post.data.pubDate.toDateString()}
+                        >
+                            {formatDate(post.data.pubDate)}
+                        </time>
+                    </a>
+                ))
+            }
+        </section>
     </div>
 </BaseLayout>

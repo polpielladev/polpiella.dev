@@ -1,19 +1,21 @@
 ---
-import '@styles/blog-detail.css'
-import BaseLayout from '@layouts/BaseLayout.astro'
-import BlogSponsor from '@components/BlogSponsor.svelte'
+import "@styles/blog-detail.css";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import BlogSponsor from "@components/BlogSponsor.svelte";
 
 interface Props {
-  url: string
+  url: string;
 }
 
-const { title, excerpt, pubDate } = Astro.props.content
-const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
-  dateStyle: 'full',
-})
+const { title, excerpt, pubDate } = Astro.props.content;
+const formattedDate = new Date(pubDate).toLocaleDateString("en-US", {
+  dateStyle: "full",
+});
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
-  title
-)}`
+  title,
+)}`;
+
+const isCICD = Astro.props.content.category === "github-actions";
 ---
 
 <BaseLayout {title} description={excerpt} image={fullImageURL}>
@@ -26,16 +28,19 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       </aside>
 
       <div
-        class="prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-none mx-auto">
+        class="prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-purple-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-none mx-auto"
+      >
         <header class="flex flex-col gap-2 mb-8">
           <h1
             class="m-0 mb-[0.25em] font-title"
-            style="margin: 0 0 !important; line-height: 1.1;">
+            style="margin: 0 0 !important; line-height: 1.1;"
+          >
             {title}
           </h1>
           <time
             datetime={pubDate}
-            class="block text-zinc-400 text-sm sm:text-base">
+            class="block text-zinc-400 text-sm sm:text-base"
+          >
             {formattedDate}
           </time>
         </header>

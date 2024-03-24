@@ -8,7 +8,7 @@ h6 > a {
 }
 
 div.remark-code-title {
-  @apply rounded-t-md border border-zinc-700/70 bg-zinc-300 px-5 py-2 font-mono text-sm font-semibold text-blue-700 dark:bg-zinc-800 dark:text-blue-400;
+  @apply rounded-t-md border border-zinc-700/70 bg-zinc-300 px-5 py-2 font-mono text-sm font-semibold text-purple-700 dark:bg-zinc-800 dark:text-purple-400;
 }
 
 div.remark-code-title + pre {
@@ -16,7 +16,7 @@ div.remark-code-title + pre {
 }
 
 pre.astro-code {
-  @apply border border-zinc-700/70;
+  @apply shadow-md border border-zinc-700/70;
 }
 
 :not(pre) > code {
@@ -63,6 +63,7 @@ img {
   --astro-code-token-string-expression: #0a3069;
   --astro-code-token-punctuation: #374151;
   --astro-code-token-link: #0550ae;
+  --astro-code-color-background: #f3f4f6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -79,5 +80,6 @@ img {
     --astro-code-token-string-expression: #98c379;
     --astro-code-token-punctuation: #d1d5db;
     --astro-code-token-link: #61afef;
+    --astro-code-color-background: #292A2F;
   }
 }
