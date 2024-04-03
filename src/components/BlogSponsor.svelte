@@ -37,7 +37,7 @@
       variant == 'small' ? 'my-auto' : 'flex flex-col gap-1'
     } max-w-xs`}>
     <a
-      href="https://helm-app.com"
+      href="https://hiddevdploeg91.gumroad.com/l/helm"
       class={`font-title ${
         variant == 'default' ? 'text-lg' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
