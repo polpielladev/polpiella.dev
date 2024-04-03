@@ -1,26 +1,26 @@
 ---
-import Header from '@components/Header.astro'
-import Footer from '@components/Footer.svelte'
-import '../styles/main.css'
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.svelte";
+import "../styles/main.css";
 
 interface Props {
-  title: string
-  description: string
-  image?: string
-  center?: boolean
-  activeNav?: string
+  title: string;
+  description: string;
+  image?: string;
+  center?: boolean;
+  activeNav?: string;
 }
 
 const {
   title,
   description,
-  image = '/assets/og.png',
+  image = "/assets/og.png",
   center = false,
-  activeNav = '',
-} = Astro.props
+  activeNav = "",
+} = Astro.props;
 
-const { pathname } = Astro.url
-const isNewsletter = pathname.includes('/newsletter')
+const { pathname } = Astro.url;
+const isNewsletter = pathname.includes("/newsletter");
 ---
 
 <html lang="en">
@@ -34,9 +34,9 @@ const isNewsletter = pathname.includes('/newsletter')
       rel="alternate"
       type="application/rss+xml"
       title={`RSS Feed for ${
-        isNewsletter ? 'the iOS CI Newsletter' : 'polpiella.dev'
+        isNewsletter ? "the iOS CI Newsletter" : "polpiella.dev"
       }`}
-      href={`${isNewsletter ? '/newsletter/rss.xml' : '/rss.xml'}`}
+      href={`${isNewsletter ? "/newsletter/rss.xml" : "/rss.xml"}`}
     />
 
     <meta property="og:url" content="https://polpiella.dev" />
@@ -56,16 +56,17 @@ const isNewsletter = pathname.includes('/newsletter')
       is:inline
       src="https://cdn.usefathom.com/script.js"
       data-site={import.meta.env.FATHOM_ENTITY_ID}
-      defer
-    ></script>
+      defer></script>
   </head>
   <body
-    class="flex min-h-screen flex-col max-w-[1200px] px-4 mx-auto justify-between dark:bg-gray-900">
+    class="flex min-h-screen flex-col max-w-[1200px] gap-6 px-4 mx-auto justify-between dark:bg-gray-900"
+  >
     <div
-      class="absolute -z-50 inset-0 bg-[url(/assets/background.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:invert">
+      class="absolute -z-50 inset-0 bg-[url(/assets/background.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:invert"
+    >
     </div>
     <Header activeNav={activeNav} />
-    <main class={`flex flex-col flex-auto ${center ? 'items-center' : ''}`}>
+    <main class={`flex flex-col flex-auto ${center ? "items-center" : ""}`}>
       <slot />
     </main>
     <Footer />
