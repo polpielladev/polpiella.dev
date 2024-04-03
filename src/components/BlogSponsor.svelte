@@ -7,11 +7,11 @@
     variant === 'default'
       ? 'flex-col content-center justify-center px-2 py-4 text-center'
       : 'grid-cols-[5rem_1fr] p-2 align-middle'
-  } rounded-lg border-2 border-black bg-black/10 shadow-lg `}>
+  } rounded-lg border-2 bg-gray-100 border-purple-600 dark:border-purple-900 dark:bg-gray-900 shadow-lg `}>
   <p
     class={`absolute right-2 ${
       variant === 'default' ? 'top-2' : 'top-[-11px]'
-    } mx-auto rounded-md bg-black px-2 py-0.5 font-title text-xs text-white shadow`}>
+    } mx-auto rounded-md bg-purple-600 dark:bg-purple-900 px-2 py-0.5 font-title text-xs text-white shadow`}>
     Sponsored
   </p>
 
@@ -21,7 +21,9 @@
         srcset="/assets/sponsors/helm.png"
         media="(prefers-color-scheme: dark)" />
       <img
-        class=" mx-auto w-24 object-contain"
+        width="96"
+        height="96"
+        class="mx-auto w-24 object-contain"
         src="/assets/sponsors/helm.png"
         alt="Helm logo" />
     </picture>
