@@ -23,7 +23,7 @@
       <img
         width="96"
         height="96"
-        class="mx-auto w-24 object-contain"
+        class="mx-auto w-24 aspect-square object-contain"
         src="/assets/sponsors/helm.png"
         alt="Helm logo" />
     </picture>
