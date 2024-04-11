@@ -1,0 +1,119 @@
+---
+title: 'Recursively search for content in files with Glob patterns and Regular Expressions in Swift'
+excerpt: "How to find content specified by a Regular Expression in a directory's set of files defined by a Glob pattern using Swift."
+pubDate: 2024-04-11
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+I have recently joined a new team at work and I am still getting to know the team's domain and what parts of the codebase we own. 
+
+Thankfully, our repository has a [GitHub CODEOWNERS file](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) and, every file or group of files that we own is reflected there. If you're not familiar with the concept or format of GitHub's code ownership model, it allows you to link one or more files using Glob patterns to GitHub teams.
+
+For example, the file below defines the `@MyAwesomeOrg/cool-beans` team as the owner of the whole `Tests` directory and only a subset of the `Account` module:
+
+```
+/Tests/    @MyAwesomeOrg/cool-beans
+/Modules/Account/Tests/*    @MyAwesomeOrg/cool-beans
+/Modules/Account/Settings/**/Views    @MyAwesomeOrg/cool-beans
+```
+
+For the past few days, I have found myself trying to find text occurrences, such as the import of a specific module, in the files my team owns manually, which has been a rather tedious task. 
+
+For this reason, I have decided to write a small script that automates this task for me and, given some piece of text and a GitHub team tag, it will find all occurrences of that text in the file the team owns.
+
+## Setting up the project
+
+The first thing I did was to create an executable Swift Package:
+
+```bash:Terminal
+mkdir find-code-owner && cd find-code-owner
+swift package init --name FindCodeOwner --type executable
+```
+
+I then added the [GlobPattern Swift Package by ChimeHQ](https://github.com/ChimeHQ/GlobPattern) as a dependency to help me determine whether files containing the query text are owned by the provided GitHub team:
+
+```swift:Package.swift
+// swift-tools-version: 5.10
+
+import PackageDescription
+
+let package = Package(
+    name: "FindCodeOwner",
+    platforms: [
+        .macOS(.v13)
+    ],
+    dependencies: [
+        .package(url: "https://github.com/ChimeHQ/GlobPattern.git", exact: "0.1.1")
+    ],
+    targets: [
+        .executableTarget(
+            name: "FindCodeOwner",
+            dependencies: ["GlobPattern"],
+            swiftSettings: [
+                .enableUpcomingFeature("BareSlashRegexLiterals")
+            ]
+        ),
+    ]
+)
+```
+
+## Finding files
+
+Let's say our team wants to migrate away from a dependency called `Quick` and we want to find all files that we own that import the library. 
+
+Let's write some code in our executable target to do this:
+
+```swift:main.swift
+import Foundation
+import GlobPattern
+
+// 1
+let currentDirectory = FileManager.default.currentDirectoryPath
+let codeOwnersPath = currentDirectory + "/.github/CODEOWNERS"
+guard let codeOwnersData = FileManager.default.contents(atPath: codeOwnersPath), 
+      let codeOwnersContent = String(data: codeOwnersData, encoding: .utf8) else {
+        exit(1)
+        return
+} 
+// 2
+let regex = /([^\s\\]+)\s+?(?:@.*)?@MyAwesomeOrg\/cool-beans/
+let regularExpressionMatches = codeOwnersContent.matches(of: regex)
+let allCodeOwnerPathsOwnedByTeam = regularExpressionMatches.map { currentDirectory + $0.output.1 }
+// 3
+let matchingSearch = "import Quick"
+// 4
+let dirEnum = FileManager.default.enumerator(atPath: currentDirectory)
+var matchedFiles = [String]()
+while let file = dirEnum?.nextObject() as? String {
+    guard file.hasSuffix(".swift") else { continue }
+    
+    let fullPath = currentDirectory + "/" + file
+    if let contents = FileManager.default.contents(atPath: fullPath),
+       let stringContents = String(data: contents, encoding: .utf8),
+       stringContents.contains(matchingSearch) {
+        
+        matchedFiles.append(fullPath)
+    }
+}
+
+// 5
+let matchedFilesOwnedByTeam = matchedFiles.filter { matchedFile in
+    allCodeOwnerPathsOwnedByTeam
+        .map { URL(string: $0)?.hasDirectoryPath == true ? $0 + "*" : $0 }
+        .compactMap { try? Glob.Pattern($0).match(matchedFile) }
+        .contains(true)
+}
+
+// 6
+print(matchedFilesOwnedByTeam)
+```
+
+A lot is going on in the code block above, so let's break it down into simple steps:
+
+1. Read the contents of the repository's CODEOWNERS file. The script assumes that the current directory is the root of the repository and tries to read the contents of the CODEOWNERS file.
+2. The paths that the specified teams own are extracted from the CODEOWNERS file using a Regular Expression.
+3. A variable containing the text to find is defined. In this case, the script is just looking for imports of the `Quick` library.
+4. A recursive search of all directories in the repository is performed and the paths to all `.swift` files containing the query string are stored in an array.
+5. We use the [GlobPattern](https://github.com/ChimeHQ/GlobPattern) library to filter out any matched files that are not owned by the given team. As CODEOWNERS syntax allows users to omit the `*` character for matching all files in a directory, we must add it where needed. 
+6. We finally print the matched files that fall under the given team's ownership.
+
