@@ -107,7 +107,7 @@ func getOwnersForFile(_ filePath: String, rules: [OwnershipRule]) -> [String] {
 }
 
 // 1
-let rootRepositoryDirectory = "/Users/polpielladev/Developer/glovo-customer-ios"
+let rootRepositoryDirectory = FileManager.default.currentDirectoryPath
 let codeOwnersPath = rootRepositoryDirectory + "/.github/CODEOWNERS"
 
 // 2
@@ -132,7 +132,7 @@ while let file = dirEnum?.nextObject() as? String {
 // 4
 let matchedFilesOnwedByTeam = matchedFiles
     .filter { fileContainingSearchQuery in
-        getOwnersForFile(fileContainingSearchQuery, rules: allOwnershipRules).contains("@Glovo/food-ios")
+        getOwnersForFile(fileContainingSearchQuery, rules: allOwnershipRules).contains("@MyAwesomeOrg/cool-beans")
     }
 
 // 5
