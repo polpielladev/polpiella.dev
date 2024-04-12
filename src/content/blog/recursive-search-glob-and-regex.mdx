@@ -67,53 +67,83 @@ Let's write some code in our executable target to do this:
 import Foundation
 import GlobPattern
 
+struct OwnershipRule {
+    let path: String
+    let teams: [String]
+}
+
+func getRules(from codeOwnersFile: String, relativeTo repository: String) -> [OwnershipRule] {
+    guard let content = try? String(contentsOfFile: codeOwnersFile) else {
+        return []
+    }
+    
+    return content
+        .components(separatedBy: .newlines)
+        .filter { $0.isEmpty || $0.hasPrefix("#") }
+        .map { createRule(from: $0, relativeTo: repository) }
+}
+
+func createRule(from line: String, relativeTo repository: String) -> OwnershipRule {
+    let elements = line.components(separatedBy: .whitespaces)
+        .filter { !$0.isEmpty }
+
+    let teams = elements
+        .enumerated()
+        .filter { $0 != 0 && $1.hasPrefix("@") }
+        .map(\.1)
+    
+    return OwnershipRule(path: repository + elements[0], teams: teams)
+}
+
+func getOwnersForFile(_ filePath: String, rules: [OwnershipRule]) -> [String] {
+    rules
+        .reversed()
+        .first { rule in
+            let globExpression = URL(string: rule.path)?.hasDirectoryPath == true ? rule.path + "*" : rule.path
+            let matcher = try? Glob.Pattern(globExpression)
+            return matcher?.match(filePath) == true
+        }?
+        .teams ?? []
+}
+
 // 1
-let currentDirectory = FileManager.default.currentDirectoryPath
-let codeOwnersPath = currentDirectory + "/.github/CODEOWNERS"
-guard let codeOwnersData = FileManager.default.contents(atPath: codeOwnersPath), 
-      let codeOwnersContent = String(data: codeOwnersData, encoding: .utf8) else {
-        exit(1)
-        return
-} 
+let rootRepositoryDirectory = "/Users/polpielladev/Developer/glovo-customer-ios"
+let codeOwnersPath = rootRepositoryDirectory + "/.github/CODEOWNERS"
+
 // 2
-let regex = /([^\s\\]+)\s+?(?:@.*)?@MyAwesomeOrg\/cool-beans/
-let regularExpressionMatches = codeOwnersContent.matches(of: regex)
-let allCodeOwnerPathsOwnedByTeam = regularExpressionMatches.map { currentDirectory + $0.output.1 }
+let allOwnershipRules = getRules(from: codeOwnersPath, relativeTo: rootRepositoryDirectory)
+
 // 3
 let matchingSearch = "import Quick"
-// 4
-let dirEnum = FileManager.default.enumerator(atPath: currentDirectory)
+let dirEnum = FileManager.default.enumerator(atPath: rootRepositoryDirectory)
 var matchedFiles = [String]()
 while let file = dirEnum?.nextObject() as? String {
     guard file.hasSuffix(".swift") else { continue }
-    
-    let fullPath = currentDirectory + "/" + file
+
+    let fullPath = rootRepositoryDirectory + "/" + file
     if let contents = FileManager.default.contents(atPath: fullPath),
        let stringContents = String(data: contents, encoding: .utf8),
        stringContents.contains(matchingSearch) {
-        
+
         matchedFiles.append(fullPath)
     }
 }
 
-// 5
-let matchedFilesOwnedByTeam = matchedFiles.filter { matchedFile in
-    allCodeOwnerPathsOwnedByTeam
-        .map { URL(string: $0)?.hasDirectoryPath == true ? $0 + "*" : $0 }
-        .compactMap { try? Glob.Pattern($0).match(matchedFile) }
-        .contains(true)
-}
+// 4
+let matchedFilesOnwedByTeam = matchedFiles
+    .filter { fileContainingSearchQuery in
+        getOwnersForFile(fileContainingSearchQuery, rules: allOwnershipRules).contains("@Glovo/food-ios")
+    }
 
-// 6
-print(matchedFilesOwnedByTeam)
+// 5
+print(matchedFilesOnwedByTeam)
 ```
 
 A lot is going on in the code block above, so let's break it down into simple steps:
 
 1. Read the contents of the repository's CODEOWNERS file. The script assumes that the current directory is the root of the repository and tries to read the contents of the CODEOWNERS file.
-2. The paths that the specified teams own are extracted from the CODEOWNERS file using a Regular Expression.
-3. A variable containing the text to find is defined. In this case, the script is just looking for imports of the `Quick` library.
-4. A recursive search of all directories in the repository is performed and the paths to all `.swift` files containing the query string are stored in an array.
-5. We use the [GlobPattern](https://github.com/ChimeHQ/GlobPattern) library to filter out any matched files that are not owned by the given team. As CODEOWNERS syntax allows users to omit the `*` character for matching all files in a directory, we must add it where needed. 
-6. We finally print the matched files that fall under the given team's ownership.
+2. The CODEOWNERS file is parsed line by line to preserve the order of the rules. Each line is then transformed from a String into a struct containing the path that the rule applies to and the teams that own it.
+3. The script then recursively searches all directories in the repository for `.swift` files that contain the text to find. The paths to all files that contain the query string are stored in an array.
+4. We use the [GlobPattern](https://github.com/ChimeHQ/GlobPattern) library to filter out any matched files that are not owned by the given team. This process must be done by iterating the rules from bottom to top as the order defines the priority of the rule (i.e. rules defined later on in the file take higher priority). As CODEOWNERS syntax allows users to omit the `*` character for matching all files in a directory, we must add it where needed.
+5. We finally print the matched files that fall under the given team's ownership.
 
