@@ -1,0 +1,12 @@
+---
+title: "Swift 6: Access level on import statements"
+excerpt: ""
+pubDate: 2024-04-17
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+The [SE-0409](https://github.com/apple/swift-evolution/blob/main/proposals/0409-access-level-on-imports.md) proposal introduced the ability to mark import declarations with an access level to limit the types or interfaces that imported symbols can be used in. Thanks to these changes, dependencies can now be marked as being visible to the current source file (`private` or `fileprivate`), module (`internal`), package (`package`), or all clients (`public`).
+
+Up until this proposal, which is implemented behind a feature flag and won't be enabled until Swift 6, all import declarations were implicitly `public`. The new proposal makes dependency imports `internal` by default and requires developers to explicitly mark import statements with the desired access level to override this behavior. 
+
+This is a great addition to the language that I have personally longed for but, as you will see later on in the article and as you can probably imagine, it introduces breaking changes that you will need to fix. For this reason, I recommend you are an early adopter of this feature and start preparing your codebase for the changes that will come in Swift 6.
