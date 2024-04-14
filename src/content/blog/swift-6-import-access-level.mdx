@@ -9,4 +9,4 @@ The [SE-0409](https://github.com/apple/swift-evolution/blob/main/proposals/0409-
 
 Up until this proposal, which is implemented behind a feature flag and won't be enabled until Swift 6, all import declarations were implicitly `public`. The new proposal makes dependency imports `internal` by default and requires developers to explicitly mark import statements with the desired access level to override this behavior. 
 
-This is a great addition to the language that I have personally longed for but, as you will see later on in the article and as you can probably imagine, it introduces breaking changes that you will need to fix. For this reason, I recommend you are an early adopter of this feature and start preparing your codebase for the changes that will come in Swift 6.
+This is a great addition to the language that I have personally longed for as it allows developers to better hide implementation details and enforce separation of concerns. Not only that but it also limits the amount of dependencies imported by a package's clients to the ones marked as `public`, leading to shorter compile times.
