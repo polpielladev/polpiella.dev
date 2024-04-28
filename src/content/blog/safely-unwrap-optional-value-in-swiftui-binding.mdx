@@ -1,0 +1,70 @@
+---
+title: Safely unwrap optional values in SwiftUI bindings
+excerpt: How to use one of SwiftUI's Binding's initializers to safely unwrap its optional value.
+pubDate: 2024-05-01
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+This week I came across a situation where I had to pass the member of an optional struct held as a `@State` property to a child view as a `Binding`. 
+
+Sounds simple, right? Well, the problem was that the child view, which I did not have control over, was expecting a `Binding` with a non-optional value:
+
+```swift:ContenView.swift
+import SwiftUI
+
+struct Version: Identifiable {
+    let id: String
+    var name: String
+}
+
+@Observable
+final class ViewModel {
+    var version: Version?
+}
+
+struct ContentView: View {
+    @State private var viewModel = ViewModel()
+    
+    var body: some View {
+        VStack {
+            TextField("Version Name", text: $viewModel.version?.name)
+        }
+        .padding()
+    }
+}
+```
+
+When I tried to compile the code above, I got an error saying that **I could not use optional chaining to access the  non-optional `viewModel.version`**:
+
+![](/assets/posts/safely-unwrap-optional-value-in-swiftui-binding/error.webp)
+
+## Unwrapping optional values in a SwiftUI Binding
+
+This made sense, as while the property `version` is optional, the `Binding` we are accessing through the `$` prefix is not. It is a non-optional `Binding` with a wrapped value of type `String?`.
+
+At this point I had two options: either change the `version` property to be non-optional by providing default values for all of its properties or find a way to safely unwrap the optional value inside the `Binding`. 
+
+I decided to go with the latter as it would **scale better** and **keeping the optionality made sense** in the context of the application to reflect the user's selection.
+
+I did a bit of research and, thanks to [this amazing Stack Overflow answer](https://stackoverflow.com/a/58297743), I was pointed to an initializer of `Binding` I was not aware of: `init?(_ base: Binding<Value?>)`. In a nutshell, what this initializer does is **unwrap the optional value** the `Binding` is holding and instead provide an optional `Binding` with a **non-optional value**.
+
+Let's now modify the code above to use this initializer:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var viewModel = ViewModel()
+    
+    var body: some View {
+        VStack {
+            if let unwrapped = Binding($viewModel.version) {
+                TextField("Version Name", text: unwrapped.name)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+Make sure you safely unwrap the optional binding as shown above, as if its wrapped value becomes `nil` during the view's lifecycle, the `Binding` will also become `nil`.
