@@ -46,7 +46,7 @@ At this point I had two options: either change the `version` property to be non-
 
 I decided to go with the latter as it would **scale better** and **keeping the optionality made sense** in the context of the application to reflect the user's selection.
 
-I did a bit of research and, thanks to [this amazing Stack Overflow answer](https://stackoverflow.com/a/58297743), I was pointed to an initializer of `Binding` I was not aware of: `init?(_ base: Binding<Value?>)`. In a nutshell, what this initializer does is **unwrap the optional value** the `Binding` is holding and instead provide an optional `Binding` with a **non-optional value**.
+I did a bit of research and, thanks to [this amazing Stack Overflow answer](https://stackoverflow.com/a/58297743), I was pointed to an initializer of `Binding` I was not aware of: [`init?(_ base: Binding<Value?>)`](https://developer.apple.com/documentation/swiftui/binding/init(_:)-5z9t9). In a nutshell, what this initializer does is **unwrap the optional value** the `Binding` is holding and instead provide an optional `Binding` with a **non-optional value**.
 
 Let's now modify the code above to use this initializer:
 
