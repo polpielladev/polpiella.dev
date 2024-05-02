@@ -59,12 +59,8 @@ const isNewsletter = pathname.includes("/newsletter");
       defer></script>
   </head>
   <body
-    class="flex min-h-screen flex-col max-w-[1200px] gap-6 px-4 mx-auto justify-between dark:bg-gray-900"
+    class="flex min-h-screen flex-col max-w-[1200px] gap-6 px-4 mx-auto justify-between bg-gray-50 dark:bg-gray-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,216,255,0.5),rgba(255,255,255,0.9))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"
   >
-    <div
-      class="absolute -z-50 inset-0 bg-[url(/assets/background.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:invert"
-    >
-    </div>
     <Header activeNav={activeNav} />
     <main class={`flex flex-col flex-auto ${center ? "items-center" : ""}`}>
       <slot />
