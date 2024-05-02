@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content'
 
 const parser = new MarkdownIt()
 
-export const get = async () => {
+export async function GET() {
   const allBlogPosts = await getCollection('blog')
   const sortedPosts = allBlogPosts.sort(
     (a, b) =>

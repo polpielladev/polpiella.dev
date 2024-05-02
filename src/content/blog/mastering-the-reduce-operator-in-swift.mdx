@@ -1,0 +1,94 @@
+---
+title: 'Master the reduce operator in Swift and make your code more performant'
+excerpt: "Learn all about Sequence's reduce operator in Swift through a series of real-world examples."
+pubDate: 2024-04-03
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Swift's `Sequence` type has a powerful operator called `reduce` which allows you to combine all elements of a sequence into a single value. I have been using it over and over again when dealing with responses from the App Store Connect API and I thought it would be a good idea to write a blog post about it.
+
+The `reduce` operator has two different signatures:
+
+```swift
+// Reduce with an initial result
+@inlinable public func reduce<Result>(_ initialResult: Result, _ nextPartialResult: (_ partialResult: Result, Self.Element) throws -> Result) rethrows -> Result
+
+// Reduce into an initial result
+@inlinable public func reduce<Result>(into initialResult: Result, _ updateAccumulatingResult: (_ partialResult: inout Result, Self.Element) throws -> ()) rethrows -> Result
+```
+
+Both of these operators achieve the same result when given the same inputs: they start with an initial `inout` value and they iterate over all elements in the sequence and pass them as a parameter to the provided closure. As the initial value is passed as an `inout` parameter, the closure can modify it based on the current element in the sequence. The updated value of each iteration is then passed as the first parameter to the closure in the next iteration.
+
+While they might look very similar - and they both have O(*n*) complexity and can be used interchangeably - they have different efficiency implications based on the type of the result. For example, you should **prefer the `into` variation when the result is a copy-on-write type like an `Array` or a `Dictionary`**.
+
+## Reduce with an initial result
+
+Let's look at a very simple example to understand how the `reduce` operator works. Imagine you have an array of integers and you want to produce the sum of all elements as a result. If you didn't know about the `reduce` operator, you could write a function like this:
+
+```swift:Reduce.swift
+func sumAllElements(of numbers: [Int]) -> Int {
+    var sum = 0
+    for number in numbers {
+        sum += number
+    }
+    return sum
+}
+```
+
+While this function works perfectly fine, it's not the most elegant solution. You can achieve the same result with the `reduce` operator in a single line of code:
+
+```swift:Reduce.swift
+func sumAllElements(of numbers: [Int]) -> Int {
+    numbers.reduce(0) { $0 + $1 }
+}
+```
+
+Or even better, you can pass the `+` operator as a closure directly: 
+
+```swift:Reduce.swift
+func sumAllElements(of numbers: [Int]) -> Int {
+    numbers.reduce(0, +)
+}
+```
+
+## Reduce into an initial result
+
+Let's now look into a slightly more complex example. Let's consider we have an array of `ScreenshotBundle`s that have a name and a list of `URL`s to the screenshots. Our UI needs to find a screenshot bundle with a specific name based on user selection and display all `URL`s in image views:
+
+![An image of the screenshot viewing feature in the Helm app.](/assets/posts/mastering-the-reduce-operator-in-swift/helm.webp)
+
+> 👀 This is a variation of the code we are using in [Helm](https://helm-app.com/), an app [Hidde](https://twitter.com/hiddevdploeg) and I are building to make it easier and more enjoyable for users of App Store Connect to ship apps and updates. Focused on providing a fast & intuitive user experience. The app is not out yet, but [you can get early access here](https://hiddevdploeg91.gumroad.com/l/helm)! 
+
+We can achieve this by keeping the array of `ScreenshotBundle`s as is and then searching for the bundle with the specific name:
+
+```swift:ScreenshotBundle.swift
+struct ScreenshotBundle {
+    let name: String
+    let urls: [URL]
+}
+
+func find(bundleWithName name: String, in bundles: [ScreenshotBundle]) -> ScreenshotBundle? {
+    bundles.first(where: { $0.name == name })
+}
+```
+
+While this approach works, it's not the most efficient one. The `first(where:)` function has a complexity of O(*n*) and, as you can imagine, this can be a problem if you have a large number of elements in your array.
+
+What you can do instead is to use the `reduce` operator once to convert your array of `ScreenshotBundle`s into a dictionary where the key is the name of the bundle and the value is the bundle itself. This way, you can find the bundle with the specific name in O(1) time complexity:
+
+```swift:ScreenshotBundle.swift
+struct ScreenshotBundle {
+    let name: String
+    let urls: [URL]
+}
+
+func format(bundles: [ScreenshotBundle]) -> [String: ScreenshotBundle] {
+    bundles.reduce(into: [String: ScreenshotBundle]()) { result, bundle in
+        result[bundle.name] = bundle
+    }
+}
+
+func find(bundleWithName name: String, in bundles: [String: ScreenshotBundle]) -> ScreenshotBundle? {
+    bundles[name]
+}
+```

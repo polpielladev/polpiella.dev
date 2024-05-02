@@ -2,6 +2,7 @@
 import "@styles/blog-detail.css";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BlogSponsor from "@components/BlogSponsor.svelte";
+import Subscribe from "@components/Subscribe.astro";
 
 interface Props {
   url: string;
@@ -14,21 +15,31 @@ const formattedDate = new Date(pubDate).toLocaleDateString("en-US", {
 const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
   title,
 )}`;
-
-const isCICD = Astro.props.content.category === "github-actions";
 ---
 
 <BaseLayout {title} description={excerpt} image={fullImageURL}>
   <article>
     <div class="xl:grid xl:grid-cols-[1fr_minmax(100px,80ch)] xl:gap-12">
       <aside class="xl:block hidden">
-        <div class="sticky top-6">
+        <div class="sticky top-6 space-y-20">
           <BlogSponsor variant="default" />
+          <div class="flex flex-col gap-6">
+            <div>
+              <h3 class="dark:text-white text-xl font-title mb-1">
+                iOS CI Newsletter
+              </h3>
+              <p class="dark:text-gray-300">
+                Join over <strong>1,000</strong> developers and never miss the latest
+                iOS CI/CD news delivered straight to your inbox.
+              </p>
+            </div>
+            <Subscribe />
+          </div>
         </div>
       </aside>
 
       <div
-        class="prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-purple-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-none mx-auto"
+        class="prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-none mx-auto"
       >
         <header class="flex flex-col gap-2 mb-8">
           <h1

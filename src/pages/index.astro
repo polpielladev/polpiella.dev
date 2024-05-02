@@ -1,37 +1,42 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro'
-import BlogPreview from '@components/BlogPreview.svelte'
-import { getCollection } from 'astro:content'
-import MediaGrid from '@components/media/MediaGrid.astro'
-import TitledGrid from '@components/TitledGrid.svelte'
-import BlogSponsor from '@components/BlogSponsor.svelte'
+import BaseLayout from "@layouts/BaseLayout.astro";
+import BlogPreview from "@components/BlogPreview.svelte";
+import { getCollection } from "astro:content";
+import MediaGrid from "@components/media/MediaGrid.astro";
+import TitledGrid from "@components/TitledGrid.svelte";
+import BlogSponsor from "@components/BlogSponsor.svelte";
+import Subscribe from "@components/Subscribe.astro";
 
-const posts = await getCollection('blog')
+const posts = await getCollection("blog");
 const sortedPosts = posts
   .sort(
     (a, b) =>
-      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+      new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
   )
-  .slice(0, 6)
+  .slice(0, 6);
 ---
 
 <BaseLayout
   title="polpielladev 📱 | A blog about iOS mobile app development and Swift"
   description="Blog posts about iOS mobile app development and Swift by Pol Piella."
-  activeNav="index">
+  activeNav="index"
+>
   <div class="flex flex-col gap-12">
     <section class="grid lg:grid-cols-[1fr_400px] gap-8">
-      <div class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
+      <div class="flex flex-col max-w-2xl gap-5 mb-6">
         <h1
-          class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+          class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+        >
           Welcome to my blog 👋
         </h1>
         <p
-          class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
+          class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+        >
           I'm Pol, a content creator and iOS developer. In this blog I write
           about all things iOS, Swift and software development best practices. I
-          also have a newsletter about iOS CI/CD if you want to subscribe 👇.
+          also have a newsletter about iOS CI/CD if you want to subscribe 👇
         </p>
+        <Subscribe />
       </div>
       <div class="">
         <BlogSponsor />
@@ -40,7 +45,8 @@ const sortedPosts = posts
     <TitledGrid
       title="Latest articles"
       offsetTop
-      disclose={{ title: 'See all', link: '/posts' }}>
+      disclose={{ title: "See all", link: "/posts" }}
+    >
       {
         sortedPosts.map((post, index: number) => (
           <BlogPreview

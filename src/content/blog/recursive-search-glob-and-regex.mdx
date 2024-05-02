@@ -1,0 +1,149 @@
+---
+title: "Use Swift to recursively search for content in a directory's files with Glob patterns and Regular Expressions"
+excerpt: "How to find content specified by a Regular Expression in a directory's set of files defined by a Glob pattern using Swift."
+pubDate: 2024-04-11
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+I have recently joined a new team at work and I am still getting to know the team's domain and what parts of the codebase we own. 
+
+Thankfully, our repository has a [GitHub CODEOWNERS file](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) and, every file or group of files that we own is reflected there. If you're not familiar with the concept or format of GitHub's code ownership model, it allows you to link one or more files using Glob patterns to GitHub teams.
+
+For example, the file below defines the `@MyAwesomeOrg/cool-beans` team as the owner of the whole `Tests` directory and only a subset of the `Account` module:
+
+```
+/Tests/    @MyAwesomeOrg/cool-beans
+/Modules/Account/Tests/*    @MyAwesomeOrg/cool-beans
+/Modules/Account/Settings/**/Views    @MyAwesomeOrg/cool-beans
+```
+
+For the past few days, I have found myself trying to find text occurrences, such as the import of a specific module, in the files my team owns manually, which has been a rather tedious task. 
+
+For this reason, I have decided to write a small script that automates this task for me and, given some piece of text and a GitHub team tag, it will find all occurrences of that text in the file the team owns.
+
+## Setting up the project
+
+The first thing I did was to create an executable Swift Package:
+
+```bash:Terminal
+mkdir find-code-owner && cd find-code-owner
+swift package init --name FindCodeOwner --type executable
+```
+
+I then added the [GlobPattern Swift Package by ChimeHQ](https://github.com/ChimeHQ/GlobPattern) as a dependency to help me determine whether files containing the query text are owned by the provided GitHub team:
+
+```swift:Package.swift
+// swift-tools-version: 5.10
+
+import PackageDescription
+
+let package = Package(
+    name: "FindCodeOwner",
+    platforms: [
+        .macOS(.v13)
+    ],
+    dependencies: [
+        .package(url: "https://github.com/ChimeHQ/GlobPattern.git", exact: "0.1.1")
+    ],
+    targets: [
+        .executableTarget(
+            name: "FindCodeOwner",
+            dependencies: ["GlobPattern"],
+            swiftSettings: [
+                .enableUpcomingFeature("BareSlashRegexLiterals")
+            ]
+        ),
+    ]
+)
+```
+
+## Finding files
+
+Let's say our team wants to migrate away from a dependency called `Quick` and we want to find all files that we own that import the library. 
+
+Let's write some code in our executable target to do this:
+
+```swift:main.swift
+import Foundation
+import GlobPattern
+
+struct OwnershipRule {
+    let path: String
+    let teams: [String]
+}
+
+func getRules(from codeOwnersFile: String, relativeTo repository: String) -> [OwnershipRule] {
+    guard let content = try? String(contentsOfFile: codeOwnersFile) else {
+        return []
+    }
+    
+    return content
+        .components(separatedBy: .newlines)
+        .filter { $0.isEmpty || $0.hasPrefix("#") }
+        .map { createRule(from: $0, relativeTo: repository) }
+}
+
+func createRule(from line: String, relativeTo repository: String) -> OwnershipRule {
+    let elements = line.components(separatedBy: .whitespaces)
+        .filter { !$0.isEmpty }
+
+    let teams = elements
+        .enumerated()
+        .filter { $0 != 0 && $1.hasPrefix("@") }
+        .map(\.1)
+    
+    return OwnershipRule(path: repository + elements[0], teams: teams)
+}
+
+func getOwnersForFile(_ filePath: String, rules: [OwnershipRule]) -> [String] {
+    rules
+        .reversed()
+        .first { rule in
+            let globExpression = URL(string: rule.path)?.hasDirectoryPath == true ? rule.path + "*" : rule.path
+            let matcher = try? Glob.Pattern(globExpression)
+            return matcher?.match(filePath) == true
+        }?
+        .teams ?? []
+}
+
+// 1
+let rootRepositoryDirectory = FileManager.default.currentDirectoryPath
+let codeOwnersPath = rootRepositoryDirectory + "/.github/CODEOWNERS"
+
+// 2
+let allOwnershipRules = getRules(from: codeOwnersPath, relativeTo: rootRepositoryDirectory)
+
+// 3
+let matchingSearch = "import Quick"
+let dirEnum = FileManager.default.enumerator(atPath: rootRepositoryDirectory)
+var matchedFiles = [String]()
+while let file = dirEnum?.nextObject() as? String {
+    guard file.hasSuffix(".swift") else { continue }
+
+    let fullPath = rootRepositoryDirectory + "/" + file
+    if let contents = FileManager.default.contents(atPath: fullPath),
+       let stringContents = String(data: contents, encoding: .utf8),
+       stringContents.contains(matchingSearch) {
+
+        matchedFiles.append(fullPath)
+    }
+}
+
+// 4
+let matchedFilesOnwedByTeam = matchedFiles
+    .filter { fileContainingSearchQuery in
+        getOwnersForFile(fileContainingSearchQuery, rules: allOwnershipRules).contains("@MyAwesomeOrg/cool-beans")
+    }
+
+// 5
+print(matchedFilesOnwedByTeam)
+```
+
+A lot is going on in the code block above, so let's break it down into simple steps:
+
+1. Read the contents of the repository's CODEOWNERS file. The script assumes that the current directory is the root of the repository and tries to read the contents of the CODEOWNERS file.
+2. The CODEOWNERS file is parsed line by line to preserve the order of the rules. Each line is then transformed from a String into a struct containing the path that the rule applies to and the teams that own it.
+3. The script then recursively searches all directories in the repository for `.swift` files that contain the text to find. The paths to all files that contain the query string are stored in an array.
+4. We use the [GlobPattern](https://github.com/ChimeHQ/GlobPattern) library to filter out any matched files that are not owned by the given team. This process must be done by iterating the rules from bottom to top as the order defines the priority of the rule (i.e. rules defined later on in the file take higher priority). As CODEOWNERS syntax allows users to omit the `*` character for matching all files in a directory, we must add it where needed.
+5. We finally print the matched files that fall under the given team's ownership.
+

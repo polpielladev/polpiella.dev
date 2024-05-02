@@ -1,0 +1,87 @@
+---
+title: 'Multi-platform Swift Package releases with GitHub Actions'
+excerpt: "How to automatically create and release a multi-platform Swift Package library with GitHub Actions whenever you push a new tag."
+pubDate: 2024-03-27
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+I have recently been working on a new Swift Package library that supports iOS, macOS and Linux. As I wanted the development lifecycle to be **fast and iterative**, I decided to make the library's **release process as automated and as error-proof as possible**. 
+
+I came up with a GitHub Actions workflow that runs every time a new tag is pushed to the repository and performs the following steps:
+
+- Build the library and run the test suite for all supported platforms. 
+- Check all source files to prevent non-inclusive language from making it to the release cut.
+- If the two previous checks were successful, create a new GitHub release with auto-generated release notes.
+
+## The release workflow
+
+The workflow I ended up with extends and modifies the CI workflow from [Matt Massicotte's Swift Package template repository](https://github.com/mattmassicotte/PackageTemplate/blob/main/.github/workflows/ci.yml), which I always use when starting a new project.
+
+The template already has two steps to build and test the library on Apple platforms (iOS and macOS) and Linux. 
+
+I changed the `on` trigger to only be executed when a new tag matching the '*.*.*' pattern is pushed and then added a new job that checks for inclusive language using the [woke GitHub action](https://github.com/marketplace/actions/run-woke) in the source files and creates a new GitHub release with auto-generated release notes if the two previous checks pass:
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_15.2.app/Contents/Developer
+
+jobs:
+  test_apple_platforms:
+    name: Test on iOS and macOS
+    runs-on: macOS-13
+    strategy:
+      matrix:
+        destination:
+          - "platform=macOS"
+          - "platform=iOS Simulator,name=iPhone 12"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test platform ${{ matrix.destination }}
+        run: set -o pipefail && xcodebuild -scheme XcodeCloudKit -destination "${{ matrix.destination }}" test | xcbeautify
+
+  test_linux:
+    name: Test Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install swiftly
+        run: curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash -s -- -y
+      - name: Install the latest Swift toolchain
+        run: swiftly install latest
+      - name: Test
+        run: swift test
+
+  release:
+    needs: [test_apple_platforms, test_linux]
+    name: Create a new GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: woke
+        uses: get-woke/woke-action@v0
+        with:
+          fail-on-error: true
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+After pushing a new tag to the repository, the workflow runs all jobs and creates a new GitHub release:
+
+![](/assets/posts/multi-platform-swift-package-releases-with-github-actions/result.webp)

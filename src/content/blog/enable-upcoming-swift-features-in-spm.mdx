@@ -1,21 +1,23 @@
 ---
-title: 'Enable upcoming Swift features in SPM'
-excerpt: 'How to effectively adopt upcoming Swift 6 features in your Swift packages today.'
+title: 'Enable upcoming Swift features'
+excerpt: 'How to effectively adopt upcoming Swift 6 features in your Swift Packages and Xcode targets today.'
 pubDate: 2023-12-13
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
 The [SE-0362](https://github.com/apple/swift-evolution/blob/main/proposals/0362-piecemeal-future-features.md) Swift Evolution proposal, implemented and available from Swift 5.8, allows you to adopt upcoming Swift features in your code on a per-case basis.
 
-This is useful if you want to benefit from features that you would otherwise not be able to in Swift Packages until Swift 6 is released. The reason for such features not being available by default is to **preserve source compatibility** with older Swift versions and will **not be enabled by default until the next major version of Swift**.
+This is useful if you want to benefit from features that you would otherwise not be able to in Swift Packages and Xcode targets until Swift 6 is released. The reason for such features not being available by default is to **preserve source compatibility** with older Swift versions and will **not be enabled by default until the next major version of Swift**.
 
 > There is also an [amazing post on swift.org](https://www.swift.org/blog/using-upcoming-feature-flags/) by [James Dempsey](https://twitter.com/jamesdempsey) going into great detail about the feature. I wanted to provide a more concise version of the same information for my future self, as well as a more up-to-date list of upcoming feature flags as of today.
 
 ## How it works
 
-The way you enable upcoming Swift features in your Swift packages is by passing the `-enable-upcoming-feature` flag to the Swift compiler with the name of the feature you'd like to enable.
+The way you enable upcoming Swift features in your projects is by passing the `-enable-upcoming-feature` flag to the Swift compiler with the name of the feature you'd like to enable.
 
 For example, if you want to enable the `InternalImportsByDefault` feature, you'd pass the `-enable-upcoming-feature InternalImportsByDefault` flag to the compiler.
+
+### Swift Package Manager
 
 As part of the proposal and to ease the adoption of upcoming Swift features, there is a new `.enableUpcomingFeature` method you can use on the `swiftSettings` property of your Swift package manifest:
 
@@ -45,6 +47,12 @@ let package = Package(
 ```
 
 This saves you from having to pass the `-enable-upcoming-feature` flag to the compiler manually through the `.unsafeFlags` method, which, as the documentation states, makes products that use such unsafe flags ineligible for use by other Swift packages.
+
+### Xcode targets
+
+To enable an upcoming Swift feature in an Xcode target, you need to add the `-enable-upcoming-feature` string with the feature you'd like to enable to the `Other Swift Flags` section of the target's build settings:
+
+![](/assets/posts/enable-upcoming-swift-features-in-spm/other-swift-flags.webp)
 
 ## Feature-proofing your work
 
