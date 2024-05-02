@@ -1,0 +1,22 @@
+---
+title: 'Cancel unnecessary in-progress GitHub Actions'
+excerpt: "How to use GitHub Actions' concurrency group to save resources by canceling unnecessary in-progress workflows."
+pubDate: 2023-03-23
+category: "github-actions"
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+This is what you need to add to your workflows to cancel any ongoing workflows in the same concurrency group when a new one is triggered:
+
+```yaml:cancel-in-progress.yml
+name: Cancel in-progress workflows in the same concurrency group
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+```
