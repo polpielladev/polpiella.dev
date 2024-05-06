@@ -1,0 +1,17 @@
+---
+title: 'Scheduled GitHub Actions workflows'
+excerpt: 'How to run CI/CD workflows on a schedule using cron expressions and GitHub Actions.'
+pubDate: 2023-03-23
+category: "github-actions"
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+This is how you can run a GitHub Actions workflow on a schedule using a cron expression:
+
+```yaml:scheduled.yml
+name: Run a workflow on a schedule
+
+on:
+    schedule:
+        - cron: "0 0 * * *"
+```

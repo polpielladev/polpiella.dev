@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import WeeBiteCategory from "@components/WeeBiteCategory.astro";
+import { getCollection } from "astro:content";
+import { BITES_CATEGORIES } from "@services/categories";
+
+const allPosts = await getCollection("bites");
+
+const categories = allPosts.reduce((acc, post) => {
+    const { category } = post.data;
+    if (!acc.includes(category)) {
+        acc.push(category);
+    }
+    return acc;
+}, []);
+---
+
+<BaseLayout
+    title="All articles — polpiella.dev"
+    description="All articles about iOS development and Swift in my blog"
+    activeNav="posts"
+>
+    <article class="flex flex-col gap-8 max-w-2xl mx-auto">
+        <header class="text-center flex flex-col gap-4 items-center">
+            <img
+                width="208px"
+                height="208px"
+                class="w-52 aspect-square m-0"
+                src="/assets/wee-bites.svg"
+            />
+            <h1
+                class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+            >
+                Wee Bites
+            </h1>
+            <p
+                class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+            >
+                A collection of code snippets and short-form articles about
+                Apple development and Swift.
+            </p>
+        </header>
+        <div class="grid grid-cols-2 gap-3">
+            {
+                categories.map((category) => {
+                    const {
+                        emoji,
+                        background,
+                        hoverColor,
+                        emojiBackground,
+                        name,
+                    } = BITES_CATEGORIES[category];
+                    return (
+                        <WeeBiteCategory
+                            href=`/bites/${category}`
+                            title={name}
+                            emoji={emoji}
+                            background={background}
+                            hoverColor={hoverColor}
+                            emojiBackground={emojiBackground}
+                        />
+                    );
+                })
+            }
+        </div>
+    </article>
+</BaseLayout>

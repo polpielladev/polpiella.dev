@@ -1,0 +1,80 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import type { GetStaticPathsResult } from "astro";
+import { BITES_CATEGORIES } from "@services/categories";
+
+const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+        dateStyle: "medium",
+    });
+};
+
+const { category } = Astro.params;
+const allPosts = await getCollection("bites");
+const postsForCategory = allPosts.filter(
+    (post) => post.data.category === category,
+);
+
+const { emoji, background, hoverColor, emojiBackground, name } =
+    BITES_CATEGORIES[category];
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+    const allPosts = await getCollection("bites");
+    const categories = allPosts.reduce((acc, post) => {
+        const { category } = post.data;
+        if (!acc.includes(category)) {
+            acc.push(category);
+        }
+        return acc;
+    }, []);
+
+    return categories.map((category) => {
+        return {
+            params: { category },
+        };
+    });
+}
+---
+
+<BaseLayout>
+    <div class="space-y-12">
+        <header class="flex flex-col justify-center max-w-2xl gap-4 mb-6">
+            <div class="flex gap-3 items-center">
+                <p
+                    class=`${emojiBackground} text-4xl md:text-5xl lg:text-6xl rounded-md p-1`
+                >
+                    {emoji}
+                </p>
+                <h1
+                    class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+                >
+                    {name} Bites
+                </h1>
+            </div>
+        </header>
+        <section class="flex flex-col gap-10">
+            {
+                postsForCategory.map((post) => (
+                    <a
+                        class="inline-flex flex-col gap-2 group max-w-xl"
+                        href={`/bites/${category}/${post.slug}`}
+                    >
+                        <h2 class="dark:text-white font-title text-2xl group-hover:text-purple-300 transition-colors">
+                            {post.data.title}
+                        </h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            {post.data.excerpt}
+                        </p>
+                        <time
+                            class="text-sm text-gray-600 dark:text-gray-300"
+                            datetime={post.data.pubDate.toDateString()}
+                        >
+                            {formatDate(post.data.pubDate)}
+                        </time>
+                    </a>
+                ))
+            }
+        </section>
+    </div>
+</BaseLayout>
