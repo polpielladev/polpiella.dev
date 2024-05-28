@@ -1,0 +1,88 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Paginator from "@components/Paginator.svelte";
+import { getCollection } from "astro:content";
+import type { GetStaticPathsOptions } from "astro";
+import BlogPreview from "@components/BlogPreview.svelte";
+import { getAllCategories, POST_CATEGORIES } from "@services/categories";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+    const posts = await getCollection("blog");
+    const allCategories = await getAllCategories();
+
+    const sortedPosts = posts.sort(
+        (a, b) =>
+            new Date(b.data.pubDate).valueOf() -
+            new Date(a.data.pubDate).valueOf(),
+    );
+
+    return allCategories
+        .map((category) => category.slug)
+        .flatMap((slug) => {
+            const filteredPosts = sortedPosts.filter((post) =>
+                post.data.tags.includes(slug),
+            );
+
+            return paginate(filteredPosts, {
+                params: { slug },
+                pageSize: 12,
+            });
+        });
+}
+
+interface PageItem {
+    data: PageItemData;
+    slug: string;
+}
+
+interface PageItemData {
+    title: string;
+    excerpt: string;
+    pubDate: Date;
+}
+
+const { page } = Astro.props;
+const { slug } = Astro.params;
+const category = POST_CATEGORIES[slug];
+---
+
+<BaseLayout
+    title=`${category.name} articles — polpiella.dev`
+    description=`All articles about ${category.name} and Swift in my blog`
+    `
+    activeNav="posts"
+>
+    <section>
+        <div class="flex flex-col justify-center max-w-3xl gap-4 mb-6">
+            <h1
+                class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+            >
+                Learn all about <span
+                    class="text-violet-600 dark:text-violet-300"
+                    >{category.name}</span
+                > with these posts
+            </h1>
+            <p
+                class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+            >
+                {category.description}
+            </p>
+        </div>
+    </section>
+    <section>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 py-12">
+            {
+                page.data.map((post: PageItem, index: number) => (
+                    <BlogPreview
+                        title={post.data.title}
+                        slug={post.slug}
+                        excerpt={post.data.excerpt}
+                        pubDate={post.data.pubDate}
+                        isNew={index == 0 && page.currentPage == 1}
+                    />
+                ))
+            }
+        </div>
+        <Paginator previousURL={page.url.prev} nextURL={page.url.next} />
+    </section>
+</BaseLayout>
