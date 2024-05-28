@@ -6,6 +6,7 @@ export const collections = {
       title: z.string(),
       excerpt: z.string(),
       pubDate: z.date(),
+      tags: z.array(z.string()),
     }),
   }),
   bites: defineCollection({

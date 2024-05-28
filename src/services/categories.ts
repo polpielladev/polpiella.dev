@@ -153,3 +153,23 @@ export const POST_CATEGORIES = Object.freeze({
         description: "Optimize your Swift code for better performance."
     }
 });
+
+import { getCollection } from "astro:content";
+
+export const getAllCategories = async () => {
+    const posts = await getCollection("blog")    
+
+    return posts.reduce((acc, post) => {
+        if (post.data.tags) {
+            post.data.tags.forEach((category) => {
+                if (!acc.some(item => item.slug === category)) {
+                    const categoryData = POST_CATEGORIES[category]
+                    if (categoryData) {
+                        acc.push({ ...categoryData, slug: category })
+                    }
+                }
+            })
+        }
+        return acc
+    }, [])
+}
