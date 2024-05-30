@@ -1,0 +1,28 @@
+---
+title: 'Removing components from a Date in Swift'
+excerpt: 'Learn how you can use the Calendar and DateComponents APIs to remove specific information like hours or minutes from a Date in Swift.'
+pubDate: 2024-05-30
+tags: ['swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+We recently fixed a bug in our app [Helm](https://helm-app.com/) which occurred when trying to set the time of a scheduled release using the App Store Connect API. 
+
+The date we were sending in the request contained the **day, month, year, hour and minute**, but the API would only allow us to be **precise up to the hour**.
+
+To fix the issue as quickly as possible and as SwiftUI's DatePicker can not be configured to only allow the user **to select the hour of the day without specifying the minute**, we decided to remove the extra information from the date before sending it to the API with a small extension on `Date`:
+
+```swift:Date+KeepingInformation.swift
+extension Date {
+    func keepingInformation(
+        dateComponents: Set<Calendar.Component> = [.year, .month, .day, .hour],
+        in calendar: Calendar = .current
+    ) -> Date {
+        let dateComponents = calendar.dateComponents(dateComponents, from: self)
+        
+        return calendar.date(from: dateComponents) ?? self
+    }
+}
+```
+
+The code above extracts the desired date components from the `Date` instance and then uses the provided `Calendar` to create a new `Date` just with those components. 
