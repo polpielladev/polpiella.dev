@@ -1,7 +1,6 @@
-
 ---
 title: 'How to create a SwiftUI floating window in macOS 15'
-excerpt: "Leverage the power of the new SwiftUI APIs in macOS 15 to create a movable and resizable floating window that stays on top of the user's screen."
+excerpt: "Leverage the power of the new SwiftUI APIs in macOS 15 to create a movable and resizable floating window that stays on top of every other window"
 pubDate: 2024-06-11
 tags: ['swiftui', 'wwdc24']
 layout: ../../layouts/BlogPostLayout.astro
@@ -13,9 +12,9 @@ Up until [WWDC 24](https://developer.apple.com/wwdc24), SwiftUI had no built-in 
 
 <Video src="/public/assets/posts/creating-a-floating-window-using-swiftui-in-macos-15/demo.mp4" />
 
-During the [What's new in SwiftUI](https://developer.apple.com/wwdc24/10149) session, Apple introduced a new set of APIs for window management that, among other things, allows you to set the floating level of a specific window in your app. This modifier can be used to very easily create a floating window in SwiftUI: 
+During the [What's new in SwiftUI](https://developer.apple.com/wwdc24/10149) session, Apple introduced a new set of APIs for window management that, among other things, allow you to set the floating level of a specific window in your app through the use of view modifiers:
 
-```swift
+```swift:App.swift
 import SwiftUI
 
 @main
@@ -39,7 +38,7 @@ struct QReateApp: App {
 
 There is also a brand new modifier that allows you to decide the default position of the window when it is created:
 
-```swift
+```swift:App.swift
 import SwiftUI
 
 @main
