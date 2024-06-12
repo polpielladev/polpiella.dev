@@ -172,6 +172,11 @@ export const POST_CATEGORIES = Object.freeze({
         name: "Performance",
         description: "Optimize your Swift code for better performance.",
         color: "#cbd5e1"
+    },
+    "wwdc24": {
+        name: "WWDC24",
+        description: "Stay up to date with the new features and APIs announced at WWDC24.",
+        color: "#b8d8b7"
     }
 });
 
