@@ -1,0 +1,689 @@
+---
+title: 'Free, on-device translations with the Swift Translation API'
+excerpt: "During WWDC24, Apple announced the Swift Translation API, a new framework that allows you to perform on-device translations in your Swift apps entirely for free. In this post, we'll take a look at all the different ways you can use the new API to translate text between languages in your apps."
+pubDate: 2024-06-19
+tags: ['swift', 'ml', 'wwdc-24']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.svelte'
+
+During WWDC24, Apple announced [Translation](https://developer.apple.com/wwdc24/10117), a new first-party framework built using CoreML models that allows you to perform on-device translations in your Swift apps entirely for free. Up until now, developers had to rely on third-party services such as [the Google Translate API](https://cloud.google.com/translate) or [Open AI](https://openai.com/index/openai-api) to dynamically translate text across different languages in their apps.
+
+While these services are very simple to use and excel at translation tasks, they require an **internet connection and an API key** that could open up security vulnerabilities in your app, they are **not free** and their **speed depends on the user's connectivity**. 
+
+The new Translation framework aims to solve these problems by providing a fast, free and on-device solution for translating text between languages in your Swift apps.
+
+## The example app
+
+To demonstrate how to use the new Translation framework, we will build a simple SwiftUI app that allows the user to input text and translate it to a different language when they press a button. We'll start with the following basic implementation of the UI and add the translation functionality in the next sections:
+
+![](/assets/posts/swift-translation-api/ui.webp)
+
+The code for the UI part of this article is very simple and consists of a `TextEditor` that allows the user to input the text they want to translate and a floating `Button` that will trigger the translation of the text when pressed:
+
+```swift:TranlsationPlayground.swift
+import Tranlsation
+import SwiftUI
+
+struct TranlsationPlayground: View {
+    @State private var text = ""
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: { print("Translate") }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding()
+    }
+}
+```
+
+> Before going any further, you must know that the Translation framework does **NOT** work on the simulator and you must test it on a device! 
+
+## Using a Translation Sheet
+
+The easiest way to start translating content in your app is by using the `.translationPresentation` modifier. This modifier expects a boolean binding that controls whether the translation sheet is presented or not and the text to be translated in the sheet:
+
+```swift:TranlsationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var isPresentingSheet = false
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: { isPresentingSheet = true }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                    .translationPresentation(isPresented: $isPresentingSheet, text: text)
+                }
+            }
+        }
+        .padding()
+    }
+}
+```
+
+Similarly to what happens with the macOS `popover` modifier, it is important to place the `.translationPresentation` modifier on the view you would like to attach the sheet to. In this case, the sheet will show on top of the `Button` when it is pressed:
+
+<Video src="/assets/posts/swift-translation-api/sheet.mp4" />
+
+## Using TranslationSessions
+
+If you would like to perform translations in the background, limit the languages you can translate to or even customize the UI you present to your users when translating, you can use a `TranslationSession` instead. Contrary to what I initially thought, `TranslationSession` can not be initialized directly, an instance of it can only be retrieved from a SwiftUI view by performing the following steps:
+
+1. Create a variable in your SwiftUI view that holds an optional `TranslationSession.Configuration?` instance.
+2. Create an instance of `TranslationSession.Configuration` with the desired source and target language and assign it to the variable created in step 1.
+3. Add a `.translationTask` modifier, pass it the configuration variable and the closure where you will receive the session instance whenever the configuration changes or is invalidated.
+
+Let's see how this works in practice:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: {
+                       if configuration == nil {
+                           self.configuration = TranslationSession.Configuration(source: nil, target: Locale.Language(identifier: "nl"))
+                       } else {
+                           self.configuration?.invalidate()
+                       }
+                    }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .translationTask(configuration) { session in
+            // Use `session` here!   
+        }
+        .padding()
+    }
+}
+```
+
+### Language Availabality
+
+Before we start translating text, I want to point out a few things that you need to know to make the best use of the `Translation` framework.
+
+#### Language download
+
+The Translation framework needs to have a local model for each language you want to translate to. If you translate to a language whose model is not found on the device, the framework will present a sheet that will allow the user to download such model:
+
+<Video src="/assets/posts/swift-translation-api/download.mp4" />
+
+If you know you are going to need a specific language, you can prompt the user to download it before doing any translations by using the `prepareTranslation` method on `TranslationSession`. This will take the source and target languages you want to translate from and to and will download the necessary models:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                Button(action: {
+                   if configuration == nil {
+                       self.configuration = TranslationSession.Configuration(
+                        source: Locale.Language(languageCode: .spanish),
+                        target: Locale.Language(languageCode: .dutch)
+                       )
+                   } else {
+                       self.configuration?.invalidate()
+                   }
+                }) {
+                    Label("Prepare translation", systemImage: "arrow.down.circle.fill")
+                        .foregroundStyle(.white)
+                        .fontDesign(.rounded)
+                        .fontWeight(.semibold)
+                        .padding(8)
+                        .background(.gray)
+                        .cornerRadius(8)
+                }
+                .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                .padding()
+                .buttonStyle(.plain)
+            }
+        }
+        .translationTask(configuration) { session in
+            do {
+                try await session.prepareTranslation()
+            } catch let error {
+                print(error)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+You can also use an instance of the `LanguageAvailability` class to check if the models are present and the translation pairing is available for translation:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var shouldDownloadModels = false
+    @State private var configuration: TranslationSession.Configuration?
+    private let languageAvailability = LanguageAvailability()
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if shouldDownloadModels {
+                    Button(action: {
+                       if configuration == nil {
+                           self.configuration = TranslationSession.Configuration(
+                            source: Locale.Language(languageCode: .spanish),
+                            target: Locale.Language(languageCode: .dutch)
+                           )
+                       } else {
+                           self.configuration?.invalidate()
+                       }
+                    }) {
+                        Label("Prepare translation", systemImage: "arrow.down.circle.fill")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.gray)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .task {
+            let status = await languageAvailability.status(from: Locale.Language(languageCode: .spanish), to: Locale.Language(languageCode: .dutch))
+            switch status {
+            case .installed, .unsupported: shouldDownloadModels = false
+            case .supported: shouldDownloadModels = true
+            @unknown default: shouldDownloadModels = false
+            }
+        }
+        .translationTask(configuration) { session in
+            do {
+                try await session.prepareTranslation()
+            } catch let error {
+                print(error)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+To manually remove and download language models, you can go to System Preferences > Language & Region > Translation Languages and select the languages you want to download or remove:
+
+![](/assets/posts/swift-translation-api/preferences.webp)
+
+#### Available languages
+
+The new Translation framework has a limited number of languages that you can translate from and to. This list is the same that Apple's Translations app supports and that [Apple shared during this year's WWDC session on the topic](https://developer.apple.com/wwdc24/10117):
+
+![](/assets/posts/swift-translation-api/available-languages.webp)
+
+You can use the `LanguageAvailability` class to get the list of supported languages:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var availableLanguages = [Locale.Language]()
+    private let languageAvailability = LanguageAvailability()
+    
+    var body: some View {
+        VStack {
+            // ...
+        }
+        .task {
+            self.availableLanguages = await languageAvailability.supportedLanguages
+        }
+        .padding()
+    }
+}
+```
+
+Using the same method that we used earlier to check if the models for a translation pairing were available, we can also check if the translation for a specific language pairing is supported:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    private let languageAvailability = LanguageAvailability()
+    
+    var body: some View {
+        VStack {
+            // ...
+        }
+        .task {
+            // .supported
+            let spanishToDutch = await languageAvailability.status(from: Locale.Language(languageCode: .spanish), to: Locale.Language(languageCode: .dutch))
+            // .unsupported
+            let dutchToDutch = await languageAvailability.status(from: Locale.Language(languageCode: .dutch), to: Locale.Language(languageCode: .dutch))
+        }
+        .padding()
+    }
+}
+```
+
+The `.unsupported` case will usually come back as an error when you try to translate text between an unsupported language pair.
+
+### One-to-one translations
+
+Now that we know how to obtain an instance of `TranslationSession`, we can start using it to translate our text. Let's say that we always want `TranslationSession` to translate the text from any language to Dutch. 
+
+All we need to do is to create a `TranslationSession.Configuration` instance when the translate button is pressed. In this configuration instance, we need to set the target language and the source language (if you set it to `nil`, the API will automatically detect the language from the text) and then pass it to the `.translationTask` modifier. Then, in the closure part of the `.translationTask` modifier, we can use the `session` instance to translate the text:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: {
+                       if configuration == nil {
+                           self.configuration = TranslationSession.Configuration(source: nil, target: Locale.Language(identifier: "nl"))
+                       } else {
+                           self.configuration?.invalidate()
+                       }
+                    }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .translationTask(configuration) { session in
+            do {
+                let response = try await session.translate(text)
+                self.text = response.targetText
+            } catch let error {
+                print(error)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+Now, when we run the application again, add some text and tap on the translate button, the text in the editor will automatically change to Dutch instead of showing the translation sheet:
+
+<Video src="/assets/posts/swift-translation-api/one-to-one.mp4" />
+
+### Many-to-one translations
+
+Let's say our user does not want to use the same language for the whole text and wants to pick which language to use for each paragraph and still translate everything when tapping on the translate button. We can make different requests to the `TranslationSession` instance and get the translated text for each paragraph:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: {
+                       if configuration == nil {
+                           self.configuration = TranslationSession.Configuration(source: nil, target: Locale.Language(identifier: "nl"))
+                       } else {
+                           self.configuration?.invalidate()
+                       }
+                    }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .translationTask(configuration) { session in
+            do {
+                let paragraphs = text.components(separatedBy: .newlines).filter { !$0.isEmpty }
+                var output = ""
+                for paragraph in paragraphs {
+                    let response = try await session.translate(paragraph)
+                    if !response.targetText.isEmpty {
+                        output += response.targetText + "\n\n"
+                    }
+                }
+                self.text = output
+            } catch let error {
+                print(error)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+When we run the application again, we can see that the result is the same, but we have now translated many languages into one:
+
+<Video src="/assets/posts/swift-translation-api/many-to-one.mp4" />
+
+
+### Batch translations
+
+There are certain situations where translating all your text at once might not be suitable for the needs of your application. For instance, you might want to break up a long text into smaller chunks and translate them one by one or you might want to translate a list of items and keep each of them separate from each other. 
+
+The `TranslationSession` API supports this use case and allows you to send translation requests in batches rather than having to translate all your text in one go:
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty {
+                    Button(action: {
+                       if configuration == nil {
+                           self.configuration = TranslationSession.Configuration(source: nil, target: Locale.Language(identifier: "nl"))
+                       } else {
+                           self.configuration?.invalidate()
+                       }
+                    }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .translationTask(configuration) { session in
+            do {
+                let requests = text
+                    .components(separatedBy: .newlines)
+                    .filter { !$0.isEmpty }
+                    .enumerated()
+                    .map { TranslationSession.Request(sourceText: $1, clientIdentifier: "paragraph_\($0)") }                
+                    let stream = session.translate(batch: requests)
+                var output = ""
+                for try await response in stream {
+                    if !response.targetText.isEmpty {
+                        output += response.targetText + "\n\n"
+                    }
+                }
+                self.text = output
+            } catch let error {
+                print(error.localizedDescription)
+            }
+        }
+        .padding()
+    }
+}
+```
+
+While there is an API that allows you to synchronously wait until all batches are completed, I prefer using the API in the snippet above as it returns an `AsyncSequence` that you can then use to iterate over the translated strings as they come back. 
+
+This is very useful when you are translating a large number of strings and you want to update your UI as soon as a translation is available. When using this API, make sure you set the `clientIdentifier` property of each `TranslationSession.Request` instance to a unique value so that you can identify the translated strings when they are returned by the API.
+
+You must also know that you **can't mix languages in the same batch**, so if you are translating from English to Dutch, you can't have a string in English and another in Spanish in the same batch. You must use separate batches for each language.
+
+If we now run the application again, we can see that the result is the same, but we have translated the text in batches instead of all at once:
+
+<Video src="/assets/posts/swift-translation-api/one-to-one.mp4" />
+
+### One to many translations
+
+Let's now get into more complex (and fun 😅) use cases. Let's say you have some text that you want to translate to multiple languages. Unfortunately, and as far as I know, the SDK does not support this out-of-the-box as **a session can only have a single configuration** and **configurations can only have a single target language to translate to**. 
+
+I came up with a workaround that, given a list of languages to translate to, modifies the configuration of the session after translating each language to target the next one in the list. This causes the block in the `.translationTask` to re-run and translate the next language. While this seems hacky and not very efficient, it is the only way I could find to handle this use case: 
+
+```swift:TranslationPlayground.swift
+import SwiftUI
+import Translation
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var configuration: TranslationSession.Configuration?
+    @State private var availableLanguages = [Locale.Language]()
+    private let languageAvailability = LanguageAvailability()
+    
+    var body: some View {
+        VStack {
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .background(.secondary.opacity(0.2))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary, lineWidth: 2))
+                    .font(.body)
+                
+                if !text.isEmpty && !availableLanguages.isEmpty {
+                    Button(action: {
+                        if configuration == nil {
+                            self.configuration = TranslationSession.Configuration(source: nil, target: availableLanguages[0])
+                        } else {
+                            self.configuration?.target = availableLanguages[0]
+                            self.configuration?.invalidate()
+                        }
+                    }) {
+                        Label("Tranlsate", systemImage: "translate")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .background(.pink)
+                            .cornerRadius(8)
+                    }
+                    .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.03), radius: 0, x: 0, y: 2)
+                    .padding()
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .task {
+            availableLanguages = await languageAvailability.supportedLanguages
+        }
+        .padding()
+        .translationTask(configuration) { session in
+            do {
+                let textToTranslate = text.split(separator: "\n\n---").first.map(String.init) ?? text
+                let translationResponse = try await session.translate(textToTranslate)
+                self.text += "\n\n---\n\n\(translationResponse.targetText)"
+            } catch let error {
+                print(error)
+            }
+            
+            if let targetLanguage = session.targetLanguage,
+               let currentIndex = availableLanguages.firstIndex(of: targetLanguage),
+               currentIndex < (availableLanguages.count - 1) {
+                configuration?.target = availableLanguages[currentIndex + 1]
+                configuration?.invalidate()
+            }
+        }
+    }
+}
+```
+
+When we run the app, the user can now translate the text to multiple languages by pressing the translate button:
+
+<Video src="/assets/posts/swift-translation-api/one-to-many.mp4" />
+
+> This is a use case that I looked into specifically for [Helm](https://helm-app.com) as we offer App Store Connect content translation from the base language to all other supported localizations.
+
+## Conclusion
+
+I am super excited to see where developers will take the new Translation framework and how it helps them bring their apps to more users around the world. Despite the fact that the API is extremely powerful and works very well, I think it is still missing a few features and has a few bugs that need to be solved for me to fully migrate to it:
+
+- **FB13972311**: The download language model window's minimum size is too small and resizing is glitchy.
+- **FB13972356**: The ability to specify multiple target languages in a single session. This would allow me to translate text to multiple languages at once, instead of having to change the configuration for each language.
+- **FB13972396**: The ability to create a session outside of a view. This would help me switch between different translation services and remove logic from the view layer.
+- **FB13972419**: More languages available for translation. While the list of supported languages is already quite extensive, there are still some languages that are not supported that I would like to see added.
+- **FB13972456**: The ability to pass other parameters to further control the translation process such as character limitation.
+
+Going forward, I will continue updating this article as new beta versions of Xcode are released and keep you all updated with what's new in the framework.
