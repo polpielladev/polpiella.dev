@@ -114,7 +114,7 @@ struct ContentView: View {
 
 Similarly to what happens with the macOS `popover` modifier, it is important to place the `.translationPresentation` modifier on the view you would like to attach the sheet to. In this case, the sheet will show on top of the `Button` when it is pressed:
 
-<Video src="/assets/posts/swift-translation-api/sheet.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/sheet_jhqkoc.mp4" />
 
 ## Using TranslationSessions
 
@@ -185,7 +185,7 @@ Before we start translating text, I want to point out a few things that you need
 
 The Translation framework needs to have a local model for each language you want to translate to. If you translate to a language whose model is not found on the device, the framework will present a sheet that will allow the user to download such model:
 
-<Video src="/assets/posts/swift-translation-api/download.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/download_digvdf.mp4" />
 
 If you know you are going to need a specific language, you can prompt the user to download it before doing any translations by using the `prepareTranslation` method on `TranslationSession`. This will take the source and target languages you want to translate from and to and will download the necessary models:
 
@@ -437,7 +437,7 @@ struct ContentView: View {
 
 Now, when we run the application again, add some text and tap on the translate button, the text in the editor will automatically change to Dutch instead of showing the translation sheet:
 
-<Video src="/assets/posts/swift-translation-api/one-to-one.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/one-to-one_fl7jho.mp4" />
 
 ### Many-to-one translations
 
@@ -508,7 +508,7 @@ struct ContentView: View {
 
 When we run the application again, we can see that the result is the same, but we have now translated many languages into one:
 
-<Video src="/assets/posts/swift-translation-api/many-to-one.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/many-to-one_d0baza.mp4" />
 
 
 ### Batch translations
@@ -592,7 +592,7 @@ You must also know that you **can't mix languages in the same batch**, so if you
 
 If we now run the application again, we can see that the result is the same, but we have translated the text in batches instead of all at once:
 
-<Video src="/assets/posts/swift-translation-api/one-to-one.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/one-to-one_fl7jho.mp4" />
 
 ### One to many translations
 
@@ -672,7 +672,7 @@ struct ContentView: View {
 
 When we run the app, the user can now translate the text to multiple languages by pressing the translate button:
 
-<Video src="/assets/posts/swift-translation-api/one-to-many.mp4" />
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swift-translation-api/one-to-many_bko6mh.mp4" />
 
 > This is a use case that I looked into specifically for [Helm](https://helm-app.com) as we offer App Store Connect content translation from the base language to all other supported localizations.
 
