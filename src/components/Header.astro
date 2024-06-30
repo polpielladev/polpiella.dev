@@ -1,52 +1,50 @@
 ---
 interface Props {
-  activeNav: string
+  activeNav: string;
 }
 
-const { activeNav } = Astro.props
-import Social from './Social.svelte'
+const { activeNav } = Astro.props;
 ---
 
-<header class="mt-4 w-full">
+<header class="mt-12 w-full text-lg mb-12">
   <div class="mx-auto flex items-center justify-between">
     <nav class="prose flex items-center gap-4 no-underline dark:prose-invert">
-      <a href="/">
-        <img
-          class="w-12 dark:invert hover:scale-110 transition-transform"
-          src="/assets/logo.webp"
-          alt=""
-        />
-      </a>
       <a
-        class={`text-xl no-underline ${
-          activeNav == 'newsletter'
-            ? 'text-gray-900 dark:text-gray-100'
-            : 'text-gray-500 dark:text-gray-400'
-        }`}
-        href="https://www.ioscinewsletter.com">
+        class="font-title no-underline transition-colors duration-300 ease-in-out hover:text-black/50 dark:hover:text-white/70 text-xl"
+        href="/">Pol Piella Abadia</a
+      >
+    </nav>
+    <div class="flex gap-5">
+      <a
+        class={`${
+          activeNav == "newsletter"
+            ? "text-gray-900 dark:text-gray-100"
+            : "text-gray-500 dark:text-gray-400"
+        } text-[16px]`}
+        href="https://www.ioscinewsletter.com"
+      >
         Newsletter
       </a>
       <a
-        class={`text-xl no-underline ${
-          activeNav == 'posts'
-            ? 'text-gray-900 dark:text-gray-100'
-            : 'text-gray-500 dark:text-gray-400'
-        }`}
-        href="/posts">
+        class={`no-underline ${
+          activeNav == "posts"
+            ? "text-gray-900 dark:text-gray-100"
+            : "text-gray-500 dark:text-gray-400"
+        } text-[16px]`}
+        href="/posts"
+      >
         Posts
       </a>
       <a
-        class={`text-xl no-underline ${
-          activeNav == 'sponsor'
-            ? 'text-gray-900 dark:text-gray-100'
-            : 'text-gray-500 dark:text-gray-400'
-        }`}
-        href="/sponsor">
+        class={`no-underline ${
+          activeNav == "sponsor"
+            ? "text-gray-900 dark:text-gray-100"
+            : "text-gray-500 dark:text-gray-400"
+        } text-[16px]`}
+        href="/sponsor"
+      >
         Sponsor
       </a>
-    </nav>
-    <div class="lg:block hidden">
-      <Social />
     </div>
   </div>
 </header>
