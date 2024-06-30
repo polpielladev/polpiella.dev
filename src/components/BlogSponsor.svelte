@@ -17,6 +17,9 @@
 
   {#if variant === 'default'}
     <picture>
+      <source
+        srcset="/assets/sponsors/codemagic-wordmark-white.svg"
+        media="(prefers-color-scheme: dark)" />
       <img
         class=" mx-auto w-64 object-contain pb-4 pt-7"
         src="/assets/sponsors/codemagic-wordmark-blue.svg"
