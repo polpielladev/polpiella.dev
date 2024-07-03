@@ -1,0 +1,77 @@
+---
+title: 'Show and hide SwiftUI inspectors with an identifiable item'
+excerpt: "Learn how to create a custom view modifier to overcome the API limitations of SwiftUI inspectors and that allows you to show and hide SwiftUI inspectors with an identifiable item."
+pubDate: 2024-07-03
+tags: ['swiftui']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.svelte'
+
+SwiftUI has a powerful API that allows you to insert a side panel view that shows alongside the view it's attached to called [inspector](https://developer.apple.com/documentation/swiftui/view/inspector(ispresented:content:)).
+
+The API is available through the [inspector view modifier](https://developer.apple.com/documentation/swiftui/view/inspector(ispresented:content:)) that takes a binding to a boolean that controls the visibility of the inspector and a closure that returns the view that should be shown in the inspector.
+
+This is a pattern that is widely used in the Apple ecosystem, **feels natural to the user**, and it's a great way to **show additional information about a view or a component**. 
+
+In fact, I have recently used **an inspector** for a feature I have been building for [Helm](https://helm-app.com/) that allows users to select a specific TestFlight build from a list and see its details in a side panel:
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swiftui-inspector-modifier/helm-demo.mp4" />
+
+## Limitations of the inspector modifier
+
+As you can see in the example above, the visibility of the inspector is controlled by whether an item is selected or not. Initially, I started looking for an overload of the `inspector` modifier that would allow me to pass a binding with an optional identifiable item instead of a boolean, [similar to the way the `sheet` modifier works](https://developer.apple.com/documentation/swiftui/view/sheet(item:ondismiss:content:)):
+
+```swift:Sheet.swift
+nonisolated
+func sheet<Item, Content>(
+    item: Binding<Item?>,
+    onDismiss: (() -> Void)? = nil,
+    @ViewBuilder content: @escaping (Item) -> Content
+) -> some View where Item : Identifiable, Content : View
+```
+
+Unfortunately, the `inspector` modifier has its limitations and, at least for now, [it only accepts a boolean binding](https://developer.apple.com/documentation/swiftui/view/inspector(ispresented:content:)):
+
+```swift:Inspector.swift
+nonisolated
+func inspector<V>(
+    isPresented: Binding<Bool>,
+    @ViewBuilder content: () -> V
+) -> some View where V : View
+```
+
+## A custom view modifier
+
+To improve the developer experience and make the API more flexible, I decided to create a custom view modifier that would allow me to pass an optional identifiable item instead of a boolean:
+
+```swift:InspectorViewModifier.swift
+import SwiftUI
+
+struct InspectorViewModifier<Item: Identifiable & Equatable, InspectorView: View>: ViewModifier {
+    @Binding var item: Item?
+    @State private var isPresented = false
+    @ViewBuilder var inspectorContent: (Item) -> InspectorView
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: item) { isPresented = item != nil }
+            .inspector(isPresented: $isPresented) {
+                item.map(inspectorContent)
+            }
+    }
+}
+
+extension View {
+    func inspector<Item: Identifiable & Equatable, InspectorContent: View>(item: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> InspectorContent) -> some View {
+        self.modifier(InspectorViewModifier(item: item, inspectorContent: content))
+    }
+}
+```
+
+The view modifier takes in two parameters: a binding to an optional identifiable and equatable item that will control the visibility of the inspector and a closure that returns the inspector view to render. 
+
+The modifier then checks for changes in the item and maps its value to a boolean `@State` property that is passed to the inspector modifier.
+
+While this solution works well for my use case, I would love to see Apple provide first-party support for this pattern in the future, so I have filed **a feedback request (FB14177256)**.
+
