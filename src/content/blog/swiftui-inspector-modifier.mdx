@@ -48,30 +48,38 @@ To improve the developer experience and make the API more flexible, I decided to
 ```swift:InspectorViewModifier.swift
 import SwiftUI
 
-struct InspectorViewModifier<Item: Identifiable & Equatable, InspectorView: View>: ViewModifier {
+struct InspectorViewModifier<Item: Equatable, InspectorView: View>: ViewModifier {
     @Binding var item: Item?
-    @State private var isPresented = false
     @ViewBuilder var inspectorContent: (Item) -> InspectorView
     
     func body(content: Content) -> some View {
         content
-            .onChange(of: item) { isPresented = item != nil }
-            .inspector(isPresented: $isPresented) {
+            .inspector(isPresented: _item.map(to: { $0 != nil }, from: { _ in item })) {
                 item.map(inspectorContent)
             }
     }
 }
 
 extension View {
-    func inspector<Item: Identifiable & Equatable, InspectorContent: View>(item: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> InspectorContent) -> some View {
+    func inspector<Item: Equatable, InspectorContent: View>(item: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> InspectorContent) -> some View {
         self.modifier(InspectorViewModifier(item: item, inspectorContent: content))
     }
 }
+
+extension Binding {
+    func map<T>(to: @escaping (Value) -> T, from: @escaping (T) -> Value) -> Binding<T> {
+        Binding<T>(
+            get: { to(self.wrappedValue) },
+            set: { (value: T) in self.wrappedValue = from(value) }
+        )
+    }
+}
+
 ```
 
 The view modifier takes in two parameters: a binding to an optional identifiable and equatable item that will control the visibility of the inspector and a closure that returns the inspector view to render. 
 
-The modifier then checks for changes in the item and maps its value to a boolean `@State` property that is passed to the inspector modifier.
+The modifier then maps the item binding to a boolean binding that is passed to the inspector modifier.
 
 While this solution works well for my use case, I would love to see Apple provide first-party support for this pattern in the future, so I have filed **a feedback request (FB14177256)**.
 
