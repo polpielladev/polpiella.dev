@@ -16,5 +16,10 @@ export const collections = {
       pubDate: z.date(),
       category: z.string()
     }),
+  }),
+  workshops: defineCollection({
+    schema: z.object({
+      title: z.string()
+    }),
   })
 }

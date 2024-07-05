@@ -1,0 +1,240 @@
+---
+title: "Ship your apps faster with Xcode Cloud"
+layout: ../../layouts/WorkshopLayout.astro
+---
+
+import Slides from '@components/Slides.astro'
+import Video from '@components/Video.svelte'
+
+First of all, I would like to start by **thanking you** for attending the workshop and for your interest in learning more about tooling, automation, CI/CD and how to **ship your apps faster with Xcode Cloud**.
+
+It was great to meet you all and bounce ideas off each other during the workshop. I hope you enjoyed the content and that I somewhat managed to inspire you to build more automations and improve your workflows.
+
+In this page, you will find useful resources to both **revisit the content** we covered during the workshop and to **expand on the topics** we discussed.
+
+<Slides />
+
+## Workflow 1: Changes onto the main branch
+
+The first workflow we built during the workshop was to run the unit tests on every push to the main branch, and on every pull request that had main as the base branch.
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/workshops/ship-your-apps-faster-with-xcode-cloud/changes-into-main_gxeibg.mp4" />
+
+To increase the complexity, we implemented this workflow on an app that uses CocoaPods as a dependency manager and showed how to install the Pod dependencies with CI scripts.
+
+First, we installed CocoaPods using ruby's bundler:
+
+```bash:Terminal
+bundle init
+```
+
+Then, we added the cocoapods gem to the Gemfile:
+
+```ruby:Gemfile
+source "https://rubygems.org"
+
+gem "cocoapods"
+```
+
+At this point, we installed all Gems and created a CocoaPods project:
+
+```bash:Terminal
+bundle install
+
+bundle exec pod init
+```
+
+We then added our first and only dependency for the project to the Podfile — the AppCenter SDK:
+
+```ruby:Podfile
+platform :macos, '14.0'
+
+pod 'AppCenter'
+```
+
+We now needed to install the dependencies on the CI environment. We created a `ci_scripts/` directory and added a `ci_post_clone.sh` script that gets executed after the repository is cloned on the runner:
+
+```bash:ci_scripts/ci_post_clone.sh
+#!/bin/sh
+
+cd ..
+
+echo 'export GEM_HOME=$HOME/gems' >>~/.bash_profile
+echo 'export PATH=$HOME/gems/bin:$PATH' >>~/.bash_profile
+export GEM_HOME=$HOME/gems
+export PATH="$GEM_HOME/bin:$PATH"
+
+gem install bundler --install-dir $GEM_HOME
+
+bundle install
+
+bundle exec pod install
+```
+
+## Workflow 2: Nightly builds
+
+In this part of the workshop, we built a scheduled workflow that would archive the application for internal testing and then distribute the resulting artifact to testers via TestFlight and AppCenter.
+
+To showcase that we can use existing fastlane lanes in Xcode Cloud and to benefit from an existing plugin to upload to AppCenter, we started by adding the fastlane gem to the Gemfile:
+
+```ruby:Gemfile
+source "https://rubygems.org"
+
+gem "cocoapods"
+gem "fastlane"
+gem "xcodeproj"
+
+plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
+eval_gemfile(plugins_path) if File.exist?(plugins_path)
+```
+
+We then installed all dependencies, initialised the fastlane project and installed the fastlane plugin for AppCenter:
+
+```bash:Terminal
+bundle install
+bundle exec fastlane init
+bundle exec fastlane add_plugin appcenter
+```
+
+Now that the fastlane project was all set up, we created a lane that used the plugin to upload an artifact at the location provided by Xcode Cloud's environment variables to AppCenter:
+
+```ruby:Fastfile
+desc "Upload the built artifact to AppCenter"
+lane :upload_to_appcenter do
+  archive_path_dir = ENV["CI_ARCHIVE_PATH"]
+  pkg_file = File.join(archive_path_dir, "Products", "Applications", "QReate.app")
+  dsym_file = File.join(archive_path_dir, "dSYMs", "QReate.app.dSYM")
+
+  appcenter_upload(
+      api_token: ENV["APP_CENTER_API_KEY"],
+      owner_name: "polpielladev",
+      app_name: "QReate",
+      release_notes: "Bug fixes and new features",
+      file: pkg_file,
+      dsym: dsym_file,
+      notify_testers: false
+  )
+end
+```
+
+Finally, we just needed to run the fastlane lane after the archive step in the Xcode Cloud workflow:
+
+```bash:ci_scripts/ci_post_xcodebuild.sh
+#!/bin/sh
+
+cd ..
+
+echo 'export GEM_HOME=$HOME/gems' >>~/.bash_profile
+echo 'export PATH=$HOME/gems/bin:$PATH' >>~/.bash_profile
+export GEM_HOME=$HOME/gems
+export PATH="$GEM_HOME/bin:$PATH"
+
+if [ "$CI_WORKFLOW" == "Nightly" ] && [ "$CI_XCODEBUILD_ACTION" == "archive" ]; then
+    bundle exec fastlane upload_to_appcenter
+fi
+```
+
+Once all the ground-work was done, we created a workflow from Xcode's dashboard:
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/workshops/ship-your-apps-faster-with-xcode-cloud/nightly_dzppq4.mp4" />
+
+## Workflow 3: Releases
+
+The last workflow we built during the workshop would run on every push to the `release/{platfom}` branch, archive the application and distribute it to testers on TestFlight for external testing.
+
+The workflow would also set the app's version number to the one in the branch's name, using a Fastlane lane once again:
+
+```ruby:Fastfile
+fastlane_require 'xcodeproj'
+
+desc "Updates the app's `MARKETING_VERSION` based on the branch name if needed."
+lane :update_version_number_if_needed do
+  split_git_ref = ENV["CI_BRANCH"].split("/", -1)
+
+  if split_git_ref.length != 3
+    UI.user_error!("Invalid branch name: #{ENV["CI_BRANCH"]}, expected format: release/{platform}/{version}")
+  end
+
+  version_number = split_git_ref.last
+  platform = split_git_ref[1]
+  set_all_xcodeproj_version_numbers(version_number, platform.downcase)
+
+  if git_status(path: "QReate.xcodeproj/project.pbxproj").empty?
+    puts "🚀 Nothing to commit, pushing the same version again!"
+  else
+    sh("git fetch origin main:main")
+    sh("git checkout main")
+
+    git_commit(path: "QReate.xcodeproj/project.pbxproj", message: "[🚀 release #{platform}] Updating version to: #{version_number}")
+
+    # Push with personal access token to enable permissions in Xcode Cloud
+    sh("git push https://polpielladev:#{ENV["GITHUB_TOKEN"]}@github.com/polpielladev/QRBuddy.git")
+  end
+end
+
+def set_all_xcodeproj_version_numbers(version_number, platform)
+  project = Xcodeproj::Project.open('../QReate.xcodeproj')
+  targets = project.targets
+  if platform == "macos"
+    targets = targets.select { |target| target.name == "QReate" || target.name == "QReateSafariExtension" } 
+  else
+    UI.user_error!("Invalid platform: #{platform}, allowed values are: macos")
+  end
+
+  targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings["MARKETING_VERSION"] = version_number
+    end
+  end
+  project.save
+end
+```
+
+The lane above requires an extra plugin called `git_status`, so for it to work, we need to install the plugin:
+
+```bash:Terminal
+bundle exec fastlane add_plugin git_status
+```
+
+We can then modify the `ci_scripts/ci_post_clone.sh` script to run the Fastlane lane and set the version number:
+
+```bash:ci_scripts/ci_post_clone.sh
+#!/bin/sh
+
+cd ..
+
+echo 'export GEM_HOME=$HOME/gems' >>~/.bash_profile
+echo 'export PATH=$HOME/gems/bin:$PATH' >>~/.bash_profile
+export GEM_HOME=$HOME/gems
+export PATH="$GEM_HOME/bin:$PATH"
+
+gem install bundler --install-dir $GEM_HOME
+
+bundle install
+
+bundle exec pod install
+
+if [ "$CI_WORKFLOW" == "Release macOS" ]; then
+    bundle exec fastlane update_version_number_if_needed
+fi
+```
+
+With this lane in place, we created a new workflow that would run on every push to the `release/macOS` branch:
+
+<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/workshops/ship-your-apps-faster-with-xcode-cloud/release_hjkhue.mp4" />
+
+## Further reading
+
+Aside from what we looked at during the workshop, there are a few resources that I would like to recommend to you:
+
+- My [site's Xcode Cloud category](https://www.polpiella.dev/category/xcode-cloud) where you will find a number of workflows and use cases I have built using Xcode Cloud.
+- [Meet Xcode Cloud #WWDC21](https://developer.apple.com/wwdc21/10267)
+- [Explore Xcode Cloud Workflows #WWDC21](https://developer.apple.com/wwdc21/10268)
+- [Customize your advanced Xcode Cloud workflows #WWDC21](https://developer.apple.com/wwdc21/10269)
+- [Distribute apps in Xcode with cloud signing #WWDC21](https://developer.apple.com/wwdc21/10204)
+- [Get the most out of Xcode Cloud #WWDC22](https://developer.apple.com/wwdc22/110374)
+- [Author fast and reliable tests for Xcode Cloud #WWDC22](https://developer.apple.com/wwdc22/110361)
+- [Simplify distribution in Xcode and Xcode Cloud #WWDC23](https://developer.apple.com/wwdc23/10224)
+- [Create practical workflows in Xcode Cloud](https://developer.apple.com/wwdc23/10278)
+- [Connect your project to Xcode Cloud #TechTalks](https://developer.apple.com/videos/play/tech-talks/111369)
+- [Extend your Xcode Cloud workflows #WWDC24](https://developer.apple.com/wwdc24/10200)

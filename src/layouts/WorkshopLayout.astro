@@ -1,0 +1,45 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import "@styles/blog-detail.css";
+
+const { title } = Astro.props.content;
+---
+
+<BaseLayout title=`Workshop | ${title}`>
+    <article
+        class="flex flex-col gap-8 max-w-2xl mx-auto prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-3xl prose-h1:m-0"
+    >
+        <h1
+            class="max-w-[700px] mx-auto text-shadow font-title text-6xl text-center leading-snug"
+        >
+            {title}
+        </h1>
+
+        <div>
+            <slot />
+        </div>
+
+        <!-- <section
+            class="space-y-5 rounded-2xl bg-purple-600 px-8 py-6 max-w-4xl not-prose text-white"
+        >
+            <h2 class="text-2xl font-title">Slides</h2>
+            <div class="[&>p>a]:font-bold [&>p>a]:hover:underline">
+                <p>
+                    The workshop's introductory slides are now available for you
+                    to check out.<br />If you have any questions or want to
+                    expand on anyting in the slides do not hesitate to reach out
+                    on <a href="mailto:pol@appdiggershq.com"
+                        >pol@appdiggershq.com</a
+                    >.
+                </p>
+            </div>
+            <a
+                href="/NowPlayingPressKitVisionOS.zip"
+                rel="noopener"
+                class="inline-block transition-all hover:opacity-70 cursor-pointer px-4 pt-4 pb-5 rounded-2xl bg-purple-700 font-bold max-w-md"
+            >
+                Download Slides
+            </a>
+        </section> -->
+    </article>
+</BaseLayout>

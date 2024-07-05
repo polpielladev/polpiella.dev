@@ -1,0 +1,20 @@
+---
+import { getEntryBySlug, getCollection } from "astro:content";
+import type { GetStaticPathsResult } from "astro";
+
+const { workshop } = Astro.params;
+const entry = await getEntryBySlug("workshops", workshop!);
+const { Content } = await entry!.render();
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+    const allPosts = await getCollection("workshops");
+
+    return allPosts.map(({ slug }) => {
+        return {
+            params: { workshop: slug },
+        };
+    });
+}
+---
+
+<Content />
