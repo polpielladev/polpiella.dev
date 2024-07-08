@@ -33,5 +33,9 @@ export default defineConfig({
     mdx(),
     svelte(),
   ],
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
 })
