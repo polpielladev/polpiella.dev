@@ -5,15 +5,15 @@
 <div
   class={`not-prose relative grid h-full ${
     variant === 'default'
-      ? 'flex-col content-center justify-center px-2 py-4 text-center'
-      : 'grid-cols-[5rem_1fr] p-2 align-middle'
-  } rounded-lg border-2 border-[#0051FF] bg-[#0051FF]/10 shadow-lg `}>
-  <p
+      ? 'flex-col gap-2 content-center justify-center px-2 py-4 text-center'
+      : 'grid-cols-[5rem_1fr] p-2 gap-2 align-middle'
+  } rounded-lg border-2 border-[#f2545b] bg-[#f2545b]/10 shadow-lg `}>
+  <div
     class={`absolute right-2 ${
       variant === 'default' ? 'top-2' : 'top-[-11px]'
-    } mx-auto rounded-md bg-[#0051FF] px-2 py-0.5 font-title text-xs text-white shadow`}>
+    } mx-auto rounded-md bg-[#f2545b] px-2 py-0.5 font-title text-xs text-white shadow`}>
     Sponsored
-  </p>
+  </div>
 
   {#if variant === 'default'}
     <picture>
@@ -21,34 +21,35 @@
         srcset="/assets/sponsors/codemagic-wordmark-white.svg"
         media="(prefers-color-scheme: dark)" />
       <img
-        class=" mx-auto w-64 object-contain pb-4 pt-7"
-        src="/assets/sponsors/codemagic-wordmark-blue.svg"
-        alt="Codemagic logo" />
+        width="96"
+        height="96"
+        class="mx-auto w-24 aspect-square object-contain"
+        src="/assets/sponsors/rc.png"
+        alt="RevenueCat logo" />
     </picture>
   {:else}
     <img
       class={`'w-20' relative mx-auto aspect-square object-contain px-2`}
-      src="/assets/sponsors/codemagic-star.svg"
-      alt="Codemagic logo" />
+      src="/assets/sponsors/rc.png"
+      alt="RevenueCat logo" />
   {/if}
 
   <div
     class={`${
-      variant == 'small' ? 'my-auto' : 'flex flex-col gap-1'
-    } max-w-xs`}>
+      variant == 'small' ? 'my-auto max-w-xl' : 'flex flex-col gap-1 max-w-xs'
+    }`}>
     <a
-      href="https://codemagic.io/start/?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=codemagic"
+      href="https://www.revenuecat.com/docs/tools/paywalls?utm_medium=sponsored&utm_source=polpiella.dev&utm_campaign=general_sponsorship&utm_content=revenuecat-paywalls-banner"
       class={`font-title ${
         variant == 'default' ? 'text-lg' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
-      Codemagic CI/CD for mobile teams
+      RevenueCat Paywalls
     </a>
     <p
       class={`m-0 ${
         variant == 'default' ? 'text-sm' : 'text-xs'
       } text-sm leading-relaxed dark:text-gray-300`}>
-      What do you get when you put love for iOS and DevOps together? Answer:
-      Codemagic CI/CD
+      Add paywalls to your iOS app's in one line of code! With RevenueCat Paywalls you can remotely configure and edit your entire paywall view without waiting on App Review.
     </p>
   </div>
 </div>
