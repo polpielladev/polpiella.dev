@@ -6,7 +6,7 @@ tags: ['tools']
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-import Video from '@components/Video.svelte'
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
 
 I have been writing command-line tools with Swift for a while now and, while I find the developer experience to be great, I have always found the number of libraries to handle user input to be lacking compared to other languages such as Javascript.
 
@@ -73,7 +73,7 @@ let package = Package(
 
 Before we start writing some code, let's take a look at the picker component we'll be building in this article:
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678221412/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/clack-swift-preview.mp4" />
+<YoutubeVideo id="4fMO0To__Yg" client:visible />
 
 The picker, which is highly inspired by the `select` component in [Nate Moore's](https://twitter.com/n_moore) [clack library](https://github.com/natemoo-re/clack), presents a number of options and allows the user to select one using a combination of the arrow keys and the enter key.
 
@@ -122,7 +122,7 @@ When the picker function is called, the code above will:
 
 ### Output
 
-![An image showing the title part of the picker](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222144/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/title-prompt.png)
+![An image showing the title part of the picker](/assets/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/title-prompt.webp)
 
 ## Handling state
 
@@ -233,7 +233,7 @@ The code to render all options in the terminal can be summarised as follows:
 
 ### Output
 
-![An image showing the picker listing the full set of options](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678222426/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/list-all-options.png)
+![An image showing the picker listing the full set of options](/assets/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/all-options.webp)
 
 ## Handling user input
 
@@ -338,7 +338,7 @@ Next time the programme is executed and the user presses the up or down arrow ke
 
 ### Output
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678222684/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/rerender.mp4" />
+<YoutubeVideo id="RbSCirqrbBE" client:visible />
 
 ## Option selected state
 
@@ -361,7 +361,7 @@ func picker(title: String, options: [String]) -> String {
 
 ### Output
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678222996/blog/posts/how-to-make-an-interactive-picker-for-a-swift-command-line-tool/completion-state.mp4" />
+<YoutubeVideo id="BU161jcAnQE" client:visible />
 
 ## Returning the selected option
 
