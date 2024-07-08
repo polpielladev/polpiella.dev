@@ -20,7 +20,7 @@ This article goes through how you can write a serverless Swift function to liste
 2. Verify that the comment's body matches the 'Upload to TestFlight' string.
 3. If it does, the function triggers an Xcode Cloud build which uploads the app for internal testing on TestFlight using the App Store Connect API.
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/v1678828603/blog/posts/github-webhooks-and-xcode-cloud/demo.mp4" />
+<Video src="/assets/posts/github-webhooks-and-xcode-cloud/demo.mp4" />
 
 ## The Xcode Cloud workflow
 
@@ -28,27 +28,27 @@ Before starting the automation process, you first need to set up an Xcode Cloud 
 
 To do so, open Xcode, go to the `Report Navigator` menu, select the `Cloud` tab, right-click the target you want to create the new workflow for and click the `Manage Workflows...` button from the context menu.
 
-![The Cloud section in the report navigator menu of Xcode](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/manage-workflows.png)
+![The Cloud section in the report navigator menu of Xcode](/assets/posts/github-webhooks-and-xcode-cloud/manage-workflows.webp)
 
 In the workflow list screen, click the `+` button.
 
-![The workflow list screen with the plus button highlighted](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/create.png)
+![The workflow list screen with the plus button highlighted](/assets/posts/github-webhooks-and-xcode-cloud/create.webp)
 
 Change the default name of the workflow to 'TestFlight' and turn it off so that it does not get run automatically based on the start conditions you'll set up next. This is the way to create a _manual_ workflow in Xcode Cloud.
 
-![The default workflow configuration page with the name set to TestFlight and the toggle at the top switched off](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/manual-workflow.png)
+![The default workflow configuration page with the name set to TestFlight and the toggle at the top switched off](/assets/posts/github-webhooks-and-xcode-cloud/manual-workflow.webp)
 
 Add a start condition to start the workflow on any branch change. Every Xcode Cloud workflow requires a start condition, but you can prevent this condition from triggering a new build by turning the workflow off.
 
-![The workflow configuration page showing a start condition of any branch](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797532/blog/posts/github-webhooks-and-xcode-cloud/archive-any-branch.png)
+![The workflow configuration page showing a start condition of any branch](/assets/posts/github-webhooks-and-xcode-cloud/archive-any-branch.webp)
 
 Add an archive action and select the `TestFlight (Internal Testing Only)` deployment preparation.
 
-![The workflow configuration page showing an action which archives the app for internal testing](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678798727/blog/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.png)
+![The workflow configuration page showing an action which archives the app for internal testing](/assets/posts/github-webhooks-and-xcode-cloud/archive-internal-testing.webp)
 
 Add a post-action step to deliver the app to TestFlight for internal testing. You need to add a test group for this step to work.
 
-![A post-action step to deliver the app to TestFlight and all internal testers](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678797531/blog/posts/github-webhooks-and-xcode-cloud/internal-testing.png)
+![A post-action step to deliver the app to TestFlight and all internal testers](/assets/posts/github-webhooks-and-xcode-cloud/internal-testing.webp)
 
 When triggered, the new workflow uploads the app to TestFlight and distributes it to an internal test group.
 
@@ -489,16 +489,16 @@ After deploying the lambda you have just built, the last thing to do is to set u
 
 To do so, go to the repository's settings, navigate to the 'Webhooks' section and click the 'Add Webhook' button.
 
-![A screenshot of the webhooks section in a GitHub repository](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/add-webhook.png)
+![A screenshot of the webhooks section in a GitHub repository](/assets/posts/github-webhooks-and-xcode-cloud/add-webhook.webp)
 
 Enter the URL for the deployed server in the 'Payload URL' field, select 'application/json' as the 'Content type', and choose the 'Let me select individual events' option.
 
 From the list of available events, select 'Issue Comments'.
 
-![The new webook configuration page](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/create-webhook.png)
+![The new webook configuration page](/assets/posts/github-webhooks-and-xcode-cloud/create-webhook.webp)
 
 Check the 'Active' box to ensure the webhook is on and click the 'Add webhook' button to save the configuration.
 
-![A page showing the active checkbox in the new webhook page](https://res.cloudinary.com/dflewmkx4/image/upload/ac_none,f_auto,q_auto:eco/v1678832075/blog/posts/github-webhooks-and-xcode-cloud/active.png)
+![A page showing the active checkbox in the new webhook page](/assets/posts/github-webhooks-and-xcode-cloud/active.webp)
 
 You should now be able to trigger a new build by writing a comment which says 'Upload to TestFlight' on any pull request in the repository 🎉.
