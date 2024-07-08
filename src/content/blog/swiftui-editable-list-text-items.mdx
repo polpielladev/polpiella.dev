@@ -6,15 +6,15 @@ tags: ['swiftui']
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-import Video from '@components/Video.svelte'
-
 Apple uses lists with editable text items in a number of apps such as the macOS finder or SF Symbols. These views are so widely used across the ecosystem that being able to edit text items on a list has become somewhat of an expected behaviour for most apps.
 
 Despite this pattern being so widely used, there is **no out-of-the-box solution** in the standard SwiftUI library to create views like this.
 
 This article goes through how you can create a custom view like the one shown in the video below built on top of the standard `TextField` component to unlock this behaviour:
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swiftui-macos-editable-text-views/smaller-demo.mp4" />
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
+
+<YoutubeVideo id="rwbz-5_Pcdw" client:visible />
 
 The view in the preceding video behaves in the following way:
 
