@@ -6,8 +6,6 @@ tags: ['swiftui']
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-import Video from '@components/Video.svelte'
-
 SwiftUI has a powerful API that allows you to insert a side panel view that shows alongside the view it's attached to called [inspector](https://developer.apple.com/documentation/swiftui/view/inspector(ispresented:content:)).
 
 The API is available through the [inspector view modifier](https://developer.apple.com/documentation/swiftui/view/inspector(ispresented:content:)) that takes a binding to a boolean that controls the visibility of the inspector and a closure that returns the view that should be shown in the inspector.
@@ -16,7 +14,9 @@ This is a pattern that is widely used in the Apple ecosystem, **feels natural to
 
 In fact, I have recently used **an inspector** for a feature I have been building for [Helm](https://helm-app.com/) that allows users to select a specific TestFlight build from a list and see its details in a side panel:
 
-<Video src="https://res.cloudinary.com/dflewmkx4/video/upload/ac_none,f_auto,q_auto:eco/blog/posts/swiftui-inspector-modifier/helm-demo.mp4" />
+import YoutubeVideo from '@components/YoutubeVideo.svelte'
+
+<YoutubeVideo id="FB_ikVnGPck" client:visible />
 
 ## Limitations of the inspector modifier
 
