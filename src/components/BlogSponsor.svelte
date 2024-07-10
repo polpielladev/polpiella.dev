@@ -17,9 +17,6 @@
 
   {#if variant === 'default'}
     <picture>
-      <source
-        srcset="/assets/sponsors/codemagic-wordmark-white.svg"
-        media="(prefers-color-scheme: dark)" />
       <img
         width="96"
         height="96"
