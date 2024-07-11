@@ -1,0 +1,180 @@
+---
+title: 'Check if your app has a newer version on the App Store using Swift'
+excerpt: 'How to notify your users that a new version of your app is available on the App Store directly from your app.'
+pubDate: 2024-07-11
+tags: ['swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+As developers, when we release a new version of our app with new features and bug fixes, we want our users to update to the latest version as soon as possible. 
+
+However, many users **don't have automatic updates enabled on their devices**, and if they don't open the App Store app and look for available updates, they might never know that a new version of your app is available.
+
+This is why it's a good idea to **make it easy for your users to know when a new version of your app is available**, directly from the app itself. We have just implemented a new feature in [Helm](https://helm-app.com/) that does exactly this, as we noticed that many users were reporting bugs from older versions of the app:
+
+![](/assets/posts/newer-version-lookup/update-available.webp)
+
+In this article, I will show you the different approaches you have to check for the latest available version of your app in the App Store that you can use to very easily implement an app update or force upgrade feature in your app.
+
+## Using iTunes Lookup
+
+Apple has a dedicated endpoint that you can use to check information about an app on the App Store by id: `https://itunes.apple.com/lookup?id={id}` or by bundle ID: `https://itunes.apple.com/lookup?bundleId={bundleId}`. 
+
+The endpoint returns a JSON object with a list of results matching the provided ID and each of the results contains information about the app including **the version number** and the **minimum OS version** required to run the app:
+
+```swift:LookUpAPI.swift
+import Foundation
+
+struct LookUpResponse: Decodable {
+    let results: [LookUpResult]
+    
+    struct LookUpResult: Decodable {
+        let version: String
+        let minimumOsVersion: String
+        let trackViewUrl: URL
+    }
+}
+
+struct LatestAppStoreVersion {
+    let version: String
+    let minimumOsVersion: String
+    let upgradeURL: URL
+}
+
+final class LookUpAPI {
+    private let session: URLSession
+    private let jsonDecoder: JSONDecoder
+    
+    init(session: URLSession = .shared, jsonDecoder: JSONDecoder = .init()) {
+        self.session = session
+        self.jsonDecoder = jsonDecoder
+    }
+    
+    func getLatestAvailableVersion(for appID: String) async throws -> LatestAppStoreVersion? {
+        let url = URL(string: "https://itunes.apple.com/lookup?appId=\(appID)")!
+        let request = URLRequest(url: url)
+        let (data, _) = try await session.data(for: request)
+        let response = try jsonDecoder.decode(LookUpResponse.self, from: data)
+        
+        print(response)
+    
+        return response.results.first.map {
+            .init(version: $0.version,
+                  minimumOsVersion: $0.minimumOsVersion,
+                  upgradeURL: $0.trackViewUrl)
+        }
+    }
+}
+```
+
+While this approach is straightforward to implement as the request does not need to be authenticated, it has a pretty big limitation: it only ever returns **one result per app ID**, which means that if you have multiple platforms available for your app (iOS, macOS, watchOS, etc.), you will only get the information for one of them.
+
+This approach worked well for us because Helm is only available on macOS, but will **not work if you have an app that is available on multiple platforms**.
+
+## Using the App Store Connect API
+
+A more robust approach, albeit more complex too, is to use the **App Store Connect API** to fetch all available versions that are ready for distribution for each platform of your app.
+
+Unfortunately, the App Store Connect API requires **all requests to be authenticated** with a JWT token that you have to generate using an API key, which increases complexity significantly.
+
+The process to generate a JWT is not straightforward so I would encourage you to use a library like the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) that does the heavy lifting for you.
+
+Once you have the authentication in place, all you have to do is make a request to the `https://api.appstoreconnect.apple.com/v1/apps/{id}/appStoreVersions` endpoint with the right parameters and filters and map the response to your model:
+
+```swift:LatestVersionAPI.swift
+import Foundation
+import AppStoreConnect_Swift_SDK
+
+struct LatestAppStoreVersion {
+    let version: String
+    let minimumOsVersion: String
+    let upgradeURL: URL
+}
+
+final class LatestVersionAPI {
+    let provider: APIProvider
+    
+    init?() {
+        guard let configuration = try? APIConfiguration(
+            issuerID: "🙈",
+            privateKeyID: "🙈",
+            privateKey: "🙈") else {
+            return nil
+        }
+        self.provider = APIProvider(configuration: configuration)
+    }
+    
+    func getLatestAvailableVersion(for appID: String, platform: Platform) async throws -> LatestAppStoreVersion? {
+        let filterPlatform: APIEndpoint.V1.Apps.WithID.AppStoreVersions.GetParameters.FilterPlatform = {
+            switch platform {
+            case .ios: return .ios
+            case .macOs: return .macOs
+            case .tvOs: return .tvOs
+            case .visionOs: return .visionOs
+            }
+        }()
+        
+        let versionsRequest = APIEndpoint
+            .v1
+            .apps
+            .id(appID)
+            .appStoreVersions
+            .get(parameters: .init(filterAppVersionState: [.readyForDistribution],
+                                   filterPlatform: [filterPlatform],
+                                   fieldsAppStoreVersions: [.versionString, .platform],
+                                   fieldsBuilds: [.minOsVersion],
+                                   limit: 1,
+                                   include: [.build]))
+
+        let versionsResponse = try await provider.request(versionsRequest)
+        
+        let minimumOsVersion: String? = versionsResponse
+            .included?
+            .compactMap { item in
+                if case let .build(build) = item {
+                    return build.attributes?.minOsVersion
+                }
+                
+                return nil
+            }
+            .first
+        
+        guard let versionString = versionsResponse.data.first?.attributes?.versionString,
+              let minimumOsVersion else {
+            return nil
+        }
+        
+        return LatestAppStoreVersion(version: versionString,
+                                     minimumOsVersion: minimumOsVersion,
+                                     upgradeURL: URL(string: "https://itunes.apple.com/app/id\(appID)")!)
+    }
+}
+
+// Usage
+let api = LatestVersionAPI()
+let available = try await api?.getLatestAvailableVersion(
+    for: "1596487035", 
+    platform: .visionOs
+)
+```
+
+## Comparing local and remote versions
+
+Once you have retrieved the latest available version of your app in the App Store with either of the two approaches, you can compare it with the local version of your app and with the system's version to determine whether the user should be prompted to update the app:
+
+```swift:LatestAppStoreVersion+ShouldUpdate.swift 
+extension LatestAppStoreVersion {
+    var shouldUpdate: Bool {
+        guard let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
+            return false
+        }
+        let systemVersion = ProcessInfo().operatingSystemVersion
+        let versionString = "\(systemVersion.majorVersion).\(systemVersion.minorVersion).\(systemVersion.patchVersion)"
+        
+        let isRemoteVersionHigherThanLocal = currentVersion.compare(self.version, options: .numeric) == .orderedAscending
+        let isSystemVersionAllowed = versionString.compare(self.minimumOsVersion, options: .numeric) == .orderedDescending
+        
+        return  isRemoteVersionHigherThanLocal && isSystemVersionAllowed
+    }
+}
+```
