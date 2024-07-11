@@ -14,11 +14,20 @@ const SPONSORS = {
         title: "Build with Xcode, Ship with Helm.",
         body: "A native macOS app for App Store Connect that streamlines app updates and releases, making the process faster and easier.",
         url: "https://apps.apple.com/us/app/helm-for-app-store-connect/id6479357934?mt=12&pt=670995&ct=website"
+    },
+    "runwayRollbacks": {
+        color: "#7C3AED",
+        darkModeImage: "/assets/sponsors/runway-rollbacks.gif",
+        lightModeImage: "/assets/sponsors/runway-rollbacks.gif",
+        title: "Relax, you can roll back your mobile release",
+        body: "No one is immune from shipping critical bugs to production, but Runway helps you limit the amount of havoc that can cause.",
+        url: "https://get.runway.team/fix-rollbacks-for-mobile?utm_source=pol&utm_medium=blog&utm_campaign=julysponsors"
     }
 }
 
 const SPONSORS_SCHEDULE = {
     "28": SPONSORS.revenuecat,
+    "29": SPONSORS.runwayRollbacks,
     "32": SPONSORS.revenuecat,
 }
 
