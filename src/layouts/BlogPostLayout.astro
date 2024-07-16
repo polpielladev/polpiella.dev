@@ -22,7 +22,7 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
     <div class="xl:grid xl:grid-cols-[1fr_minmax(100px,80ch)] xl:gap-12">
       <aside class="xl:block hidden">
         <div class="sticky top-6 space-y-20">
-          <BlogSponsor variant="default" client:load />
+          <BlogSponsor variant="default" client:only />
           <div class="flex flex-col gap-6">
             <div>
               <h3 class="dark:text-white text-xl font-title mb-1">
