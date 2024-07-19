@@ -1,0 +1,42 @@
+---
+title: 'How to use recursive functions in Swift'
+excerpt: 'Why, how and when to use functions that call themselves in Swift.'
+pubDate: 2024-07-19
+tags: ['swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Recursive functions are **functions that call themselves**. They are a powerful tool in programming that's commonly used to solve **complex problems** simply and elegantly by breaking them down into smaller subproblems.
+
+These types of functions are often used in algorithms that can be naturally defined **in terms of themselves**, like traversing a tree or a graph, or when you need to perform the same operation on a sequence of elements. In other words, when you need to **repeat the same operation multiple times**, a recursive function is a good solution.
+
+Recursive functions consist of two parts:
+
+1. **Base case**: The condition by which the recursion is stopped.
+2. **Recursive case**: The part where the function calls itself.
+
+## Example
+
+I recently had to implement a recursive function for [Helm](https://helm-app.com/) to make network requests to a paginated endpoint from the App Store Connect API. I then wanted to apply some local filtering to the page's data returned by the endpoint which, in some cases, could result in fewer items than the limit I had set for the request being presented to the user, even though there could be more pages available. 
+
+For this reason, and to ensure that enough data is always returned to the user, I decided to keep fetching until the number of items I had was equal to or greater than the limit of items, or until there were no more pages to fetch:
+
+```swift:BetaGroup.swift
+func getExistingTesters(existingUsers: [BetaTester]? = nil, nextPage: URL? = nil, limit: Int = 25) async throws -> ([BetaTester], URL?) {
+    // base case
+    if let existingUsers, (existingUsers.count >= limit || nextPage == nil) {
+        return (existingUsers, nextPage)
+    }
+    
+    // recursive case
+    let (newNextPage, testers) = try await invitable.existingTesters(after: nextPage, limit: limit)
+    
+    let updatedUsers = (existingUsers ?? []) + testers
+    
+    return try await getExistingTesters(existingUsers: updatedUsers, nextPage: newNextPage, limit: limit)
+}
+```
+
+As you can see in the code above, the `getExistingTesters` function calls itself and the recursive loop is only stopped when the number of items is equal to or greater than the limit or when there are no more pages to fetch. The condition by which the recursion is stopped is called the **base case**. It is very important to define this case and test it thoroughly to avoid infinite loops, especially if you are making network requests!
+
+Furthermore, to differentiate the first call from the recursive calls, the `existingUsers` parameter is optional and defaults to `nil`. 
