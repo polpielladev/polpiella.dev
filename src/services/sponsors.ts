@@ -28,6 +28,7 @@ const SPONSORS = {
 const SPONSORS_SCHEDULE = {
     "28": SPONSORS.revenuecat,
     "29": SPONSORS.runwayRollbacks,
+    "30": SPONSORS.runwayRollbacks,
     "32": SPONSORS.revenuecat,
 }
 
