@@ -1,0 +1,7 @@
+---
+const { name, controls = true } = Astro.props;
+const src = `https://d2thv89fb05cma.cloudfront.net/polpiella.dev/videos/${name}`;
+---
+
+<!-- svelte-ignore a11y-media-has-caption -->
+<video {controls} playsinline class="mx-auto max-h-[800px]" {src}></video>
