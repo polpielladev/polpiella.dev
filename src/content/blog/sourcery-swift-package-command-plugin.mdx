@@ -318,7 +318,7 @@ One way to run the plugin is from the command line. A list of plugins available 
 
 Note that since this package requires special permissions, the `--allow-writing-to-package-directory` flag must be passed along with the command:
 
-<Video src="/assets/posts/sourcery-swift-package-command-plugin/sourcery-command-cli.mp4" />
+<Video name="sourcery-command-cli.mp4" />
 
 At this point you might be thinking, why would I bother writing a plugin that I have to still run from the command line when I can have a simple script do the same job in a couple of lines of bash? Well, let's take a look at what's coming in Xcode 14 and you'll see why I would definitely advocate for writing a plugin 📦.
 
@@ -328,7 +328,7 @@ This is the most exciting way to run command plugins but, unfortunately it is on
 
 If you are lucky enough to be using Xcode 14, you can execute any of a package's commands by right clicking on the package in the file explorer, finding the plugin to execute from the list and just clicking it. As you see in the video below, the command generates an `AutoMockable.generated.swift` file with the content from Sourcery:
 
-<Video src="/assets/posts/sourcery-swift-package-command-plugin/sourcery-command-xcode.mp4" />
+<Video name="sourcery-command-xcode.mp4" />
 
 ## Next Steps
 

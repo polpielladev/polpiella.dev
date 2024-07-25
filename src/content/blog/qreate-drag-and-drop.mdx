@@ -12,7 +12,7 @@ I have recently finished a new feature for my app [QReate](https://testflight.ap
 
 I wanted to make the experience as native and intuitive as possible, so I decided to add support for dragging and dropping images directly onto the editor and, much to my surprise coming from a UIKit background, it was a breeze to implement in SwiftUI:
 
-<Video src="/assets/posts/qreate-drag-and-drop/finished.mp4" />
+<Video name="qreate-drag-and-drop-finished.mp4" />
 
 ## The view
 
@@ -55,7 +55,7 @@ struct QRCodeCanvas: View {
 
 While we are already supporting dragging and dropping images onto the view, we are not making it clear to the user that such a feature is available:
 
-<Video src="/assets/posts/qreate-drag-and-drop/no-feedback.mp4" />
+<Video name="qreate-drag-and-drop-no-feedback.mp4" />
 
 ## Updating the UI
 
@@ -100,7 +100,7 @@ struct QRCodeCanvas: View {
 
 When we next run the app and drag an image over the view, we should see the following:
 
-<Video src="/assets/posts/qreate-drag-and-drop/overlay.mp4" />
+<Video name="qreate-drag-and-drop-overlay.mp4" />
 
 ## Hadling a drop
 
@@ -156,4 +156,4 @@ struct QRCodeCanvas: View {
 
 And with that, we are done! We can now drag and drop images onto our view and they will be shown on top of the QR code. 🎉
 
-<Video src="/assets/posts/qreate-drag-and-drop/finished.mp4" />
+<Video name="qreate-drag-and-drop-finished.mp4" />

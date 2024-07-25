@@ -18,7 +18,7 @@ In this article, I will be showing you how I use the time profiler instrument to
 
 The first step to analyze Main Thread usage in your application using the time profiler instrument is to choose the scheme you'd like to profile in Xcode and select the profile option from the product menu in Xcode's toolbar or execute the same command with the `⌘ + I` keyboard shortcut.
 
-<Video src="/assets/posts/time-profiler-instruments/launch-instruments.mp4" />
+<Video name="time-profiler-launch-instruments.mp4" />
 
 This command will open the Instruments app and prompt you to choose a **profiling template**. In this article, we will use the **Time Profiler template**, but I would encourage you to explore the rest and pick the one that best suits your needs.
 
@@ -28,7 +28,7 @@ Once you have a new window open in Instruments, you will be able to start record
 
 This will launch the selected application, which should be the scheme you built for profiling in Xcode, ready for you to interact with it. At this point, you can start navigating to the area of the app you are interested in profiling:
 
-<Video src="/assets/posts/time-profiler-instruments/record.mp4" />
+<Video name="time-profiler-record.mp4" />
 
 Once you have performed all interactions and visited all the areas of your app you are interested in profiling, you can stop the recording by clicking the stop button in the top left corner of the window.
 
@@ -44,7 +44,7 @@ One thing you need to know is that in both these modes you will **lose the abili
 
 To change the recording mode, long-press the record button, select the 'Recording Options' menu item, expand the 'Global Options' section and change the 'Recording Mode' to 'Deferred' or 'Last x seconds'.
 
-<Video src="/assets/posts/time-profiler-instruments/deferred.mp4" />
+<Video name="time-profiler-deferred.mp4" />
 
 #### No symbol names on Xcode 15.3
 
@@ -116,7 +116,7 @@ private func saveInformation() async throws {
 
 Now, you can profile a scheme of your app again with the time profiler instrument and add an `os_signpost` lane to see the events come in:
 
-<Video src="/assets/posts/time-profiler-instruments/sign-posts.mp4" />
+<Video name="time-profiler-sign-posts.mp4" />
 
 You can find the specific signpost for your logger in the 'Signposts' section of the trace and, as you hover over it, you will get visual feedback of how long the recorded interval took:
 

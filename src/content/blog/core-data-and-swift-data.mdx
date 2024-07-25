@@ -217,10 +217,10 @@ struct ContentView: View {
 
 If we run the app now and create a few entries using Core Data, we can see that the count of entities returned **by both frameworks is the same**:
 
-<Video src="/assets/posts/core-data-and-swift-data/core-data.mp4" />
+<Video name="core-data-swift-data-core-data.mp4" />
 
 On the other hand, if we create a few entries using Swift Data, we can see that while the count of entities returned by Swift Data is correct, the count of entities **returned by Core Data is not updating**.
 
 I believe this is an issue with the `@FetchRequest` property wrapper which is not getting notified of changes but, if we force a refresh by restarting the app, we can see that both frameworks are returning the same amount of entities:
 
-<Video src="/assets/posts/core-data-and-swift-data/swift-data.mp4" />
+<Video name="core-data-swift-data-swift-data.mp4" />

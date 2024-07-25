@@ -6,7 +6,7 @@ tags: ['swift', 'ml', 'wwdc-24']
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
-import YoutubeVideo from '@components/YoutubeVideo.svelte'
+import Video from '@components/Video.svelte'
 
 During WWDC24, Apple announced [Translation](https://developer.apple.com/wwdc24/10117), a new first-party framework built using CoreML models that allows you to perform on-device translations in your Swift apps entirely for free. Up until now, developers had to rely on third-party services such as [the Google Translate API](https://cloud.google.com/translate) or [Open AI](https://openai.com/index/openai-api) to dynamically translate text across different languages in their apps.
 
@@ -114,7 +114,7 @@ struct ContentView: View {
 
 Similarly to what happens with the macOS `popover` modifier, it is important to place the `.translationPresentation` modifier on the view you would like to attach the sheet to. In this case, the sheet will show on top of the `Button` when it is pressed:
 
-<YoutubeVideo id="cH4KM8NKwU4" client:visible />
+<Video name="translation-sheet.mp4" />
 
 ## Using TranslationSessions
 
@@ -185,7 +185,7 @@ Before we start translating text, I want to point out a few things that you need
 
 The Translation framework needs to have a local model for each language you want to translate to. If you translate to a language whose model is not found on the device, the framework will present a sheet that will allow the user to download such model:
 
-<YoutubeVideo id="-gqu_x6dqqE" client:visible />
+<Video name="translation-download.mp4" />
 
 If you know you are going to need a specific language, you can prompt the user to download it before doing any translations by using the `prepareTranslation` method on `TranslationSession`. This will take the source and target languages you want to translate from and to and will download the necessary models:
 
@@ -437,7 +437,7 @@ struct ContentView: View {
 
 Now, when we run the application again, add some text and tap on the translate button, the text in the editor will automatically change to Dutch instead of showing the translation sheet:
 
-<YoutubeVideo id="Doz9NNGX14o" client:visible />
+<Video name="translation-one-to-one.mp4" />
 
 ### Many-to-one translations
 
@@ -508,7 +508,7 @@ struct ContentView: View {
 
 When we run the application again, we can see that the result is the same, but we have now translated many languages into one:
 
-<YoutubeVideo id="ossM7vPlI08" client:visible />
+<Video name="translation-many-to-one.mp4" />
 
 ### Batch translations
 
@@ -591,7 +591,7 @@ You must also know that you **can't mix languages in the same batch**, so if you
 
 If we now run the application again, we can see that the result is the same, but we have translated the text in batches instead of all at once:
 
-<YoutubeVideo id="Doz9NNGX14o" client:visible />
+<Video name="translation-one-to-one.mp4" />
 
 ### One to many translations
 
@@ -671,7 +671,7 @@ struct ContentView: View {
 
 When we run the app, the user can now translate the text to multiple languages by pressing the translate button:
 
-<YoutubeVideo id="E1lTvF9Vkjo" client:visible />
+<Video name="translation-one-to-many.mp4" />
 
 > This is a use case that I looked into specifically for [Helm](https://helm-app.com) as we offer App Store Connect content translation from the base language to all other supported localizations.
 

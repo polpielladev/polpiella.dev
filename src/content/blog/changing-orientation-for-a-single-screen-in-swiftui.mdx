@@ -14,7 +14,7 @@ The iPlayer app only supports portrait orientation for all screens except for on
 
 In our legacy UIKit navigation system, we achieve this by supporting all orientations at the app target level and then locking them down to portrait at the root of each `UINavigationController`. Then, when presenting the video player, we wrap it in a `UIViewController` which overrides `supportedInterfaceOrientations` and sets this value to `.landscape`:
 
-<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/iplayer.mp4" />
+<Video name="changing-orientation-iplayer.mp4" />
 
 We set out on a mission to replicate this behaviour in our SwiftUI navigation and tried a number of approaches but none of them worked in the way we wanted it to:
 
@@ -224,7 +224,7 @@ struct ContentView: View {
 
 But this is what happened instead... 😭
 
-<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/portrait.mp4" />
+<Video name="changing-orientation-portrait.mp4" />
 
 After debugging the code we realised that the `onPreferenceChange` method at the `RootView` was not firing when presenting the landscape view. While this didn't make sense at the time, it does now. The preference gets updated from a view modifier and it needs a re-render of the view to propagate the event upwards to the `Root` view, which meant that we needed to do some extra work to get this working...
 
@@ -277,7 +277,7 @@ struct ContentView: View {
 }
 ```
 
-<Video src="/assets/posts/changing-orientation-for-a-single-screen-in-swiftui/landscape.mp4" />
+<Video name="changing-orientation-landscape.mp4" />
 
 ## Take it with a pinch of salt 🧂
 
