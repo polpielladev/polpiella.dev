@@ -9,7 +9,5 @@
 <video
   {controls}
   playsInline
-  autoPlay
-  loop
   class="mx-auto max-h-[800px]"
   {src} />
