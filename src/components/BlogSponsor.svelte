@@ -4,7 +4,8 @@
 
   const sponsor = getSponsor(new Date())
 
-  const { title, body, lightModeImage, color, darkModeImage, url } = sponsor
+  const { title, body, images, color, url } = sponsor
+  const { large, small } = images
 </script>
 
 <div
@@ -23,19 +24,19 @@
   </div>
 
   <picture>
-    <source srcset={darkModeImage}  media="(prefers-color-scheme: dark)"/>
-    <source srcset={lightModeImage}  media="(prefers-color-scheme: light)"/>
     {#if variant === 'default'}
+      <source srcset={large.darkModeImage}  media="(prefers-color-scheme: dark)"/>
+      <source srcset={large.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        width="96"
-        height="96"
-        class="mx-auto w-24 aspect-square object-contain"
-        src={lightModeImage}
+        class={`mx-auto aspect-[${large.aspectRatio}] h-28 object-contain`}
+        src={large.lightModeImage}
         alt="Sponsor Logo" />
     {:else}
+      <source srcset={small.darkModeImage}  media="(prefers-color-scheme: dark)"/>
+      <source srcset={small.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        class={`'w-20' relative mx-auto aspect-square object-contain px-2`}
-        src={lightModeImage}
+        class={`h-20 relative mx-auto aspect-[${small.aspectRatio}] object-contain px-2`}
+        src={small.lightModeImage}
         alt="RevenueCat logo" />
     {/if}
   </picture>
