@@ -28,14 +28,16 @@
       <source srcset={large.darkModeImage}  media="(prefers-color-scheme: dark)"/>
       <source srcset={large.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        class={`mx-auto aspect-[${large.aspectRatio}] h-28 object-contain`}
+        class={`mx-auto h-28 object-contain`}
+        style={`aspect-ratio: ${large.aspectRatio}`}
         src={large.lightModeImage}
         alt="Sponsor Logo" />
     {:else}
       <source srcset={small.darkModeImage}  media="(prefers-color-scheme: dark)"/>
       <source srcset={small.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        class={`h-20 relative mx-auto aspect-[${small.aspectRatio}] object-contain px-2`}
+        class={`h-20 relative mx-auto object-contain px-2`}
+        style={`aspect-ratio: ${small.aspectRatio}`}
         src={small.lightModeImage}
         alt="RevenueCat logo" />
     {/if}
