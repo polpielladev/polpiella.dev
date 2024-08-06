@@ -67,11 +67,11 @@ xcodebuild test \
     -resultBundlePath TestResults
 ```
 
-As we provided a custom output path for the `.xcresult` bundle, we can just find it in the same directory we invoked the command from with the name `TestResults`. When we open the bundle in Xcode, we will see that the test failed and that a memory graph was generated:
+As we provided a custom output path for the `.xcresult` bundle, we can just find it in the same directory we invoked the command from with the name `TestResults`. When we open the bundle in Xcode, we see that the test failed and that a memory graph was generated:
 
 ![]()
 
-Upon inspection of the memory graph, we can in fact see that the app has a number of memory leaks:
+Upon inspection of the memory graph, we can in fact see that the app has numerous memory leaks:
 
 ![]()
 
@@ -202,6 +202,7 @@ struct XCLeaks: ParsableCommand {
                 let regex = /(?<numberOfLeaks>\d+)\s+leaks for/
                 if let output = try? regex.firstMatch(in: error.output) {
                     print("❌ Found \(output.numberOfLeaks) leaks")
+                    exit(1)
                 } else {
                     print("✅ No leaks found!")
                 }
@@ -223,25 +224,35 @@ A lot is going on in the code above, so let's break it down:
 6. We export the memory graph attachment to a temporary directory.
 7. We unzip the memory graph attachment. We are using `ShellOut` to call the `tar` executable from the command line and unzip the file. We unzip the file to the same directory as the attachment.
 8. We extract the name of the unzipped file escaping any special characters that might be present in the name.
-9. We run the `leaks` command line tool to read the contents of the memory graph. The `leaks` tool fails if the memory graph contains any leaks, so we catch the error and then parse the output with a regular expression to extract the number of leaks found.
+9. We run the `leaks` command line tool to read the contents of the memory graph. The `leaks` tool fails if the memory graph contains any leaks, so we catch the error and then parse the output with a regular expression to extract the number of leaks found and exit with an error.
 
 ## Putting it all together
 
 Now that we have everything we need, let's put the pieces together and see how we would detect memory leaks in a CI/CD environment:
 
-```bash:Terminal
+```bash:audit-memory-leaks.sh
+#!/bin/bash
 
-xcodebuild test \
-    -project AutomatedTesting.xcodeproj \
-    -scheme AutomatedTesting \ 
-    # Replace the device here
-    -destination "platform=iOS,name=Pol Piella Abadia's iPhone" \
-    -enablePerformanceTestsDiagnostics YES \
-    -derivedDataPath ./derived_data \
-    -resultBundlePath TestResults
+set -e
 
-swift run \ 
-    --package-path xcleaks/ \ 
-    XCLeaks \
-    $(pwd)/TestResults.xcresult
+function test {
+    xcodebuild test \
+        -project AutomatedTesting.xcodeproj \
+        -scheme AutomatedTesting \
+        -destination "platform=iOS,name=Pol Piella Abadia’s iPhone" \
+        -enablePerformanceTestsDiagnostics YES \
+        -derivedDataPath ./derived_data \
+        -resultBundlePath TestResults
+}
+
+function leaks {
+    swift run \
+        --package-path xcleaks/ \
+        XCLeaks \
+        $(pwd)/TestResults.xcresult
+}
+
+test || leaks
 ```
+
+The command above will make sure that the memory graph is inspected whenever the UI test fails and will make the CI/CD pipeline fail only if memory leaks are found ❌.
