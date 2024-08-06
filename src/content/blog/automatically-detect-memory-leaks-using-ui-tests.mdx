@@ -1,10 +1,12 @@
 ---
 title: 'How to automatically detect memory leaks on CI/CD using UI tests'
-excerpt: 'Learn how to automatically detect memory leaks in your Apple apps using UI tests and Xcode's XCTest framework.'
+excerpt: "Learn how to automatically detect memory leaks in your Apple apps using UI tests and Xcode's XCTest framework."
 pubDate: 2024-08-07
 tags: ['swift', testing, 'ci-cd']
 layout: ../../layouts/BlogPostLayout.astro
 ---
+
+import Video from '@components/Video.astro'
 
 Back in WWDC21 and with the launch of Xcode 13, Apple introduced a new `xcodebuild` option that generates a memory graph whenever a UI test measuring `XCTMemoryMetrics` fails. 
 
@@ -51,7 +53,7 @@ For the sake of simplicity and showing how to detect a memory leak using UI test
 
 If we now run the UI test in Xcode, we will see a gray indicator next to the `measure` method's invocation stating that we have not yet set a baseline measurement for the test. As the purpose of this test is to generate a memory graph and we want the measurement to always fail, we will set the baseline to a very low value that will always be exceeded:
 
-{/* Video! */}
+<Video name="automatic-memory-leak-baseline.mp4"/>
 
 ## Generating a memory graph
 
@@ -69,11 +71,11 @@ xcodebuild test \
 
 As we provided a custom output path for the `.xcresult` bundle, we can just find it in the same directory we invoked the command from with the name `TestResults`. When we open the bundle in Xcode, we see that the test failed and that a memory graph was generated:
 
-![]()
+![](/assets/posts/automatically-detect-memory-leaks-using-ui-tests/xcresult.webp)
 
 Upon inspection of the memory graph, we can in fact see that the app has numerous memory leaks:
 
-![]()
+![](/assets/posts/automatically-detect-memory-leaks-using-ui-tests/memgraph.webp)
 
 ## Parsing the result bundle and memory graph
 
