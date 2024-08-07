@@ -1,0 +1,34 @@
+---
+import Slides from "./Slides.astro";
+
+const { title, event, date, link, slides, icon } = Astro.props;
+const formatDate = (date: Date) => {
+  const formattedDate = date.toLocaleDateString("en-US", {
+    dateStyle: "medium",
+  });
+
+  return formattedDate;
+};
+---
+
+<div class="space-y-5">
+  {slides && <Slides title={title} src={slides} />}
+  <div class="flex items-start gap-3">
+    <img
+      class="not-prose m-0 h-12 w-12 rounded-sm object-contain shadow"
+      src={icon ?? "/assets/conferences/placeholder.webp"}
+      alt="Conference icon"
+    />
+    <div class="relative flex flex-col gap-1">
+      <a href={link}>
+        <h3
+          class="m-0 font-title text-lg hover:text-violet-700 dark:text-white dark:hover:text-violet-400"
+        >
+          {title}
+        </h3>
+      </a>
+      <p class="m-0 dark:text-gray-200">{event}</p>
+      <p class="m-0 text-gray-500 dark:text-gray-300">{formatDate(date)}</p>
+    </div>
+  </div>
+</div>

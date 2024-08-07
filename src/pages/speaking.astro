@@ -1,48 +1,53 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro'
-import Talk from '@components/Talk.svelte'
-import { SpeakingEngagement, speakingEngagements } from 'src/data/speaking'
-import TitledGrid from '@components/TitledGrid.svelte'
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Talk from "@components/Talk.astro";
+import { SpeakingEngagement, speakingEngagements } from "src/data/speaking";
+import TitledGrid from "@components/TitledGrid.svelte";
 
 const engagementsByYear: { [key: number]: SpeakingEngagement[] } =
   speakingEngagements.reduce<{ [key: number]: SpeakingEngagement[] }>(
     (acc, engagement) => {
-      const year = engagement.startDate.getFullYear()
+      const year = engagement.startDate.getFullYear();
       if (!acc[year]) {
-        acc[year] = []
+        acc[year] = [];
       }
-      acc[year]!.push(engagement)
-      return acc
+      acc[year]!.push(engagement);
+      return acc;
     },
-    {}
-  )
+    {},
+  );
 ---
 
 <BaseLayout
   title="Speaking"
   description="Find out a bit more about me and what I do!"
-  activeNav="speaking">
+  activeNav="speaking"
+>
   <section>
     <div class="max-w-2xl mb-12">
       <h1
-        class="text-4xl mb-4 font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+        class="text-4xl mb-4 font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+      >
         Where I have spoken in the past
       </h1>
       <p
-        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-400">
+        class="text-lg mb-4 font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+      >
         I have been fortunate enough to speak at a number of events around the
         world. Here are some of the places I have spoken at in the past.
       </p>
       <a
         href="mailto:hi@polpiella.dev?subject=We%20want%20you%20to%20speak%20at%20our%20event"
-        class="inline-flex items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-300 dark:focus:ring-violet-900 transition-colors">
+        class="inline-flex items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-violet-700 hover:bg-violet-800 focus:ring-4 focus:ring-violet-300 dark:focus:ring-violet-900 transition-colors"
+      >
         Book me to speak
         <svg
           class="w-3.5 h-3.5 ml-2"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
-          viewBox="0 0 14 10">
+          viewBox="0 0 14 10"
+        >
           <path
             stroke="currentColor"
             stroke-linecap="round"
@@ -66,6 +71,7 @@ const engagementsByYear: { [key: number]: SpeakingEngagement[] } =
                 date={engagement.startDate}
                 icon={engagement.image}
                 link={engagement.link}
+                slides={engagement.slides}
               />
             ))}
           </TitledGrid>
