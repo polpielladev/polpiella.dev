@@ -1,341 +1,412 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { speakingEngagements, SpeakingEngagement } from "src/data/speaking";
+import TitledGrid from "@components/TitledGrid.svelte";
+import Talk from "@components/Talk.astro";
+
+const engagementsByYear: { [key: number]: SpeakingEngagement[] } =
+    speakingEngagements.reduce<{ [key: number]: SpeakingEngagement[] }>(
+        (acc, engagement) => {
+            const year = engagement.startDate.getFullYear();
+            if (!acc[year]) {
+                acc[year] = [];
+            }
+            acc[year]!.push(engagement);
+            return acc;
+        },
+        {},
+    );
 ---
 
 <BaseLayout title="About | polpielladev 📱" description="About Pol Piella.">
-    <section
-        class="section md:pb-36 pb-16 scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
-    >
-        <div class="max-w-xl">
-            <div class="flex gap-4 mb-4">
-                <img
-                    class="rounded-full shadow-lg size-16 object-cover"
-                    src="/assets/profile.jpg"
-                    alt="Pol Piella"
-                />
-                <a
-                    href="https://pol.link/linkedin"
-                    target="_blank"
-                    rel="noopener"
-                    class="flex items-center transition md:justify-center md:hover:scale-105"
-                >
-                    <div class="flex items-center">
-                        <span
-                            class="relative inline-flex overflow-hidden rounded-full p-[1px]"
-                        >
+    <div class="space-y-24">
+        <section
+            class="section scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
+        >
+            <div class="max-w-xl">
+                <div class="flex gap-4 mb-4">
+                    <img
+                        class="rounded-full shadow-lg size-16 object-cover"
+                        src="/assets/profile.jpg"
+                        alt="Pol Piella"
+                    />
+                    <a
+                        href="https://pol.link/linkedin"
+                        target="_blank"
+                        rel="noopener"
+                        class="flex items-center transition md:justify-center md:hover:scale-105"
+                    >
+                        <div class="flex items-center">
                             <span
-                                class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#51E4B8_0%,#21554E_50%,#51E4B8_100%)]"
-                            ></span>
-                            <div
-                                class="inline-flex items-center justify-center w-full px-3 py-1 text-sm text-green-800 bg-green-100 rounded-full cursor-pointer dark:bg-gray-800 dark:text-white/80 backdrop-blur-3xl whitespace-nowrap"
+                                class="relative inline-flex overflow-hidden rounded-full p-[1px]"
                             >
-                                Let's work together!
-                            </div>
-                        </span>
-                    </div>
-                </a>
+                                <span
+                                    class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#51E4B8_0%,#21554E_50%,#51E4B8_100%)]"
+                                ></span>
+                                <div
+                                    class="inline-flex items-center justify-center w-full px-3 py-1 text-sm text-green-800 bg-green-100 rounded-full cursor-pointer dark:bg-gray-800 dark:text-white/80 backdrop-blur-3xl whitespace-nowrap"
+                                >
+                                    Let's work together!
+                                </div>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <h1
+                    class="text-4xl font-bold tracking-tight text-gray-800 sm:text-5xl dark:text-white"
+                >
+                    Hey, I'm Pol
+                </h1>
+                <p
+                    class="mt-6 text-xl text-gray-800 dark:[&>strong]:text-purple-200 [&>strong]:text-purple-500 [&>strong]:font-semibold dark:text-gray-300"
+                >
+                    <strong
+                        >Freelance iOS Software Engineer and Content Creator</strong
+                    > based in Barcelona, Spain, with 6+ years of experience. I specialize
+                    in building unique app experiences on Apple platforms.
+                </p>
+                <nav class="flex flex-wrap gap-4 mt-8">
+                    <a
+                        href="mailto:pol@appdiggershq.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        role="link"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-1 text-gray-800 transition bg-gray-100 border border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600 dark:text-white focus-visible:ring-purple-500/80 text-md hover:bg-gray-900 hover:border-gray-700 group max-w-fit hover:text-white focus:outline-none focus-visible:outline-none focus-visible:ring focus-visible:ring-white focus-visible:ring-offset-2 active:bg-black"
+                    >
+                        <svg
+                            class="size-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            stroke-width="2"
+                            stroke="currentColor"
+                            fill="none"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><path stroke="none" d="M0 0h24v24H0z" fill="none"
+                            ></path><path
+                                d="M12 18h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7.5"
+                            ></path><path d="M3 6l9 6l9 -6"></path><path
+                                d="M15 18h6"></path><path d="M18 15l3 3l-3 3"
+                            ></path></svg
+                        >
+                        Get in touch!
+                    </a>
+                </nav>
             </div>
-            <h1
-                class="text-4xl font-bold tracking-tight text-gray-800 sm:text-5xl dark:text-white"
+        </section>
+
+        <section
+            class="section scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
+        >
+            <h2
+                class="flex items-center mb-6 text-3xl font-semibold gap-x-3 text-black/80 dark:text-white"
             >
-                Hey, I'm Pol
-            </h1>
+                My Indie Apps
+            </h2>
+
             <p
                 class="mt-6 text-xl text-gray-800 dark:[&>strong]:text-purple-200 [&>strong]:text-purple-500 [&>strong]:font-semibold dark:text-gray-300"
             >
-                6+ years of experience. <strong
-                    >Software Engineer and Content Creator</strong
-                > based in Barcelona, Spain. I specialize in building unique app
-                experiences on Apple platforms.
+                I actively ship and build these apps that have been <strong
+                    >featured on the App Store multiple times</strong
+                >.
             </p>
-            <nav class="flex flex-wrap gap-4 mt-8">
-                <a
-                    href="mailto:pol@appdiggershq.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    role="link"
-                    class="inline-flex items-center justify-center gap-2 px-4 py-1 text-gray-800 transition bg-gray-100 border border-gray-300 rounded-full dark:bg-gray-800 dark:border-gray-600 dark:text-white focus-visible:ring-purple-500/80 text-md hover:bg-gray-900 hover:border-gray-700 group max-w-fit hover:text-white focus:outline-none focus-visible:outline-none focus-visible:ring focus-visible:ring-white focus-visible:ring-offset-2 active:bg-black"
-                >
-                    <svg
-                        class="size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        stroke-width="2"
-                        stroke="currentColor"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        ><path stroke="none" d="M0 0h24v24H0z" fill="none"
-                        ></path><path
-                            d="M12 18h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7.5"
-                        ></path><path d="M3 6l9 6l9 -6"></path><path
-                            d="M15 18h6"></path><path d="M18 15l3 3l-3 3"
-                        ></path></svg
-                    >
-                    Get in touch!
+
+            <div class="flex gap-2 mt-8">
+                <a href="https://nowplaying.page">
+                    <img
+                        src="/assets/now-playing.png"
+                        class="w-24 h-24 object-cover hover:scale-105 transition-transform"
+                    />
                 </a>
-            </nav>
-        </div>
-    </section>
+                <a href="https://getqreate.app">
+                    <img
+                        src="/assets/qreate.webp"
+                        class="w-24 h-24 object-cover hover:scale-105 transition-transform"
+                    />
+                </a>
+                <a href="https://helm-app.com">
+                    <img
+                        src="/assets/helm.webp"
+                        class="w-24 h-24 object-cover hover:scale-105 transition-transform"
+                    />
+                </a>
+            </div>
+        </section>
 
-    <section
-        class="section md:pb-36 pb-16 scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
-    >
-        <h2
-            class="flex items-center mb-6 text-3xl font-semibold gap-x-3 text-black/80 dark:text-white"
+        <section
+            id="speaking"
+            class="flex flex-col section scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
         >
-            My Indie Apps
-        </h2>
-
-        <p
-            class="mt-6 text-xl text-gray-800 dark:[&>strong]:text-purple-200 [&>strong]:text-purple-500 [&>strong]:font-semibold dark:text-gray-300"
-        >
-            The apps that I ship and build outside of my full-time job and that
-            have been <strong>featured on the App Store multiple times</strong>.
-        </p>
-
-        <div class="flex gap-2 mt-8">
-            <a href="https://nowplaying.page">
-                <img
-                    src="/assets/now-playing.png"
-                    class="w-24 h-24 object-cover hover:scale-105 transition-transform"
-                />
-            </a>
-            <a href="https://getqreate.app">
-                <img
-                    src="/assets/qreate.webp"
-                    class="w-24 h-24 object-cover hover:scale-105 transition-transform"
-                />
-            </a>
-            <a href="https://helm-app.com">
-                <img
-                    src="/assets/helm.webp"
-                    class="w-24 h-24 object-cover hover:scale-105 transition-transform"
-                />
-            </a>
-        </div>
-    </section>
-
-    <section
-        id="experiencia"
-        data-section="experiencia"
-        class="section undefined scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
-    >
-        <h2
-            class="flex items-center mb-6 text-3xl font-semibold gap-x-3 text-black/80 dark:text-white"
-        >
-            <svg
-                class="size-8"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-                    d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"
-                ></path><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"
-                ></path><path d="M12 12l0 .01"></path><path
-                    d="M3 13a20 20 0 0 0 18 0"></path></svg
+            <h2
+                class="flex items-center mb-6 text-3xl font-semibold gap-x-3 text-black/80 dark:text-white"
             >
-            Work Experience
-        </h2>
-        <ol class="relative mt-16">
-            <li class="">
-                <div
-                    class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
+                Public Speaking
+            </h2>
+            <p
+                class="text-lg mb-6 font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+            >
+                I have been fortunate enough to speak at a number of events
+                around the world. Here are some of the places I have spoken at
+                in the past.
+            </p>
+            <div
+                class="flex flex-col section gap-12 scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
+            >
+                {
+                    Object.entries(engagementsByYear)
+                        .sort(
+                            ([leftYear]: any, [rightYear]: any) =>
+                                rightYear - leftYear,
+                        )
+                        .map(([year, engagements]) => (
+                            <TitledGrid
+                                title={`${year}`}
+                                offsetTop
+                                client:visible
+                            >
+                                {engagements.map(
+                                    (engagement: SpeakingEngagement) => (
+                                        <Talk
+                                            title={engagement.title}
+                                            event={engagement.eventName}
+                                            date={engagement.startDate}
+                                            icon={engagement.image}
+                                            link={engagement.link}
+                                            slides={engagement.slides}
+                                        />
+                                    ),
+                                )}
+                            </TitledGrid>
+                        ))
+                }
+            </div>
+        </section>
+
+        <section
+            id="experiencia"
+            data-section="experiencia"
+            class="section undefined scroll-m-20 w-full mx-auto container lg:max-w-4xl md:max-w-2xl"
+        >
+            <h2
+                class="flex items-center mb-6 text-3xl font-semibold gap-x-3 text-black/80 dark:text-white"
+            >
+                <svg
+                    class="size-8"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path stroke="none" d="M0 0h24v24H0z" fill="none"
+                    ></path><path
+                        d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"
+                    ></path><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"
+                    ></path><path d="M12 12l0 .01"></path><path
+                        d="M3 13a20 20 0 0 0 18 0"></path></svg
                 >
-                    <div class="relative pb-6 md:pb-12 md:col-span-2">
-                        <div class="sticky top-0">
-                            <span
-                                class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
-                                >•</span
-                            >
-                            <h3
-                                class="text-xl font-bold dark:text-purple-300 text-purple-500"
-                            >
-                                Content Creator
-                            </h3>
-                            <h4
-                                class="font-semibold text-xl text-gray-600 dark:text-white"
-                            >
-                                polpiella.dev & iOS CI Newsletter
-                            </h4>
-                            <time
-                                class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
-                                >2021 - Present</time
-                            >
+                Work Experience
+            </h2>
+            <ol class="relative mt-16">
+                <li class="">
+                    <div
+                        class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
+                    >
+                        <div class="relative pb-6 md:pb-12 md:col-span-2">
+                            <div class="sticky top-0">
+                                <span
+                                    class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
+                                    >•</span
+                                >
+                                <h3
+                                    class="text-xl font-bold dark:text-purple-300 text-purple-500"
+                                >
+                                    Content Creator
+                                </h3>
+                                <h4
+                                    class="font-semibold text-xl text-gray-600 dark:text-white"
+                                >
+                                    polpiella.dev & iOS CI Newsletter
+                                </h4>
+                                <time
+                                    class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+                                    >2021 - Present</time
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        >
+                            I write about Apple development on my personal blog
+                            to over 7,000 monthly readers and have over 10,000
+                            mothly page views. I also curate a fortnightly
+                            newsletter about CI/CD and mobile devops that
+                            reachers over 1,200 subscribers.
                         </div>
                     </div>
+                </li>
+                <li class="">
                     <div
-                        class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
                     >
-                        I write about Apple development on my personal blog to
-                        over 7,000 monthly readers and have over 10,000 mothly
-                        page views. I also curate a fortnightly newsletter about
-                        CI/CD and mobile devops that reachers over 1,200
-                        subscribers.
-                    </div>
-                </div>
-            </li>
-            <li class="">
-                <div
-                    class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
-                >
-                    <div class="relative pb-6 md:pb-12 md:col-span-2">
-                        <div class="sticky top-0">
-                            <span
-                                class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
-                                >•</span
-                            >
-                            <h3
-                                class="text-xl font-bold dark:text-purple-300 text-purple-500"
-                            >
-                                Senior (L4) iOS Engineer
-                            </h3>
-                            <h4
-                                class="font-semibold text-xl text-gray-600 dark:text-white"
-                            >
-                                Glovo
-                            </h4>
-                            <time
-                                class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
-                                >October 2023 - Present</time
-                            >
+                        <div class="relative pb-6 md:pb-12 md:col-span-2">
+                            <div class="sticky top-0">
+                                <span
+                                    class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
+                                    >•</span
+                                >
+                                <h3
+                                    class="text-xl font-bold dark:text-purple-300 text-purple-500"
+                                >
+                                    Senior (L4) iOS Engineer
+                                </h3>
+                                <h4
+                                    class="font-semibold text-xl text-gray-600 dark:text-white"
+                                >
+                                    Glovo
+                                </h4>
+                                <time
+                                    class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+                                    >October 2023 - Present</time
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        >
+                            Individual contributor in both the Courier and
+                            Customer iOS apps for Glovo, a food delivery
+                            platform. Along with developing new features and
+                            maintaining the existing codebase, I am responsible
+                            for mentoring junior engineers, making sure the
+                            app's performance is in good shape and driving the
+                            adoption of new technologies and best practices.
                         </div>
                     </div>
+                </li>
+                <li class="">
                     <div
-                        class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
                     >
-                        Individual contributor in both the Courier and Customer
-                        iOS apps for Glovo, a food delivery platform. Along with
-                        developing new features and maintaining the existing
-                        codebase, I am responsible for mentoring junior
-                        engineers, making sure the app's performance is in good
-                        shape and driving the adoption of new technologies and
-                        best practices.
-                    </div>
-                </div>
-            </li>
-            <li class="">
-                <div
-                    class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
-                >
-                    <div class="relative pb-6 md:pb-12 md:col-span-2">
-                        <div class="sticky top-0">
-                            <span
-                                class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
-                                >•</span
-                            >
-                            <h3
-                                class="text-xl font-bold dark:text-purple-300 text-purple-500"
-                            >
-                                Senior iOS Engineer
-                            </h3>
-                            <h4
-                                class="font-semibold text-xl text-gray-600 dark:text-white"
-                            >
-                                BBC (iPlayer)
-                            </h4>
-                            <time
-                                class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
-                                >September 2021 - October 2023</time
-                            >
+                        <div class="relative pb-6 md:pb-12 md:col-span-2">
+                            <div class="sticky top-0">
+                                <span
+                                    class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
+                                    >•</span
+                                >
+                                <h3
+                                    class="text-xl font-bold dark:text-purple-300 text-purple-500"
+                                >
+                                    Senior iOS Engineer
+                                </h3>
+                                <h4
+                                    class="font-semibold text-xl text-gray-600 dark:text-white"
+                                >
+                                    BBC (iPlayer)
+                                </h4>
+                                <time
+                                    class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+                                    >September 2021 - October 2023</time
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        >
+                            I was part of the team responsible for the
+                            development of the BBC iPlayer app for iOS. I played
+                            an active role in architecting and developing new
+                            features as well as breaking down a monolithic
+                            codebase into smaller, more manageable modules. I
+                            also played a key role in delivering a new version
+                            of the app that was built from scratch using
+                            SwiftUI.
                         </div>
                     </div>
+                </li>
+                <li class="">
                     <div
-                        class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
                     >
-                        I was part of the team responsible for the development
-                        of the BBC iPlayer app for iOS. I played an active role
-                        in architecting and developing new features as well as
-                        breaking down a monolithic codebase into smaller, more
-                        manageable modules. I also played a key role in
-                        delivering a new version of the app that was built from
-                        scratch using SwiftUI.
-                    </div>
-                </div>
-            </li>
-            <li class="">
-                <div
-                    class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
-                >
-                    <div class="relative pb-6 md:pb-12 md:col-span-2">
-                        <div class="sticky top-0">
-                            <span
-                                class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
-                                >•</span
-                            >
-                            <h3
-                                class="text-xl font-bold dark:text-purple-300 text-purple-500"
-                            >
-                                iOS Engineer
-                            </h3>
-                            <h4
-                                class="font-semibold text-xl text-gray-600 dark:text-white"
-                            >
-                                Student Beans
-                            </h4>
-                            <time
-                                class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
-                                >April 2020 - September 2021</time
-                            >
+                        <div class="relative pb-6 md:pb-12 md:col-span-2">
+                            <div class="sticky top-0">
+                                <span
+                                    class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
+                                    >•</span
+                                >
+                                <h3
+                                    class="text-xl font-bold dark:text-purple-300 text-purple-500"
+                                >
+                                    iOS Engineer
+                                </h3>
+                                <h4
+                                    class="font-semibold text-xl text-gray-600 dark:text-white"
+                                >
+                                    Student Beans
+                                </h4>
+                                <time
+                                    class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+                                    >April 2020 - September 2021</time
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        >
+                            I was part of the team that actively developed of
+                            the Student Beans iOS app. My responsibilities
+                            included refactoring legacy features into a
+                            VIPER-based architecture, maintain the app's CI/CD
+                            pipelines, mentor and onboard new starters and run
+                            company-wide knowledge sharing workshops across a
+                            variety of topics.
                         </div>
                     </div>
+                </li>
+                <li class="">
                     <div
-                        class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
                     >
-                        I was part of the team that actively developed of the
-                        Student Beans iOS app. My responsibilities included
-                        refactoring legacy features into a VIPER-based
-                        architecture, maintain the app's CI/CD pipelines, mentor
-                        and onboard new starters and run company-wide knowledge
-                        sharing workshops across a variety of topics.
-                    </div>
-                </div>
-            </li>
-            <li class="">
-                <div
-                    class="relative mx-12 pb-12 grid before:absolute before:left-[-35px] before:block before:h-full before:border-l-2 before:border-black/20 dark:before:border-white/15 before:content-[''] md:grid-cols-5 md:gap-10 md:space-x-4]"
-                >
-                    <div class="relative pb-6 md:pb-12 md:col-span-2">
-                        <div class="sticky top-0">
-                            <span
-                                class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
-                                >•</span
-                            >
-                            <h3
-                                class="text-xl font-bold dark:text-purple-300 text-purple-500"
-                            >
-                                iOS Engineer
-                            </h3>
-                            <h4
-                                class="font-semibold text-xl text-gray-600 dark:text-white"
-                            >
-                                Music Tribe
-                            </h4>
-                            <time
-                                class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
-                                >July 2018 - April 2020</time
-                            >
+                        <div class="relative pb-6 md:pb-12 md:col-span-2">
+                            <div class="sticky top-0">
+                                <span
+                                    class="dark:text-purple-300 text-purple-500 -left-[44px] absolute rounded-full text-5xl"
+                                    >•</span
+                                >
+                                <h3
+                                    class="text-xl font-bold dark:text-purple-300 text-purple-500"
+                                >
+                                    iOS Engineer
+                                </h3>
+                                <h4
+                                    class="font-semibold text-xl text-gray-600 dark:text-white"
+                                >
+                                    Music Tribe
+                                </h4>
+                                <time
+                                    class="p-0 m-0 text-sm text-gray-600/80 dark:text-white/80"
+                                    >July 2018 - April 2020</time
+                                >
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
+                        >
+                            I was part of the team working on a set of companion
+                            apps for Music Tribe's line of audio products. I
+                            worked on projects that involved Bluetooth
+                            communication, MIDI, audio processing and
+                            communication with external hardware using ZeroMQ
+                            and serialised data using Protocol Buffers.
                         </div>
                     </div>
-                    <div
-                        class="relative flex flex-col gap-2 pb-4 text-gray-600 dark:text-gray-300 md:col-span-3"
-                    >
-                        I was part of the team working on a set of companion
-                        apps for Music Tribe's line of audio products. I worked
-                        on projects that involved Bluetooth communication, MIDI,
-                        audio processing and communication with external
-                        hardware using ZeroMQ and serialised data using Protocol
-                        Buffers.
-                    </div>
-                </div>
-            </li>
-        </ol>
-    </section>
+                </li>
+            </ol>
+        </section>
+    </div>
 </BaseLayout>

@@ -11,6 +11,46 @@ export interface SpeakingEngagement {
 
 export const speakingEngagements: SpeakingEngagement[] = [
   {
+    eventName: 'SwiftConf',
+    image: '/assets/conferences/swiftconf.webp',
+    startDate: new Date('2024-08-07'),
+    endDate: new Date('2024-08-08'),
+    link: 'https://swiftconf.com/#/',
+    title: 'Shipping your apps should be fast and easy',
+    slides: 'https://speakerdeck.com/player/c2be562b05f945ca826eb3ce217508ec',
+    description: '',
+  },
+  {
+    eventName: 'Swift Craft',
+    image: '/assets/conferences/swiftcraft.webp',
+    startDate: new Date('2024-05-21'),
+    endDate: new Date('2024-05-24'),
+    link: 'https://swiftcraft.uk/',
+    title: 'Back to the future: Swift 6 Edition',
+    slides: 'https://speakerdeck.com/player/d6b7cbff54d7429d9885803571640cc4',
+    description: '',
+  },
+  {
+    eventName: 'London Tech Leaders',
+    image: '/assets/conferences/london-tech-leaders.webp',
+    startDate: new Date('2024-04-25'),
+    endDate: new Date('2024-04-25'),
+    link: 'https://www.londontechleaders.io/',
+    title: 'The future of mobile releases',
+    slides: 'https://speakerdeck.com/player/61a35581709348a5a00749e4b86e0b85',
+    description: '',
+  },
+  {
+    eventName: 'Swift Heroes',
+    image: '/assets/conferences/swiftheroes.webp',
+    startDate: new Date('2024-04-20'),
+    endDate: new Date('2024-04-20'),
+    link: 'https://swiftheroes.com/2024/',
+    title: 'Delightful on-device AI experiences',
+    description: '',
+    slides: 'https://speakerdeck.com/player/0aa0b7d667fa409b82c6d5b08d9c7677'
+  },
+  {
     eventName: 'SwiftLeeds',
     image: '/assets/conferences/swiftleeds.webp',
     startDate: new Date('2023-10-09'),
