@@ -246,13 +246,19 @@ struct MyLambda: SimpleLambdaHandler {
 
 ## Building and deploying
 
-Once you have the Lambda function building and running locally, you need to compile it into a suitable format and deploy it to AWS. The [swift-aws-lambda-runtime Swift Package]() vends a command plugin that uses Docker under the hood to compile the Swift code for the `amazonlinux2` platform and package it into a zip file that can be uploaded to AWS:
+Once you have the Lambda function building and running locally, you need to compile it into a suitable format and deploy it to AWS. 
+
+### Packaging the Lamdba
+
+The [swift-aws-lambda-runtime Swift Package]() vends a command plugin that uses Docker under the hood to compile the Swift code for the `amazonlinux2` platform and package it into a zip file that can be uploaded to AWS:
 
 ```bash:Terminal
 swift package --disable-sandbox archive
 ```
 
 This command will create a zip file at `.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/MyLambda/MyLambda.zip` that can be uploaded to AWS.
+
+### Uploading the Lambda to AWS
 
 While you can set up the whole AWS infrastructure for your serverless application manually, I would highly recommend using the [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html), which allows you to describe your serverless infrastructure using code in a `template.yml` file and package and deploy it to AWS using the `sam deploy` command.
 
@@ -288,7 +294,7 @@ Outputs:
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
 ```
 
-You can then deploy the Lambda function and the API Gateway endpoint using the following command:
+You can then install and authenticate the [sam cli]() and use it to deploy or update the serverless infrastructure described in the template file using the following command:
 
 ```bash:Terminal
 sam build
