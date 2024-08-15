@@ -1,26 +1,28 @@
 ---
 title: 'Developer guide to Swift AWS Lambdas'
-excerpt: "How to write, run locally, and deploy AWS Lambdas."
-pubDate: 2024-08-14
+excerpt: "How to write, run locally, and deploy Swift AWS Lambdas."
+pubDate: 2024-08-15
 tags: ['server-side']
 layout: ../../layouts/BlogPostLayout.astro
 ---
 
 Swift is a mature and powerful language that can be used way beyond development for Apple platforms. Due to its low memory footprint, performance and safety features, it has become a popular choice for server-side development.
 
+One particular use case where Swift shines is in the **development of Serverless applications using AWS Lambdas** and, since I have been building and deploying them for many use cases for a while now, I thought I would share my experience and some tips in this comprehensive guide.
+
 ## Writing a Lambda function
 
-The first thing we need to do to write a Lambda function in Swift is to create a new executable Swift package:
+The first thing you need to do to write a Lambda function in Swift is to create a new executable Swift package:
 
 ```bash:Terminal
 mkdir my-lambda && cd my-lambda
 swift package init --type executable --name MyLambda
 ```
 
-This will create a new Swift package with the following manifest:
+This will create the necessary folder structure and the following manifest:
 
 ```swift:Package.swift
-// swift-tools-version: 6.0
+// swift-tools-version: 5.10
 
 import PackageDescription
 
@@ -34,10 +36,10 @@ let package = Package(
 
 ### Adding the Swift AWS Lambda Runtime
 
-To be able to write the code for the Lambda function, we need to make use of the [swift-aws-lambda-runtime Swift Package by the Swift Server Work Group](https://github.com/swift-server/swift-aws-lambda-runtime), which provides a Swift implementation of the [AWS Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html) for developers to use:
+To be able to write the code for the Lambda function, you need to make use of the [swift-aws-lambda-runtime Swift Package by the Swift Server Work Group](https://github.com/swift-server/swift-aws-lambda-runtime), which provides a Swift implementation of the [AWS Lambda Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html):
 
 ```swift:Package.swift
-// swift-tools-version: 6.0
+// swift-tools-version: 5.10
 
 import PackageDescription
 
@@ -61,11 +63,11 @@ let package = Package(
 )
 ```
 
-Note that the `swift-aws-lambda-runtime` package has a minimum platform requirement of macOS 12.0, so we need to specify that in the `platforms` section of our package's manifest.
+Note that the `swift-aws-lambda-runtime` package has a minimum version requirement of 12.0 on macOS, so your executable Swift Package will need to target versions of macOS equal to or greater than 12.0. Failing to specify this requirement in the manifest will result in a compilation error.
 
 ### Writing the Lambda function
 
-Let's now write the code for the Lambda function. The way to do this is to create a struct that is annotated as the entrypoint of the executable using `@main` and conforms to one of the available protocols provided by the `AWSLambdaRuntime` package:
+You can now write the code for the Lambda function. To do this, create a struct that conforms to one of the available protocols provided by the `AWSLambdaRuntime` package and set it as the entry point of the executable using the `@main` decorator:
 
 ```swift:MyLambda.swift
 import AWSLambdaRuntime
@@ -82,23 +84,25 @@ struct MyLambda: SimpleLambdaHandler {
 }
 ```
 
-The `SimpleLambdaHandler` protocol is the simplest and most common way to define a Lambda function. It takes a single `event` parameter that must be of `Codable` type and it returns a value of `Codable` type too.
+The `SimpleLambdaHandler` protocol is the simplest and most common way to define a Lambda function and requires any of its users to implement a `handle` method that takes a generic `event` parameter that must be of `Codable` type, a context containing information about the lambda's execution environment and it returns a generic value of `Codable` type too.
 
-If your use case requires more flexibility, you can conform to one of the other protocols provided by the `AWSLambdaRuntime` package:
+The `handle` method is the entry point of the Lambda function and is called by the AWS Lambda Runtime engine whenever the function is invoked.
 
-1. [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286): An [EventLoopFuture](https://apple.github.io/swift-nio/docs/current/NIOCore/Classes/EventLoopFuture.html) based implementation of the lambda handlers, which is designed for performance sensitive operations. Contrary to the way in which other implementations work, [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286) conformant types [execute all code on the same EventLoop as the runtime engine](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L282). This allows for a faster execution but requires paying a lot more attention to the implementation so that the EventLoop is never blocked.
+If your use case requires more flexibility, you must know that there are other protocols available in the `AWSLambdaRuntime` Swift Package that you can conform to:
+
+1. [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286): An [EventLoopFuture](https://apple.github.io/swift-nio/docs/current/NIOCore/Classes/EventLoopFuture.html) based implementation of the lambda handlers, which is designed for performance sensitive operations. Contrary to how other implementations work, [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286) conformant types [execute all code on the same EventLoop as the runtime engine](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L282). This allows for a faster execution but requires paying a lot more attention to the implementation so that the EventLoop is never blocked.
 2. [ByteBufferLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L401): A lower-level implementation of the [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286) protocol. It is used by the higher-level [EventLoopLambdaHandler](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L286) and, [as the source code states, EventLoopLambdaHandler should be chosen over ByteBufferLambdaHandler by the majority of users](https://github.com/swift-server/swift-aws-lambda-runtime/blob/main/Sources/AWSLambdaRuntimeCore/LambdaHandler.swift#L139).
 
 ## Listening to different events
 
-While the code above works and is simple, it is not very a realistic example of a Lambda function. In practice, most Lambda functions are triggered by events sent by and from AWS services. 
+While the code above works and is simple, it is not a very realistic example of a Lambda function. In practice, most Lambda functions are **triggered by events sent by and from other AWS services**. 
 
-For example, a lambda function could be invoked by an S3 bucket event whenever a new file is uploaded to the bucket or by an API Gateway event whenever an HTTP request is made to an endpoint.
+For example, a lambda function could be invoked by an **S3 bucket event sent whenever a new file is uploaded to it** or by an **API Gateway event whenever an HTTP request is made to a specific route**.
 
-[The Swift Server Work Group has created a separate Swift Package with a collection of types that represent the different AWS events that can trigger a Lambda function and the corresponding response types: swift-aws-lambda-events](https://github.com/swift-server/swift-aws-lambda-events):
+[The Swift Server Work Group has created a separate Swift Package with a collection of types that represent the different AWS events that can trigger a Lambda function and their corresponding response types: swift-aws-lambda-events](https://github.com/swift-server/swift-aws-lambda-events):
 
 ```swift:Package.swift
-// swift-tools-version: 6.0
+// swift-tools-version: 5.10
 
 import PackageDescription
 
@@ -128,7 +132,7 @@ let package = Package(
 
 ```
 
-These types can be used as the input and return types of the Lambda function we defined earlier in the article. For example, if we wanted to create a Lambda function that is triggered by an APIGateway event, we would write the following code:
+These types can be used as the input and return types of the Lambda function you defined earlier in the article. For example, if you wanted to create a Lambda function that is triggered by an APIGateway event, you would write the following code:
 
 ```swift:MyLambda.swift 
 import Foundation
@@ -155,11 +159,11 @@ struct MyLambda: SimpleLambdaHandler {
 }
 ```
 
-As you can see in the code snippet above, the input type is no longer our `Codable` struct, but an `APIGatewayV2Request` type. This type is defined in the `AWSLambdaEvents` package and represents the event that is sent by the API Gateway service to the Lambda function.
+As you can see in the code snippet above, the input type is no longer the `RequestBody` `Codable` struct, but it is an `APIGatewayV2Request` type instead. This type is defined in the `AWSLambdaEvents` package and represents the event that is sent by version 2 of AWS' API Gateway service to the Lambda function.
 
-Similarly, the return type is no longer a `String`, but an `APIGatewayV2Response` type. This type is also defined in the `AWSLambdaEvents` package and represents the response that the Lambda function sends back to the API Gateway service. Among other things, using this type we can provide the status code and body of the response, which we set to `200 OK` and `Your name is: <name>` respectively.
+Similarly, the return type is no longer a `String`, but an `APIGatewayV2Response` type instead. This type is also defined in the `AWSLambdaEvents` package and represents the response that the Lambda function sends back to version 2 of AWS' API Gateway service.
 
-## Running the lambda locally
+## Running the Lambda function locally
 
 Running the lambda function locally is a great way to test your changes before deploying them to AWS. The `swift-aws-lambda-runtime` allows you to run the executable where your Lambda function is defined as a local server by passing the `LOCAL_LAMBDA_SERVER_ENABLED=true` argument.
 
@@ -169,13 +173,13 @@ You can do this from the command line:
 LOCAL_LAMBDA_SERVER_ENABLED=true swift run
 ```
 
-Or by modifying the scheme in Xcode to add the `LOCAL_LAMBDA_SERVER_ENABLED=true` argument in the `Arguments Passed On Launch` section and then running it:
+Or by running the auto-created executable scheme in Xcode after modifying it to add the `LOCAL_LAMBDA_SERVER_ENABLED=true` argument in the `Arguments Passed On Launch` section:
 
-<Video name="" />
+![](/assets/posts/developer-guide-to-aws-lambdas/scheme.webp)
 
-Running the executable will spin up a server that listens for `POST`s requests on `http://127.0.0.1:7000/invoke`. You can then use a tool like `curl` or a client like [HTTPie]() to send requests to the new local server. The body of the request will need to match the structure and data that the Lambda function expects. 
+Running the executable will spin up a server that listens for `POST` requests on `http://127.0.0.1:7000/invoke`. You can then use a tool like `curl` from the command line or a client like [HTTPie](https://httpie.io/) to send requests to the local server. The body of the request will need to match the structure and data of the event that the Lambda function expects as an input. 
 
-For our example, we must send a JSON object in the shape of an `APIGatewayV2Request` event, where we can specify the method and body of the request:
+For the API Gateway example, you must send a JSON object in the shape of an `APIGatewayV2Request` event, where you can specify the method and body of the request:
 
 ```json 
 {
@@ -215,7 +219,7 @@ For our example, we must send a JSON object in the shape of an `APIGatewayV2Requ
 
 Aside from the input parameter, the `handle` function also receives a `context` parameter of type `LambdaContext`. This parameter provides information about the execution environment of the Lambda function, such as the AWS request ID or the cognito identity ID of the caller.
 
-Aside from plenty of useful information, the `LambdaContext` also provides a `logger` property that can be used to add messages to the AWS CloudWatch logs with different levels of importance. Such logs can be useful for debugging issues in production where you can't use a debugger. 
+Aside from context-related information, the `LambdaContext` also provides a `logger` property that can be used to add messages to AWS CloudWatch logs with different levels of importance. Such logs can be useful for debugging issues in production where you can't use a debugger and don't have full control and access over the execution environment. 
 
 Let's add some logs to our Lambda function: 
 
@@ -242,25 +246,23 @@ struct MyLambda: SimpleLambdaHandler {
 }
 ```
 
-## Using frameworks in Swift Lambdas
-
 ## Building and deploying
 
-Once you have the Lambda function building and running locally, you need to compile it into a suitable format and deploy it to AWS. 
+Once you have the Lambda function building and running locally, you need to compile it into a suitable format and deploy it to AWS. AWS Lambdas run on Amazon Linux 2 operating systems, so you need to make sure that your Swift executable is compiled for this platform.
 
 ### Packaging the Lamdba
 
-The [swift-aws-lambda-runtime Swift Package]() vends a command plugin that uses Docker under the hood to compile the Swift code for the `amazonlinux2` platform and package it into a zip file that can be uploaded to AWS:
+The [swift-aws-lambda-runtime Swift Package](https://github.com/swift-server/swift-aws-lambda-runtime) ships with a command plugin that uses Docker under the hood to compile the Swift code for the Amazon Linux 2 operating system and package it into a zip file that can be directly uploaded to AWS:
 
 ```bash:Terminal
 swift package --disable-sandbox archive
 ```
 
-This command will create a zip file at `.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/MyLambda/MyLambda.zip` that can be uploaded to AWS.
+This command will create a zip file at `.build/plugins/AWSLambdaPackager/outputs/AWSLambdaPackager/MyLambda/MyLambda.zip` that **can be uploaded directly to AWS**.
 
 ### Uploading the Lambda to AWS
 
-While you can set up the whole AWS infrastructure for your serverless application manually, I would highly recommend using the [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html), which allows you to describe your serverless infrastructure using code in a `template.yml` file and package and deploy it to AWS using the `sam deploy` command.
+While you can set up the whole AWS infrastructure for your serverless application manually, I would highly recommend using the [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html), which allows you to **describe your serverless infrastructure** in code using a `template.yml` file and package and deploy it to AWS using the `sam deploy` command.
 
 To deploy a single lambda function with an associated API Gateway endpoint, you can use the following `template.yml` file:
 
@@ -294,14 +296,14 @@ Outputs:
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
 ```
 
-You can then install and authenticate the [sam cli]() and use it to deploy or update the serverless infrastructure described in the template file using the following command:
+You can then install and authenticate the [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) on your machine and use it to deploy or update the serverless infrastructure described in the template file at any time using the following commands:
 
 ```bash:Terminal
 sam build
 sam deploy --guided
 ```
 
-Alternatively, you can use a CI/CD service like GitHub Actions to automate the deployment process:
+Alternatively, you can use a CI/CD service like GitHub Actions to automate the deployment process entirely:
 
 ```yaml:.github/workflows/deploy.yml
 on:
