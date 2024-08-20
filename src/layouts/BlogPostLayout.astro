@@ -3,6 +3,7 @@ import "@styles/blog-detail.css";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BlogSponsor from "@components/BlogSponsor.svelte";
 import Subscribe from "@components/Subscribe.astro";
+import PromoPill from "@components/PromoPill.astro";
 
 interface Props {
   url: string;
@@ -41,6 +42,17 @@ const fullImageURL = `https://www.polpiella.dev/api/thumbnail?title=${encodeURI(
       <div
         class="prose prose-pre:bg-slate-700 lg:prose-lg w-full dark:prose-invert prose-blockquote:not-italic prose-blockquote:dark:bg-gray-800 prose-blockquote:bg-gray-100 prose-blockquote:font-normal prose-blockquote:border-yellow-600 prose-blockquote:m-0 prose-blockquote:mb-6 prose-blockquote:rounded-r-md prose-p:before:content-none prose-p:after:content-none my-0 dark:hover:prose-a:text-violet-400 hover:prose-a:text-violet-700 prose-a:transition-colors xl:max-w-none mx-auto"
       >
+        <div class="mb-8">
+          <PromoPill
+            href="https://www.eventbrite.com/e/entradas-ship-your-indie-app-in-hours-not-days-992774153217?aff=oddtdtcreator"
+          >
+            <span>
+              Buy a ticket for my new workshop: <strong
+                >Ship your indie app in hours, not minutes!</strong
+              > &rarr;
+            </span>
+          </PromoPill>
+        </div>
         <header class="flex flex-col gap-2 mb-8">
           <h1
             class="m-0 mb-[0.25em] font-title"

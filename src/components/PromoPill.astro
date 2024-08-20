@@ -1,0 +1,23 @@
+---
+const { href } = Astro.props;
+---
+
+<a
+    {href}
+    target="_blank"
+    rel="noopener"
+    class="flex items-center transition md:justify-center md:hover:scale-105 not-prose"
+>
+    <div class="flex items-center">
+        <span class="relative inline-flex overflow-hidden rounded-full p-[1px]">
+            <span
+                class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#c4b5fd_0%,#f9a8d4_50%,#c4b5fd_100%)]"
+            ></span>
+            <div
+                class="inline-flex items-center justify-center w-full px-3 py-1 text-sm text-purple-800 bg-purple-100 rounded-full cursor-pointer dark:bg-gray-800 dark:text-white/80 backdrop-blur-3xl whitespace-nowrap"
+            >
+                <slot />
+            </div>
+        </span>
+    </div>
+</a>
