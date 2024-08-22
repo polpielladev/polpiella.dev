@@ -1,0 +1,98 @@
+---
+title: 'How to use EditorConfig files in Xcode'
+excerpt: "How to set up Xcode's editor configuration such as indent size and style on a per-project basis using EditorConfig files."
+pubDate: 2024-08-22
+tags: ['tools']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.astro'
+
+As a developer for Apple platforms, you probably work on multiple projects with different coding styles and conventions and have to find yourself adjusting Xcode's editor settings every time you switch between projects. This can be a tedious process that you might forget to do or overlook and, if the project does not have a linter that enforces the coding style, you might end up with inconsistent code formatting across the codebase.
+
+Thankfully Xcode 16 adds support for [EditorConfig](https://editorconfig.org/) files, which allows you to define Xcode editor settings in a programmatic way on a per-project basis. In this article, you will learn how to set up EditorConfig files in Xcode and what settings are supported at this time.
+
+## Creating a .editorconfig file
+
+As it is the case with other editors that uspport EditorConfig, Xcode automatically trawls upwards through the directories from a specific file looking for `.editorconfig` files. The closest `.editorconfig` to a speficic file will be the one that is used to determine the editor settings for that file.
+
+Let's create a `.editorconfig` file next to the project's `.xcodeproj` file or the Swift Package's `Package.swift` file so that it applies to the entire project and write all supported settings for Xcode:
+
+```ini:.editorconfig
+[*.swift]
+indent_style = space
+indent_size = 4
+tab_width = 4
+end_of_line = crlf
+insert_final_newline = false
+max_line_length = 120
+trim_trailing_whitespace = true
+```
+
+In the example above, the settings will take effect for all Swift files in the project. You can have multiple sections for different file types or, if you want to apply the settings to all files, you can use `[*]` instead.
+
+## Letting Xcode respect the .editorconfig file settings
+
+Along with the support for EditorConfig files, Xcode 16 also introduces a new editor configuration setting that, when turned on will tell Xcode to prefer settings coming from the EditorConfig file over the ones manually set up from Xcode's settings. 
+
+![](/assets/posts/xcode-editor-config/xcode-setting.webp)
+
+This setting is on by default and can be turned off at any time to be able to manually set up the editor settings in Xcode.
+
+## Supported EditorConfig settings in Xcode
+
+Let's now go through the list of supported settings in Xcode one by one to understand what each of them control in the editor.
+
+### indent_style
+
+This setting controls whether the editor should use spaces or tabs for indentation.
+
+**Possible values:** `space` or `tab`.
+
+<Video name="xcode-editorconfig-indent_style.mp4" />
+
+### indent_size
+
+The number of columns used by the editor for indentation. This setting will apply it to both `space` and `tab` indentation styles. If the `indent_style` is `tab` and `indent_size` is smaller than `tab_width`, then the editor will indent using spaces until the tab width is reached.
+
+**Possible values:** Any positive integer.
+
+<Video name="xcode-editorconfig-indent_size.mp4" />
+
+### tab_width
+
+The number of columns that conform a tab character.
+
+**Possible values:** Any positive integer.
+
+<Video name="xcode-editorconfig-tab_width.mp4" />
+
+### insert_final_newline
+
+Controls whether the editor should always insert a new line at the end of file.
+
+**Possible values:** `true` or `false`.
+
+<Video name="xcode-editorconfig-insert_final_newline.mp4" />
+
+### max_line_length
+
+The maximum amount of characters that a line can have. Xcode does not have support for automatic line wrapping yet, but this setting affects the page guide line that you can enable by turning the `Settings > Editing > Show Reformatting Guide` setting on.
+
+**Possible values:** Any positive integer.
+
+<Video name="xcode-editorconfig-max_line_length.mp4" />
+
+### trim_trailing_whitespace
+
+Automatically removes trailing whitespaces from lines when a file is formatted and the setting's value is `true`.
+
+**Possible values:** `true` or `false`.
+
+<Video name="xcode-editorconfig-trim_trailing_whitespace.mp4" />
+
+### end_of_line
+
+Controls the character used to represent the end of a line.
+
+**Possible values:** `LF` (Line Feed), `CR` (Carriage Return), or `CRLF` (Carriage Return and Line Feed).
