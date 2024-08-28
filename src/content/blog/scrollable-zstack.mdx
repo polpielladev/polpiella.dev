@@ -1,0 +1,152 @@
+---
+title: 'How to make ZStack content fully scrollable in a SwiftUI ScrollView'
+excerpt: "How to calculate the correct content size for a ScrollView when using a ZStack with overlapping views using offsets in SwiftUI."
+pubDate: 2024-08-28
+tags: ['swiftui']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.astro'
+
+I have recently been working on an app that allows users to save digital copies of football tickets for games that they have attended. To display the tickets for all the games the user has been to, I decided to create a UI similar to **the Apple Wallet app**, where the tickets are stacked on top of each other from new to old and each of them has a **negative vertical offset** to create a nice overlapping effect:
+
+![](/assets/posts/scrollable-zstack/scrollable-zstack.webp)
+
+To implement this screen in SwiftUI, I decided to use a `ZStack` nested in a `ScrollView` so that, when the number of tickets exceeds that which is visible on the screen, the user can scroll to see more:
+
+```swift:MemoryCards.swift
+import SwiftUI
+
+struct MemoryCards: View {
+    let memories: [Memory]
+    private let offsetConstant: CGFloat = 60
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            ZStack(alignment: .top) {
+                ForEach(memories) { fixture in
+                    MemoryView(fixture: fixture)
+                        .offset(offset(for: fixture))
+                        .zIndex(zIndex(for: fixture))
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical)
+        }
+    }
+    
+    private func offset(for memory: Memory) -> CGSize {
+        index(for: memory).map { CGSize(width: 0, height: offsetConstant * CGFloat($0)) } ?? .zero
+    }
+    
+    private func zIndex(for memory: Memory) -> Double {
+        index(for: memory).map { Double($0) } ?? .zero
+    }
+    
+    private func index(for memory: Memory) -> Int? {
+        memories.firstIndex(where: { $0.id == memory.id })
+    }
+}
+```
+
+However, despite the fact that tickets are displayed correctly in the `ScrollView`, I quickly noticed that **the view is not scrollable at all** and that, as soon as the content exceeds the screen size, older tickets become unreachable for the user. 
+
+This is due to the fact that the `.offset` modifier **does not affect the size of the ticket cards** and, for this reason, the `ScrollView`'s content size is calculated as if all the tickets were stacked on top of each other. This results in the `ScrollView`'s content size being equal to **the size of a single ticket card**:
+
+<Video name="scrollable-zstack-unreachable.mp4" />
+
+In this article I will show you how you can fix this issue in two different ways.
+
+## Using paddings
+
+The first way you can get the `ScrollView` to calculate its content size correctly while still achieving the same overlapping effect is by using paddings instead of offsets. The `padding` modifier will affect the size of the view and, hence, the `ScrollView` will be able to calculate the correct content size:
+
+```swift:MemoryCards.swift
+import SwiftUI
+
+struct MemoryCards: View {
+    let memories: [Memory]
+    private let offsetConstant: CGFloat = 60
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            ZStack(alignment: .top) {
+                ForEach(memories) { fixture in
+                    MemoryView(fixture: fixture)
+                        // Replace the offset modifier with a top padding
+                        .padding(.top, offset(for: fixture).height)
+                        .zIndex(zIndex(for: fixture))
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical)
+        }
+    }
+    
+    private func offset(for memory: Memory) -> CGSize {
+        index(for: memory).map { CGSize(width: 0, height: offsetConstant * CGFloat($0)) } ?? .zero
+    }
+    
+    private func zIndex(for memory: Memory) -> Double {
+        index(for: memory).map { Double($0) } ?? .zero
+    }
+    
+    private func index(for memory: Memory) -> Int? {
+        memories.firstIndex(where: { $0.id == memory.id })
+    }
+}
+```
+
+## Using frames
+
+If you still want to keep using the `.offset` modifier, you can instead set the frame of the `ScrollView` manually to be the sum of the all the ticket card offsets and the full height of one ticket card:
+
+```swift:MemoryCards.swift
+import SwiftUI
+
+struct MemoryCards: View {
+    let memories: [Memory]
+    private let offsetConstant: CGFloat = 60
+    private let cardHeight: CGFloat = 260
+    
+    var body: some View {
+        ScrollView(.vertical) {
+            ZStack(alignment: .top) {
+                Color.clear
+
+                ForEach(memories) { fixture in
+                    MemoryView(fixture: fixture)
+                        .frame(height: cardHeight)
+                        .offset(offset(for: fixture))
+                        .zIndex(zIndex(for: fixture))
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical)
+            .frame(height: fullHeight())
+        }
+    }
+    
+    private func fullHeight() -> CGFloat {
+        CGFloat(offsetConstant * CGFloat(memories.count - 1)) + cardHeight
+    }
+    
+    private func offset(for memory: Memory) -> CGSize {
+        index(for: memory).map { CGSize(width: 0, height: offsetConstant * CGFloat($0)) } ?? .zero
+    }
+    
+    private func zIndex(for memory: Memory) -> Double {
+        index(for: memory).map { Double($0) } ?? .zero
+    }
+    
+    private func index(for memory: Memory) -> Int? {
+        memories.firstIndex(where: { $0.id == memory.id })
+    }
+}
+```
+
+## Result
+
+Both approaches above achieve the same result and allow the user to scroll through all cards in the `ZStack`:
+
+<Video name="scrollable-zstack-reachable.mp4" />
