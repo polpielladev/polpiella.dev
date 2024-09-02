@@ -81,8 +81,8 @@ const SPONSORS_SCHEDULE = {
     "32": SPONSORS.revenuecat,
     "33": SPONSORS.runwayRollbacks,
     "34": SPONSORS.runwayRollbacks,
-    "35": SPONSORS.runwayRollbacks
-
+    "35": SPONSORS.runwayRollbacks,
+    "36": SPONSORS.codemagic
 }
 
 function getWeekNumber(d) {
