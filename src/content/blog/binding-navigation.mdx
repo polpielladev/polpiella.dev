@@ -1,0 +1,209 @@
+---
+title: 'How to pass Bindings to views in SwiftUI's NavigationDestination modifier'
+excerpt: "Two approaches on how to pass Bindings to views in SwiftUI's NavigationDestination."
+pubDate: 2024-09-16
+tags: ['swiftui']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+In SwiftUI, it's common to display a list of items and allow users to navigate to a detail view when an item is selected. To show more information and enable editing in the detail view, you'll need to pass a binding of the selected item to the detail view.
+
+However, the common way of using `ForEach` loops, `NavigationLink`s and the `.navigationDestination` modifier is with the wrapped value of a binding rather than the binding itself, and it is not immediately clear how Bindings can be used in these cases.
+
+Let's consider a very simple app that shows a list of notes, which are stored in a `@State` property. These notes are rendered using a `ForEach` loop and each note is wrapped in a `NavigationLink` with its value set to the note itself:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct Note: Identifiable, Hashable, Equatable, Sendable {
+    let id: UUID
+    let title: String
+    var body: String
+}
+
+struct ContentView: View {
+    @State private var notes = [
+        Note(id: UUID(), title: "Shopping list", body: "Buy carrots"),
+        Note(id: UUID(), title: "TODO list", body: "Release app"),
+        Note(id: UUID(), title: "Meeting notes", body: "Fix a bug")
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 24) {
+                    ForEach(notes) { note in
+                        NavigationLink(value: note) {
+                            VStack(alignment: .leading) {
+                                Text(note.title)
+                                    .font(.headline)
+                                
+                                Text(note.body)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                
+                Spacer()
+            }
+            .navigationDestination(for: Note.self) { note in
+                VStack(alignment: .leading) {
+                    Text(note.title)
+                        .font(.headline)
+                    
+                    Text(note.body)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .navigationTitle("Notes")
+        }
+    }
+}
+```
+
+As you can see, this approach is very straightforward and works well when you only need to display the note's information. However, what if you want to allow the user to edit the note's body in a `TextField`? How would you pass a binding of the note's body to the detail view? Let's explore two approaches that will very easily allow you to do this.
+
+## NavigationLink with a Binding
+
+The first approach and my personal favorite is to use a `Binding` to a `Note` as the value to the `NavigationLink` and then modify the `.navigationDestination` modifier to accept events with the `Binding<Note>` type. On top of this, you can also pass a binding to the `notes` array to the `ForEach` loop, which will make each of the items in the loop be of `Binding<Note>` type instead of `Note`:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct Note: Identifiable, Hashable, Equatable, Sendable {
+    let id: UUID
+    let title: String
+    var body: String
+}
+
+struct ContentView: View {
+    @State private var notes = [
+        Note(id: UUID(), title: "Shopping list", body: "Buy carrots"),
+        Note(id: UUID(), title: "TODO list", body: "Release app"),
+        Note(id: UUID(), title: "Meeting notes", body: "Fix a bug")
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 24) {
+                    ForEach($notes) { noteBinding in
+                        NavigationLink(value: noteBinding) {
+                            VStack(alignment: .leading) {
+                                Text(noteBinding.wrappedValue.title)
+                                    .font(.headline)
+                                
+                                Text(noteBinding.wrappedValue.body)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                
+                Spacer()
+            }
+            .navigationDestination(for: Binding<Note>.self) { noteBinding in
+                VStack(alignment: .leading) {
+                    Text(noteBinding.wrappedValue.title)
+                        .font(.headline)
+                    
+                    TextField("", text: noteBinding.body)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .navigationTitle("Notes")
+        }
+    }
+}
+```
+
+There is one more thing we need to add to make this approach work. The `.navigationDestination` modifier requires that the type it is used with conforms to the `Hashable` protocol. Unfortunately, `Binding`s are not `Hashable` or `Equatable` by default, so we need to create a small extension to make them conform to these protocols:
+
+```swift:Binding+Hashable.swift
+import SwiftUI
+
+extension Binding: @retroactive Hashable where Value: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.wrappedValue.hashValue)
+    }
+}
+
+extension Binding: @retroactive Equatable where Value: Equatable {
+    public static func == (lhs: Binding<Value>, rhs: Binding<Value>) -> Bool {
+        lhs.wrappedValue == rhs.wrappedValue
+    }
+}
+```
+
+The extensions are rather straightforward and simply forward the `hashValue` and `==` comparison to the wrapped value of the binding.
+
+## Creating a Binding
+
+If you'd like a different approach and don't want to use `Binding`s for navigation, you can use the `Binding` initializer and modify the specific note in the `notes` array directly:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct Note: Identifiable, Hashable, Equatable, Sendable {
+    let id: UUID
+    let title: String
+    var body: String
+}
+
+struct ContentView: View {
+    @State private var notes = [
+        Note(id: UUID(), title: "Shopping list", body: "Buy carrots"),
+        Note(id: UUID(), title: "TODO list", body: "Release app"),
+        Note(id: UUID(), title: "Meeting notes", body: "Fix a bug")
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 24) {
+                    ForEach(notes.indices, id: \.self) { noteIndex in
+                        NavigationLink(value: noteIndex) {
+                            VStack(alignment: .leading) {
+                                Text(notes[noteIndex].title)
+                                    .font(.headline)
+                                
+                                Text(notes[noteIndex].body)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                
+                Spacer()
+            }
+            .navigationDestination(for: Array<Note>.Index.self) { noteIndex in
+                VStack(alignment: .leading) {
+                    Text(notes[noteIndex].title)
+                        .font(.headline)
+                    
+                    TextField("", text: binding(for: noteIndex).body)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .navigationTitle("Notes")
+        }
+    }
+    
+    private func binding(for id: Array<Note>.Index) -> Binding<Note> {
+        Binding {
+            notes[id]
+        } set: { newNote in
+            notes[id] = newNote
+        }
+    }
+}
+```
+
+To make the navigation more performant and future proof as the array of notes grows, we use the index for the selected note in the `notes` array for navigation. This way we don't need to look up the note by its ID every time we navigate to the detail view and can reference it directly by its index. While this change might not seem significant, it has performance implications as finding an item in an array is an O(n) operation, while accessing an item by its index is just O(1).
