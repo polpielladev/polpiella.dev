@@ -53,6 +53,24 @@ const SPONSORS = {
         body: "No one is immune from shipping critical bugs to production, but Runway helps you limit the amount of havoc that can cause.",
         url: "https://get.runway.team/fix-rollbacks-for-mobile?utm_source=pol&utm_medium=blog&utm_campaign=julysponsors"
     },
+    "runwayPileUp": {
+        color: "#7C3AED",
+        images: {
+            large: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/build-or-ship.png",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/build-or-ship.png",
+                aspectRatio: 1
+            },
+            small: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/build-or-ship.png",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/build-or-ship.png",
+                aspectRatio: 1
+            }
+        },
+        title: "Releases so easy your work will never pile up",
+        body: "Runway handles the release coordination and busywork so you can focus on building great apps. You do the building, we'll do the shipping.",
+        url: "https://get.runway.team/build-or-ship?utm_source=pol&utm_medium=blog&utm_campaign=septembersponsors"
+    },
     "codemagic": {
         color: "#0051FF",
         images: {
@@ -85,8 +103,8 @@ const SPONSORS_SCHEDULE = {
     "36": SPONSORS.codemagic,
     "37": SPONSORS.runwayRollbacks,
     "38": SPONSORS.runwayRollbacks,
-    "39": SPONSORS.runwayRollbacks,
-    "40": SPONSORS.runwayRollbacks
+    "39": SPONSORS.runwayPileUp,
+    "40": SPONSORS.runwayPileUp
 }
 
 function getWeekNumber(d) {
