@@ -1,0 +1,350 @@
+---
+title: "How to run Swift Data and Core Data operations in the background and share models across concurrency contexts"
+excerpt: "Core Data and Swift Data model objects can't be shared across different threads and doing so can result in data corruption and crashes. In this article, I will show you how to set up a fully thread-safe Core Data and Swift Data stack that performs all operations in the background."
+pubDate: 2024-10-04
+tags: ['core-data']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.astro'
+import Image from '@components/Image.astro'
+
+Core Data is a powerful framework that allows you to manage the persistent model layer of your application and, while it is a first-party solution that has been a standard in the Apple ecosystem for many years, **it is dated** and **is not straightforward to use**.
+
+In fact, the community has been asking for many years for a more **modern** and **easier-to-use alternative** to Core Data and, those wishes were finally granted with the introduction of the `SwiftData` framework in WWDC23. While SwiftData is much simpler to set up and interact with than Core Data, it is a wrapper around Core Data and, as such, it **inherits a lot of the bagage** that developers dreaded when working with Core Data.
+
+One of the biggest challenges that seems to catch a lot of people off guard when working with Core Data and by extension SwiftData is **managing models across different concurrency contexts**. Swift Data and Core Data models are not `Sendable` or thread-safe so they are not safe to be shared across different threads. Apple even states this [in their 'Using Core Data in the background' guide](https://developer.apple.com/documentation/coredata/using_core_data_in_the_background):
+
+> Don't pass managed object instances between queues. Doing so can result in corruption of the data and termination of the app. When it's necessary to hand off a managed object reference from one queue to another, use NSManagedObjectID instances.
+
+If you have been working with Core Data for a while you will know that nine out of ten times you face a Core Data crash it is related to sharing managed objects across different threads.
+
+**Note that all of the examples in this article will be using Swift Data, but the same principles apply to Core Data as they share the same underlying technology.**
+
+## When is this a problem?
+
+One obvious solution to this problem is to **always use the same context for all your persistent operations**, from fetching models to creating and deleting them. Let's say you want to use your models directly in your UI and then perform operations such as updating them or deleting them based on user input. This means that you will need to perform all these operations in the **Main Thread**, potentially making your UI unresponsive or slow.
+
+In fact, Apple [strongly discourages the use of the Main Thread for any not user-related operations](https://developer.apple.com/documentation/coredata/using_core_data_in_the_background):
+
+> In general, avoid doing data processing on the main queue that's not user-related. Data processing can be CPU-intensive, and if it's performed on the main queue, it can result in unresponsiveness in the user interface. If your application processes data, such as importing data into Core Data from JSON, create a private queue context and perform the import on the private context.
+
+While making all requests in the background to avoid blocking the Main Thread is good practice and makes complete sense, it seems to go against the recent changes that both Swift Data and Core Data introduced to interact with SwiftUI, where you're encouraged to **fetch models and use them on the Main Thread using macros**:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+
+struct ContentView: View {
+    @Query(sort: \.startDate, order: .reverse) var allTrips: [Trip]
+    
+    var body: some View {
+        List {
+            ForEach(allTrips) {
+                TripView(for: $0)
+            }
+        }
+    }
+}
+```
+
+Furthermore, the [Swift Data documentation states that you should retrieve a model context from the environment (which will be bound to the Main Actor)](https://developer.apple.com/documentation/swiftdata/preserving-your-apps-model-data-across-launches#Fetch-models-for-display-or-additional-processing) and use it to perform operations such as inserting new models:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+
+struct ContentView: View {
+    @Environment(\.modelContext) private var context
+    
+    //...
+    func newTrip() {
+        var trip = Trip(name: name, 
+                    destination: destination, 
+                    startDate: startDate, 
+                    endDate: endDate)
+        context.insert(trip)
+    }
+}
+```
+
+### Profiling Apple's recommendations
+
+Let's create a new app using Xcode and selecting the `Swift Data` storage option, which will create a bunch of example code for us. The view follows the guidelines from the documentation and uses the environment's `modelContext` and the `@Query` property wrapper to fetch the models:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var items: [Item]
+    // ...
+}
+```
+
+Furthermore, it also contains a method to add a new item to the database and a method to delete an item from the database, both of which use the `modelContext` to perform the operations:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    // ...
+
+    private func addItem() {
+        withAnimation {
+            let newItem = Item(timestamp: Date())
+            modelContext.insert(newItem)
+        }
+    }
+
+    private func deleteItems(offsets: IndexSet) {
+        withAnimation {
+            for index in offsets {
+                modelContext.delete(items[index])
+            }
+        }
+    }
+}
+```
+
+Let's run the app and start adding items to the database:
+
+<Video name="swift-data-background-demo.mp4" />
+
+Let's now use the Time Profiler instrument to in fact see if the Main Thread is being used to perform Swift Data operations.
+
+First, during App Launch, we can clearly see that the Main Thread is being used to load the stores and initialise the models:
+
+<Image name="swift-data-initialise.webp" alt="A screenshot of Xcode's Time Profiler instrument showing that Swift Data initialisation happens on the Main Thread" />
+
+Then, when we add a new item to the database, we can see that the Main Thread is being used to insert the new item:
+
+<Image name="swift-data-add-item.webp" alt="A screenshot of Xcode's Time Profiler instrument showing that Swift Data insertion happens on the Main Thread" />
+
+While performance seems okay for a small app like this, I have seen the impact of using the Main Thread for Core Data and Swift Data operations in some of my larger apps and how much it has impacted our user experience.
+
+## My approach to a thread-safe Core Data and Swift Data stack
+
+By setting up persistent stacks over and over again in different projects at scale, I believe I have found a good pattern that I use on all my projects.
+
+My recommendations for setting up a fully thread-safe Core Data and Swift Data that performs all operations in the background are:
+
+- Use a single container for the entire lifecycle of your application.
+- Perform all the work in a background context.
+- Only use the model objects in the context they were created in or fetched from.
+- Create a `Sendable` type that you use in your application and map to and from the Core Data model objects.
+
+Let's now see what this looks like in code. The first thing we need to do is create a `Sendable` type that we will use in our application and that we will map to and from the Core Data and Swift Data model objects. 
+
+```swift:Sendable.swift
+import Foundation
+
+struct DomainItem: Identifiable, Hashable, Equatable, Sendable {
+    let id: UUID
+    let timestamp: Date
+}
+```
+
+This `Sendable` type will be used in the application and will be the only type that is shared across different contexts.
+
+As we want the solution to be as storage-independent as possible, we will also update the `SwiftData` model to include a new id property to identify the model object:
+
+```swift:Item.swift
+import Foundation
+import SwiftData
+
+@Model
+final class Item {
+    @Attribute(.unique) var id: UUID
+    var timestamp: Date
+    
+    init(id: UUID, timestamp: Date) {
+        self.id = id
+        self.timestamp = timestamp
+    }
+}
+```
+
+> Both the `PersistentIdentifier` of a SwiftData model object and the `NSManagedObjectID` of a CoreData model object are the only thread-safe properties and you could use them safely in the model. These properties are thread-safe so that you can transfer the id to another context and use the ID to fetch the object in that context. However, I prefer to use a primitive type such as a `String` as it is more flexible and allows me to use the same type across different storage solutions.
+
+### Performing tasks in the background
+
+Now that we have both the `Sendable` type and the `SwiftData` model object, we can create an `actor` that will be decorated by SwiftData's `@ModelActor`. This actor will be responsible for Swift Data actions to be performed one at a time and in a background context:
+
+```swift:ItemsModelActor.swift
+import Foundation
+import SwiftData
+
+@ModelActor
+actor ItemsModelActor {
+    func addItem() -> DomainItem {
+        let newItem = Item(id: .init(), timestamp: Date())
+        modelContext.insert(newItem)
+        return DomainItem(
+            id: newItem.id,
+            timestamp: newItem.timestamp
+        )
+    }
+    
+    func deleteItem(withId id: UUID) throws {
+        let predicate = #Predicate<Item> { item in
+            return item.id == id
+        }
+        try modelContext.delete(model: Item.self, where: predicate)
+    }
+    
+    func fetchItems() throws -> [DomainItem] {
+        let fetchDescriptor = FetchDescriptor<Item>()
+        return try modelContext
+            .fetch(fetchDescriptor)
+            .map { DomainItem(id: $0.id, timestamp: $0.timestamp) }
+    }
+}
+```
+
+Thanks to the decoration, the `ItemsModelActor` object gains access to the `modelContext` property, which we can use to perform all database operations.
+
+Let's now initialise the `ItemsModelActor` at the start of our application:
+
+```swift:App.swift
+import SwiftUI
+import SwiftData
+
+@main
+struct ExampleSwiftDataApp: App {
+    private let storage: ItemsModelActor = {
+        let schema = Schema([
+            Item.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        do {
+            let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return ItemsModelActor(modelContainer: modelContainer)
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+        
+        
+    }()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView(storage: storage)
+        }
+    }
+}
+```
+
+Note that we no longer set the `modelContainer` as an environment object, we instead just pass it to the `ContentView` as a parameter.
+
+The `ContentView` also requires some changes to use the new `storage` property. First, we remove the `@Environment` and `@Query` properties and replace them with a `@State` property and the `ItemsModelActor`:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    let storage: ItemsModelActor
+    @State private var items = [DomainItem]()
+
+    // ...
+}
+```
+
+We also need to update the `addItem` and `deleteItems` methods to use the new background contexts:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    // ...
+
+    private func addItem() {
+        Task {
+            let newItem = await storage.addItem()
+            await MainActor.run {
+                withAnimation {
+                    self.items.insert(newItem, at: 0)
+                }
+            }
+        }
+    }
+
+    private func deleteItems(offsets: IndexSet) {
+        Task {
+            for index in offsets {
+                try? await storage.deleteItem(withId: items[index].id)
+            }
+            
+            await MainActor.run {
+                withAnimation {
+                    items.remove(atOffsets: offsets)
+                }
+            }
+        }
+    }
+}
+```
+
+Finally, as we removed the `@Query` property, we need to fetch the items at the start of the view:
+
+```swift:ContentView.swift
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    // ...
+
+    var body: some View {
+        List {
+            // ...
+        }
+        .task {
+            items = (try? await storage.fetchItems()) ?? []
+        }
+    }
+}
+```
+
+That's it! Now your storage stack is fully thread-safe and all operations are performed in the background.
+
+## Bonus Points: Decoupling from the Storage Solution
+
+This approach works great, but we can make it even better by decoupling our UI from the storage solution, namely `SwiftData` in this case. We can do this by creating a simple `Storage` protocol that our `ItemsModelActor` will conform to:
+
+```swift:Storage.swift
+protocol Storage {
+    func addItem() async -> DomainItem
+    func deleteItem(withId id: UUID) async throws
+    func fetchItems() async throws -> [DomainItem]
+}
+```
+
+And then we can update the `ItemsModelActor` to conform to this protocol:
+
+```swift:ItemsModelActor.swift
+@ModelActor
+actor ItemsModelActor: Storage {
+    // ...
+}
+```
+
+Finally, we can update the `ContentView` to use the `Storage` protocol instead of the `ItemsModelActor`:
+    
+```swift:ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    let storage: Storage
+
+    // ...
+}
+```
+
+Notice how we no longer need to import `SwiftData` in the `ContentView` and how we have decoupled the UI from the storage solution!
