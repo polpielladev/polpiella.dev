@@ -88,6 +88,24 @@ const SPONSORS = {
         title: "Codemagic CI/CD for mobile teams",
         body: "What do you get when you put love for iOS and DevOps together? Answer: Codemagic CI/CD",
         url: "https://codemagic.io/start/?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=codemagic"
+    },
+    "codemagicM2": {
+        color: "#0051FF",
+        images: {
+            large: {
+                darkModeImage: "/assets/sponsors/codemagic-wordmark-white.svg",
+                lightModeImage: "/assets/sponsors/codemagic-wordmark-blue.svg",
+                aspectRatio: 2
+            },
+            small: {
+                darkModeImage: "/assets/sponsors/codemagic-star.svg",
+                lightModeImage: "/assets/sponsors/codemagic-star.svg",
+                aspectRatio: 1
+            }
+        },
+        title: "Codemagic makes Apple M2 machines available, even on the free tier!",
+        body: "Codemagic is the first CI/CD to make Apple M2 machines available to everyone (including the free tier!). This is a free upgrade from M1 machines with no price change.",
+        url: "https://codemagic.io/start/?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=codemagic"
     }
 }
 
@@ -104,7 +122,8 @@ const SPONSORS_SCHEDULE = {
     "37": SPONSORS.runwayRollbacks,
     "38": SPONSORS.runwayRollbacks,
     "39": SPONSORS.runwayPileUp,
-    "40": SPONSORS.runwayPileUp
+    "40": SPONSORS.runwayPileUp,
+    "41": SPONSORS.codemagicM2
 }
 
 function getWeekNumber(d) {
