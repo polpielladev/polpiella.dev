@@ -1,10 +1,12 @@
 ---
 title: "How to listen for property changes in an @Observable class using AsyncStreams"
-excerpt: ""
+excerpt: "A comparison between ObservableObject and the new Observable macro and how to listen and react to property changes in both."
 pubDate: 2024-10-10
 tags: ['swiftui', 'swift']
 layout: ../../layouts/BlogPostLayout.astro
 ---
+
+import Video from '@components/Video.astro'
 
 Before the introduction of `@Observable` in WWDC23, the only way to make a class' property observable to SwiftUI was to use the `@Published` property wrapper and make the class conform to the `ObservableObject` protocol. 
 
@@ -36,7 +38,9 @@ struct ContentView: View {
         VStack {
             Text(viewModel.text)
             TextField("Type something", text: $viewModel.text)
+                .textFieldStyle(.roundedBorder)
         }
+        .padding()
     }
 }
 ```
@@ -63,7 +67,9 @@ struct ContentView: View {
         VStack {
             Text(viewModel.text)
             TextField("Type something", text: $viewModel.text)
+                .textFieldStyle(.roundedBorder)
         }
+        .padding()
     }
 }
 ```
