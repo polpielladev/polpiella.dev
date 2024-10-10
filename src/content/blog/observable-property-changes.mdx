@@ -1,0 +1,190 @@
+---
+title: "How to listen for property changes in an @Observable class using AsyncStreams"
+excerpt: ""
+pubDate: 2024-10-10
+tags: ['swiftui', 'swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Before the introduction of `@Observable` in WWDC23, the only way to make a class' property observable to SwiftUI was to use the `@Published` property wrapper and make the class conform to the `ObservableObject` protocol. 
+
+This approach would allow you to observe the class in SwiftUI using the `@ObservedObject` or `StateObject` property wrappers and any `@Published` property would cause the view to update when it changed. Futhermore, all `@Published` properties could be converted to `Binding`s by using the `$` prefix, much like a `@State` property.
+
+Let's take this simple SwiftUI view with a single text and text field as an example. As the user types in the text field, the contents of the Text get updated:
+
+<Video />
+
+Let's implement the logic for this view using a ViewModel that conforms to `ObservableObject` and has a `@Published` property:
+
+```swift:ViewModel.swift
+import Foundation
+
+class ViewModel: ObservableObject {
+    @Published var text = ""
+}
+```
+
+And let's now use this ViewModel in the view:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    @StateObject var viewModel = ViewModel()
+    
+    var body: some View {
+        VStack {
+            Text(viewModel.text)
+            TextField("Type something", text: $viewModel.text)
+        }
+    }
+}
+```
+
+Let's now see how you can achieve the same result using the new `@Observable` macro in the ViewModel:
+
+```swift:ViewModel.swift
+import Foundation
+
+@Observable class ViewModel {
+    var text = ""
+}
+```
+
+And then update the SwiftUI view to use the `@Observable` ViewModel:
+
+```swift:ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    @State var viewModel = ViewModel()
+    
+    var body: some View {
+        VStack {
+            Text(viewModel.text)
+            TextField("Type something", text: $viewModel.text)
+        }
+    }
+}
+```
+
+As you can see, the migration is pretty straightforward. The main differences betweent the two approaches are:
+
+1. You don't need to conform to `ObservableObject` anymore, you decorate the class with the `@Observable` macro instead.
+2. You don't need to use the `@Published` property wrapper anymore, you just declare the property as a regular property. By default, all properties in the class will be observed, but you can also specify which properties you want to observe by using the `@ObservationIgnored` macro on the property itself.
+3. You don't need to use the `@StateObject` property wrapper anymore, you just use the normal `@State` property wrapper instead.
+
+## Observing property changes
+
+Let's now consider that you want to perform an action every time the `text` property changes or, in other words, when the user types in the text field. This is exactly how search works in most apps: as you type, a network request is fired and the results are updated in the UI.
+
+### Using ObservableObject
+
+Side effects are incredibly simple to achieve when using the `ObservableObject` protocol and `@Published` properties. As the `@Published` property wrapper uses `Combine` under the hood, you can access its underlying publisher using the `$` prefix and then use the `sink` method to listen for changes:
+
+```swift:ViewModel.swift
+import Foundation
+import Combine
+
+class ViewModel: ObservableObject {
+    @Published var text = ""
+    
+    private var cancellable: AnyCancellable?
+    
+    init() {
+        cancellable = $text
+            .sink { text in
+                print("✅ Text changed to: \(text)")
+            }
+    }
+    
+    deinit {
+        cancellable?.cancel()
+    }
+}
+```
+
+The benefit this approach has is that you can easily cancel the subscription at any time by calling `cancel` on the `AnyCancellable` instance and that you can leverage the full power of `Combine` to perform complex operations.
+
+For example, when the user types in the text field, you could debounce the text changes and only perform the search when the input is not emtpy, filter out duplicate searches and after the user has stopped typing for a certain amount of time:
+
+```swift:ViewModel.swift
+cancellable = $text
+    .filter { !$0.isEmpty }
+    .removeDuplicates()
+    .debounce(for: 0.5, scheduler: DispatchQueue.global(qos: .userInitiated))
+    .sink { text in
+        print("✅ Text changed to: \(text)")
+    }
+```
+
+### Using AsyncStreams
+
+Reacting to property changes is fairly straightforward using the `@Observable` macro as well. You can simply use the `willSet` or `didSet` property observers to listen for changes:
+
+```swift:ViewModel.swift
+import Foundation
+
+@Observable class ViewModel {
+    var text = "" {
+        willSet {
+            print("✅ Text changed to: \(text)")
+        }
+    }
+}
+```
+
+Unfortunately, when performing the same complex operations as we did with `Combine`, the `willSet` and `didSet` property observers are not enough. This is where `AsyncStream`s come into play. 
+
+You can create a new `AsyncStream` instance and use the `yield` method to publish new changes:
+
+```swift:ViewModel.swift
+import Foundation
+
+@Observable final class ViewModel {
+    private let (textStream, continuation) = AsyncStream.makeStream(of: String.self)
+    var text = "" {
+        willSet {
+            continuation.yield(newValue)
+        }
+    }
+    
+    init() {
+        Task {
+            for await text in textStream {
+                print("✅ Text changed to: \(text)")
+            }
+        }
+    }
+    
+    deinit {
+        continuation.finish()
+    }
+} 
+```
+
+To perform the same complex operations as we did with `Combine`, you can use [Apple's swift-async-algorithms Swift Package](https://github.com/apple/swift-async-algorithms) and leverage the vast amount of operators it provides:
+
+```swift:ViewModel.swift
+import Foundation
+import AsyncAlgorithms
+
+@Observable final class ViewModel {
+    // ...
+
+    init() {
+        Task {
+            for await text in textStream
+                .filter({ !$0.isEmpty })
+                .removeDuplicates()
+                .debounce(for: .seconds(0.5)) {
+                print("✅ Text changed to: \(text)")
+            }
+        }
+    }
+
+    // ...
+}
+```
+
+It is true that you can achieve the same result by creating a `Combine` publisher instead of an `AsyncStream` and use the `sink` method to listen for changes. However, `AsyncStream`s seem to be a more natural fit with `async/await` and a more future-proof solution given the direction Swift is heading towards.
