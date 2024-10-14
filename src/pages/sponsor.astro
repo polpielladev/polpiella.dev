@@ -1,5 +1,6 @@
 ---
 import BlogSponsor from "@components/BlogSponsor.svelte";
+import PreviousSponsors from "@components/PreviousSponsors.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
 ---
 
@@ -8,9 +9,9 @@ import BaseLayout from "@layouts/BaseLayout.astro";
   description="Help me continue to create content and open source projects by sponsoring me."
   activeNav="sponsor"
 >
-  <div class="flex flex-col gap-8 max-w-2xl mx-auto">
+  <div class="flex flex-col gap-16 max-w-2xl mx-auto">
     <section class="scroll-smooth flex flex-col max-w-4xl mx-auto">
-      <div class="max-w-3xl my-8 space-y-5 text-center mx-auto">
+      <div class="max-w-3xl space-y-5 text-center mx-auto">
         <h1
           class="text-4xl font-title tracking-tight leading-none text-gray-900 md:text-5xl lg:text-5xl dark:text-white"
         >
@@ -20,7 +21,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
           class="text-lg font-normal text-gray-700 lg:text-xl dark:text-gray-300"
         >
           polpiella.dev is a blog about iOS development with a focus on CI/CD,
-          tooling and automation. It's read by over 14,000 developers every
+          tooling and automation. It's read by over <b>14,000 developers</b> every
           month and is updated with a new article every week.
         </p>
 
@@ -44,18 +45,8 @@ import BaseLayout from "@layouts/BaseLayout.astro";
               d="M1 5h12m0 0L9 1m4 4L9 9"></path>
           </svg>
         </a>
-        <div
-          class="flex gap-3 flex-wrap text-center mx-auto items-center justify-center"
-        >
-          <p
-            class="text-md font-normal text-gray-700 lg:text-lg dark:text-gray-300"
-          >
-            Trusted by these previous sponsors:
-          </p>
-          <a class="w-24" href="https://runway.team"
-            ><img class="dark:invert" src="/assets/sponsors/runway-logo.svg" />
-          </a>
-        </div>
+
+        <PreviousSponsors />
       </div>
     </section>
     <section class="bg-clear flex flex-col gap-4">
@@ -82,7 +73,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
       <BlogSponsor variant="small" client:only />
       <a
         href="/core-data-migration-app-group"
-        class="text-lg underline text-violet-800 mb-4 font-normal lg:text-xl dark:text-violet-300"
+        class="underline text-violet-800 mb-4 font-normal text-sm dark:text-violet-300"
         >You can see it in context in any of the site's articles.</a
       >
     </section>
