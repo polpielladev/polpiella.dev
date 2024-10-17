@@ -1,0 +1,158 @@
+---
+title: "How to install the same version of Ruby and Fastlane locally and on CI/CD"
+excerpt: "How to manage versions of Ruby and install Ruby Gems such as Fastlane both locally and in your CI/CD pipelines using GitHub Actions."
+pubDate: 2024-10-17
+tags: ['ci-cd', 'fastlane', 'github-actions']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Image from '@components/Image.astro'
+
+[Fastlane](https://fastlane.tools/) is a popular Open-Source tool for **automating the build, testing, and deployment of iOS and Android apps**. It provides a set of tools that can be used to automate the most common tasks in the app development process. Fastlane has been a standard tool in the iOS development community for a long time as it comes with a set of pre-built actions and community plugins that make building automations for your app a breeze.
+
+Fastlane is **built using Ruby** and, while it can be installed using other methods, the recommended way to install it is using [Bundler](https://bundler.io/) , a tool that helps bootstrap a consistent environment for Ruby projects. Bundler forces you to define all your Ruby dependencies in a manifest called `Gemfile` and, when you install these dependencies, it creates a `Gemfile.lock` file that will list the exact versions of the gems you are using.
+
+Using Bundler to install dependencies such as `Fastlane` and both locally and on CI/CD ensures that you always have a reproducible environment for your Ruby projects and that everyone on your team is using the same versions of your project's dependencies.
+
+There are two main things that you need to be careful with when you install Fastlane:
+
+- **The version of Ruby that you use**: You need to make sure that you are using the same version of Ruby locally across your team and on your CI/CD pipelines as some versions of Ruby are not compatible with some versions of Fastlane.
+- **The version of Fastlane that you use**: You need to make sure that you are using the same version of Fastlane and any other Ruby gems locally across your team and on your CI/CD pipelines. Doing so will sove a lot of the classic "it works on my machine" problems that many teams face with CI/CD pipelines. 
+
+> While I am talking about Fastlane specifically in this article, the same principles apply to any Ruby gems that you might be working on.
+
+## Setting up a Ruby environment locally
+
+The first step to install Fastlane is to make sure that you have Ruby installed on your machine. While Ruby comes pre-installed on macOS, [system Ruby is not recommended to use with Fastlane according to the official docs](https://docs.fastlane.tools/getting-started/ios/setup/).
+
+Hence, the first thing to do is to install a Ruby version manager that lets you download and switch between different versions of Ruby. There are plenty of Ruby version managers out there, but my personal preference is [rbenv](https://github.com/rbenv/rbenv). 
+
+You can install `rbenv` using Homebrew with the following command:
+
+```bash:Terminal
+brew install rbenv
+```
+
+Once `rbenv` is installed in your machine, you can install a specific version of Ruby using the following command:
+
+```bash:Terminal
+rbenv install 3.1.0
+```
+
+You can then navigate to your project directory and set the Ruby version for that project from the terminal:
+
+```bash:Terminal
+rbenv local 3.1.0
+```
+
+This command will create a `.ruby-version` file in your project directory that `rbenv` will look for. When you are in that that directory and you run a command that invokes ruby, `rbenv` will automatically switch to the Ruby version specified in the `.ruby-version` file.
+
+It is important that you commit this `.ruby-version` file to source control so that everyone on your team has access to it. 
+
+Even with the file in source control, people in your team will need to do the same process of installing `rbenv` and the Ruby version specified in the `.ruby-version` file before they can run any Ruby commands. 
+
+For this reason, it is a good idea to create a `Brewfile` in your project directory that lists all the dependencies that you need to install in your system and a small `bootstrap.sh` script to get people set up with a single command. 
+
+To do so, you would first create a file called `Brewfile` listing all dependencies that need to be installed by `Homebrew`:
+
+```bash:Terminal
+brew "rbenv"
+```
+
+Then, you would create a `bootstrap.sh` script that installs all the dependencies in the `Brewfile` and installs the Ruby version specified in the `.ruby-version` file:
+
+```bash:bootstrap.sh
+#!/bin/bash
+
+# Install all dependencies in the Brewfile
+brew bundle
+
+# Install the Ruby version specified in the .ruby-version file
+rbenv install --skip-existing
+```
+
+## Installing Fastlane locally
+
+Now that you have a Ruby environment available, you can set up a Bundle and install Fastlane using it. Bundler is part of the Ruby toolchain and all you need to do to initialise a new bundle is to run the following command:
+
+```bash:Terminal
+bundle init
+```
+
+This command will create a `Gemfile` in your project directory that you can use to list all the dependencies that you want to install, such as fastlane:
+
+```ruby:Gemfile
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "fastlane"
+```
+
+Once you have added Fastlane to the `Gemfile`, you can install it using the following command:
+
+```bash:Terminal
+bundle install
+```
+
+This command will install all the dependencies listed in the `Gemfile` and create a `Gemfile.lock` file that lists the exact versions of the gems that you are using. It is very important that at this point you commit both the `Gemfile` and the `Gemfile.lock` to source control so that everyone on your team can use the same versions of the gems.
+
+To invoke the newly installed Fastlane command-line tool, all you have to do is to prefix the gem you want to use with `bundle exec`. For example, to call `fastlane init`, you would run this command:
+
+```bash:Terminal
+bundle exec fastlane init
+```
+
+## Installing Ruby and Fastlane on CI/CD
+
+Once you have all files committed to source control, you can set up your CI/CD pipeline to install Ruby and Fastlane using the same versions that you are using locally to ensure that your builds are reproducible.
+
+For the sake of simplicity and as it is a popular choice for many developers and companies, I will show you how to set up Ruby and Fastlane on GitHub Actions. 
+
+The first step is to create a `.yml` file in your repository's `.github/workflows` directory:
+
+```yaml:.github/workflows/build.yml
+name: Distribute to the App Store Connect
+```
+
+Then, define the triggers that will make the workflow run. In this case, I want to run the workflow every time a new commit is pushed to a `release` or `beta` branch:
+
+```yaml:.github/workflows/build.yml
+on:
+    push:
+        branches:
+            - 'release/**'
+            - 'beta/**'
+```
+
+Then, you can define a single job that will run on a macOS Sonoma machine and that checks out the code from the repository:
+
+```yaml:.github/workflows/build.yml
+jobs:
+    distribute:
+        runs-on: [macos-14]
+        steps:
+        - uses: actions/checkout@v4
+```
+
+As all CI/CD providers charge you for the time it takes for your workflows to run, you always want to make sure that you spend the least amount of time possible installing dependencies. For this reason, it is a good idea to always install a pre-built version of Ruby and cache the gem dependencies so that they don't need to be installed every time the workflow runs.
+
+Thankfully, the [team at Ruby have built an action that does exactly that for us](https://github.com/ruby/setup-ruby). It scans your directory for a `.ruby-version` file and installs the Ruby version specified in it. It also runs the `bundle install` command and caches the installed dependencies for you.
+
+Let's use this action in our workflow and then run Fastlane immediately after:
+
+```yaml:.github/workflows/build.yml
+jobs:
+    distribute:
+        runs-on: [macos-14]
+        steps:
+        - uses: actions/checkout@v4
+        - uses: ruby/setup-ruby@v1
+          with:
+            bundler-cache: true
+        - run: bundle exec fastlane --version
+```
+
+Caching dependencies is a great way to speed up your CI/CD pipelines and to save money on your CI/CD provider. I use this setup in all my projects and, on runs where dependencies are cached, the install ruby and dependencies can take as little as 6 seconds:
+
+<Image name="ruby-fastlane-ci-cd.webp" />
