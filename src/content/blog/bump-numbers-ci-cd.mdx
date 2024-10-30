@@ -1,0 +1,116 @@
+---
+title: "How to automatically update build and version numbers in your app using Fastlane"
+excerpt: "How to make sure your Xcode project's build and version numbers are always up-to-date using Fastlane."
+pubDate: 2024-10-30
+tags: ['ci-cd', 'fastlane', 'github-actions']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Image from '@components/Image.astro'
+
+
+One of the most common errors that can happen when you upload a new build of your app to App Store Connect is that its version and build numbers are older than the ones that are already in the store. This can happen if you forget to update the `MARKETING_VERSION` and `PROJECT_VERSION` settings in your Xcode project before building and archiving your app.
+
+<Image name="bump-numbers-issue.webp" />
+
+In this article, I will show you how you can use Fastlane to automate this process and make sure that your app's version and build numbers are always up-to-date before you deploy a new build of your app.
+
+## Release branches
+
+A great way to manage your app's releases is to use **release branches**. You can create a new branch with the name of the version you are going to release, for example, `release/1.0.0`. This branch will contain all the changes that are going to be included in the new version of your app and can also act as a code freeze: no new features or changes should be added to this branch after it is created and only critical bug fixes should be merged into it.
+
+Another advantage of using release branches and including the version number in the branch name is that you can use this information from your CI/CD pipeline to automatically update the `MARKETING_VERSION` setting in your Xcode project with this value. 
+
+Furthermore, if you follow a strict naming convetion for your release branches, you can set up triggers in your CI/CD pipelines to upload new builds every time a commit is pushed to a release branch:
+
+```yaml:release.yml
+name: Upload a build to App Store Connect
+on:
+    push:
+        branches:
+            - 'release/**'
+```
+
+## Setting the version number
+
+Let's now see how we can use Fastlane to automatically update the version number to the one in the branch name in our Xcode project:
+
+```ruby:Fastfile
+default_platform(:ios)
+
+platform :ios do
+  # release/*.*.* -> App Store
+  desc "Distributes a new build to App Store Connect"
+  lane :distribute do
+    # Get the current branch name and split it by `/`
+    split_git_ref = git_branch.split("/", -1)
+
+    puts "🚀 Pushing a new build for #{split_git_ref}"
+    
+    # Check if the branch name is in the correct format
+    if split_git_ref.length != 2
+      UI.user_error!("Invalid branch name: #{ENV["BRANCH_NAME"]}, expected format: {beta|release}/{version}")
+    end
+
+    # Release
+    distribution_type = split_git_ref.first
+    # *.* or *.*.*
+    version_number = split_git_ref.last
+    
+    # Check if the distribution type is valid
+    if distribution_type != "release"
+      UI.user_error!("Invalid distribution type: #{distribution_type}, expected format: {beta|release}/{version}")
+    end
+
+    # Set up the version of Xcode to `16.0`
+    xcode_select("/Applications/Xcode_16.app")
+
+    # Set version Number from branch name e.g.: `release/1.0.0`
+    increment_version_number(
+      version_number: version_number,
+      xcodeproj: "YourAwesomeApp.xcodeproj"
+    )
+  end
+end
+```
+
+## Bumping the build number
+
+Now that we have set the version number, let's ensure that we bump the version number by checking the latest build number in App Store Connect and incrementing it by one:
+
+```ruby:Fastfile
+desc "Distributes a new build to App Store Connect"
+lane :distribute do
+    # ...
+
+    # Increment the build number by 1
+    build_number = latest_testflight_build_number + 1 
+    increment_build_number(xcodeproj: "YourAwesomeApp.xcodeproj", build_number: build_number)
+end
+```
+
+## Pushing the changes
+
+Finally, we need to make sure that all updates to the `.xcodeproj` file are pushed to the repository's release branch:
+
+```ruby:Fastfile
+desc "Distributes a new build to App Store Connect"
+lane :distribute do
+    # ...
+
+    # Push to remote branch if needed
+    if git_status(path: "YourAwesomeApp.xcodeproj/project.pbxproj").empty?
+      puts "🚀 Nothing to commit, pushing the same version again!"
+    else
+      # Make sure to set `[ci skip]` to avoid triggering a new action run
+      git_commit(path: "YourAwesomeApp.xcodeproj/project.pbxproj", message: "[ci skip] [🚀 release] Updating version to: #{version_number}.#{build_number}")
+
+      # Push to release branch
+      push_to_git_remote(remote: "origin", remote_branch: git_branch)
+    end
+end
+```
+
+> This last step requires enhanced permissions as it needs to write to the repository. Make sure to set up the necessary permissions in your CI/CD service. 
+
+As the fastlane lane will push to the release branch and to prevent the workflow from running again, we need to add `[ci skip]` to the commit message. Most CI/CD services will skip running the workflow if they find this keyword in the commit message.
