@@ -12,7 +12,7 @@
   style={`border-color: ${color}; background: ${color}10;`}
   class={`not-prose relative grid h-full ${
     variant === 'default'
-      ? 'flex-col gap-2 content-center justify-center px-2 py-4 text-center'
+      ? 'flex-col gap-4 content-center justify-center px-2 py-4 text-center'
       : 'grid-cols-[5rem_1fr] p-2 gap-2 align-middle'
   } rounded-lg border-2 shadow-lg `}>
   <div
@@ -28,7 +28,7 @@
       <source srcset={large.darkModeImage}  media="(prefers-color-scheme: dark)"/>
       <source srcset={large.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        class={`mx-auto h-28 object-contain`}
+        class={`mx-auto h-20 object-contain`}
         style={`aspect-ratio: ${large.aspectRatio}`}
         src={large.lightModeImage}
         alt="Sponsor Logo" />
@@ -51,7 +51,7 @@
     <a
       href={url}
       class={`font-title ${
-        variant == 'default' ? 'text-lg' : 'text-md'
+        variant == 'default' ? 'text-lg leading-tight' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
       {title}
     </a>

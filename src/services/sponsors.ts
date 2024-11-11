@@ -113,12 +113,12 @@ const SPONSORS = {
             large: {
                 darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
                 lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
-                aspectRatio: 1
+                aspectRatio: 1.72
             },
             small: {
                 darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
                 lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
-                aspectRatio: 1
+                aspectRatio: 1.72
             }
         },
         title: "Build High-Performance Chat Experiences Without the Hassle 🛠️",
