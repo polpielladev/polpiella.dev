@@ -123,7 +123,7 @@ const SPONSORS = {
         },
         title: "Build High-Performance Chat Experiences Without the Hassle 🛠️",
         body: "Now with integrated support for your favorite LLM APIs! Start building for free today. 🚀",
-        url: "https://getstream.io/tutorials/ios-chat?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=stream"
+        url: "https://getstream.io/tutorials/ios-chat?utm_source=blog&utm_medium=referral&utm_content=&utm_campaign=polpielladev"
     }
 }
 
