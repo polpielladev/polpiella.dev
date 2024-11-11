@@ -106,6 +106,24 @@ const SPONSORS = {
         title: "Codemagic makes Apple M2 machines available, even on the free tier!",
         body: "Codemagic is the first CI/CD to make Apple M2 machines available to everyone (including the free tier!). This is a free upgrade from M1 machines with no price change.",
         url: "https://codemagic.io/start/?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=codemagic"
+    },
+    "stream": {
+        color: "#015FFF",
+        images: {
+            large: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
+                aspectRatio: 1
+            },
+            small: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/stream-logo.webp",
+                aspectRatio: 1
+            }
+        },
+        title: "Build High-Performance Chat Experiences Without the Hassle 🛠️",
+        body: "Now with integrated support for your favorite LLM APIs! Start building for free today. 🚀",
+        url: "https://getstream.io/tutorials/ios-chat?utm_source=polpielladev&utm_medium=advertisement&utm_campaign=stream"
     }
 }
 
@@ -128,6 +146,7 @@ const SPONSORS_SCHEDULE = {
     "43": SPONSORS.runwayPileUp,
     "44": SPONSORS.runwayPileUp,
     "45": SPONSORS.codemagicM2,
+    "46": SPONSORS.stream
 }
 
 function getWeekNumber(d) {
