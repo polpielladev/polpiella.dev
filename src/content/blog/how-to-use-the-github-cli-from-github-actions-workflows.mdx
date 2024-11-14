@@ -1,0 +1,76 @@
+---
+title: "Automate GitHub Tasks with GitHub CLI in Actions Workflows: A Step-by-Step Guide"
+excerpt: "How to leverae the power of the GitHub CLI from GitHub Actions to automate tasks such as issue management or pull request creation."
+pubDate: 2024-11-14
+tags: ['ci-cd', 'github-actions']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+As a maintainer of the [appstoreconnect-swift-sdk](https://github.com/AvdLee/appstoreconnect-swift-sdk) library, I often find myself keeping an eye on [new releases of the App Store Connect API](https://developer.apple.com/documentation/appstoreconnectapi/app-store-connect-api-release-notes) and then manually updating the library's code based using the new version's OpenAPI spec.
+
+As you can imagine, this process is not very scalable and relies heavily on manual input, which can lead to situations where the library misses updates of the API altogether.
+
+For this reason, I decided to take action and automate this process using GitHub Actions and the GitHub CLI and, in this article, I will show you how a combination of the GitHub CLI and a GitHub Actions workflow can help you remove manual tasks that cause friction.
+
+## Using GitHub CLI from Actions workflows
+
+GitHub CLI is installed and ready-to-use out of the box on all GitHub-Hosted runners. To use it, can simply use the `gh` command from any of your workflows and pass an environment variable called `GH_TOKEN` to the step where you will be using the GitHub CLI:
+
+```yml:github_cli.yml
+name: Using GitHub CLI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  use_github_cli:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: gh --help
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+The `GH_TOKEN` environment variable is used by the GitHub CLI to authenticate with GitHub's API and, as GitHub Actions workflows contain an auto-generated API token scoped to the workflow's repository, we can just access it from the workflow's secrets and set it to the environment with the right variable name.
+
+### GITHUB_TOKEN elevated permissions
+
+It is important to note that, by default, the auto-generated `GITHUB_TOKEN` available in all GitHub Actions workflows' secrets is **read-only** and, if you want **to perform tasks that require a higher degree of permissions** in the repository such as pushing changes or creating a pull request, you need to give it an elevated set of permissions.
+
+You can do this directly in the workflow file by using the `permissions` property. For example, in my example, where I had to push changes to a repository and then use the CLI to create a Pull Request, I had to set two elevated permissions:
+
+```yml:synchronize_asc_api.yml
+name: Synchronize ASC API
+
+permissions:
+    contents: write
+    pull-requests: write
+```
+
+Once these elevated permissions have been set, you can push code to the repository and perfrom Pull Request operations:
+
+```yml:synchronize_asc_api.yml
+# ...
+
+jobs:
+  create_pr:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          # ...
+          git config --local user.name "App Store Connect Swift SDK CI"
+          git switch --create spec-update-$NEW_VERSION
+          git add --all
+          git commit -m "[ci skip] Update spec to $NEW_VERSION"
+          git push -u origin spec-update-$NEW_VERSION
+          create_pr_output=$(gh pr create --title "Update OpenAPI spec to $NEW_VERSION" --body "$warnings")
+          echo "Pull request created: $create_pr_output"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## Find the right automation for you!
+
+The GitHub CLI [offers over 25 commands that perform multiple different GitHub tasks using the GitHub API](https://cli.github.com/manual/gh). Make sure you check out the documentation to explore the full list of commands and automations available and start streamlining your process! 
