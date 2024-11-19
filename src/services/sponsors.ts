@@ -124,6 +124,24 @@ const SPONSORS = {
         title: "Build High-Performance Chat Experiences Without the Hassle 🛠️",
         body: "Now with integrated support for your favorite LLM APIs! Start building for free today. 🚀",
         url: "https://getstream.io/tutorials/ios-chat?utm_source=blog&utm_medium=referral&utm_content=&utm_campaign=polpielladev"
+    },
+    "rocketHelm": {
+        color: "#4b9edb",
+        images: {
+            large: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/rocket-helm.webp",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/rocket-helm.webp",
+                aspectRatio: 1.6
+            },
+            small: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/rocket-helm.webp",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/rocket-helm.webp",
+                aspectRatio: 1.6
+            }
+        },
+        title: "Develop with RocketSim, Ship with Helm.",
+        body: "Helm Pro yearly subscribers now get a 30% discount on RocketSim thanks to contingent pricing on the App Store.",
+        url: "https://helm-app.com/changelog/helm-1-4-app-store-nominations-rocketsim#build-apps-faster-with-rocketsim/?utm_source=polpielladev&utm_medium=sponsor&utm_campaign=rockethelm"
     }
 }
 
@@ -146,7 +164,7 @@ const SPONSORS_SCHEDULE = {
     "43": SPONSORS.runwayPileUp,
     "44": SPONSORS.runwayPileUp,
     "45": SPONSORS.codemagicM2,
-    "46": SPONSORS.stream
+    "46": SPONSORS.stream,
 }
 
 function getWeekNumber(d) {
@@ -164,5 +182,5 @@ function getWeekNumber(d) {
   }
 
 export const getSponsor = (day: Date) => {
-    return SPONSORS_SCHEDULE[getWeekNumber(day)] || SPONSORS.helm;
+    return SPONSORS_SCHEDULE[getWeekNumber(day)] || SPONSORS.rocketHelm;
 }
