@@ -141,7 +141,7 @@ const SPONSORS = {
         },
         title: "Develop with RocketSim, Ship with Helm.",
         body: "Helm Pro yearly subscribers now get a 30% discount on RocketSim thanks to contingent pricing on the App Store.",
-        url: "https://helm-app.com/changelog/helm-1-4-app-store-nominations-rocketsim#build-apps-faster-with-rocketsim/?utm_source=polpielladev&utm_medium=sponsor&utm_campaign=rockethelm"
+        url: "https://helm-app.com/changelog/helm-1-4-app-store-nominations-rocketsim?utm_source=polpielladev&utm_medium=sponsor&utm_campaign=rockethelm#build-apps-faster-with-rocketsim"
     }
 }
 
