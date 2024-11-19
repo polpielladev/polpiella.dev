@@ -11,6 +11,16 @@ export interface SpeakingEngagement {
 
 export const speakingEngagements: SpeakingEngagement[] = [
   {
+    eventName: 'Do iOS',
+    image: '/assets/conferences/doios.webp',
+    startDate: new Date('2024-11-12'),
+    endDate: new Date('2024-11-14'),
+    link: 'https://do-ios.com/',
+    title: 'Ship your app on a Friday...and enjoy your weekend!',
+    slides: 'https://speakerdeck.com/player/998afa5fabb24413851c525e9472f1de',
+    description: '',
+  },
+  {
     eventName: 'SwiftConf',
     image: '/assets/conferences/swiftconf.webp',
     startDate: new Date('2024-08-07'),
