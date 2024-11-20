@@ -1,0 +1,63 @@
+---
+title: 'How to create and upload high-quality App Store assets with RocketSim and Helm'
+excerpt: 'Learn how you can create App Store optimized stunning screenshots and app previews with RocketSim and use Helm to upload screenshots to App Store Connect.'
+pubDate: 2024-11-20
+tags: []
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Image from '@components/Image.astro'
+import Video from '@components/Video.astro'
+
+With over 2 million apps available on the iOS App Store, competition is fierce and it has never been harder to penetrate the mobile app market and get users to download your app. Among the many factors that can influence a user's decision to download your app, the quality of your app store assets is one of the most important. 
+
+To give your app the best chance at success and to make it stand out from the rest, it is important that your create and upload high-quality screenshots and app previews that showcase the features that are unique to your app.
+
+<Image name="rockethelm-app-store.webp" />
+
+In this article, I will show you how you can use [RocketSim](https://rocketsim.app) to create the assets and leverage the power of [Helm](https://helm-app.com) to upload them to App Store Connect.
+
+## Creating high-quality assets with RocketSim
+
+[RocketSim](https://rocketsim.app) is a macOS app that supercharges your Xcode simulators with a set of tools that **boost your productivity** and **streamline you and your team's app development workflow**. The app integrates seamlessly into the development experience by attaching itself as a window to the simulator, giving quick access to its features:
+
+<Image name="rockethelm-rocket-sim.webp" />
+
+Among the many features that RocketSim offers, the one that I use the most is the ability to create App Store optimized screenshots and app previews. For example, while I am developing a new feature for an upcoming version of my app [Fosi](https://www.fosi.app), I might take a screenshot with RocketSim and save it to upload it later:
+
+<Video name="rockethelm-create-screenshot.mp4" />
+
+If this feature is key to the app and I want to showcase it in a more engaging way, I can also record a video preview of the feature in action:
+
+<Video name="rockethelm-create-app-preview.mp4" />
+
+## Uploading assets to App Store Connect with Helm
+
+[Helm](https://helm-app.com) is a macOS app that [Hidde](https://x.com/hiddevdploeg) and I made to help you manage your app's versions and their metadata on App Store Connect. Helm makes tasks such as localizing your app's metadata, picking your ASO keywords and uploading your app screenshots easier and faster than doing it manually on the App Store Connect website.
+
+When it comes to uploading screenshots, [Helm](https://helm-app.com) automates a number of tasks that you would otherwise have to do manually:
+
+- You can drag and drop screenshots from Finder directly into Helm.
+- If you follow [Helm](https://helm-app.com)'s file naming convention (`index_name_locale`), you can drop drop a bunch of screenshots and [Helm]() will automatically put them into the right device, language and will sort them into the right order.
+- If your screenshots have transparency, [Helm](https://helm-app.com) will automatically strip the transparency before uploading to App Store Connect instead of giving you an error.
+- For visionOS screenshots, [Helm](https://helm-app.com) allows you to drop simulator screenshots and it will automatically convert them to the right size and format for App Store Connect.
+
+Let's see how bulk uploading screenshots that you have taken in RocketSim directly (or in my case that you have taken in RocketSim and added a background and text in Sketch) in action:
+
+<Video name="" />
+
+> As of this time, [Helm](https://helm-app.com) does not support uploading app previews. However, it is a feature that is in our backlog and that we will add support for in the future, so make sure you keep an eye on our [Twitter account](https://twitter.com/helm_app) for updates.
+
+## Get both tools, cheaper than ever before!
+
+Back in December 2023, [Apple announced a new feature called Contingent Pricing](https://developer.apple.com/news/?id=6e9odqgu) that allows developers to provide discount subscription prices to users who are actively subscribed to another app. This feature is a great way to attract new users and retain existing ones by providing extra value with their subscription.
+
+As you have learnt in this article, [RocketSim](https://www.rocketsim.app) and [Helm](https://helm-app.com) both have now become essential developer tools in the mobile app development ecosystem and they compliment each other very well. For this reason, we are very happy to announced that both apps have now teamed up and you'll get 30% off on the other app's yearly plan if you're subscribed to either of them's yearly plan already.
+
+If you can't wait to use this new discount, make sure you download the latest versions of both apps and use the following links to get your discount:
+
+- Use [this link](https://apps.apple.com/contingent-price/6737781648) to get a 30% discount on RocketSim if you're already subscribed to Helm.
+- Use [this link](https://apps.apple.com/contingent-price/6737781988) to get a 30% discount on Helm if you're already subscribed to RocketSim.
+
+> You can read more about this in [the 1.4 update post on our blog](https://helm-app.com/changelog/helm-1-4-app-store-nominations-rocketsim?utm_source=polpielladev&utm_medium=sponsor&utm_campaign=rockethelm#build-apps-faster-with-rocketsim) or on [Antoine van der Lee's blog post on Contingent Pricing](https://www.avanderlee.com/optimization/contingent-pricing-for-in-app-subscriptions/). 
+
