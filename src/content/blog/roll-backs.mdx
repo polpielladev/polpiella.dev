@@ -1,0 +1,41 @@
+# How to rollback a bad release
+
+Let's face it, no matter how much testing you do, there is always a chance that a release will go wrong, and it is important to have a plan in place to react as quickly as possible and minimise the impact that a bad release can have on your users.
+
+In many ecosystems, such as web development, it is common to deploy code changes to producton multiple times a day and, when one of these deployments suddenly breaks somthing, teams usually rollback to the last stable version as quickly as possible.
+
+But, what does rolling back to the last stable version actually mean? While it might seem complex at first, most rollbacks can be broken down into a few simple steps:
+
+1. **Identify the culprit commit**: The first step is to identify what went wrong and at what point it did go wrong. This can be done by going back in the commit history until the offending commit is found.
+2. **Re-deploying the last stable version**: Once you know the offending commit, you can just deploy the commit before it, which should be the last stable version.
+
+Rolling back a bad release is a critical process to have in place for web development teams, as it can help to minimise the impact of a bad release on your users and business. There are teams that, with a set of observability tools in place, can detect the health of a specific deployment and can even automate the rollback process within a matter of minutes.
+
+While this process is crucial to safer releases and is crucial to implement in a lot of Software Development environments, it is unfortunately not as simple in the mobile development world. 
+
+In this article, we will the complexity and uniqueness of mobile releases and you'll learn how to implement a rollback strategy for your mobile apps.
+
+## What makes mobile releases different?
+
+There are a number of key aspects that make mobile releases different from other ecosystems that can release immediately to all users worldwide:
+
+- **App Store Review Process**: When you release a new version of your app to the App Store, it goes through a review process that can take anywhere [from a few hours to a few days](https://www.runway.team/appreviewtimes). This means that if you need to rollback a bad release, you will need to wait for the review process to complete before you can release the stable version. While it is possible to expedite the review process in some cases, it is still a time-consuming process that can delay the rollback. Even worse, the review team could reject the new version altogether, forcing you to fix the issue and resubmit the app for review.
+- **User Adoption**: Even if you are able to expedite the review process, there is no guarantee that all users will update to the new version immediately. This means that even if you are able to release a stable version quickly, some users may still be using the bad version for some time or even indefinitely as your users might have disabled automatic updates. There are some strategies you can put in place such as force updates or remote configuration changes, but these can be complex to implement, are usually considered bad user experience and may not be possible in all cases.
+
+If we take into account the above points and combine with the fierce competition in the mobile app market, it is clear that getting things right in a release is crucial for the success of your app and that the mobile ecosystem could truly benefit from a more robust rollback strategy that other ecosystems have.
+
+## How can you rollback a bad release in a mobile app?
+
+Given the fact that mobile releases can't be deleted and, once they are live, they are live for good, a process that gets as close as possibel to a full rollback follows these steps:
+
+- **Obtain a copy of the last stable version**: Unfortunately, once you upload a build archive to the Google Play Console or App Store Connect, you can't download it back. This means that, either through a build distribution service that allows you to download build artifacts or some other means, you need to obtain a copy of the last stable version of your app. 
+- **Update build and version number**: Once you have the last stable version, you need to unpack it and update the build and version number to ensure that the new version is higher than the current version in the App Store.
+- **Re-sign the app**: Once you have updated the build and version number, you need to re-sign the build with your app's App Store signing credentials. To prevent build tampering and ensure that the build is secure, the signature of the build changes when you modify its contents, so you would need to re-sign the build to ensure that it can be uploaded to the relevant App Store.
+- **Upload the build to the relevant App Store**: Once you have re-signed the build, you can upload it to the relevant App Store.
+- **Create a new version in the App Store and submit for review**: Once you have uploaded the build, you need to create a new version in the App Store. This version will need to contain the same metadata and screenshots as the previous stable version and will need to have the resigned build selected. Once all this information is ready, you can submit the new version for review.
+
+You should do all the steps above as part of your normal app release process to ensure that your reaction time is as quick as possible. Ideally, you will not need to release this build and once you are ready to do your next release, you can just replace the build with a more recent one with the same version number.
+
+## What does a mobile rollback look like in code?
+
+
