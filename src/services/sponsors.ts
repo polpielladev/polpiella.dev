@@ -165,6 +165,7 @@ const SPONSORS_SCHEDULE = {
     "44": SPONSORS.runwayPileUp,
     "45": SPONSORS.codemagicM2,
     "46": SPONSORS.stream,
+    "49": SPONSORS.codemagicM2
 }
 
 function getWeekNumber(d) {
