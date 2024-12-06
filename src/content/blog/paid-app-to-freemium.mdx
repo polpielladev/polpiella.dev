@@ -1,0 +1,133 @@
+---
+title: "How to change your app's business model from paid to freemium using StoreKit"
+excerpt: "Learn how to use StoreKit's AppTransaction API to change your app's business model from a paid app to freemium."
+pubDate: 2024-12-06
+tags: ['swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Up until very recently, my app [QReate](https://www.getqreate.app) was available in the App Store as a paid app. Users would pay a one-time fee of $4.99 to download the app and use all of its features at no extra cost.
+
+This business model worked well for me for a long time, but, after [Hidde](https://x.com/polpielladev)'s recommendation, I decided to change the app to be free to download and then offer a one-time in-app purchases to unlock all of the app's features. 
+
+This change would let users try the app before they buy the full version and would allow me to offer a free trial to users who are interested in the app.
+
+In this article, I will show you how I managed the transition for users who had already purchased the app using StoreKit.
+
+## Creating new in-app purchases or subscriptions to support your new business model
+
+The first step in changing your app's business model from paid to freemium is to create the necessary entities in App Store Connect to support your new business model.
+
+In my case, I needed an In-App purchase, so I just went to the In-App Purchases section in App Store Connect and created a new non-consumable In-App Purchase called "Lifetime".
+
+### Fetching the products and the active subscriptions
+
+Once I had done all of the set up in App Store Connect, which I will not cover in this article to keep things simple, I proceeded to set up the app for StoreKit and to allow users to purchase the new In-App Purchase.
+
+> In this article, I want to focus on checking the state of the user's purchase so I am only going to show you how to fetch the products and the active subscriptions. If you'd like to read a full guide on how to set up StoreKit in your app, [check out Mastering StoreKit 2 on this article by Majid Jabrayilov](https://swiftwithmajid.com/2023/08/01/mastering-storekit2/).
+
+I then created a new class called `ProManager` and added the following code to check whether the user has purchased the in-app purchase:
+
+```swift:ProManager.swift
+@Observable public final class QReateProManager: NSObject, Sendable {
+    @MainActor public var isPro: Bool {
+        get {
+            access(keyPath: \.isPro)
+            return UserDefaults.group.bool(forKey: "isPro")
+        }
+        set {
+            withMutation(keyPath: \.isPro) {
+                UserDefaults.group.setValue(newValue, forKey: "isPro")
+            }
+        }
+    }
+    @MainActor var purchaseDate: Date?
+    private var updates: Task<Void, Never>?
+    
+    public init() {
+        super.init()
+        
+        updates = Task.detached {
+            for await update in StoreKit.Transaction.updates {
+                if let _ = try? update.payloadValue {
+                    await self.fetchActiveTransactions()
+                }
+            }
+        }
+    }
+    
+    deinit {
+        updates?.cancel()
+    }
+    
+    public func restorePurchases() async {
+        await fetchActiveTransactions()
+    }
+    
+    public func fetchActiveTransactions() async {
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result else { continue }
+            
+            if transaction.revocationReason == nil {
+                if transaction.productID == "com.appdiggershq.qreate.lifetime" {
+                    await MainActor.run {
+                        self.isPro = true
+                        self.purchaseDate = transaction.originalPurchaseDate
+                    }
+                }
+                return
+            } else {
+                if let revocationReason = transaction.revocationReason?.localizedDescription {
+                    print("Failed with revocation reason: \(revocationReason)")
+                }
+                await MainActor.run {
+                    self.isPro = false
+                    self.purchaseDate = nil
+                }
+            }
+        }
+    }
+}
+```
+
+As you can see, the app checks the user's active transactions and if it finds a transaction with the product ID `com.appdiggershq.qreate.lifetime`, it sets the `isPro` property to `true` and stores the purchase date in the `purchaseDate` property.
+
+## Checking if the user has already purchased the app
+
+How would you now grant full access to the app to users who have already purchased the app? StoreKit offers an API called `AppTransaction` that allows you to check if the the user **has previously purchased the app**.
+
+The `AppTransaction` object has a number of properties that you can use to determine which version of the app the user has purchased. 
+
+For this reason, I suggest that you **bump the major version of your app** on the update where you introduce the business model change and then check if the user has purchased a previous version of the app in the `fetchActiveTransactions` method:
+
+```swift:ProManager.swift
+public func fetchActiveTransactions() async {
+    let shared = try? await AppTransaction.shared
+    if case .verified(let appTransaction) = shared {
+        let newBusinessModelMajorVersion = 2
+        
+        let versionComponents = appTransaction.originalAppVersion.split(separator: ".")
+        if let originalMajorVersion = Int(versionComponents[0]), originalMajorVersion < newBusinessModelMajorVersion {
+            await MainActor.run {
+                self.isPro = true
+                self.purchaseDate = appTransaction.originalPurchaseDate
+            }
+            return
+        }
+    }
+}
+```
+
+In this case, the app gives full access to all `PRO` features to users who downloaded the paid version of the app, but you can apply any logic you want for these users.
+
+## Releasing the app
+
+Now that you have set up the new business model and have transitioned any existing users to the new business model, there are a couple more things you need to do before you can release the app:
+
+- **Submit in-app purchase or subscription**: Make sure you provide all the required metadata for the in-app purchase or subscription in App Store Connect and attach it to the new version of the app that introduces the new business model.
+- **Add terms of use and privacy policy**: Make sure you have a terms of use and a privacy policy that are up to date and that you link to them in the app's App Store page. You must also link them from the Description section of your app (forgetting this caused my app to be rejected 😅).
+- **Set release to manual**: Make sure you set the release to manual in App Store Connect so that you have time to change your app's price before it goes live.
+- **Change the app's price**: Once the app is approved by Apple, you can change the app's price to free.
+- **Release the app**: Once you have changed the app's price to free, immediately release the app to all users.
+
+And that's it! You have successfully changed your app's business model from paid to freemium using StoreKit's AppTransaction API. 🎉
