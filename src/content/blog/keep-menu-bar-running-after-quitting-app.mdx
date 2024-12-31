@@ -1,0 +1,229 @@
+---
+title: "How to keep your macOS app's menu bar item running after quitting the app"
+excerpt: "Learn how you can interrupt the app's termination and change your app's activation policy to keep the menu bar item running after the app has been quit."
+pubDate: 2024-12-31
+tags: ['swift', 'app-kit', 'swiftui']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.astro'
+
+One of the features that [Hidde](https://x.com/hiddevdploeg) and I have wanted to bring into [Helm](https://helm-app.com/) since its early days is the ability to have a menu bar item that allows users to quickly glance at their apps' status and open them with a single click.
+
+To make the menu bar item as useful as possible for the user, we also wanted it to still be visible in the menu bar even after the user has quit the app itself. 
+
+This is a pattern that's becoming more common in macOS apps as it keeps the app available to the user at all times from the menu bar as well as allowing the app to listen and react to events such as keyboard shortcuts. One of the most popular examples is the ChatGPT macOS app:
+
+<Video name="chat-gpt-app-demo.mp4" />
+
+I actually prefer this to what some other apps do, which is launching helper apps or agents that run in the background and that are harder to quit. With this approach, the user has full control over the app and can quit it at any time from the menu bar.
+
+## Writing a `MenuBarExtra`
+
+Adding a menu bar item to your app using SwiftUI is very simple. You just need to add a `MenuBarExtra` to your app's `App` struct and provide it with the view that should display when the user clicks on the menu bar item:
+
+```swift:HelmApp.swift
+@main
+struct HelmApp: App {
+    // ...
+
+    var body: some Scene {
+        // ...
+        MenuBarExtra("Helm for App Store Connect", image: "helm-menubar") {
+            MenuBarView()
+        }
+        .menuBarExtraStyle(.window)
+    }
+}
+```
+
+With just these few lines of code, a new menu bar item will appear whenever your app is running and, when clicked, will display the `MenuBarView` view:
+
+<Video name="menu-bar-demo.mp4" />
+
+Unfortunately, the menu bar item will disappear as soon as the user quits the app as it is attached to the same app's process and, to keep it running, we need to write some additional code.
+
+## Interrupting the app's termination
+
+As you will probably have guessed by now, the keep to keeping the menu bar item visible after the user quits the app is to not let the app terminate. 
+
+Apple provides developers with a way to control and modify the app's termination process by implementing the [applicationShouldTerminate]() method in the app's delegate.
+
+```swift:NSApplicationDelegate.swift
+func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply
+```
+
+This method is called whenever the app is about to terminate and expects the developer to return a `TerminateReply` value, which can be one of the following:
+
+```swift:TerminateReply.swift
+public enum TerminateReply : UInt, @unchecked Sendable {
+    case terminateCancel = 0
+    case terminateNow = 1
+    case terminateLater = 2
+}
+```
+
+By listening to these termination events and returning `terminateCancel`, we can interrupt the app's termination and keep it running to keep the menu bar item visible. However, doing so will not close any of the windows and will also keep both the dock icon as if the app was still open and the app icon visible in the app switcher, which would be counterintuitive to the user.
+
+To solve this, we can manually close all the windows and change the app's activation policy to `.accessory`, which will hide the dock icon and remove the app from the app switcher:
+
+```swift:AppDelegate.swift
+import Foundation
+import Cocoa
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard sender.activationPolicy() != .accessory else {
+            return .terminateNow
+        }
+
+        return quit(sender)
+    }
+    
+    private func quit(_ app: NSApplication) -> NSApplication.TerminateReply {
+        app.windows.filter { $0.title != "Item-0" }.forEach { $0.close() }
+        app.setActivationPolicy(.accessory)
+        return .terminateCancel
+    }
+}
+```
+
+> Note how the snippet above closes all the windows except for the one with the title "Item-0". This is because the `MenuBarExtra` view is displayed in a window with this title and we must keep it open to ensure the user can still interact with the menu bar item. While it seems to do the job, I am not certain this is the best way to handle this and I would love to hear your thoughts on this. 
+
+To make use of the new `AppDelegate` class in `SwiftUI`, we must explicitly declare it in the `@main` App struct:
+
+```swift:HelmApp.swift
+@main
+struct HelmApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    // ...
+}
+```
+
+## Quitting from the menu bar item
+
+Now that we have interrupted the app's termination process, we need to add a button to the menu bar item that allows the user to quit the app at any time. If the app is running with the `regular` activation policy and the user clicks on the quit button in the menu bar item, the app should terminate as expected:
+
+```swift:MenuBarView.swift
+import SwiftUI
+
+struct MenuBarView: View {
+    @AppStorage("shouldTerminate", store: Global.groupDefaults) var shouldTerminate: Bool = false
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Button(action: {
+                shouldTerminate = true
+                NSApplication.shared.terminate(self)
+            }) {
+                HStack {
+                    Text("Quit Helm Completely")
+                    Spacer()
+                    Text("⌘ Q")
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .keyboardShortcut("q", modifiers: .command)
+            .addHover(.rect(cornerRadius: 6), padding: 6)
+            .padding([.horizontal, .bottom], 6)
+        }
+    }
+}
+```
+
+As well as invoking the termination process, we are also setting a small flag in the app's `UserDefaults` to quit the app completely and to be able to tell that the user has clicked on the quit button in the menu bar item from the app's delegate:
+
+```swift:AppDelegate.swift
+import Foundation
+import Cocoa
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        quit(sender)
+    }
+    
+    private func quit(_ app: NSApplication) -> NSApplication.TerminateReply {
+        let shouldTerminate = Global.groupDefaults.bool(forKey: "shouldTerminate")
+        guard !shouldTerminate, app.activationPolicy() != .accessory else { return .terminateNow }
+
+        app.windows.filter { $0.title != "Item-0" }.forEach { $0.close() }
+        app.setActivationPolicy(.accessory)
+        return .terminateCancel
+    }
+}
+```
+
+> You don't really need to use `UserDefaults` to store the `shouldTerminate` flag and you can set a variable on the `AppDelegate` class instead. What I wish you could do though is to get more information about the `sender` that is passed to the `terminate` method from the `AppDelegate`.
+
+## Switching back to the regular activation policy
+
+If the user has quit the app and wants to open the app back up from the menu bar, you will need to add some code to change the app's activation policy so that the app shows in the dock icon and the app switcher and bring the latest open window back to the front:
+
+```swift:MenuBarView.swift
+import SwiftUI
+
+struct MenuBarView: View {
+    // ...
+    @Environment(\.openWindow) var openWindow
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Button {
+                openWindow(id: "helmStart")
+                
+                if NSApp.activationPolicy() == .accessory {
+                    // https://stackoverflow.com/a/73873296
+                    NSApp.unhide(self)
+                    
+                    if let window = NSApp.windows.first {
+                        window.makeKeyAndOrderFront(self)
+                        window.setIsVisible(true)
+                    }
+                    
+                    NSApp.setActivationPolicy(.regular)
+                }
+            } label: {
+                HStack {
+                    Text("Open Helm…")
+                    Spacer()
+                    Text("⌘ O")
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .keyboardShortcut("o", modifiers: .command)
+            .addHover(.rect(cornerRadius: 6), padding: 6)
+            .padding(.horizontal, 6)
+
+            Divider()
+
+            // ...
+        }
+    }
+}
+```
+
+## Allowing the user to opt-out
+
+While this solution works great and keeps the menu bar item visible at all times, some users might want to opt out of this behavior and quit the app completely when they close the app's window. For this reason, I would suggest that you add a setting in your app's preferences that the user can toggle to enable or disable this feature:
+
+```swift:AppDelegate.swift
+import Foundation
+import Cocoa
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        quit(sender)
+    }
+    
+    private func quit(_ app: NSApplication) -> NSApplication.TerminateReply {
+        let shouldTerminate = Global.groupDefaults.bool(forKey: "shouldTerminate")
+        let keepMenuBarItemRunningOnQuit = Global.groupDefaults.bool(forKey: "keepMenuBarRunningOnQuit")
+        guard !shouldTerminate, keepMenuBarItemRunningOnQuit, app.activationPolicy() != .accessory else { return .terminateNow }
+
+        app.windows.filter { $0.title != "Item-0" }.forEach { $0.close() }
+        app.setActivationPolicy(.accessory)
+        return .terminateCancel
+    }
+}
+```
