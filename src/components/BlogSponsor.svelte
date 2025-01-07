@@ -56,7 +56,7 @@
         if (e.metaKey) {
           window.open(url, "_blank");
         } else {
-          history.pushState({}, '', url)
+          location.href = url;
         }
       }}
       class={`font-title ${
