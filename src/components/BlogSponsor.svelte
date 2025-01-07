@@ -51,9 +51,13 @@
     }`}>
     <button
       type="button"
-      on:click={() => { 
+      on:click={(e) => {
         track('sponsor_click', { url, variant }) 
-        window.open(url, "_blank");
+        if (e.metaKey) {
+          window.open(url, "_blank");
+        } else {
+          history.pushState({}, '', url)
+        }
       }}
       class={`font-title ${
         variant == 'default' ? 'text-lg leading-tight' : 'text-md'
