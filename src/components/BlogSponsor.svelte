@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getSponsor } from '../services/sponsors.ts'
+  import { track } from '@vercel/analytics'
   export let variant: 'default' | 'small' = 'default'
 
   const sponsor = getSponsor(new Date())
@@ -48,13 +49,17 @@
     class={`${
       variant == 'small' ? 'my-auto max-w-xl' : 'flex flex-col gap-1 max-w-xs'
     }`}>
-    <a
-      href={url}
+    <button
+      type="button"
+      on:click={() => { 
+        track('sponsor_click', { url, variant }) 
+        window.open(url, "_blank", "noopener,noreferer");
+      }}
       class={`font-title ${
         variant == 'default' ? 'text-lg leading-tight' : 'text-md'
       } no-underline hover:underline dark:text-white`}>
       {title}
-    </a>
+    </button>
     <p
       class={`m-0 ${
         variant == 'default' ? 'text-sm' : 'text-xs'
