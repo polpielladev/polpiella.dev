@@ -53,7 +53,7 @@
       type="button"
       on:click={() => { 
         track('sponsor_click', { url, variant }) 
-        window.open(url, "_blank", "noopener,noreferer");
+        window.open(url, "_blank");
       }}
       class={`font-title ${
         variant == 'default' ? 'text-lg leading-tight' : 'text-md'
