@@ -1,0 +1,106 @@
+---
+title: "How to use withObservationTracking to observe changes of an @Observable object's property outside of a SwiftUI view"
+excerpt: "Learn how the Observation module's withObservationTracking function works and how you can use it to observe changes of an @Observable object from anywhere in your codebase."
+pubDate: 2024-01-11
+tags: ['swift', 'swiftui']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+[Swift's Observation framework](https://developer.apple.com/documentation/observation) provides a powerful set of APIs that allow developers to implement type-safe observation of properties in objects of their choice with very little code.  
+
+The core part of the framework is the `@Observable` macro, which when applied to a class, it makes all of its properties observable unless marked otherwise with the `@ObservationIgnored` macro.
+
+This pattern is commonly used in SwiftUI in combination with the `@State` macro. Re-rendering a view based on a class' property's value is as simple as:
+
+1. Creating a class with the property you would like to render and decorating it with the `@Observable` macro.
+2. Creating an instance of the class and storing it as a `@State` property in your view.
+3. Using the class' property in your view's body.
+
+```swift:ContentView.swift
+import SwiftUI
+
+@Observable
+class ContentViewModel {
+    var value: Int = 0
+}
+
+struct ContentView: View {
+    @State var model = ContentViewModel()
+
+    var body: some View {
+        Text("Value: \(model.value)")
+    }
+}
+```
+
+With the code above, the `ContentView` view will re-render whenever the `model.value` property changes. It really is that simple!
+
+## Observing changes outside of a view
+
+What happens if you would like to react to changes to the `value` property outside of a SwiftUI view? 
+
+The `Observation` framework provides a function called `withObservationTracking` that notifies you whenever one or more properties of an `@Observable` object change. Here's how we can use it from a class that is not `@Observable`:
+
+```swift:ValueObserver.swift
+import Observation
+
+class ValueObserver {
+    let model: ContentViewModel
+
+    @MainActor init(model: ContentViewModel) {
+        self.model = model
+
+        withObservationTracking {
+            print(model.value)
+        } onChange: {
+            print(model.value)
+        }
+    }
+}
+```
+
+There are a few things that are not immediately obvious about the `withObservationTracking` function:
+- The `apply` (first) closure is called immediately when registering the observation. The properties you are interested in observing should be accessed in this closure for them to be observed.
+- The `onChange` (second) closure is called **only the first time** that any property you are observing changes. Any subsequent changes will not trigger this closure.
+- The `onChange` closure has `didSet` semantics, meaning that the properties you are observing will have the old values when being accessed in this closure.
+
+## How to continuously observe changes
+
+As you can see, as it stands, the `withObservationTracking` function is not very intuitive to use or useful in its original form. In fact, I only really understood how it worked and managed to make it work in a way that suited my needs after reading this amazing thread on the [Swift forums](https://forums.swift.org/t/how-to-use-observation-to-actually-observe-changes-to-a-property/67591/1).
+
+After reading all the proposed solutions in the thread, I ended up with the following approach thanks [to this answer from the user @tera](https://forums.swift.org/t/how-to-use-observation-to-actually-observe-changes-to-a-property/67591/12):
+
+```swift:withObservationTracking.swift
+import Observation
+import Foundation
+
+public func withObservationTracking<T: Sendable>(of value: @Sendable @escaping @autoclosure () -> T, execute: @Sendable @escaping (T) -> Void) {
+    Observation.withObservationTracking {
+        execute(value())
+    } onChange: {
+        RunLoop.current.perform {
+            withObservationTracking(of: value(), execute: execute)
+        }
+    }
+}
+```
+
+This function continuously observes the value of the property you are interested in and calls the `execute` closure whenever any of the properties change. Running the execute closure on the current run loop ensures that `didSet` semantics are applied correctly and that the properties you are observing have the correct values.
+
+We can now update the `ValueObserver` class to use this new function:
+
+```swift:ValueObserver.swift
+import Observation
+
+class ValueObserver {
+    let model: ContentViewModel
+
+    @MainActor init(model: ContentViewModel) {
+        self.model = model
+
+        withObservationTracking(of: model.value) {
+            print($0)
+        }
+    }
+}
+```
