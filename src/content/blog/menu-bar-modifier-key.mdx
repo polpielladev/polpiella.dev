@@ -1,0 +1,110 @@
+---
+title: "How to check if a modifier key is pressed when clicking on a menu bar item in macOS apps"
+excerpt: "Learn how you can provide different content or functionality when clicking on a menu bar item with a modifier key pressed in macOS apps using both AppKit and SwiftUI."
+pubDate: 2025-01-19
+tags: ['swift', 'swiftui', 'app-kit']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+import Video from '@components/Video.astro'
+
+Menu bar items are a great way to provide quick access to your macOS app's features. In fact, there are many apps that rely solely on a menu bar item to provide all or most of their app's functionality.
+
+A common pattern in macOS apps is to provide different functionality or appearance based on whether the user clicked on the item with a modifier key pressed or not. Commonly, apps check if the `Option` key modifier is pressed when clicking on a menu bar item and usually either show a menu instead of launching the app directly or show hidden options in the same menu. 
+
+This pattern is not only used by third-party apps like [ChatGPT](https://chatgpt.com/) but is also used by Apple's own first-party systems like the Volume menu bar item:
+
+<Video name="volume-menu-item.mp4" />
+
+In this article, I will show you how you can achieve this behavior using both AppKit and SwiftUI.
+
+## AppKit
+
+In an AppKit app, you can achieve this by implementing [the menuWillOpen method from the NSMenuDelegate protocol in your app's AppDelegate](https://developer.apple.com/documentation/appkit/nsmenudelegate). In this method, which will get called whenever the popover is about to open, you can check if the modifier key is pressed and modify the menu accordingly:
+
+```swift:NSApplicationDelegate.swift
+import AppKit
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    var statusBar: NSStatusBar!
+    var statusBarItem: NSStatusItem!
+    var hiddenSetting: NSMenuItem!
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        statusBar = NSStatusBar()
+        statusBarItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
+        
+        if let button = statusBarItem.button {
+            button.image = NSImage(systemSymbolName: "figure.fencing", accessibilityDescription: nil)
+            
+            // Hidden Item
+            let hiddenSetting = NSMenuItem()
+            hiddenSetting.title = "🤐 Hidden Setting"
+            hiddenSetting.target = self
+            hiddenSetting.action = #selector(hiddenSettingCalled)
+            self.hiddenSetting = hiddenSetting
+            
+            // Menu
+            let mainMenu = NSMenu()
+            mainMenu.addItem(withTitle: "New Game", action: #selector(newGame), keyEquivalent: "N")
+            mainMenu.addItem(hiddenSetting)
+            mainMenu.addItem(.separator())
+            mainMenu.addItem(withTitle: "Quit", action: #selector(quit), keyEquivalent: "Q")
+            
+            mainMenu.delegate = self
+            
+            statusBarItem.menu = mainMenu
+        }
+    }
+
+    // ...
+}
+
+extension AppDelegate: NSMenuDelegate {
+    func menuWillOpen(_ menu: NSMenu) {
+        hiddenSetting.isHidden = !NSEvent.modifierFlags.contains(.option)
+    }
+}
+```
+
+## SwiftUI
+
+In a SwiftUI app, you can achieve the same behavior by checking the modifier key when `MenuBarExtra`'s content view is rendered. Unfortunately, the `onAppear` modifier only gets called when the view is first rendered when using the default `.menu` `menuBarExtraStyle`. To work around this, you can use the `.window` `menuBarExtraStyle`, which will render the view in a window and call the `onAppear` modifier every time the window is shown:
+
+```swift:MenuBarExtra.swift
+import SwiftUI
+
+@main
+struct MenuBarModifierKeyApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        
+        MenuBarExtra("Fency McFencer", systemImage: "figure.fencing") {
+            MenuBarView()
+        }
+        .menuBarExtraStyle(.window)
+    }
+}
+```
+
+In the `MenuBarView`, which will get rendered every time the menu bar item is clicked, you can check if a modifier key is pressed in the `onAppear` modifier and, if it is, update a `@State` property to change the view's appearance:
+
+```swift:MenuBarView.swift
+import SwiftUI
+
+struct MenuBarView: View {
+    @State private var showHiddenItems = false
+    
+    var body: some View {
+        VStack {
+            // ...
+        }
+        .padding()
+        .onAppear {
+            showHiddenItems = NSEvent.modifierFlags.contains(.option)
+        }
+    }
+}
+```
