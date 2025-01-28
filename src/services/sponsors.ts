@@ -146,26 +146,7 @@ const SPONSORS = {
 }
 
 const SPONSORS_SCHEDULE = {
-    "28": SPONSORS.revenuecat,
-    "29": SPONSORS.runwayRollbacks,
-    "30": SPONSORS.runwayRollbacks,
-    "31": SPONSORS.codemagic,
-    "32": SPONSORS.revenuecat,
-    "33": SPONSORS.runwayRollbacks,
-    "34": SPONSORS.runwayRollbacks,
-    "35": SPONSORS.runwayRollbacks,
-    "36": SPONSORS.codemagic,
-    "37": SPONSORS.runwayRollbacks,
-    "38": SPONSORS.runwayRollbacks,
-    "39": SPONSORS.runwayPileUp,
-    "40": SPONSORS.runwayPileUp,
-    "41": SPONSORS.codemagicM2,
-    "42": SPONSORS.runwayPileUp,
-    "43": SPONSORS.runwayPileUp,
-    "44": SPONSORS.runwayPileUp,
-    "45": SPONSORS.codemagicM2,
-    "46": SPONSORS.stream,
-    "49": SPONSORS.codemagicM2
+    "5": SPONSORS.codemagicM2,
 }
 
 function getWeekNumber(d) {
