@@ -1,0 +1,97 @@
+---
+title: "How combine lists of Strings into natural and localized sentences in Swift"
+excerpt: "While you might be familiar with the joined method on lists in Swift, if you are combining a list of strings into a human-readable sentence, you should use ListFormatter or the formatted method instead."
+pubDate: 2025-02-02
+tags: ['swift']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+Swift is a powerful language that provides a bunch of built-in quality-of-life features that help developers write clean, efficient and readable code. The language keeps evolving with each new release and there are always new features to explore and learn about.
+
+One such feature that only recently caught my attention is the `ListFormatter` class. If you have ever worked with lists in Swift and had to join them into a human-readable sentence, you might have used a combination of the `joined` operator and some custom logic to provide a different separator for the last item:
+
+```swift:Joined.swift
+let languages = ["Swift", "Kotlin", "Rust"]
+let joinedLanguages = languages.dropLast().joined(separator: ", ")
+    + (languages.count > 1 ? " and " : "")
+    + (languages.last ?? "")
+// "Swift, Kotlin and Rust"
+```
+
+While this implementation works for this specific use case, it does not scale well as it does not take into account the user's locale and language. 
+
+This is where the [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter) and [`ListFormatStyle`](https://developer.apple.com/documentation/foundation/listformatstyle) objects come in. They are a part of the `Foundation` framework and provide a way to join lists of items into a human-readable sentence that is both natural and localized.
+
+## Using `ListFormatter`
+
+You can create a [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter) instance and then call the `string(from:)` method to convert any list of items into a human-readable sentence:
+
+```swift:ListFormatter.swift
+import Foundation
+
+let listFormatter = ListFormatter()
+// "Swift, Kotlin, and Rust"
+listFormatter.string(from: ["Swift", "Kotlin", "Rust"])
+```
+
+By default, the [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter) class takes the user's locale into consideration. You can also force a specific locale by modifying the `locale` property of the formatter's instance:
+
+```swift:ListFormatter.swift
+import Foundation
+
+let listFormatter = ListFormatter()
+listFormatter.locale = Locale(identifier: "es-ES")
+// "Swift, Kotlin y Rust"
+listFormatter.string(from: ["Swift", "Kotlin", "Rust"])
+```
+
+It is important to note that, while I have only used arrays of `String`s, the [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter) does not limit you to just that. In fact the API is designed to accept arrays of any type:
+
+```swift:NSListFormatter.swift
+import CoreFoundation
+
+@available(macOS 10.15, *)
+open class ListFormatter : Formatter {
+    open func string(from items: [Any]) -> String?
+}
+```
+
+While this is great, you must know that for the `string` method to yield a meaningful result, the items must be representable as a `String`. A lot of types, such as `Int`s are already representable as `String`s, but for custom types, you might need to conform to the [`CustomStringConvertible`](https://developer.apple.com/documentation/swift/customstringconvertible) protocol:
+
+```swift:ListFormatter.swift
+import Foundation
+
+struct Language: CustomStringConvertible {
+    let title: String
+    
+    var description: String {
+        return title
+    }
+}
+
+let listFormatter = ListFormatter()
+// "Swift, Kotlin, and Rust"
+listFormatter.string(from: [
+    Language(title: "Swift"),
+    Language(title: "Kotlin"),
+    Language(title: "Rust")
+])
+```
+
+## Using the `formatted` list method
+
+While [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter) works great, I prefer using the `formatted` method on a list instance as it is more concise and provides further customization options:
+
+```swift:Formatted.swift
+import Foundation
+
+let languages = ["Swift", "Kotlin", "Rust"]
+// "Swift, Kotlin, and Rust"
+languages.formatted()
+// "Swift, Kotlin, or Rust"
+languages.formatted(.list(type: .or))
+// "Swift, Kotlin, & Rust"
+languages.formatted(.list(type: .and, width: .short))
+```
+
+> As opposed to [`ListFormatter`](https://developer.apple.com/documentation/foundation/listformatter), the `formatted` method is limited to arrays of `String` instances.
