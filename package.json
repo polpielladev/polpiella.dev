@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "astro dev",
@@ -15,7 +15,7 @@
     "format:check": "prettier --check ./**/*.{ts,js,svelte,mdx,css,astro}"
   },
   "devDependencies": {
-    "@astrojs/rss": "4.0.5",
+    "@astrojs/rss": "4.0.11",
     "@astrojs/tailwind": "5.1.0",
     "@tailwindcss/typography": "0.5.10",
     "@types/markdown-it": "^13.0.7",
