@@ -23,7 +23,7 @@ export default defineConfig({
       theme: 'css-variables',
     },
   },
-  output: 'hybrid',
+  output: 'static',
   integrations: [
     tailwind({
       config: {
