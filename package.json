@@ -39,7 +39,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.2.6",
     "@astrojs/svelte": "^7.0.13",
-    "@astrojs/vercel": "^8.1.4",
+    "@astrojs/vercel": "^8.0.4",
     "@resvg/resvg-js": "^2.6.2",
     "fuse.js": "^7.1.0",
     "isomorphic-fetch": "^3.0.0",

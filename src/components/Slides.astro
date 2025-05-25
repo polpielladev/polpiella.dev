@@ -1,16 +1,16 @@
 ---
-const { title, src } = Astro.props;
+const { title, src } = Astro.props
 
-export const prerender = false;
+export const prerender = false
 ---
 
 <section class="space-y-2 prose-p:mb-3">
-    <iframe
-        class="speakerdeck-iframe"
-        frameborder="0"
-        {src}
-        {title}
-        allowfullscreen="true"
-        style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;"
-        data-ratio="1.7777777777777777"></iframe>
+  <iframe
+    class="speakerdeck-iframe"
+    frameborder="0"
+    {src}
+    {title}
+    allowfullscreen="true"
+    style="border: 0px; background: padding-box padding-box rgba(0, 0, 0, 0.1); margin: 0px; padding: 0px; border-radius: 6px; box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 40px; width: 100%; height: auto; aspect-ratio: 560 / 315;"
+    data-ratio="1.7777777777777777"></iframe>
 </section>

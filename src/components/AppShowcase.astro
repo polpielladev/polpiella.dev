@@ -1,0 +1,20 @@
+---
+const { imageUrl, title, description, isIOSIcon = false } = Astro.props
+---
+
+<a
+  href="/"
+  class="group flex flex-col items-center gap-2 rounded-2xl p-2 transition-colors hover:bg-slate-200 sm:flex-row dark:hover:bg-slate-800">
+  <img
+    class={`h-28 w-28 transition-transform duration-300 group-hover:scale-105 ${isIOSIcon ? 'p-[10px] rounded-[24px]' : ''}`}
+    src={imageUrl}
+    class="object-cover"
+  />
+  <div class="flex max-w-lg flex-col text-center sm:text-left">
+    <h2
+      class="font-title text-xl transition-colors group-hover:text-black/70 dark:text-white dark:group-hover:text-white/70">
+      {title}
+    </h2>
+    <p class="dark:text-white/80">{description}</p>
+  </div>
+</a>
