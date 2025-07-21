@@ -9,6 +9,11 @@
       "source": "/newsletter/:path*",
       "destination": "https://www.ioscinewsletter.com/issues/:path*",
       "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/",
+      "permanent": true
     }
   ]
 }

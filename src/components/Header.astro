@@ -16,14 +16,14 @@ const { activeNav } = Astro.props;
     </nav>
     <div class="flex gap-5">
       <a
-        class={`${
-          activeNav == "about"
-            ? "text-gray-900 dark:text-gray-100"
-            : "text-gray-500 dark:text-gray-400"
-        } text-[16px]`}
-        href="/about"
+      class={`no-underline ${
+        activeNav == "posts"
+          ? "text-gray-900 dark:text-gray-100"
+          : "text-gray-500 dark:text-gray-400"
+      } text-[16px]`}
+        href="/posts"
       >
-        About
+        Blog
       </a>
       <a
         class={`${
@@ -34,16 +34,6 @@ const { activeNav } = Astro.props;
         href="https://www.ioscinewsletter.com"
       >
         Newsletter
-      </a>
-      <a
-        class={`no-underline ${
-          activeNav == "posts"
-            ? "text-gray-900 dark:text-gray-100"
-            : "text-gray-500 dark:text-gray-400"
-        } text-[16px]`}
-        href="/posts"
-      >
-        Posts
       </a>
       <a
         class={`no-underline ${
