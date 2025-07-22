@@ -61,7 +61,7 @@ This is the response I got:
 
 ![](https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/debugging-chatgpt-report-analysis.webp)
 
-Again, while ChatGPT did not give me the exact cause of the issue, it **pointed me in the right direction** with this statement: _"`_nsis_frameInEngine` is an internal AppKit method that asserts when layout state becomes inconsistent"_. I now knew that the rendering engine could not satisfy my SwiftUI code's layout.
+Again, while ChatGPT did not give me the exact cause of the issue, it **pointed me in the right direction** with this statement: _"`_nsis_frameInEngine` is an internal AppKit method that asserts when layout state becomes inconsistent"_. While I wasn't completely sure what view was causing the issue, I knew that I had to focus my efforts on UI code, and try and figure out what would cause the layout to not be computed correctly.
 
 As I knew from the user's report that the issue was happening when pressing the **'Translate All'** button in the translations screen, I now turned to a separate information source to help me further understand the context the crash occurred in: **[Diagnostics](https://github.com/WeTransfer/Diagnostics)**.
 
