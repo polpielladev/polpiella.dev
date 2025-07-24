@@ -142,14 +142,30 @@ const SPONSORS = {
         title: "Develop with RocketSim, Ship with Helm.",
         body: "Helm Pro yearly subscribers now get a 30% discount on RocketSim thanks to contingent pricing on the App Store.",
         url: "https://helm-app.com/changelog/helm-1-4-app-store-nominations-rocketsim?utm_source=polpielladev&utm_medium=sponsor&utm_campaign=rockethelm#build-apps-faster-with-rocketsim"
+    },
+    "concurrencyCourse": {
+        color: "#d64532",
+        images: {
+            large: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/concurrency_swift_banner.webp ",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/concurrency_swift_banner.webp ",
+                aspectRatio: 1.82
+            },
+            small: {
+                darkModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/concurrency_swift_banner.webp ",
+                lightModeImage: "https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/sponsors/concurrency_swift_banner.webp ",
+                aspectRatio: 1.82
+            }
+        },
+        title: "The Essential Swift Concurrency Course & Swift 6 Course",
+        body: "Go from confusion to confidence with a step-by-step Swift Concurrency course, helping you smoothly migrate to Swift 6 and fully leverage its features.",
+        url: "https://courses.avanderlee.com/a/aff_7mx3crtt/external?affcode=2082304_qvgl8xvo",
     }
 }
 
-const SPONSORS_SCHEDULE = {
-    "5": SPONSORS.codemagicM2,
-}
+const SPONSORS_SCHEDULE: { [key: number]: keyof typeof SPONSORS } = {}
 
-function getWeekNumber(d) {
+function getWeekNumber(d: Date) {
     // Copy date so don't modify original
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     // Set to nearest Thursday: current date + 4 - current day number
@@ -158,11 +174,11 @@ function getWeekNumber(d) {
     // Get first day of year
     var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
     // Calculate full weeks to nearest Thursday
-    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    var weekNo = Math.ceil(( ( (d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
     // Return array of year and week number
     return weekNo;
   }
 
 export const getSponsor = (day: Date) => {
-    return SPONSORS_SCHEDULE[getWeekNumber(day)] || SPONSORS.rocketHelm;
+    return SPONSORS_SCHEDULE[getWeekNumber(day)] || SPONSORS.concurrencyCourse;
 }

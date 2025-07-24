@@ -29,7 +29,7 @@
       <source srcset={large.darkModeImage}  media="(prefers-color-scheme: dark)"/>
       <source srcset={large.lightModeImage}  media="(prefers-color-scheme: light)"/>
       <img
-        class={`mx-auto h-20 object-contain`}
+        class={`mx-auto mt-6 h-20 object-contain`}
         style={`aspect-ratio: ${large.aspectRatio}`}
         src={large.lightModeImage}
         alt="Sponsor Logo" />
