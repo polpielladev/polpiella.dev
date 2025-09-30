@@ -1,0 +1,37 @@
+---
+title: "How to install Xcode 26's Metal Toolchain on CI/CD"
+excerpt: "If your CI/CD runner does not have the metal toolchain installed, you can use xcodebuild to download it and install it."
+pubDate: 2025-09-30
+tags: ['ci-cd', 'xcode-cloud']
+layout: ../../layouts/BlogPostLayout.astro
+---
+
+As of Xcode 26, the Metal toolchain **is no longer included in Xcode's installation by default**. This means that, if your app or one of your dependencies needs to use the toolchain, you will need to install it manually before building your app.
+
+When running your app locally using Xcode, this issue manifests itself as a build error:
+
+![An image of a build error when the Metal toolchain is not installed](https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/metal-toolchain-error.webp)
+
+The fix is simple enough and, as the error message says, you just need to go to Xcode's preferences and install the toolchain.
+
+![An image of the Metal toolchain download page in Xcode's preferences](https://d2thv89fb05cma.cloudfront.net/polpiella.dev/images/metal-toolchain-download.webp)
+
+However, if you happen to be using a CI/CD runner that is not provisioned with the Metal toolchain installed, you will get the same error as above, but this time, **you will likely not have access to Xcode** to be able to install the toolchain.
+
+You might be surprised [to learn that this is the case for Xcode Cloud](https://developer.apple.com/forums/thread/802155), as I recently discovered the hard way when migrating my CI/CD workflows to use Xcode 26.
+
+So, how can you fix it? Luckily, as suggested by [this user on Reddit](https://www.reddit.com/r/swift/comments/1lfice9/comment/myq7bya), the `xcodebuild` command-line tool has two commands that you can use to download and install the toolchain if it is not already installed:
+
+```bash:install-metal-toolchain.sh
+if xcodebuild -showComponent metalToolchain >/dev/null 2>&1; then
+    echo "✅ Metal toolchain is installed"
+else
+    echo "❌ Metal toolchain is not installed"
+    echo "⬇️ Downloading metal toolchain..."
+    xcodebuild -downloadComponent metalToolchain -exportPath /tmp/metalToolchainDownload/
+    echo "🧰 Installing metal toolchain..."
+    xcodebuild -importComponent metalToolchain -importPath /tmp/metalToolchainDownload/*.exportedBundle
+fi
+```
+
+If you use Xcode Cloud, I would suggest that you run this as a post clone script.
